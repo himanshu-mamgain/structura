@@ -8,7 +8,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <Tldraw persistenceKey="structura" onMount={setEditor} />
+      <Tldraw
+        persistenceKey="structura"
+        onMount={setEditor}
+        // Required on production domains (not localhost). Keys are domain-locked, so it's fine in the bundle.
+        licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY || undefined}
+      />
       {editor && <VoiceAssistant editor={editor} />}
     </div>
   )
