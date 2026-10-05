@@ -1,0 +1,26 @@
+# Netlify hosts the web app only; the API server (apps/server) runs elsewhere.
+# Set VITE_API_URL in Netlify's environment variables to the server's URL.
+[build]
+  base = ""
+  command = "npm run build -w @structura/web"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# The service worker and manifest must always be revalidated so updates reach users.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Hashed build assets never change.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

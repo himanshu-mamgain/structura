@@ -1,12 +1,15 @@
 import type { AssistRequest, AssistStreamEvent } from '@structura/shared'
 
+// Empty in development (Vite proxies /api). In production, the API server's origin.
+const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+
 /** Posts to /api/assist and calls onEvent for each server-sent event. */
 export async function streamAssist(
   body: AssistRequest,
   onEvent: (event: AssistStreamEvent) => void,
   signal: AbortSignal,
 ) {
-  const res = await fetch('/api/assist', {
+  const res = await fetch(`${API_URL}/api/assist`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

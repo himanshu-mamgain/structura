@@ -11,7 +11,8 @@ app.use(cors())
 // Canvas screenshots arrive as base64, so allow larger bodies.
 app.use(express.json({ limit: '15mb' }))
 
-app.get('/api/health', (_req, res) => {
+// `/` answers too, so opening the server's bare URL (or a host's default health check) shows it's up.
+app.get(['/', '/api/health'], (_req, res) => {
   const body: HealthResponse = {
     status: 'ok',
     service: 'structura-server',
