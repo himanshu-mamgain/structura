@@ -7,8 +7,9 @@ import type { Provider } from './types'
 let ai: GoogleGenAI | undefined
 const responseJsonSchema = z.toJSONSchema(AssistReplySchema)
 
-// Comma-separated, tried in order. gemini-flash-latest always points at Google's newest Flash model.
-const MODELS = (process.env.GEMINI_MODEL ?? 'gemini-3.8-live','gemini-3.7-flash','gemini-3.5-flash-lite,gemini-flash-lite-latest')
+// One comma-separated string, tried in order when a model is overloaded. Only models that
+// support generateContent work here; "-live" models are for the real-time Live API.
+const MODELS = (process.env.GEMINI_MODEL ?? 'gemini-3.7-flash,gemini-3.5-flash-lite,gemini-flash-lite-latest')
   .split(',')
   .map((m) => m.trim())
   .filter(Boolean)
