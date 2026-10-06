@@ -1,7 +1,7 @@
-import { createShapeId, toRichText, type Editor, type TLShapeId, type TLShapePartial } from 'tldraw'
+import { createShapeId, toRichText, type Editor, type TLRichText, type TLShapeId, type TLShapePartial } from 'tldraw'
 import type { ElkExtendedEdge, ElkNode } from 'elkjs/lib/elk-api'
 import type { Diagram } from '@structura/shared'
-import { connectShapes, labelWidth, measureLabel, positive } from './shapes'
+import { connectShapes, LABEL_PADDING, labelWidth, measureLabel, positive } from './shapes'
 
 const NODE_HEIGHT = 80
 const LINE_HEIGHT = 30
@@ -9,11 +9,36 @@ const FRAME_TITLE_SPACE = 56
 const GAP_FROM_EXISTING = 160
 const MOVE_ANIMATION = { animation: { duration: 300 } }
 
-type DiagramNode = Diagram['nodes'][number]
+/** A node to draw. Table nodes (database tables) list one line per column. */
+type DiagramNode = Diagram['nodes'][number] & { table?: { lines: string[] } }
+/** What the builder draws: a model-generated diagram, or a database schema converted to one. */
+export type LayoutDiagram = Omit<Diagram, 'nodes'> & { nodes: DiagramNode[] }
+
+// Tables read like code: monospace, smaller, top-left aligned.
+const TABLE_STYLE = { font: 'mono', size: 's', align: 'start', verticalAlign: 'start' } as const
+const TABLE_TEXT = { font: 'mono', size: 's' } as const
+
+/** Table name in bold on the first line, then one line per column. */
+function tableRichText(lines: string[]): TLRichText {
+  return {
+    type: 'doc',
+    content: lines.map((line, i) => ({
+      type: 'paragraph',
+      content: line ? [{ type: 'text', text: line, ...(i === 0 ? { marks: [{ type: 'bold' }] } : {}) }] : [],
+    })),
+  }
+}
 
 const finite = (n: number | undefined) => (typeof n === 'number' && Number.isFinite(n) ? n : 0)
 
 function nodeSize(editor: Editor, node: DiagramNode) {
+  if (node.table) {
+    const widest = Math.max(...node.table.lines.map((line) => measureLabel(editor, line, TABLE_TEXT).w))
+    const lineHeight = measureLabel(editor, 'Mg', TABLE_TEXT).h
+    const w = Math.ceil((widest + LABEL_PADDING * 2 + 24) / 8) * 8
+    const h = Math.ceil((node.table.lines.length * lineHeight + LABEL_PADDING * 2 + 8) / 8) * 8
+    return { width: positive(w, 240), height: positive(h, 160) }
+  }
   const w = labelWidth(editor, node.label, node.shape)
   // Estimate wrapped lines for long labels, then leave room for the shape's padding.
   const lines = Math.max(1, Math.ceil(measureLabel(editor, node.label).w / (w - 48)))
@@ -24,20 +49,12 @@ function nodeSize(editor: Editor, node: DiagramNode) {
 }
 
 /** Positions the graph with ELK's layered algorithm (the classic flowchart layout). */
-async function layout(editor: Editor, diagram: Diagram): Promise<ElkNode> {
+async function layout(editor: Editor, diagram: LayoutDiagram): Promise<ElkNode> {
   // Loaded on demand: the layout engine is large and only needed when drawing diagrams.
   const { default: ELK } = await import('elkjs/lib/elk.bundled.js')
 
   const groupIds = new Set(diagram.groups.map((g) => g.id))
   const nodeIds = new Set(diagram.nodes.map((n) => n.id))
-
-  const toElkNode = (node: DiagramNode): ElkNode => ({ id: node.id, ...nodeSize(editor, node) })
-  const groups: ElkNode[] = diagram.groups.map((group) => ({
-    id: `group:${group.id}`,
-    layoutOptions: { 'elk.padding': `[top=${FRAME_TITLE_SPACE},left=32,bottom=32,right=32]` },
-    children: diagram.nodes.filter((n) => n.group === group.id).map(toElkNode),
-  }))
-  const ungrouped = diagram.nodes.filter((n) => !n.group || !groupIds.has(n.group)).map(toElkNode)
 
   const edges: ElkExtendedEdge[] = diagram.edges
     .filter((e) => nodeIds.has(e.from) && nodeIds.has(e.to) && e.from !== e.to)
@@ -46,8 +63,24 @@ async function layout(editor: Editor, diagram: Diagram): Promise<ElkNode> {
       sources: [edge.from],
       targets: [edge.to],
       // Give labels real size so ELK leaves room for them between layers.
-      labels: edge.label ? [{ text: edge.label, width: measureLabel(editor, edge.label).w * 0.9 + 16, height: 28 }] : [],
+      labels: edge.label ? [{ text: edge.label, width: measureLabel(editor, edge.label).w + 16, height: 28 }] : [],
     }))
+
+  // tldraw wraps an arrow's label to the arrow's length, so the gap between
+  // columns must fit the longest label on one line ("approved", not "approve/d").
+  const widestLabel = Math.max(0, ...edges.flatMap((e) => e.labels ?? []).map((l) => l.width ?? 0))
+  const layerGap = String(Math.min(360, Math.max(96, Math.ceil(widestLabel + 64))))
+
+  const toElkNode = (node: DiagramNode): ElkNode => ({ id: node.id, ...nodeSize(editor, node) })
+  const groups: ElkNode[] = diagram.groups.map((group) => ({
+    id: `group:${group.id}`,
+    layoutOptions: {
+      'elk.padding': `[top=${FRAME_TITLE_SPACE},left=32,bottom=32,right=32]`,
+      'elk.layered.spacing.nodeNodeBetweenLayers': layerGap,
+    },
+    children: diagram.nodes.filter((n) => n.group === group.id).map(toElkNode),
+  }))
+  const ungrouped = diagram.nodes.filter((n) => !n.group || !groupIds.has(n.group)).map(toElkNode)
 
   const graph: ElkNode = {
     id: 'root',
@@ -56,7 +89,7 @@ async function layout(editor: Editor, diagram: Diagram): Promise<ElkNode> {
       'elk.direction': diagram.direction === 'down' ? 'DOWN' : 'RIGHT',
       'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
       'elk.spacing.nodeNode': '56',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '96',
+      'elk.layered.spacing.nodeNodeBetweenLayers': layerGap,
       'elk.spacing.edgeLabel': '8',
       'elk.edgeLabels.placement': 'CENTER',
       'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
@@ -78,7 +111,7 @@ export class DiagramBuilder {
   private readonly frames = new Map<string, TLShapeId>()
   private readonly drawnEdges = new Set<string>()
   private origin: { x: number; y: number } | null = null
-  private pending: Diagram | null = null
+  private pending: LayoutDiagram | null = null
   private queue: Promise<void> = Promise.resolve()
   private bounds = { x: 0, y: 0, w: 0, h: 0 }
   private created = 0
@@ -86,14 +119,14 @@ export class DiagramBuilder {
   constructor(private readonly editor: Editor) {}
 
   /** Draws the latest snapshot. Layouts run one at a time; stale snapshots are skipped. */
-  update(diagram: Diagram): Promise<void> {
+  update(diagram: LayoutDiagram): Promise<void> {
     this.pending = diagram
     this.queue = this.queue.then(() => this.flush())
     return this.queue
   }
 
   /** Draws the final diagram and returns how many shapes were created. */
-  async finish(diagram: Diagram): Promise<number> {
+  async finish(diagram: LayoutDiagram): Promise<number> {
     await this.update(diagram)
     return this.created
   }
@@ -108,7 +141,7 @@ export class DiagramBuilder {
     this.draw(diagram, laidOut)
   }
 
-  private start(diagram: Diagram) {
+  private start(diagram: LayoutDiagram) {
     const { editor } = this
     editor.markHistoryStoppingPoint('assistant-diagram')
     const existing = editor.getCurrentPageBounds()
@@ -120,7 +153,7 @@ export class DiagramBuilder {
     if (diagram.replace) editor.deleteShapes([...editor.getCurrentPageShapeIds()])
   }
 
-  private draw(diagram: Diagram, laidOut: ElkNode) {
+  private draw(diagram: LayoutDiagram, laidOut: ElkNode) {
     const { editor } = this
     if (!this.origin) this.start(diagram)
     const origin = this.origin!
@@ -151,7 +184,9 @@ export class DiagramBuilder {
           h: positive(elk.height, NODE_HEIGHT),
           color: node.color,
           fill: 'semi',
-          richText: toRichText(node.label),
+          ...(node.table
+            ? { ...TABLE_STYLE, richText: tableRichText(node.table.lines) }
+            : { richText: toRichText(node.label) }),
         },
       })
       this.nodeShapes.set(node.id, id)

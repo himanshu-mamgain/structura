@@ -36,7 +36,7 @@ export const streamClaude: Provider = async (req, onSnapshot, signal) => {
 
   const response = await stream.finalMessage()
   if (response.stop_reason === 'refusal') {
-    return { reply: "Sorry, I can't help with that request.", actions: [], diagram: null }
+    return { reply: "Sorry, I can't help with that request.", actions: [], diagram: null, erd: null, explanation: null }
   }
   if (!response.parsed_output) {
     throw new Error(`No structured output (stop_reason: ${response.stop_reason})`)

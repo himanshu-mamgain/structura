@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { Editor } from 'tldraw'
-import type { AssistReply, AssistTurn } from '@structura/shared'
+import { useValue, type Editor } from 'tldraw'
+import type { AssistReply, AssistTurn, Explanation } from '@structura/shared'
 import { streamAssist } from './api'
 import { applyActions, captureCanvas } from './canvas'
 import { DiagramBuilder } from './diagram'
+import { erdToDiagram } from './erd'
+import { ExplanationCard } from './ExplanationCard'
 import { listen, SentenceSpeaker, speechRecognitionSupported, stopSpeaking, type Recognition } from './speech'
 
 // Earlier turns are sent as text only (no old screenshots), capped to keep requests small.
@@ -18,6 +20,9 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
   const [error, setError] = useState('')
   const [typed, setTyped] = useState('')
   const [voiceOn, setVoiceOn] = useState(true)
+  const [explanation, setExplanation] = useState<Explanation | null>(null)
+  const [explaining, setExplaining] = useState(false)
+  const selectedCount = useValue('selected shapes', () => editor.getSelectedShapeIds().length, [editor])
 
   const history = useRef<AssistTurn[]>([])
   const recognition = useRef<Recognition | null>(null)
@@ -37,14 +42,16 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     setStatus('error')
   }
 
-  /** Finishes the diagram (if one was streamed or returned) and applies edits, then reports what changed. */
+  /** Finishes any drawing that was streamed (or only arrived at the end), applies edits, then reports what changed. */
   async function applyReply(
     replyText: string,
-    result: Pick<AssistReply, 'actions' | 'diagram'>,
-    builder: DiagramBuilder | null,
+    result: Pick<AssistReply, 'actions' | 'diagram' | 'erd'>,
+    builders: { diagram: DiagramBuilder | null; erd: DiagramBuilder | null },
   ) {
     try {
-      const drawn = result.diagram ? await (builder ?? new DiagramBuilder(editor)).finish(result.diagram) : 0
+      let drawn = 0
+      if (result.diagram) drawn += await (builders.diagram ?? new DiagramBuilder(editor)).finish(result.diagram)
+      if (result.erd) drawn += await (builders.erd ?? new DiagramBuilder(editor)).finish(erdToDiagram(result.erd))
       const edited = applyActions(editor, result.actions)
       if (drawn) setReply(`${replyText} (drew ${drawn} shapes, Ctrl+Z to undo)`)
       else if (edited) setReply(`${replyText} (${edited} edit${edited === 1 ? '' : 's'} applied, Ctrl+Z to undo)`)
@@ -72,8 +79,9 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
 
     const speaker = new SentenceSpeaker()
     speaker.enabled = voiceOnRef.current
-    // Created on the first streamed diagram snapshot, so the drawing grows as it's generated.
-    let builder: DiagramBuilder | null = null
+    // Created on the first streamed snapshot, so drawings grow as they're generated.
+    const builders: { diagram: DiagramBuilder | null; erd: DiagramBuilder | null } = { diagram: null, erd: null }
+    setExplaining(false)
 
     try {
       const canvas = await captureCanvas(editor)
@@ -83,23 +91,33 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
           if (event.type === 'reply') {
             setReply(event.reply)
             speaker.push(event.reply)
-          } else if (event.type === 'diagram') {
-            if (!builder) {
-              builder = new DiagramBuilder(editor)
+          } else if (event.type === 'diagram' || event.type === 'erd') {
+            const kind = event.type
+            if (!builders[kind]) {
+              builders[kind] = new DiagramBuilder(editor)
               setStatus('drawing')
             }
-            builder.update(event.diagram).catch(reportDrawError)
+            const next = event.type === 'diagram' ? event.diagram : erdToDiagram(event.erd)
+            builders[kind]!.update(next).catch(reportDrawError)
+          } else if (event.type === 'explanation') {
+            setExplanation(event.explanation)
+            setExplaining(true)
           } else if (event.type === 'done') {
             setReply(event.reply)
             speaker.flush(event.reply)
+            if (event.explanation) setExplanation(event.explanation)
+            setExplaining(false)
+            // The card itself stays out of history; a note keeps follow-ups ("go deeper") in context.
+            const note = event.explanation ? ` [Showed an explanation card: ${event.explanation.title}]` : ''
             history.current = [
               ...history.current,
               { role: 'user' as const, text },
-              { role: 'assistant' as const, text: event.reply },
+              { role: 'assistant' as const, text: event.reply + note },
             ].slice(-MAX_HISTORY_TURNS)
-            void applyReply(event.reply, event, builder)
+            void applyReply(event.reply, event, builders)
           } else {
             setError(event.error)
+            setExplaining(false)
             setStatus('error')
           }
         },
@@ -155,47 +173,65 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     error: 'Something went wrong',
   }[status]
 
+  const busy = status === 'thinking' || status === 'drawing' || status === 'listening'
+
   return (
-    <div className="assistant">
-      <div className="assistant-header">
-        <span className={`assistant-dot is-${status}`} />
-        <span className="assistant-status">{statusLabel}</span>
-        <button
-          type="button"
-          className="assistant-icon-btn"
-          onClick={toggleVoice}
-          title={voiceOn ? 'Mute spoken replies' : 'Speak replies aloud'}
-          aria-pressed={voiceOn}
-        >
-          {voiceOn ? '🔊' : '🔇'}
-        </button>
-      </div>
-
-      {heard && <p className="assistant-heard">“{heard}”</p>}
-      {reply && <p className="assistant-reply">{reply}</p>}
-      {error && <p className="assistant-error">{error}</p>}
-
-      <div className="assistant-controls">
-        {speechRecognitionSupported && (
+    <>
+      {explanation && (
+        <ExplanationCard
+          explanation={explanation}
+          streaming={explaining}
+          onAsk={(question) => void ask(question)}
+          onClose={() => setExplanation(null)}
+        />
+      )}
+      <div className="assistant">
+        <div className="assistant-header">
+          <span className={`assistant-dot is-${status}`} />
+          <span className="assistant-status">{statusLabel}</span>
           <button
             type="button"
-            className={`assistant-mic ${status === 'listening' ? 'is-on' : ''}`}
-            onClick={toggleMic}
-            title={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
-            aria-label={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
+            className="assistant-icon-btn"
+            onClick={toggleVoice}
+            title={voiceOn ? 'Mute spoken replies' : 'Speak replies aloud'}
+            aria-pressed={voiceOn}
           >
-            🎤
+            {voiceOn ? '🔊' : '🔇'}
+          </button>
+        </div>
+
+        {heard && <p className="assistant-heard">“{heard}”</p>}
+        {reply && <p className="assistant-reply">{reply}</p>}
+        {error && <p className="assistant-error">{error}</p>}
+
+        {selectedCount > 0 && !busy && (
+          <button type="button" className="assistant-chip" onClick={() => void ask('Explain the selected concept in depth.')}>
+            Explain selected
           </button>
         )}
-        <form onSubmit={submitTyped} className="assistant-form">
-          <input
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            placeholder={speechRecognitionSupported ? 'or type…' : 'Type a request…'}
-            aria-label="Request for the design assistant"
-          />
-        </form>
+
+        <div className="assistant-controls">
+          {speechRecognitionSupported && (
+            <button
+              type="button"
+              className={`assistant-mic ${status === 'listening' ? 'is-on' : ''}`}
+              onClick={toggleMic}
+              title={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
+              aria-label={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
+            >
+              🎤
+            </button>
+          )}
+          <form onSubmit={submitTyped} className="assistant-form">
+            <input
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              placeholder={speechRecognitionSupported ? 'or type…' : 'Type a request…'}
+              aria-label="Request for the design assistant"
+            />
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

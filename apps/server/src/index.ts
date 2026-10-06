@@ -44,7 +44,7 @@ function errorMessage(error: unknown): string {
   return 'Assistant failed'
 }
 
-// Streams server-sent events: "reply" and "diagram" while the answer is generated, then "done" or "error".
+// Streams server-sent events: "reply", "diagram", "erd" and "explanation" while the answer is generated, then "done" or "error".
 app.post('/api/assist', async (req, res) => {
   const body = req.body as AssistRequest
   if (!body?.transcript?.trim()) {
@@ -69,6 +69,8 @@ app.post('/api/assist', async (req, res) => {
       {
         reply: (reply) => send({ type: 'reply', reply }),
         diagram: (diagram) => send({ type: 'diagram', diagram }),
+        erd: (erd) => send({ type: 'erd', erd }),
+        explanation: (explanation) => send({ type: 'explanation', explanation }),
       },
       abort.signal,
     )

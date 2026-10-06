@@ -48,7 +48,11 @@ function blobToBase64(blob: Blob): Promise<string> {
 /** Snapshot of the current page: shape list plus a PNG of everything on it. */
 export async function captureCanvas(editor: Editor) {
   const shapes = editor.getCurrentPageShapes()
-  const described = shapes.map((s) => describeShape(editor, s)).filter((s): s is CanvasShape => s !== null)
+  const selected = new Set(editor.getSelectedShapeIds())
+  const described = shapes
+    .map((s) => describeShape(editor, s))
+    .filter((s): s is CanvasShape => s !== null)
+    .map((s) => (selected.has(s.id as TLShapeId) ? { ...s, selected: true } : s))
   const bounds = editor.getCurrentPageBounds()
   if (!shapes.length || !bounds) return { shapes: described, image: null, imageBounds: null }
 

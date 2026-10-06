@@ -30,6 +30,8 @@ export interface CanvasShape {
   /** For arrows: the shapes they connect. */
   from?: string
   to?: string
+  /** True when the user has this shape selected ("explain this"). */
+  selected?: boolean
 }
 
 /**
@@ -88,10 +90,57 @@ export const DiagramSchema = z.object({
 })
 export type Diagram = z.infer<typeof DiagramSchema>
 
+/** A database schema, drawn as an entity-relationship diagram. */
+export const ErdSchema = z.object({
+  replace: z.boolean().describe('True to clear the canvas and draw this instead; false to add it beside existing shapes.'),
+  tables: z.array(
+    z.object({
+      id: z.string().describe('Short unique id, usually the table name.'),
+      name: z.string().describe('Table name, snake_case plural, e.g. "orders".'),
+      columns: z.array(
+        z.object({
+          name: z.string(),
+          type: z.string().describe('SQL type, e.g. "uuid", "bigint", "text", "timestamptz", "numeric(10,2)".'),
+          pk: z.boolean(),
+          fk: z.string().nullable().describe('Referenced "table.column" for foreign keys, else null.'),
+          nullable: z.boolean(),
+          unique: z.boolean(),
+        }),
+      ),
+      indexes: z.array(z.string()).describe('Secondary indexes worth having, e.g. "(user_id, created_at)". Empty if none.'),
+    }),
+  ),
+  relations: z.array(
+    z.object({
+      from: z.string().describe('Table id holding the foreign key (or one side of a join).'),
+      to: z.string().describe('Referenced table id.'),
+      kind: z.enum(['one-to-one', 'one-to-many', 'many-to-many']),
+      label: z.string().nullable().describe('Optional short meaning, e.g. "places".'),
+    }),
+  ),
+})
+export type Erd = z.infer<typeof ErdSchema>
+
+/** An in-depth explanation of one concept, shown as a readable card next to the canvas. */
+export const ExplanationSchema = z.object({
+  title: z.string().describe('The concept, e.g. "Consistent hashing".'),
+  summary: z.string().describe('One or two plain sentences.'),
+  sections: z.array(
+    z.object({
+      heading: z.string(),
+      body: z.string().describe('Plain text. Separate paragraphs with a blank line; start bullet lines with "- ".'),
+    }),
+  ),
+  related: z.array(z.string()).describe('Related concepts worth learning next.'),
+})
+export type Explanation = z.infer<typeof ExplanationSchema>
+
 export const AssistReplySchema = z.object({
   reply: z.string().describe('Spoken reply, no markdown.'),
   actions: z.array(CanvasActionSchema).describe('Small edits to existing shapes. Empty when drawing a diagram or only answering.'),
   diagram: DiagramSchema.nullable().describe('A full diagram to lay out and draw, or null.'),
+  erd: ErdSchema.nullable().describe('A database schema to draw, or null.'),
+  explanation: ExplanationSchema.nullable().describe('An in-depth explanation card, or null.'),
 })
 export type AssistReply = z.infer<typeof AssistReplySchema>
 
@@ -113,9 +162,11 @@ export interface AssistRequest {
 /** A diagram still being generated: only the nodes, edges and groups that have fully arrived. */
 export type PartialDiagram = Diagram
 
-/** Server-sent events emitted by POST /api/assist. */
+/** Server-sent events emitted by POST /api/assist. Partial events carry only fully arrived items. */
 export type AssistStreamEvent =
   | { type: 'reply'; reply: string }
   | { type: 'diagram'; diagram: PartialDiagram }
+  | { type: 'erd'; erd: Erd }
+  | { type: 'explanation'; explanation: Explanation }
   | ({ type: 'done' } & AssistReply)
   | { type: 'error'; error: string }

@@ -1,4 +1,4 @@
-import type { AssistReply, AssistRequest, Diagram, PartialDiagram } from '@structura/shared'
+import type { AssistReply, AssistRequest, Diagram, Erd, Explanation, PartialDiagram } from '@structura/shared'
 import { streamClaude } from './providers/claude'
 import { streamGemini } from './providers/gemini'
 import type { Provider } from './providers/types'
@@ -16,15 +16,16 @@ if (!providers[providerName]) {
   throw new Error(`Unknown AI_PROVIDER "${providerName}" (expected: ${Object.keys(providers).join(', ')})`)
 }
 
-/**
- * Pull the "reply" string out of partially streamed JSON, so it can be shown
- * and spoken before the rest of the response (the actions) has arrived.
- */
-function extractPartialReply(json: string): string {
-  const start = json.match(/"reply"\s*:\s*"/)
-  if (!start || start.index === undefined) return ''
+// The model's JSON arrives in chunks. These helpers read what has fully (or, for
+// strings, partly) arrived, so the reply, drawings and explanation can be shown
+// while the rest is still being generated.
+
+/** The value of a string field so far, even if its closing quote hasn't arrived. */
+function partialString(json: string, key: string, from = 0): string {
+  const start = new RegExp(`"${key}"\\s*:\\s*"`).exec(json.slice(from))
+  if (!start) return ''
   let out = ''
-  for (let i = start.index + start[0].length; i < json.length; i++) {
+  for (let i = from + start.index + start[0].length; i < json.length; i++) {
     const ch = json[i]
     if (ch === '"') break
     if (ch !== '\\') {
@@ -47,12 +48,12 @@ function extractPartialReply(json: string): string {
 }
 
 /**
- * Complete objects in a JSON array that may still be streaming, e.g. the nodes
- * of a diagram whose later nodes haven't arrived yet. Partial objects are skipped.
+ * Objects in a JSON array that may still be streaming: the complete ones, plus
+ * where the incomplete last one starts (or -1).
  */
-function completeArrayItems(json: string, from: number, key: string): unknown[] {
+function arrayItems(json: string, from: number, key: string): { items: unknown[]; partialAt: number } {
   const match = new RegExp(`"${key}"\\s*:\\s*\\[`).exec(json.slice(from))
-  if (!match) return []
+  if (!match) return { items: [], partialAt: -1 }
   const items: unknown[] = []
   let depth = 0
   let inString = false
@@ -78,46 +79,82 @@ function completeArrayItems(json: string, from: number, key: string): unknown[] 
         }
         itemStart = -1
       }
-    } else if (ch === ']' && depth === 0) break
+    } else if (ch === ']' && depth === 0) return { items, partialAt: -1 }
   }
-  return items
+  return { items, partialAt: itemStart }
 }
 
+const objectStart = (json: string, key: string) => json.search(new RegExp(`"${key}"\\s*:\\s*\\{`))
+const flag = (json: string, at: number, key: string) => new RegExp(`"${key}"\\s*:\\s*true`).test(json.slice(at))
+
 /** The diagram so far, built from the nodes, edges and groups that have fully streamed in. */
-function extractPartialDiagram(json: string): PartialDiagram | null {
-  const at = json.search(/"diagram"\s*:\s*\{/)
+function partialDiagram(json: string): PartialDiagram | null {
+  const at = objectStart(json, 'diagram')
   if (at < 0) return null
-  const nodes = completeArrayItems(json, at, 'nodes') as Diagram['nodes']
+  const nodes = arrayItems(json, at, 'nodes').items as Diagram['nodes']
   if (!nodes.length) return null
-  const rest = json.slice(at)
   return {
-    replace: /"replace"\s*:\s*true/.test(rest),
-    direction: /"direction"\s*:\s*"down"/.test(rest) ? 'down' : 'right',
-    groups: completeArrayItems(json, at, 'groups') as Diagram['groups'],
+    replace: flag(json, at, 'replace'),
+    direction: /"direction"\s*:\s*"down"/.test(json.slice(at)) ? 'down' : 'right',
+    groups: arrayItems(json, at, 'groups').items as Diagram['groups'],
     nodes,
-    edges: completeArrayItems(json, at, 'edges') as Diagram['edges'],
+    edges: arrayItems(json, at, 'edges').items as Diagram['edges'],
+  }
+}
+
+/** The database schema so far: the tables and relations that have fully streamed in. */
+function partialErd(json: string): Erd | null {
+  const at = objectStart(json, 'erd')
+  if (at < 0) return null
+  const tables = arrayItems(json, at, 'tables').items as Erd['tables']
+  if (!tables.length) return null
+  return { replace: flag(json, at, 'replace'), tables, relations: arrayItems(json, at, 'relations').items as Erd['relations'] }
+}
+
+/** The explanation so far, including the section currently being written. */
+function partialExplanation(json: string): Explanation | null {
+  const at = objectStart(json, 'explanation')
+  if (at < 0) return null
+  const title = partialString(json, 'title', at)
+  if (!title) return null
+  const { items, partialAt } = arrayItems(json, at, 'sections')
+  const sections = items as Explanation['sections']
+  if (partialAt >= 0) {
+    const heading = partialString(json, 'heading', partialAt)
+    if (heading) sections.push({ heading, body: partialString(json, 'body', partialAt) })
+  }
+  return { title, summary: partialString(json, 'summary', at), sections, related: [] }
+}
+
+/** Calls `emit` with the extracted value only when it changed since last time. */
+function onChange<T>(extract: (json: string) => T | null, emit: (value: T) => void) {
+  let last = ''
+  return (json: string) => {
+    const value = extract(json)
+    if (value === null) return
+    const key = JSON.stringify(value)
+    if (key === last) return
+    last = key
+    emit(value)
   }
 }
 
 export async function assist(
   req: AssistRequest,
-  on: { reply: (replySoFar: string) => void; diagram: (diagramSoFar: PartialDiagram) => void },
+  on: {
+    reply: (replySoFar: string) => void
+    diagram: (diagramSoFar: PartialDiagram) => void
+    erd: (erdSoFar: Erd) => void
+    explanation: (explanationSoFar: Explanation) => void
+  },
   signal: AbortSignal,
 ): Promise<AssistReply> {
-  let lastReply = ''
-  let lastDiagramSize = 0
-  const onSnapshot = (json: string) => {
-    const reply = extractPartialReply(json)
-    if (reply !== lastReply) {
-      lastReply = reply
-      on.reply(reply)
-    }
-    const diagram = extractPartialDiagram(json)
-    const size = diagram ? diagram.nodes.length + diagram.edges.length + diagram.groups.length : 0
-    if (diagram && size !== lastDiagramSize) {
-      lastDiagramSize = size
-      on.diagram(diagram)
-    }
-  }
-  return providers[providerName](req, onSnapshot, signal)
+  const watchers = [
+    onChange((json) => partialString(json, 'reply') || null, on.reply),
+    onChange(partialDiagram, on.diagram),
+    onChange(partialErd, on.erd),
+    onChange(partialExplanation, on.explanation),
+  ]
+  return providers[providerName](req, (json) => watchers.forEach((watch) => watch(json)), signal)
 }
+

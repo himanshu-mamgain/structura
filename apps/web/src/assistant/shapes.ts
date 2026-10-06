@@ -8,9 +8,9 @@ import {
   type TLShapeId,
 } from 'tldraw'
 
-// tldraw's geo label metrics for size "m" (LABEL_FONT_SIZES.m and LABEL_PADDING).
-const LABEL_FONT_SCALE = 1.375
-const LABEL_PADDING = 16
+// tldraw's geo label metrics (LABEL_FONT_SIZES and LABEL_PADDING).
+const LABEL_FONT_SCALES = { s: 1.125, m: 1.375 } as const
+export const LABEL_PADDING = 16
 const MIN_NODE_WIDTH = 160
 const MAX_NODE_WIDTH = 360
 
@@ -19,10 +19,15 @@ export function positive(value: number | undefined, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback
 }
 
-/** Width of text in a geo label (size m, draw font), on a single line. */
-export function measureLabel(editor: Editor, text: string): { w: number; h: number } {
+/** Size of one line of text in a geo label. Defaults to tldraw's default label style (size m, draw font). */
+export function measureLabel(
+  editor: Editor,
+  text: string,
+  style: { font?: 'draw' | 'mono'; size?: keyof typeof LABEL_FONT_SCALES } = {},
+): { w: number; h: number } {
+  const { font = 'draw', size = 'm' } = style
   const theme = editor.getCurrentTheme()
-  const fontSize = positive(theme.fontSize, 16) * LABEL_FONT_SCALE
+  const fontSize = positive(theme.fontSize, 16) * LABEL_FONT_SCALES[size]
   const lineHeight = positive(theme.lineHeight, 1.35)
   // Rough fallback for when the browser can't measure (fonts not ready, element not laid out).
   const estimate = { w: text.length * fontSize * 0.55, h: fontSize * lineHeight }
@@ -30,7 +35,7 @@ export function measureLabel(editor: Editor, text: string): { w: number; h: numb
     const size = editor.textMeasure.measureText(text, {
       fontStyle: 'normal',
       fontWeight: 'normal',
-      fontFamily: getFontFamily(theme, 'draw'),
+      fontFamily: getFontFamily(theme, font),
       fontSize,
       lineHeight,
       maxWidth: null,
