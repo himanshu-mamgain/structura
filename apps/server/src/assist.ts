@@ -1,20 +1,20 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod'
-import { AssistReplySchema, type AssistReply, type AssistRequest } from '@structura/shared'
+import type { AssistReply, AssistRequest } from '@structura/shared'
+import { streamClaude } from './providers/claude'
+import { streamGemini } from './providers/gemini'
+import type { Provider } from './providers/types'
 
-const client = new Anthropic()
+const providers: Record<string, Provider> = {
+  claude: streamClaude,
+  gemini: streamGemini,
+}
 
-const SYSTEM = `You are Structura's design assistant. The user talks to you by voice while editing a tldraw canvas, and your reply is read aloud.
+/** AI_PROVIDER picks the model provider; without it, Gemini is used when its key is set. */
+export const providerName =
+  process.env.AI_PROVIDER?.toLowerCase() ?? (process.env.GEMINI_API_KEY ? 'gemini' : 'claude')
 
-You receive a screenshot of the canvas and a JSON list of its shapes. Shape x/y/w/h are page-space bounds (x/y is the top-left corner); the JSON is authoritative for ids and positions, the screenshot shows how it looks.
-
-Help the user fix and improve their designs: alignment, spacing, consistent sizes, hierarchy, color, contrast, labels, layout of diagrams and wireframes. When they ask for a change, return the edits in "actions":
-- update: set "id" and only the fields that change; leave the rest null.
-- create: set "kind" (geo, text or note), x, y, and for geo also w, h and geo.
-- delete: set "id" only.
-Snap positions and sizes to a grid of 8. Do not touch shapes the request doesn't concern. If the request is only a question, answer it and return no actions.
-
-Keep "reply" to one to three short spoken sentences with no markdown, saying what you changed or suggest.`
+if (!providers[providerName]) {
+  throw new Error(`Unknown AI_PROVIDER "${providerName}" (expected: ${Object.keys(providers).join(', ')})`)
+}
 
 /**
  * Pull the "reply" string out of partially streamed JSON, so it can be shown
@@ -51,52 +51,13 @@ export async function assist(
   onReply: (replySoFar: string) => void,
   signal: AbortSignal,
 ): Promise<AssistReply> {
-  const content: Anthropic.Beta.BetaContentBlockParam[] = []
-  if (req.image) {
-    content.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: req.image } })
-  }
-  content.push({
-    type: 'text',
-    text: [
-      `Screenshot covers page bounds: ${JSON.stringify(req.imageBounds)}`,
-      `Shapes: ${JSON.stringify(req.shapes)}`,
-      `User said: ${req.transcript}`,
-    ].join('\n\n'),
-  })
-
-  const messages: Anthropic.Beta.BetaMessageParam[] = [
-    ...req.history.map((turn) => ({ role: turn.role, content: turn.text })),
-    { role: 'user', content },
-  ]
-
-  const stream = client.beta.messages.stream(
-    {
-      model: 'claude-opus-5-5',
-      max_tokens: 16000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'medium', format: betaZodOutputFormat(AssistReplySchema) },
-      system: SYSTEM,
-      messages,
-    },
-    { signal },
-  )
-
   let lastReply = ''
-  stream.on('text', (_delta, snapshot) => {
-    const reply = extractPartialReply(snapshot)
+  const onSnapshot = (json: string) => {
+    const reply = extractPartialReply(json)
     if (reply !== lastReply) {
       lastReply = reply
       onReply(reply)
     }
-  })
-
-  const response = await stream.finalMessage()
-  if (response.stop_reason === 'refusal') {
-    return { reply: "Sorry, I can't help with that request.", actions: [] }
   }
-  if (!response.parsed_output) {
-    throw new Error(`No structured output (stop_reason: ${response.stop_reason})`)
-  }
-  return response.parsed_output
+  return providers[providerName](req, onSnapshot, signal)
 }

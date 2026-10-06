@@ -1,8 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import Anthropic from '@anthropic-ai/sdk'
+import { ApiError as GeminiApiError } from '@google/genai'
 import type { AssistRequest, AssistStreamEvent, HealthResponse } from '@structura/shared'
-import { assist } from './assist'
+import { assist, providerName } from './assist'
 
 const app = express()
 const port = Number(process.env.PORT ?? 3001)
@@ -27,6 +28,18 @@ function errorMessage(error: unknown): string {
   if (error instanceof Anthropic.APIError) {
     const detail = (error.error as { error?: { message?: string } } | undefined)?.error?.message
     return `Claude API request failed (${error.status ?? 'network'})${detail ? `: ${detail}` : ''}`
+  }
+  if (error instanceof GeminiApiError) {
+    if (error.status === 429) return 'Gemini rate limit or free-tier quota reached, try again shortly'
+    if (error.status === 503) return 'Gemini is overloaded right now, try again in a moment'
+    // Gemini puts the API's JSON error body in the message.
+    let detail = ''
+    try {
+      detail = JSON.parse(error.message.slice(error.message.indexOf('{')))?.error?.message ?? ''
+    } catch {
+      // Not JSON; fall back to the status code alone.
+    }
+    return `Gemini API request failed (${error.status})${detail ? `: ${detail}` : ''}`
   }
   return 'Assistant failed'
 }
@@ -63,5 +76,5 @@ app.post('/api/assist', async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Structura server listening on http://localhost:${port}`)
+  console.log(`Structura server listening on http://localhost:${port} (AI provider: ${providerName})`)
 })
