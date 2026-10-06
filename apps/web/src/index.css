@@ -149,3 +149,62 @@ body,
   outline: 2px solid var(--assistant-accent);
   outline-offset: -1px;
 }
+
+.install {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100vw - 32px);
+  font: 13px/1.45 system-ui, sans-serif;
+}
+
+.install-btn,
+.install-close {
+  border: 1px solid var(--assistant-border);
+  background: var(--assistant-bg);
+  color: var(--assistant-fg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  font: inherit;
+}
+
+.install-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.install-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.install-help {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  padding: 8px 12px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 10px;
+  background: var(--assistant-bg);
+  color: var(--assistant-fg);
+  text-align: center;
+}
+
+/* Phones: keep the assistant clear of tldraw's bottom toolbar and use the full width. */
+@media (max-width: 640px) {
+  .assistant {
+    left: 8px;
+    right: 8px;
+    bottom: 84px;
+    width: auto;
+  }
+}

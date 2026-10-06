@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Tldraw, type Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { VoiceAssistant } from './assistant/VoiceAssistant'
+import { InstallButton } from './pwa/InstallButton'
 
 export default function App() {
   const [editor, setEditor] = useState<Editor | null>(null)
@@ -15,6 +16,7 @@ export default function App() {
         licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY || undefined}
       />
       {editor && <VoiceAssistant editor={editor} />}
+      <InstallButton />
     </div>
   )
 }
