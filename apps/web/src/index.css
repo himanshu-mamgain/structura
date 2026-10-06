@@ -69,7 +69,8 @@ body,
   background: var(--assistant-danger);
   animation: assistant-pulse 1s ease-in-out infinite;
 }
-.assistant-dot.is-thinking {
+.assistant-dot.is-thinking,
+.assistant-dot.is-drawing {
   background: var(--assistant-accent);
   animation: assistant-pulse 1s ease-in-out infinite;
 }

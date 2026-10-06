@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Editor } from 'tldraw'
-import type { AssistTurn } from '@structura/shared'
+import type { AssistReply, AssistTurn } from '@structura/shared'
 import { streamAssist } from './api'
 import { applyActions, captureCanvas } from './canvas'
+import { DiagramBuilder } from './diagram'
 import { listen, SentenceSpeaker, speechRecognitionSupported, stopSpeaking, type Recognition } from './speech'
 
 // Earlier turns are sent as text only (no old screenshots), capped to keep requests small.
 const MAX_HISTORY_TURNS = 10
 
-type Status = 'idle' | 'listening' | 'thinking' | 'error'
+type Status = 'idle' | 'listening' | 'thinking' | 'drawing' | 'error'
 
 export function VoiceAssistant({ editor }: { editor: Editor }) {
   const [status, setStatus] = useState<Status>('idle')
@@ -30,6 +31,29 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     stopSpeaking()
   }, [])
 
+  function reportDrawError(err: unknown) {
+    console.error(err)
+    setError(`Couldn't draw that: ${err instanceof Error ? err.message : String(err)}`)
+    setStatus('error')
+  }
+
+  /** Finishes the diagram (if one was streamed or returned) and applies edits, then reports what changed. */
+  async function applyReply(
+    replyText: string,
+    result: Pick<AssistReply, 'actions' | 'diagram'>,
+    builder: DiagramBuilder | null,
+  ) {
+    try {
+      const drawn = result.diagram ? await (builder ?? new DiagramBuilder(editor)).finish(result.diagram) : 0
+      const edited = applyActions(editor, result.actions)
+      if (drawn) setReply(`${replyText} (drew ${drawn} shapes, Ctrl+Z to undo)`)
+      else if (edited) setReply(`${replyText} (${edited} edit${edited === 1 ? '' : 's'} applied, Ctrl+Z to undo)`)
+      setStatus('idle')
+    } catch (err) {
+      reportDrawError(err)
+    }
+  }
+
   async function ask(transcript: string) {
     const text = transcript.trim()
     if (!text) {
@@ -48,6 +72,8 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
 
     const speaker = new SentenceSpeaker()
     speaker.enabled = voiceOnRef.current
+    // Created on the first streamed diagram snapshot, so the drawing grows as it's generated.
+    let builder: DiagramBuilder | null = null
 
     try {
       const canvas = await captureCanvas(editor)
@@ -57,17 +83,21 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
           if (event.type === 'reply') {
             setReply(event.reply)
             speaker.push(event.reply)
+          } else if (event.type === 'diagram') {
+            if (!builder) {
+              builder = new DiagramBuilder(editor)
+              setStatus('drawing')
+            }
+            builder.update(event.diagram).catch(reportDrawError)
           } else if (event.type === 'done') {
             setReply(event.reply)
             speaker.flush(event.reply)
-            const applied = applyActions(editor, event.actions)
-            if (applied) setReply(`${event.reply} (${applied} edit${applied === 1 ? '' : 's'} applied, Ctrl+Z to undo)`)
             history.current = [
               ...history.current,
               { role: 'user' as const, text },
               { role: 'assistant' as const, text: event.reply },
             ].slice(-MAX_HISTORY_TURNS)
-            setStatus('idle')
+            void applyReply(event.reply, event, builder)
           } else {
             setError(event.error)
             setStatus('error')
@@ -121,6 +151,7 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     idle: 'Ask about your design',
     listening: 'Listening…',
     thinking: 'Thinking…',
+    drawing: 'Drawing…',
     error: 'Something went wrong',
   }[status]
 
@@ -150,8 +181,8 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
             type="button"
             className={`assistant-mic ${status === 'listening' ? 'is-on' : ''}`}
             onClick={toggleMic}
-            title={status === 'listening' ? 'Stop listening' : 'Talk to Claude'}
-            aria-label={status === 'listening' ? 'Stop listening' : 'Talk to Claude'}
+            title={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
+            aria-label={status === 'listening' ? 'Stop listening' : 'Talk to the assistant'}
           >
             🎤
           </button>

@@ -1,5 +1,6 @@
-import { renderPlaintextFromRichText, toRichText, type Editor, type TLShape, type TLShapeId } from 'tldraw'
+import { createShapeId, renderPlaintextFromRichText, toRichText, type Editor, type TLArrowBinding, type TLShape, type TLShapeId } from 'tldraw'
 import type { CanvasAction, CanvasShape } from '@structura/shared'
+import { connectShapes, fitGeoToLabel } from './shapes'
 
 // Claude's vision works best at up to ~1568px on the long edge.
 const MAX_IMAGE_EDGE = 1568
@@ -24,6 +25,14 @@ function describeShape(editor: Editor, shape: TLShape): CanvasShape | null {
   if (typeof props.color === 'string') out.color = props.color
   if (typeof props.fill === 'string') out.fill = props.fill
   if (typeof props.geo === 'string') out.geo = props.geo
+  if (shape.type === 'frame' && typeof props.name === 'string') out.text = props.name
+  if (editor.getShape(shape.parentId as TLShapeId)) out.parent = shape.parentId
+  if (shape.type === 'arrow') {
+    for (const binding of editor.getBindingsFromShape<TLArrowBinding>(shape, 'arrow')) {
+      if (binding.props.terminal === 'start') out.from = binding.toId
+      else out.to = binding.toId
+    }
+  }
   return out
 }
 
@@ -56,7 +65,7 @@ function textProps(text: string | null) {
   return text === null ? {} : { richText: toRichText(text) }
 }
 
-/** Applies Claude's edits as one undoable step. Returns how many were applied. */
+/** Applies the assistant's edits as one undoable step. Returns how many were applied. */
 export function applyActions(editor: Editor, actions: CanvasAction[]): number {
   if (!actions.length) return 0
   let applied = 0
@@ -74,6 +83,12 @@ export function applyActions(editor: Editor, actions: CanvasAction[]): number {
         } else if (action.op === 'create') {
           applyCreate(editor, action)
           applied++
+        } else if (action.op === 'connect' && action.id && action.to) {
+          const from = action.id as TLShapeId
+          const to = action.to as TLShapeId
+          if (editor.getShape(from) && editor.getShape(to)) {
+            if (connectShapes(editor, from, to, { label: action.text, color: action.color ?? undefined })) applied++
+          }
         }
       } catch (error) {
         console.warn('Skipped assistant action', action, error)
@@ -102,6 +117,8 @@ function applyUpdate(editor: Editor, action: CanvasAction): boolean {
   const dy = action.y !== null && bounds ? action.y - bounds.y : 0
 
   editor.updateShape({ id: shape.id, type: shape.type, x: shape.x + dx, y: shape.y + dy, props } as Parameters<Editor['updateShape']>[0])
+  // Only widen automatically when the model didn't choose a width itself.
+  if (action.text !== null && action.w === null) fitGeoToLabel(editor, shape.id)
   return true
 }
 
@@ -114,7 +131,9 @@ function applyCreate(editor: Editor, action: CanvasAction) {
   } else if (action.kind === 'note') {
     editor.createShape({ type: 'note', x, y, props: { color, ...textProps(action.text ?? '') } })
   } else {
+    const id = createShapeId()
     editor.createShape({
+      id,
       type: 'geo',
       x,
       y,
@@ -127,5 +146,6 @@ function applyCreate(editor: Editor, action: CanvasAction) {
         ...textProps(action.text),
       },
     })
+    if (action.text) fitGeoToLabel(editor, id)
   }
 }
