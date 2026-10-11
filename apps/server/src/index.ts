@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { ApiError as GeminiApiError } from '@google/genai'
 import type { AssistRequest, AssistStreamEvent, HealthResponse } from '@structura/shared'
 import { assist, providerName } from './assist'
+import { OllamaError } from './providers/ollama'
 
 const app = express()
 const port = Number(process.env.PORT ?? 3001)
@@ -23,6 +24,7 @@ app.get(['/', '/api/health'], (_req, res) => {
 })
 
 function errorMessage(error: unknown): string {
+  if (error instanceof OllamaError) return error.message
   if (error instanceof Anthropic.AuthenticationError) return 'Claude API credentials are missing or invalid'
   if (error instanceof Anthropic.RateLimitError) return 'Rate limited by Claude API, try again shortly'
   if (error instanceof Anthropic.APIError) {

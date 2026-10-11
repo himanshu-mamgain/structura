@@ -1,11 +1,13 @@
 import type { AssistReply, AssistRequest, Diagram, Erd, Explanation, PartialDiagram } from '@structura/shared'
 import { streamClaude } from './providers/claude'
 import { streamGemini } from './providers/gemini'
+import { streamOllama } from './providers/ollama'
 import type { Provider } from './providers/types'
 
 const providers: Record<string, Provider> = {
   claude: streamClaude,
   gemini: streamGemini,
+  ollama: streamOllama,
 }
 
 /** AI_PROVIDER picks the model provider; without it, Gemini is used when its key is set. */

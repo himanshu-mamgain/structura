@@ -40,11 +40,15 @@ export default defineConfig({
       },
     }),
   ],
+  // host: true also listens on the local network, so phones and laptops on the same
+  // Wi-Fi can open http://<this-PC's-IP>:5173. /api is proxied to the server on this PC.
   server: {
+    host: true,
     port: 5173,
     proxy: { '/api': 'http://localhost:3001' },
   },
   preview: {
+    host: true,
     proxy: { '/api': 'http://localhost:3001' },
   },
 })

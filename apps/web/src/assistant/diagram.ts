@@ -115,8 +115,16 @@ export class DiagramBuilder {
   private queue: Promise<void> = Promise.resolve()
   private bounds = { x: 0, y: 0, w: 0, h: 0 }
   private created = 0
+  private finishing = false
 
-  constructor(private readonly editor: Editor) {}
+  /**
+   * @param leftInset - Screen pixels covered on the left (e.g. by the explanation
+   *   card), so the final zoom fits the diagram into the visible area.
+   */
+  constructor(
+    private readonly editor: Editor,
+    private readonly leftInset: () => number = () => 0,
+  ) {}
 
   /** Draws the latest snapshot. Layouts run one at a time; stale snapshots are skipped. */
   update(diagram: LayoutDiagram): Promise<void> {
@@ -125,8 +133,9 @@ export class DiagramBuilder {
     return this.queue
   }
 
-  /** Draws the final diagram and returns how many shapes were created. */
+  /** Draws the final diagram, settles every shape in its final place, and returns how many shapes were created. */
   async finish(diagram: LayoutDiagram): Promise<number> {
+    this.finishing = true
     await this.update(diagram)
     return this.created
   }
@@ -138,7 +147,23 @@ export class DiagramBuilder {
     const laidOut = await layout(this.editor, diagram)
     // A newer snapshot arrived while laying out; draw that one instead.
     if (this.pending) return
-    this.draw(diagram, laidOut)
+    this.draw(diagram, laidOut, this.finishing)
+  }
+
+  /** Zooms to fit the diagram into the part of the screen not covered on the left. */
+  private fitView(bounds: { x: number; y: number; w: number; h: number }) {
+    const { editor } = this
+    const screen = editor.getViewportScreenBounds()
+    const inset = 64
+    const left = Math.min(Math.max(0, this.leftInset()), screen.w / 2)
+    const availW = screen.w - left - inset * 2
+    const availH = screen.h - inset * 2
+    if (availW <= 0 || availH <= 0 || bounds.w <= 0 || bounds.h <= 0) return
+    const z = Math.min(1, availW / bounds.w, availH / bounds.h)
+    // tldraw's camera maps page to screen as (page + camera) * zoom.
+    const screenX = left + inset + (availW - bounds.w * z) / 2
+    const screenY = inset + (availH - bounds.h * z) / 2
+    editor.setCamera({ x: screenX / z - bounds.x, y: screenY / z - bounds.y, z }, { animation: { duration: 400 } })
   }
 
   private start(diagram: LayoutDiagram) {
@@ -153,7 +178,11 @@ export class DiagramBuilder {
     if (diagram.replace) editor.deleteShapes([...editor.getCurrentPageShapeIds()])
   }
 
-  private draw(diagram: LayoutDiagram, laidOut: ElkNode) {
+  /**
+   * @param settle - Final draw: put every shape exactly in place (no animation),
+   *   so nothing is left mid-animation if the tab was hidden or updates overlapped.
+   */
+  private draw(diagram: LayoutDiagram, laidOut: ElkNode, settle: boolean) {
     const { editor } = this
     if (!this.origin) this.start(diagram)
     const origin = this.origin!
@@ -205,7 +234,9 @@ export class DiagramBuilder {
         const h = positive(child.height, 160)
         let frameId = this.frames.get(child.id)
         if (frameId) {
-          moves.push({ id: frameId, type: 'frame', x, y, props: { w, h } })
+          // Frames clip their children, so their size is applied immediately, never
+          // animated: a frame left too small would hide the boxes inside it.
+          editor.updateShape({ id: frameId, type: 'frame', x, y, props: { w, h } })
         } else {
           frameId = createShapeId()
           editor.createShape({ id: frameId, type: 'frame', x, y, props: { w, h, name: groupLabels.get(child.id) ?? '' } })
@@ -226,13 +257,15 @@ export class DiagramBuilder {
       })
     })
 
-    if (moves.length) editor.animateShapes(moves, MOVE_ANIMATION)
+    // Updating a shape directly also cancels any animation still running on it.
+    if (settle) editor.updateShapes(moves)
+    else if (moves.length) editor.animateShapes(moves, MOVE_ANIMATION)
 
     // Keep the growing diagram in view.
-    const next = { x: origin.x, y: origin.y, w: laidOut.width ?? 0, h: laidOut.height ?? 0 }
-    if (next.w !== this.bounds.w || next.h !== this.bounds.h) {
+    const next = { x: origin.x, y: origin.y, w: positive(laidOut.width, 1), h: positive(laidOut.height, 1) }
+    if (settle || next.w !== this.bounds.w || next.h !== this.bounds.h) {
       this.bounds = next
-      editor.zoomToBounds(next, { inset: 80, animation: { duration: 400 } })
+      this.fitView(next)
     }
   }
 }

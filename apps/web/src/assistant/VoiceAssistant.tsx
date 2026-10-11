@@ -11,6 +11,11 @@ import { listen, SentenceSpeaker, speechRecognitionSupported, stopSpeaking, type
 // Earlier turns are sent as text only (no old screenshots), capped to keep requests small.
 const MAX_HISTORY_TURNS = 10
 
+/** How far the explanation card reaches from the left edge, so diagrams are fitted beside it. */
+function cardWidth(): number {
+  return document.querySelector('.explain')?.getBoundingClientRect().right ?? 0
+}
+
 type Status = 'idle' | 'listening' | 'thinking' | 'drawing' | 'error'
 
 export function VoiceAssistant({ editor }: { editor: Editor }) {
@@ -50,8 +55,8 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
   ) {
     try {
       let drawn = 0
-      if (result.diagram) drawn += await (builders.diagram ?? new DiagramBuilder(editor)).finish(result.diagram)
-      if (result.erd) drawn += await (builders.erd ?? new DiagramBuilder(editor)).finish(erdToDiagram(result.erd))
+      if (result.diagram) drawn += await (builders.diagram ?? new DiagramBuilder(editor, cardWidth)).finish(result.diagram)
+      if (result.erd) drawn += await (builders.erd ?? new DiagramBuilder(editor, cardWidth)).finish(erdToDiagram(result.erd))
       const edited = applyActions(editor, result.actions)
       if (drawn) setReply(`${replyText} (drew ${drawn} shapes, Ctrl+Z to undo)`)
       else if (edited) setReply(`${replyText} (${edited} edit${edited === 1 ? '' : 's'} applied, Ctrl+Z to undo)`)
@@ -94,7 +99,7 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
           } else if (event.type === 'diagram' || event.type === 'erd') {
             const kind = event.type
             if (!builders[kind]) {
-              builders[kind] = new DiagramBuilder(editor)
+              builders[kind] = new DiagramBuilder(editor, cardWidth)
               setStatus('drawing')
             }
             const next = event.type === 'diagram' ? event.diagram : erdToDiagram(event.erd)

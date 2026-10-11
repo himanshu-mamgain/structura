@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "concurrently -n server,web -c blue,magenta \"npm:dev -w @structura/server\" \"npm:dev -w @structura/web\"",
     "build": "npm run build --workspaces --if-present",
+    "lan": "npm run build -w @structura/web && concurrently -n server,web -c blue,magenta \"npm:dev -w @structura/server\" \"npm:preview -w @structura/web\"",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "engines": {
