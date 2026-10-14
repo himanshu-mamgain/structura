@@ -1,15 +1,36 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useValue, type Editor } from 'tldraw'
 import type { AssistReply, AssistTurn, Explanation } from '@structura/shared'
 import { streamAssist } from './api'
 import { applyActions, captureCanvas } from './canvas'
 import { DiagramBuilder } from './diagram'
 import { erdToDiagram } from './erd'
-import { ExplanationCard } from './ExplanationCard'
-import { listen, SentenceSpeaker, speechRecognitionSupported, stopSpeaking, type Recognition } from './speech'
+import { matchCommand, type LocalCommand } from './commands'
+import { withSchemaSql } from './ddl'
+import { ExplanationCard, type WalkState } from './ExplanationCard'
+import {
+  listen,
+  SentenceSpeaker,
+  speak,
+  speakAndWait,
+  speechRecognitionSupported,
+  stopSpeaking,
+  type Recognition,
+} from './speech'
+import { buildSteps, focusStep, showWholeDiagram, Spotlight } from './walkthrough'
+import { goToTopicPage, openStaticTopic } from '../topics/open'
+import { TopicsPanel } from '../topics/TopicsPanel'
+import type { StaticTopic, Topic } from '../topics'
 
 // Earlier turns are sent as text only (no old screenshots), capped to keep requests small.
 const MAX_HISTORY_TURNS = 10
+
+// Said or typed while a card is open, these play its walkthrough locally, with no AI call.
+const WALKTHROUGH_REQUEST = /^(please )?(walk me through|walk through|explain the flow|show (me )?the flow|play the flow|step by step)/i
+
+/** Whether a card has steps to walk through: an end-to-end trace or a numbered "Step by step" section. */
+const hasSteps = (explanation: Explanation) =>
+  !!explanation.trace?.steps.length || explanation.sections.some((s) => /step/i.test(s.heading) && /^s*d+[.)]/m.test(s.body))
 
 /** How far the explanation card reaches from the left edge, so diagrams are fitted beside it. */
 function cardWidth(): number {
@@ -27,6 +48,14 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
   const [voiceOn, setVoiceOn] = useState(true)
   const [explanation, setExplanation] = useState<Explanation | null>(null)
   const [explaining, setExplaining] = useState(false)
+  const [showTopics, setShowTopics] = useState(false)
+  const [walk, setWalk] = useState<WalkState | null>(null)
+  // The hand-written topic on screen, if any: its simulator powers "try your own input".
+  const [activeTopic, setActiveTopic] = useState<StaticTopic | null>(null)
+  const walkRun = useRef(0)
+  const spotlight = useMemo(() => new Spotlight(editor), [editor])
+  const walking = walk !== null
+  const wasWalking = useRef(false)
   const selectedCount = useValue('selected shapes', () => editor.getSelectedShapeIds().length, [editor])
 
   const history = useRef<AssistTurn[]>([])
@@ -40,6 +69,72 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     request.current?.abort()
     stopSpeaking()
   }, [])
+
+  // Plays the walkthrough: highlight the step's shapes, read it aloud (or wait a
+  // moment when muted), then move on. Changing step or pausing cancels the old one.
+  useEffect(() => {
+    if (!walk) return
+    const step = walk.steps[walk.index]
+    focusStep(editor, spotlight, step, cardWidth())
+    if (!walk.playing) return
+    const run = ++walkRun.current
+    const advance = () => {
+      if (walkRun.current !== run) return
+      setWalk((w) => (w && w.index < w.steps.length - 1 ? { ...w, index: w.index + 1 } : w && { ...w, playing: false }))
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined
+    if (voiceOnRef.current) {
+      void speakAndWait(step.text).then(() => {
+        timer = setTimeout(advance, 500)
+      })
+    } else {
+      timer = setTimeout(advance, Math.max(3000, step.text.length * 55))
+    }
+    return () => {
+      walkRun.current++
+      clearTimeout(timer)
+      stopSpeaking()
+    }
+  }, [editor, spotlight, walk])
+
+  // When a walkthrough ends (stopped, closed, or replaced by a new question),
+  // undo the dimming and step back to the whole diagram.
+  useEffect(() => {
+    if (walking) {
+      wasWalking.current = true
+      return
+    }
+    if (!wasWalking.current) return
+    wasWalking.current = false
+    spotlight.clear()
+    showWholeDiagram(editor, cardWidth())
+  }, [editor, spotlight, walking])
+
+  useEffect(() => () => spotlight.clear(), [spotlight])
+
+  function startWalk(card: Explanation | null = explanation) {
+    if (!card) return
+    const steps = buildSteps(editor, card)
+    if (!steps.length) {
+      setError('This card has no steps to walk through.')
+      return
+    }
+    setError('')
+    setWalk({ index: 0, steps, playing: true })
+  }
+
+  function stopWalk() {
+    setWalk(null)
+    editor.selectNone()
+  }
+
+  /** Runs a hand-written topic's flow on the user's own input, then plays it. */
+  function simulate(values: Record<string, string>) {
+    if (!activeTopic?.simulator || !explanation) return
+    const card = { ...explanation, trace: activeTopic.simulator.run(values) }
+    setExplanation(card)
+    startWalk(card)
+  }
 
   function reportDrawError(err: unknown) {
     console.error(err)
@@ -66,12 +161,65 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     }
   }
 
+  /** Simple canvas commands run instantly, with no AI call. */
+  function runCommand(command: LocalCommand) {
+    request.current?.abort()
+    stopSpeaking()
+    setError('')
+    setStatus('idle')
+    let message: string
+    switch (command) {
+      case 'clear': {
+        // Undim first, so undo brings the shapes back at full opacity.
+        spotlight.clear()
+        setWalk(null)
+        const ids = [...editor.getCurrentPageShapeIds()]
+        if (ids.length) {
+          editor.markHistoryStoppingPoint('clear canvas')
+          editor.deleteShapes(ids)
+        }
+        message = ids.length ? `Cleared ${ids.length} shapes. Say "undo" to bring them back.` : 'The canvas is already empty.'
+        break
+      }
+      case 'undo':
+        editor.undo()
+        message = 'Undone.'
+        break
+      case 'redo':
+        editor.redo()
+        message = 'Redone.'
+        break
+      case 'fit':
+        showWholeDiagram(editor, cardWidth())
+        message = 'Showing the whole diagram.'
+        break
+      case 'stop':
+        setWalk(null)
+        message = 'Stopped.'
+        break
+    }
+    setReply(message)
+  }
+
   async function ask(transcript: string) {
     const text = transcript.trim()
     if (!text) {
       setStatus('idle')
       return
     }
+    const command = matchCommand(text)
+    if (command) {
+      setHeard(text)
+      runCommand(command)
+      return
+    }
+    if (explanation && WALKTHROUGH_REQUEST.test(text)) {
+      setHeard(text)
+      setStatus('idle')
+      startWalk()
+      return
+    }
+    setWalk(null)
     request.current?.abort()
     stopSpeaking()
     const controller = new AbortController()
@@ -105,12 +253,17 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
             const next = event.type === 'diagram' ? event.diagram : erdToDiagram(event.erd)
             builders[kind]!.update(next).catch(reportDrawError)
           } else if (event.type === 'explanation') {
+            setActiveTopic(null)
             setExplanation(event.explanation)
             setExplaining(true)
           } else if (event.type === 'done') {
             setReply(event.reply)
             speaker.flush(event.reply)
-            if (event.explanation) setExplanation(event.explanation)
+            if (event.explanation) {
+              setActiveTopic(null)
+              // Database designs get CREATE TABLE SQL generated from the drawn schema.
+              setExplanation(event.erd ? withSchemaSql(event.explanation, event.erd) : event.explanation)
+            }
             setExplaining(false)
             // The card itself stays out of history; a note keeps follow-ups ("go deeper") in context.
             const note = event.explanation ? ` [Showed an explanation card: ${event.explanation.title}]` : ''
@@ -170,6 +323,40 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
     setVoiceOn(!voiceOn)
   }
 
+  /** Hand-written topics draw instantly; the others are designed by the AI on a fresh page. */
+  async function pickTopic(topic: Topic) {
+    setShowTopics(false)
+    if (topic.kind === 'ai') {
+      goToTopicPage(editor, topic.title.replace(/^./, (c) => c.toUpperCase()))
+      void ask(topic.prompt)
+      return
+    }
+    request.current?.abort()
+    stopSpeaking()
+    setError('')
+    setHeard(topic.title)
+    // Show the card first, so the drawing is framed beside it.
+    setWalk(null)
+    setActiveTopic(topic)
+    setExplanation(topic.database ? withSchemaSql(topic.explanation, topic.database) : topic.explanation)
+    setExplaining(false)
+    await new Promise(requestAnimationFrame)
+    try {
+      await openStaticTopic(editor, topic, cardWidth)
+      setReply(topic.explanation.summary)
+      setStatus('idle')
+      if (voiceOnRef.current) speak(topic.explanation.summary)
+    } catch (err) {
+      reportDrawError(err)
+    }
+  }
+
+  function designCustomTopic(title: string) {
+    setShowTopics(false)
+    goToTopicPage(editor, title)
+    void ask(`Design ${title}`)
+  }
+
   const statusLabel = {
     idle: 'Ask about your design',
     listening: 'Listening…',
@@ -182,18 +369,47 @@ export function VoiceAssistant({ editor }: { editor: Editor }) {
 
   return (
     <>
-      {explanation && (
+      {explanation && !showTopics && (
         <ExplanationCard
           explanation={explanation}
           streaming={explaining}
+          walk={walk}
+          canWalk={hasSteps(explanation)}
+          simulator={activeTopic?.simulator}
           onAsk={(question) => void ask(question)}
-          onClose={() => setExplanation(null)}
+          onClose={() => {
+            stopWalk()
+            setExplanation(null)
+          }}
+          onWalkStart={() => startWalk()}
+          onWalkStep={(delta) =>
+            setWalk((w) => w && { ...w, index: Math.min(w.steps.length - 1, Math.max(0, w.index + delta)), playing: false })
+          }
+          onWalkToggle={() => setWalk((w) => w && { ...w, playing: !w.playing })}
+          onWalkStop={stopWalk}
+          onSimulate={simulate}
+        />
+      )}
+      {showTopics && (
+        <TopicsPanel
+          onPick={(topic) => void pickTopic(topic)}
+          onCustom={designCustomTopic}
+          onClose={() => setShowTopics(false)}
         />
       )}
       <div className="assistant">
         <div className="assistant-header">
           <span className={`assistant-dot is-${status}`} />
           <span className="assistant-status">{statusLabel}</span>
+          <button
+            type="button"
+            className="assistant-icon-btn"
+            onClick={() => setShowTopics(!showTopics)}
+            title="Learn a topic"
+            aria-pressed={showTopics}
+          >
+            📚 Topics
+          </button>
           <button
             type="button"
             className="assistant-icon-btn"

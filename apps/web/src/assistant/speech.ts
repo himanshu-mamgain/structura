@@ -76,6 +76,17 @@ export function speak(text: string) {
   window.speechSynthesis.speak(new SpeechSynthesisUtterance(text))
 }
 
+/** Speaks text and resolves when it finishes (or is cancelled, or speech is unavailable). */
+export function speakAndWait(text: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (!text.trim() || !('speechSynthesis' in window)) return resolve()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.onend = () => resolve()
+    utterance.onerror = () => resolve()
+    window.speechSynthesis.speak(utterance)
+  })
+}
+
 export function stopSpeaking() {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel()
 }

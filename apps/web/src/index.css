@@ -317,3 +317,212 @@ body,
     max-height: 45vh;
   }
 }
+
+/* Learning topics list (shares the card's position and frame). */
+.topics-search {
+  padding: 10px 14px 0;
+}
+
+.topics-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 8px;
+  background: var(--assistant-input);
+  color: inherit;
+  font: inherit;
+}
+
+.topics-note {
+  margin: 2px 0 8px;
+  color: var(--assistant-muted);
+  font-size: 13px;
+}
+
+.topic-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.topic {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.topic:hover,
+.topic:focus-visible {
+  border-color: var(--assistant-accent);
+}
+
+.topic-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.topic-blurb {
+  color: var(--assistant-muted);
+  font-size: 13px;
+}
+
+.topic-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.topic-badge.is-static {
+  background: color-mix(in srgb, #16a34a 18%, transparent);
+  color: #16a34a;
+}
+
+.topic-badge.is-ai {
+  background: color-mix(in srgb, var(--assistant-accent) 18%, transparent);
+  color: var(--assistant-accent);
+}
+
+/* Walkthrough player: pinned at the top of the card while a flow plays. */
+.walk {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--assistant-border);
+  background: color-mix(in srgb, var(--assistant-accent) 8%, var(--assistant-bg));
+}
+
+.walk-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--assistant-accent);
+}
+
+.walk-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.walk-controls button {
+  min-width: 30px;
+  padding: 3px 6px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 6px;
+  background: var(--assistant-input);
+  color: var(--assistant-fg);
+  cursor: pointer;
+}
+
+.walk-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.walk p {
+  margin: 8px 0 0;
+}
+
+.walk-data,
+.code pre {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow: auto;
+  border-radius: 8px;
+  background: var(--assistant-input);
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre;
+}
+
+.simulate {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 10px;
+}
+
+.simulate h3 {
+  margin-top: 0;
+}
+
+.simulate label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.simulate input,
+.simulate select {
+  padding: 6px 8px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 6px;
+  background: var(--assistant-input);
+  color: inherit;
+  font: inherit;
+}
+
+.trace {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.trace li {
+  margin: 8px 0;
+  padding-left: 2px;
+}
+
+.trace li.is-current {
+  font-weight: 600;
+}
+
+.code {
+  margin: 10px 0;
+}
+
+.code figcaption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.code figcaption span:first-child {
+  flex: 1;
+}
+
+.code-lang {
+  color: var(--assistant-muted);
+  font-weight: 400;
+}
+
+.code figcaption button {
+  padding: 2px 8px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 6px;
+  background: var(--assistant-input);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.code pre {
+  max-height: 360px;
+}

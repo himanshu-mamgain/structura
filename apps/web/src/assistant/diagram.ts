@@ -101,6 +101,24 @@ async function layout(editor: Editor, diagram: LayoutDiagram): Promise<ElkNode> 
 }
 
 /**
+ * Zooms so `bounds` fits the part of the screen not covered on the left
+ * (`leftInset` screen pixels, e.g. by the explanation card).
+ */
+export function fitBeside(editor: Editor, bounds: { x: number; y: number; w: number; h: number }, leftInset = 0) {
+  const screen = editor.getViewportScreenBounds()
+  const inset = 64
+  const left = Math.min(Math.max(0, leftInset), screen.w / 2)
+  const availW = screen.w - left - inset * 2
+  const availH = screen.h - inset * 2
+  if (availW <= 0 || availH <= 0 || bounds.w <= 0 || bounds.h <= 0) return
+  const z = Math.min(1, availW / bounds.w, availH / bounds.h)
+  // tldraw's camera maps page to screen as (page + camera) * zoom.
+  const screenX = left + inset + (availW - bounds.w * z) / 2
+  const screenY = inset + (availH - bounds.h * z) / 2
+  editor.setCamera({ x: screenX / z - bounds.x, y: screenY / z - bounds.y, z }, { animation: { duration: 400 } })
+}
+
+/**
  * Draws a diagram while it is still being generated. Each update re-lays out
  * everything received so far: new shapes appear, existing ones glide to their
  * new positions, and arrows attach once both ends exist. The whole build is
@@ -120,10 +138,13 @@ export class DiagramBuilder {
   /**
    * @param leftInset - Screen pixels covered on the left (e.g. by the explanation
    *   card), so the final zoom fits the diagram into the visible area.
+   * @param place - Where a diagram that doesn't replace the canvas goes: beside
+   *   the existing shapes (default) or below them.
    */
   constructor(
     private readonly editor: Editor,
     private readonly leftInset: () => number = () => 0,
+    private readonly place: 'right' | 'below' = 'right',
   ) {}
 
   /** Draws the latest snapshot. Layouts run one at a time; stale snapshots are skipped. */
@@ -150,20 +171,8 @@ export class DiagramBuilder {
     this.draw(diagram, laidOut, this.finishing)
   }
 
-  /** Zooms to fit the diagram into the part of the screen not covered on the left. */
   private fitView(bounds: { x: number; y: number; w: number; h: number }) {
-    const { editor } = this
-    const screen = editor.getViewportScreenBounds()
-    const inset = 64
-    const left = Math.min(Math.max(0, this.leftInset()), screen.w / 2)
-    const availW = screen.w - left - inset * 2
-    const availH = screen.h - inset * 2
-    if (availW <= 0 || availH <= 0 || bounds.w <= 0 || bounds.h <= 0) return
-    const z = Math.min(1, availW / bounds.w, availH / bounds.h)
-    // tldraw's camera maps page to screen as (page + camera) * zoom.
-    const screenX = left + inset + (availW - bounds.w * z) / 2
-    const screenY = inset + (availH - bounds.h * z) / 2
-    editor.setCamera({ x: screenX / z - bounds.x, y: screenY / z - bounds.y, z }, { animation: { duration: 400 } })
+    fitBeside(this.editor, bounds, this.leftInset())
   }
 
   private start(diagram: LayoutDiagram) {
@@ -174,7 +183,9 @@ export class DiagramBuilder {
       ? { x: 0, y: 0 }
       : diagram.replace
         ? { x: existing.x, y: existing.y }
-        : { x: existing.maxX + GAP_FROM_EXISTING, y: existing.y }
+        : this.place === 'below'
+          ? { x: existing.x, y: existing.maxY + GAP_FROM_EXISTING }
+          : { x: existing.maxX + GAP_FROM_EXISTING, y: existing.y }
     if (diagram.replace) editor.deleteShapes([...editor.getCurrentPageShapeIds()])
   }
 

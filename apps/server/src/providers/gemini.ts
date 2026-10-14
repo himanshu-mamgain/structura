@@ -1,11 +1,8 @@
 import { ApiError, GoogleGenAI, type Content, type Part } from '@google/genai'
 import { z } from 'zod'
-import { AssistReplySchema } from '@structura/shared'
-import { promptText, SYSTEM } from '../prompt'
 import type { Provider } from './types'
 
 let ai: GoogleGenAI | undefined
-const responseJsonSchema = z.toJSONSchema(AssistReplySchema)
 
 // One comma-separated string, tried in order when a model is overloaded. Only models that
 // support generateContent work here; "-live" models are for the real-time Live API.
@@ -15,15 +12,32 @@ const MODELS = (process.env.GEMINI_MODEL ?? 'gemini-3.7-flash,gemini-3.5-flash-l
   .filter(Boolean)
 const RETRYABLE = new Set([429, 500, 503])
 
-export const streamGemini: Provider = async (req, onSnapshot, signal) => {
+/**
+ * The JSON schema without length and count limits. Gemini rejects schemas it
+ * considers too complex ("invalid argument"), and those limits, multiplied across
+ * nested arrays, push the database schema over that line.
+ */
+function withoutLimits(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(withoutLimits)
+  if (!schema || typeof schema !== 'object') return schema
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(schema)) {
+    if (key === 'minItems' || key === 'maxItems' || key === 'minLength' || key === 'maxLength') continue
+    out[key] = withoutLimits(value)
+  }
+  return out
+}
+
+export const streamGemini: Provider = async (call, onSnapshot, signal) => {
   ai ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
   const parts: Part[] = []
-  if (req.image) parts.push({ inlineData: { mimeType: 'image/png', data: req.image } })
-  parts.push({ text: promptText(req) })
+  if (call.image) parts.push({ inlineData: { mimeType: 'image/png', data: call.image } })
+  parts.push({ text: call.prompt })
+  const responseJsonSchema = withoutLimits(z.toJSONSchema(call.schema))
 
   const contents: Content[] = [
-    ...req.history.map((turn) => ({
+    ...call.history.map((turn) => ({
       role: turn.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: turn.text }],
     })),
@@ -40,7 +54,7 @@ export const streamGemini: Provider = async (req, onSnapshot, signal) => {
         model,
         contents,
         config: {
-          systemInstruction: SYSTEM,
+          systemInstruction: call.system,
           responseMimeType: 'application/json',
           responseJsonSchema,
           abortSignal: signal,
@@ -59,9 +73,16 @@ export const streamGemini: Provider = async (req, onSnapshot, signal) => {
       continue
     }
 
-    const parsed = AssistReplySchema.safeParse(JSON.parse(json || '{}'))
-    if (!parsed.success) throw new Error(`Gemini returned an invalid reply: ${parsed.error.message}`)
-    return parsed.data
+    const raw: unknown = JSON.parse(json || '{}')
+    const parsed = call.schema.safeParse(raw)
+    if (parsed.success) return parsed.data
+    // Gemini wasn't sent the length/count limits, so an answer that only breaks
+    // those (a slightly long label, one node too many) is still usable.
+    if (parsed.error.issues.every((issue) => issue.code === 'too_big' || issue.code === 'too_small')) {
+      console.warn(`Gemini answer exceeds schema limits; using it anyway (${parsed.error.issues.length} issues)`)
+      return raw as ReturnType<typeof call.schema.parse>
+    }
+    throw new Error(`Gemini returned an invalid reply: ${parsed.error.message}`)
   }
   throw lastError
 }

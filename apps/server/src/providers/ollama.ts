@@ -1,6 +1,4 @@
 import { z } from 'zod'
-import { AssistReplySchema } from '@structura/shared'
-import { promptText, SYSTEM } from '../prompt'
 import type { Provider } from './types'
 
 // A local model served by Ollama (https://ollama.com), through its own HTTP API.
@@ -13,9 +11,9 @@ const NUM_CTX = Number(process.env.OLLAMA_NUM_CTX ?? 8192)
 // already describes the canvas, so both are opt-in.
 const SEND_IMAGE = process.env.OLLAMA_VISION === 'true'
 const THINK = process.env.OLLAMA_THINK === 'true'
-
-// Ollama constrains generation to this schema, so the reply always parses.
-const format = z.toJSONSchema(AssistReplySchema)
+// Small models occasionally loop; cap each answer's length so a runaway reply
+// ends with an error instead of running for minutes.
+const NUM_PREDICT = Number(process.env.OLLAMA_NUM_PREDICT ?? 3000)
 
 /** An Ollama failure with a message that's safe and useful to show the user. */
 export class OllamaError extends Error {}
@@ -26,16 +24,18 @@ interface ChatChunk {
   error?: string
 }
 
-export const streamOllama: Provider = async (req, onSnapshot, signal) => {
+export const streamOllama: Provider = async (call, onSnapshot, signal) => {
   const messages = [
-    { role: 'system', content: SYSTEM },
-    ...req.history.map((turn) => ({ role: turn.role, content: turn.text })),
+    { role: 'system', content: call.system },
+    ...call.history.map((turn) => ({ role: turn.role, content: turn.text })),
     {
       role: 'user',
-      content: promptText(req),
-      ...(SEND_IMAGE && req.image ? { images: [req.image] } : {}),
+      content: call.prompt,
+      ...(SEND_IMAGE && call.image ? { images: [call.image] } : {}),
     },
   ]
+  // Ollama constrains generation to this schema, so the answer always parses.
+  const format = z.toJSONSchema(call.schema)
 
   let res: Response
   try {
@@ -49,8 +49,9 @@ export const streamOllama: Provider = async (req, onSnapshot, signal) => {
         format,
         think: THINK,
         // Keep the model loaded between requests; loading it again takes seconds.
+        // (num_ctx must stay the same for every call: changing it reloads the model.)
         keep_alive: '30m',
-        options: { num_ctx: NUM_CTX, temperature: 0.4 },
+        options: { num_ctx: NUM_CTX, num_predict: NUM_PREDICT, temperature: 0.4 },
       }),
       signal,
     })
@@ -93,7 +94,7 @@ export const streamOllama: Provider = async (req, onSnapshot, signal) => {
   } catch {
     throw new OllamaError(`${MODEL} stopped before finishing its answer. Try again, or raise OLLAMA_NUM_CTX.`)
   }
-  const parsed = AssistReplySchema.safeParse(raw)
+  const parsed = call.schema.safeParse(raw)
   if (!parsed.success) throw new OllamaError(`${MODEL} returned an invalid reply: ${parsed.error.issues[0]?.message ?? 'schema mismatch'}`)
   return parsed.data
 }
