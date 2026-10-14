@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'Structura',
         short_name: 'Structura',
-        description: 'Design canvas with a voice assistant that helps fix your designs.',
+        description: 'Learn system design in 3D: voice assistant, live load testing and guided walkthroughs.',
         theme_color: '#1e1b4b',
         background_color: '#ffffff',
         display: 'standalone',
@@ -20,35 +20,23 @@ export default defineConfig({
         scope: '/',
       },
       workbox: {
-        // tldraw makes the main bundle ~2 MB, above Workbox's default 2 MiB precache limit.
+        // Headroom for large chunks (the ELK layout engine is ~1.4 MB, three.js ~0.7 MB),
+        // so everything is precached and diagrams work offline.
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // wasm: the load simulator, so load tests work offline too.
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,wasm}'],
         // API calls always go to the network; never answer them with the app shell.
         navigateFallbackDenylist: [/^\/api\//],
-        runtimeCaching: [
-          {
-            // tldraw loads its fonts, icons and translations from this CDN.
-            urlPattern: ({ url }) => url.origin === 'https://cdn.tldraw.com',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'tldraw-assets',
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
     }),
   ],
   // host: true also listens on the local network, so phones and laptops on the same
-  // Wi-Fi can open http://<this-PC's-IP>:5173. /api is proxied to the server on this PC.
+  // Wi-Fi can open http://<this-PC's-IP>:5173.
   server: {
     host: true,
     port: 5173,
-    proxy: { '/api': 'http://localhost:3001' },
   },
   preview: {
     host: true,
-    proxy: { '/api': 'http://localhost:3001' },
   },
 })

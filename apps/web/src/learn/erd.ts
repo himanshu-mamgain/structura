@@ -1,5 +1,5 @@
 import type { Erd } from '@structura/shared'
-import type { LayoutDiagram } from './diagram'
+import type { LayoutDiagram } from '../board/layout'
 
 const RELATION_LABELS: Record<Erd['relations'][number]['kind'], string> = {
   'one-to-one': '1 : 1',
