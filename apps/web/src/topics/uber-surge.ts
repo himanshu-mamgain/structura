@@ -103,6 +103,7 @@ const simulator: Simulator = {
 }
 
 export const uberSurge: StaticTopic = {
+  difficulty: 'Advanced',
   kind: 'static',
   id: 'uber-surge',
   title: 'Uber Surge Pricing & Artificial Scarcity',
@@ -118,6 +119,8 @@ export const uberSurge: StaticTopic = {
     [98, "Recap"],
   ],
   guides: [
+    "primer-asynchronism",
+    "primer-availability-vs-consistency",
     "uber-tech-stack",
     "evolution-of-uber's-api-layer",
     "the-ultimate-kafka-101-you-cannot-miss",

@@ -1253,3 +1253,35 @@ button {
     padding: 0;
   }
 }
+
+.topic-heading .credit {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.topic-heading .credit a {
+  color: #a5b4fc;
+}
+
+/* Topics without a video: the diagram takes the full width. */
+@media (min-width: 760px) {
+  .topic-grid.no-side .diagram-card {
+    grid-column: 1 / -1;
+  }
+
+  .topic-grid.no-side .content-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .topic-grid.no-side .takeaways {
+    grid-column: 2;
+    grid-row: auto;
+  }
+}
+
+@media (min-width: 760px) and (max-width: 1199px) {
+  .topic-grid.no-side {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}

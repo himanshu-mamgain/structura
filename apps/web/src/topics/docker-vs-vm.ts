@@ -1,6 +1,7 @@
 import type { StaticTopic } from './types'
 
 export const dockerVsVm: StaticTopic = {
+  difficulty: 'Beginner',
   kind: 'static',
   id: 'docker-vs-vm',
   title: 'Docker vs Virtual Machines',
@@ -17,6 +18,7 @@ export const dockerVsVm: StaticTopic = {
     [89, "Recap"],
   ],
   guides: [
+    "primer-application-layer",
     "how-does-docker-work",
     "top-8-must-know-docker-concepts",
     "9-docker-best-practices-you-must-know",

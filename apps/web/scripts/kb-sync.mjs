@@ -1,10 +1,11 @@
-// Builds src/topics/library.json: the guide list of ByteByteGo's System Design 101
-// (github.com/ByteByteGoHq/system-design-101), used as Structura's syllabus.
+// Builds src/topics/library.json, Structura's syllabus, from two sources:
 //
-// That repo is CC BY-NC-ND 4.0 (no derivatives), so only facts are kept: each
-// guide's title, categories and tags, plus a link to the original. No article
-// text, descriptions or images are copied. Structura's own topics are written
-// from scratch and link back to the related guides.
+// - ByteByteGo's System Design 101 (github.com/ByteByteGoHq/system-design-101),
+//   CC BY-NC-ND 4.0 (no derivatives): only each guide's title, categories, tags
+//   and a link are kept. No article text, descriptions or images.
+// - Donne Martin's System Design Primer (github.com/donnemartin/system-design-primer),
+//   CC BY 4.0: its concept chapters and worked designs, linked by section. Being
+//   CC BY, Structura topics may be adapted from it, with credit.
 //
 //   node scripts/kb-sync.mjs
 import { writeFileSync } from 'node:fs'
@@ -90,21 +91,68 @@ const guides = (
   .filter(Boolean)
   .sort((a, b) => a.title.localeCompare(b.title))
 
+// ─── System Design Primer: its README's concept chapters and worked designs ───
+
+const PRIMER_URL = 'https://github.com/donnemartin/system-design-primer'
+const readme = await text('https://raw.githubusercontent.com/donnemartin/system-design-primer/master/README.md')
+/** GitHub's heading anchor: lowercase, punctuation dropped, spaces to dashes. */
+const anchor = (heading) => heading.toLowerCase().replace(/[^\p{L}\p{N} -]/gu, '').replace(/ /g, '-')
+const lines = readme.split(/\r?\n/)
+const from = lines.indexOf('## Performance vs scalability')
+const to = lines.indexOf('## Appendix')
+const concepts = []
+for (const line of lines.slice(from, to)) {
+  if (line.startsWith('## ')) {
+    const title = line.slice(3)
+    concepts.push({ slug: `primer-${anchor(title)}`, title, categories: ['primer-concepts'], tags: [], url: `${PRIMER_URL}#${anchor(title)}` })
+  } else if (line.startsWith('### ') && concepts.length && !/^(Source|Disadvantage)/.test(line.slice(4))) {
+    concepts.at(-1).tags.push(line.slice(4))
+  }
+}
+for (const c of concepts) c.tags = c.tags.slice(0, 4)
+const solutions = [...readme.matchAll(/^### (Design .+)$/gm)]
+  .map((m) => m[1].trim())
+  .filter((t) => !/hash map|parking lot|call center|deck of cards|chat server|least recently used/i.test(t))
+  .map((title) => ({ slug: `primer-${anchor(title)}`, title, categories: ['primer-solutions'], tags: [], url: `${PRIMER_URL}#${anchor(title)}` }))
+
+// ─── Community diagrams (no licence: linked, nothing copied) ───
+
+const DIAGRAMS = 'https://github.com/Chaki34/system-design-diagrams'
+const diagramTree = await json('https://api.github.com/repos/Chaki34/system-design-diagrams/git/trees/HEAD?recursive=1')
+const diagramFolders = [...new Set(diagramTree.tree.filter((f) => f.type === 'tree' && !f.path.includes('/')).map((f) => f.path))]
+const diagrams = diagramFolders.map((folder) => ({
+  slug: `diagrams-${folder.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+  title: folder.replace(/^System Design - /, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+  categories: ['community-diagrams'],
+  tags: ['diagrams'],
+  url: `${DIAGRAMS}/tree/HEAD/${encodeURIComponent(folder)}`,
+}))
+
 writeFileSync(
   out,
   `${JSON.stringify(
     {
-      source: {
-        name: 'ByteByteGo · System Design 101',
-        repo: `https://github.com/${REPO}`,
-        guideUrl: 'https://bytebytego.com/guides/{slug}/',
-        license: 'CC BY-NC-ND 4.0: titles and links only; read the guides on ByteByteGo.',
+      sources: {
+        bytebytego: { name: 'ByteByteGo · System Design 101', repo: `https://github.com/${REPO}`, license: 'CC BY-NC-ND 4.0: titles and links only.' },
+        primer: { name: 'System Design Primer (Donne Martin)', repo: PRIMER_URL, license: 'CC BY 4.0: topics adapted from it credit it.' },
+        course: { name: 'System Design 101 course (Mominur Rahman)', repo: 'https://github.com/mominurr/system-design-101', license: 'MIT: quiz and glossary reused with its notice.' },
+        diagrams: { name: 'System design diagrams (Chaki34)', repo: DIAGRAMS, license: 'No licence given: linked only.' },
       },
-      categories,
-      guides,
+      categories: [
+        { id: 'primer-concepts', title: 'Core concepts (Primer)', sort: 0, source: 'primer' },
+        { id: 'primer-solutions', title: 'Worked designs (Primer)', sort: 1, source: 'primer' },
+        ...categories.map((c) => ({ ...c, source: 'bytebytego' })),
+        { id: 'community-diagrams', title: 'Community diagrams', sort: 9999, source: 'diagrams' },
+      ],
+      guides: [
+        ...concepts.map((g) => ({ ...g, source: 'primer' })),
+        ...solutions.map((g) => ({ ...g, source: 'primer' })),
+        ...guides.map((g) => ({ ...g, source: 'bytebytego', url: `https://bytebytego.com/guides/${encodeURIComponent(g.slug)}/` })),
+        ...diagrams.map((g) => ({ ...g, source: 'diagrams' })),
+      ],
     },
     null,
     1,
   )}\n`,
 )
-console.log(`${guides.length} guides in ${categories.length} categories → src/topics/library.json`)
+console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${diagrams.length} diagram sets → src/topics/library.json`)

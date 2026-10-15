@@ -1,27 +1,41 @@
 import data from './library.json'
-import { STATIC_TOPICS, type StaticTopic } from '.'
+import type { StaticTopic } from './types'
 
-// The syllabus: ByteByteGo's System Design 101 guide list (titles, categories,
-// tags and links only; see scripts/kb-sync.mjs). Structura's topics are its own
-// writing and link back to the related guides.
+// The syllabus, from several open sources (see scripts/kb-sync.mjs): ByteByteGo's
+// System Design 101 (titles and links only), the System Design Primer (CC BY,
+// which topics may be adapted from), and community diagrams (linked only).
 
 export interface Guide {
   slug: string
   title: string
   categories: string[]
   tags: string[]
+  source: string
+  url: string
 }
 
-export const LIBRARY = data as { source: { name: string; repo: string; guideUrl: string; license: string }; categories: { id: string; title: string; sort: number }[]; guides: Guide[] }
+export interface Source {
+  name: string
+  repo: string
+  license: string
+}
 
-export const guideUrl = (slug: string) => LIBRARY.source.guideUrl.replace('{slug}', encodeURIComponent(slug))
+export const LIBRARY = data as {
+  sources: Record<string, Source>
+  categories: { id: string; title: string; sort: number; source: string }[]
+  guides: Guide[]
+}
 
 const bySlug = new Map(LIBRARY.guides.map((g) => [g.slug, g]))
+
+export const guideUrl = (slug: string) => bySlug.get(slug)?.url ?? '#'
+
+export const sourceOf = (guide: Guide): Source => LIBRARY.sources[guide.source]
 
 /** The library guides a topic links to for going deeper. */
 export const guidesFor = (topic: StaticTopic): Guide[] => (topic.guides ?? []).map((s) => bySlug.get(s)).filter((g): g is Guide => Boolean(g))
 
-/** The Structura topic that covers a guide, if any. */
-export const topicForGuide = (slug: string): StaticTopic | undefined => STATIC_TOPICS.find((t) => t.guides?.includes(slug))
+/** The Structura topic (of those given) that covers a guide, if any. */
+export const topicForGuide = (topics: StaticTopic[], slug: string): StaticTopic | undefined => topics.find((t) => t.guides?.includes(slug))
 
 export const categoryTitle = (id: string) => LIBRARY.categories.find((c) => c.id === id)?.title ?? id

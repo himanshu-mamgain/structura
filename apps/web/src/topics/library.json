@@ -1,88 +1,407 @@
 {
- "source": {
-  "name": "ByteByteGo · System Design 101",
-  "repo": "https://github.com/ByteByteGoHq/system-design-101",
-  "guideUrl": "https://bytebytego.com/guides/{slug}/",
-  "license": "CC BY-NC-ND 4.0: titles and links only; read the guides on ByteByteGo."
+ "sources": {
+  "bytebytego": {
+   "name": "ByteByteGo · System Design 101",
+   "repo": "https://github.com/ByteByteGoHq/system-design-101",
+   "license": "CC BY-NC-ND 4.0: titles and links only."
+  },
+  "primer": {
+   "name": "System Design Primer (Donne Martin)",
+   "repo": "https://github.com/donnemartin/system-design-primer",
+   "license": "CC BY 4.0: topics adapted from it credit it."
+  },
+  "course": {
+   "name": "System Design 101 course (Mominur Rahman)",
+   "repo": "https://github.com/mominurr/system-design-101",
+   "license": "MIT: quiz and glossary reused with its notice."
+  },
+  "diagrams": {
+   "name": "System design diagrams (Chaki34)",
+   "repo": "https://github.com/Chaki34/system-design-diagrams",
+   "license": "No licence given: linked only."
+  }
  },
  "categories": [
   {
+   "id": "primer-concepts",
+   "title": "Core concepts (Primer)",
+   "sort": 0,
+   "source": "primer"
+  },
+  {
+   "id": "primer-solutions",
+   "title": "Worked designs (Primer)",
+   "sort": 1,
+   "source": "primer"
+  },
+  {
    "id": "api-web-development",
    "title": "API and Web Development",
-   "sort": 100
+   "sort": 100,
+   "source": "bytebytego"
   },
   {
    "id": "real-world-case-studies",
    "title": "Real World Case Studies",
-   "sort": 110
+   "sort": 110,
+   "source": "bytebytego"
   },
   {
    "id": "ai-machine-learning",
    "title": "AI and Machine Learning",
-   "sort": 120
+   "sort": 120,
+   "source": "bytebytego"
   },
   {
    "id": "database-and-storage",
    "title": "Database and Storage",
-   "sort": 130
+   "sort": 130,
+   "source": "bytebytego"
   },
   {
    "id": "technical-interviews",
    "title": "Technical Interviews",
-   "sort": 140
+   "sort": 140,
+   "source": "bytebytego"
   },
   {
    "id": "caching-performance",
    "title": "Caching & Performance",
-   "sort": 150
+   "sort": 150,
+   "source": "bytebytego"
   },
   {
    "id": "payment-and-fintech",
    "title": "Payment and Fintech",
-   "sort": 160
+   "sort": 160,
+   "source": "bytebytego"
   },
   {
    "id": "software-architecture",
    "title": "Software Architecture",
-   "sort": 160
+   "sort": 160,
+   "source": "bytebytego"
   },
   {
    "id": "devtools-productivity",
    "title": "DevTools & Productivity",
-   "sort": 170
+   "sort": 170,
+   "source": "bytebytego"
   },
   {
    "id": "software-development",
    "title": "Software Development",
-   "sort": 170
+   "sort": 170,
+   "source": "bytebytego"
   },
   {
    "id": "cloud-distributed-systems",
    "title": "Cloud & Distributed Systems",
-   "sort": 180
+   "sort": 180,
+   "source": "bytebytego"
   },
   {
    "id": "how-it-works",
    "title": "How it Works?",
-   "sort": 190
+   "sort": 190,
+   "source": "bytebytego"
   },
   {
    "id": "devops-cicd",
    "title": "DevOps and CI/CD",
-   "sort": 200
+   "sort": 200,
+   "source": "bytebytego"
   },
   {
    "id": "security",
    "title": "Security",
-   "sort": 210
+   "sort": 210,
+   "source": "bytebytego"
   },
   {
    "id": "computer-fundamentals",
    "title": "Computer Fundamentals",
-   "sort": 220
+   "sort": 220,
+   "source": "bytebytego"
+  },
+  {
+   "id": "community-diagrams",
+   "title": "Community diagrams",
+   "sort": 9999,
+   "source": "diagrams"
   }
  ],
  "guides": [
+  {
+   "slug": "primer-performance-vs-scalability",
+   "title": "Performance vs scalability",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#performance-vs-scalability",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-latency-vs-throughput",
+   "title": "Latency vs throughput",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#latency-vs-throughput",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-availability-vs-consistency",
+   "title": "Availability vs consistency",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "CAP theorem"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#availability-vs-consistency",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-consistency-patterns",
+   "title": "Consistency patterns",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Weak consistency",
+    "Eventual consistency",
+    "Strong consistency"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#consistency-patterns",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-availability-patterns",
+   "title": "Availability patterns",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Fail-over",
+    "Replication",
+    "Availability in numbers"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#availability-patterns",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-domain-name-system",
+   "title": "Domain name system",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#domain-name-system",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-content-delivery-network",
+   "title": "Content delivery network",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Push CDNs",
+    "Pull CDNs"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#content-delivery-network",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-load-balancer",
+   "title": "Load balancer",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Layer 4 load balancing",
+    "Layer 7 load balancing",
+    "Horizontal scaling"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#load-balancer",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-reverse-proxy-web-server",
+   "title": "Reverse proxy (web server)",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Load balancer vs reverse proxy"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#reverse-proxy-web-server",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-application-layer",
+   "title": "Application layer",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Microservices",
+    "Service Discovery"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#application-layer",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-database",
+   "title": "Database",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Relational database management system (RDBMS)",
+    "NoSQL",
+    "SQL or NoSQL"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#database",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-cache",
+   "title": "Cache",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Client caching",
+    "CDN caching",
+    "Web server caching",
+    "Database caching"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#cache",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-asynchronism",
+   "title": "Asynchronism",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Message queues",
+    "Task queues",
+    "Back pressure"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#asynchronism",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-communication",
+   "title": "Communication",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [
+    "Hypertext transfer protocol (HTTP)",
+    "Transmission control protocol (TCP)",
+    "User datagram protocol (UDP)",
+    "Remote procedure call (RPC)"
+   ],
+   "url": "https://github.com/donnemartin/system-design-primer#communication",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-security",
+   "title": "Security",
+   "categories": [
+    "primer-concepts"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#security",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-pastebincom-or-bitly",
+   "title": "Design Pastebin.com (or Bit.ly)",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-pastebincom-or-bitly",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-the-twitter-timeline-and-search-or-facebook-feed-and-search",
+   "title": "Design the Twitter timeline and search (or Facebook feed and search)",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-the-twitter-timeline-and-search-or-facebook-feed-and-search",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-a-web-crawler",
+   "title": "Design a web crawler",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-a-web-crawler",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-mintcom",
+   "title": "Design Mint.com",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-mintcom",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-the-data-structures-for-a-social-network",
+   "title": "Design the data structures for a social network",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-the-data-structures-for-a-social-network",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-a-key-value-store-for-a-search-engine",
+   "title": "Design a key-value store for a search engine",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-a-key-value-store-for-a-search-engine",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-amazons-sales-ranking-by-category-feature",
+   "title": "Design Amazon's sales ranking by category feature",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-amazons-sales-ranking-by-category-feature",
+   "source": "primer"
+  },
+  {
+   "slug": "primer-design-a-system-that-scales-to-millions-of-users-on-aws",
+   "title": "Design a system that scales to millions of users on AWS",
+   "categories": [
+    "primer-solutions"
+   ],
+   "tags": [],
+   "url": "https://github.com/donnemartin/system-design-primer#design-a-system-that-scales-to-millions-of-users-on-aws",
+   "source": "primer"
+  },
   {
    "slug": "airbnb-artchitectural-evolution",
    "title": "0 to 1.5 Billion Guests: Airbnb's Architectural Evolution",
@@ -92,7 +411,9 @@
    "tags": [
     "Architecture",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/airbnb-artchitectural-evolution/"
   },
   {
    "slug": "10-books-for-software-developers",
@@ -103,7 +424,9 @@
    "tags": [
     "Software Development",
     "Books"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-books-for-software-developers/"
   },
   {
    "slug": "10-essential-components-of-a-production-web-application",
@@ -114,7 +437,9 @@
    "tags": [
     "Web Architecture",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-essential-components-of-a-production-web-application/"
   },
   {
    "slug": "10-good-coding-principles-to-improve-code-quality",
@@ -125,7 +450,9 @@
    "tags": [
     "coding practices",
     "software quality"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-good-coding-principles-to-improve-code-quality/"
   },
   {
    "slug": "10-key-data-structures-we-use-every-day",
@@ -136,7 +463,9 @@
    "tags": [
     "Data Structures",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-key-data-structures-we-use-every-day/"
   },
   {
    "slug": "10-principles-for-building-resilient-payment-systems-by-shopify",
@@ -147,7 +476,9 @@
    "tags": [
     "payment systems",
     "resilience"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-principles-for-building-resilient-payment-systems-by-shopify/"
   },
   {
    "slug": "10-system-design-tradeoffs-you-cannot-ignore",
@@ -158,7 +489,9 @@
    "tags": [
     "System Design",
     "Tradeoffs"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/10-system-design-tradeoffs-you-cannot-ignore/"
   },
   {
    "slug": "100x-postgres-scaling-at-figma",
@@ -169,7 +502,9 @@
    "tags": [
     "Postgres",
     "Scaling"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/100x-postgres-scaling-at-figma/"
   },
   {
    "slug": "11-steps-to-go-from-junior-to-senior-developer",
@@ -180,7 +515,9 @@
    "tags": [
     "career-growth",
     "software-engineering"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/11-steps-to-go-from-junior-to-senior-developer/"
   },
   {
    "slug": "15-open-source-projects-that-changed-the-world",
@@ -191,7 +528,9 @@
    "tags": [
     "Open Source",
     "Software Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/15-open-source-projects-that-changed-the-world/"
   },
   {
    "slug": "18-common-ports-worth-knowing",
@@ -202,7 +541,9 @@
    "tags": [
     "Networking",
     "Ports"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/18-common-ports-worth-knowing/"
   },
   {
    "slug": "18-key-design-patterns-every-developer-should-know",
@@ -213,7 +554,9 @@
    "tags": [
     "design patterns",
     "software development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/18-key-design-patterns-every-developer-should-know/"
   },
   {
    "slug": "2-decades-of-cloud-evolution",
@@ -224,7 +567,9 @@
    "tags": [
     "Cloud Computing",
     "Cloud Evolution"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/2-decades-of-cloud-evolution/"
   },
   {
    "slug": "20-popular-open-source-projects-started-or-supported-by-big-companies",
@@ -235,7 +580,9 @@
    "tags": [
     "Open Source",
     "Technology"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/20-popular-open-source-projects-started-or-supported-by-big-companies/"
   },
   {
    "slug": "25-papers-that-completely-transformed-the-computer-world",
@@ -246,7 +593,9 @@
    "tags": [
     "Distributed Systems",
     "Computer Science"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/25-papers-that-completely-transformed-the-computer-world/"
   },
   {
    "slug": "30-useful-ai-apps-that-can-help-you-in-2025",
@@ -257,7 +606,9 @@
    "tags": [
     "AI Tools",
     "Productivity"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/30-useful-ai-apps-that-can-help-you-in-2025/"
   },
   {
    "slug": "4-ways-netflix-uses-caching-to-hold-user-attention",
@@ -268,7 +619,9 @@
    "tags": [
     "Caching",
     "Netflix"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/4-ways-netflix-uses-caching-to-hold-user-attention/"
   },
   {
    "slug": "4-ways-of-qr-code-payment",
@@ -279,7 +632,9 @@
    "tags": [
     "QR Codes",
     "Payments"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/4-ways-of-qr-code-payment/"
   },
   {
    "slug": "5-functions-to-merge-data-with-pandas",
@@ -290,7 +645,9 @@
    "tags": [
     "Pandas",
     "Data Manipulation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/5-functions-to-merge-data-with-pandas/"
   },
   {
    "slug": "5-http-status-codes-that-should-never-have-been-created",
@@ -301,7 +658,9 @@
    "tags": [
     "HTTP Status Codes",
     "Web Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/5-http-status-codes-that-should-never-have-been-created/"
   },
   {
    "slug": "5-important-components-of-linux",
@@ -312,7 +671,9 @@
    "tags": [
     "linux",
     "operating-systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/5-important-components-of-linux/"
   },
   {
    "slug": "6-software-architectural-patterns-you-must-know",
@@ -323,7 +684,9 @@
    "tags": [
     "Architecture",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/6-software-architectural-patterns-you-must-know/"
   },
   {
    "slug": "7-must-know-strategies-to-scale-your-database",
@@ -334,7 +697,9 @@
    "tags": [
     "database scaling",
     "database optimization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/7-must-know-strategies-to-scale-your-database/"
   },
   {
    "slug": "8-common-system-design-problems-and-solutions",
@@ -345,7 +710,9 @@
    "tags": [
     "System Design",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-common-system-design-problems-and-solutions/"
   },
   {
    "slug": "8-data-structures-that-power-your-databases",
@@ -356,7 +723,9 @@
    "tags": [
     "Data Structures",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-data-structures-that-power-your-databases/"
   },
   {
    "slug": "8-key-concepts-in-ddd",
@@ -367,7 +736,9 @@
    "tags": [
     "DDD",
     "Software Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-key-concepts-in-ddd/"
   },
   {
    "slug": "8-key-oop-concepts-every-developer-should-know",
@@ -378,7 +749,9 @@
    "tags": [
     "OOP",
     "Programming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-key-oop-concepts-every-developer-should-know/"
   },
   {
    "slug": "8-must-know-scalability-strategies",
@@ -389,7 +762,9 @@
    "tags": [
     "Scalability",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-must-know-scalability-strategies/"
   },
   {
    "slug": "8-tips-for-efficient-api-design",
@@ -400,7 +775,9 @@
    "tags": [
     "API Design",
     "Best Practices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/8-tips-for-efficient-api-design/"
   },
   {
    "slug": "9-best-practices-for-building-microservices",
@@ -411,7 +788,9 @@
    "tags": [
     "Microservices",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/9-best-practices-for-building-microservices/"
   },
   {
    "slug": "9-best-practices-for-developing-microservices",
@@ -422,7 +801,9 @@
    "tags": [
     "microservices",
     "best practices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/9-best-practices-for-developing-microservices/"
   },
   {
    "slug": "9-docker-best-practices-you-must-know",
@@ -433,7 +814,9 @@
    "tags": [
     "Docker",
     "Containerization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/9-docker-best-practices-you-must-know/"
   },
   {
    "slug": "9-essential-components-of-a-production-microservice-application",
@@ -444,7 +827,9 @@
    "tags": [
     "Microservices",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/9-essential-components-of-a-production-microservice-application/"
   },
   {
    "slug": "a-beginner's-guide-to-cdn-content-delivery-network",
@@ -455,7 +840,9 @@
    "tags": [
     "CDN",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-beginner's-guide-to-cdn-content-delivery-network/"
   },
   {
    "slug": "a-brief-history-og-programming-languages",
@@ -466,7 +853,9 @@
    "tags": [
     "programming-languages",
     "history"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-brief-history-og-programming-languages/"
   },
   {
    "slug": "a-cheat-sheet-for-api-designs",
@@ -477,7 +866,9 @@
    "tags": [
     "API Design",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheat-sheet-for-api-designs/"
   },
   {
    "slug": "a-cheat-sheet-for-designing-fault-tolerant-systems",
@@ -488,7 +879,9 @@
    "tags": [
     "Fault Tolerance",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheat-sheet-for-designing-fault-tolerant-systems/"
   },
   {
    "slug": "a-cheat-sheet-for-system-designs",
@@ -499,7 +892,9 @@
    "tags": [
     "system design",
     "architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheat-sheet-for-system-designs/"
   },
   {
    "slug": "a-cheatsheet-on-comparing-api-architectural-styles",
@@ -510,7 +905,9 @@
    "tags": [
     "API",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheatsheet-on-comparing-api-architectural-styles/"
   },
   {
    "slug": "a-cheatsheet-on-database-performance",
@@ -521,7 +918,9 @@
    "tags": [
     "database",
     "performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheatsheet-on-database-performance/"
   },
   {
    "slug": "a-cheatsheet-to-build-secure-apis",
@@ -532,7 +931,9 @@
    "tags": [
     "API Security",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheatsheet-to-build-secure-apis/"
   },
   {
    "slug": "a-crash-course-on-architectural-scalability",
@@ -543,7 +944,9 @@
    "tags": [
     "Scalability",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-crash-course-on-architectural-scalability/"
   },
   {
    "slug": "a-crash-course-in-database-sharding",
@@ -554,7 +957,9 @@
    "tags": [
     "database",
     "sharding"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-crash-course-in-database-sharding/"
   },
   {
    "slug": "a-roadmap-for-full-stack-development",
@@ -565,7 +970,9 @@
    "tags": [
     "Full-Stack Development",
     "Software Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-roadmap-for-full-stack-development/"
   },
   {
    "slug": "algorithms-you-should-know-before-taking-system-design-interviews",
@@ -576,7 +983,9 @@
    "tags": [
     "System Design",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/algorithms-you-should-know-before-taking-system-design-interviews/"
   },
   {
    "slug": "amazon-prime-video-monitoring-service",
@@ -587,7 +996,9 @@
    "tags": [
     "Microservices",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/amazon-prime-video-monitoring-service/"
   },
   {
    "slug": "how-does-amazon-build-system-work",
@@ -598,7 +1009,9 @@
    "tags": [
     "Build Systems",
     "Amazon"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-amazon-build-system-work/"
   },
   {
    "slug": "api-gateway-101",
@@ -609,7 +1022,9 @@
    "tags": [
     "API Gateway",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/api-gateway-101/"
   },
   {
    "slug": "api-of-apis-app-integrations",
@@ -620,7 +1035,9 @@
    "tags": [
     "API Integration",
     "No-Code"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/api-of-apis-app-integrations/"
   },
   {
    "slug": "api-vs-sdk",
@@ -631,7 +1048,9 @@
    "tags": [
     "API",
     "SDK"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/api-vs-sdk/"
   },
   {
    "slug": "aws-services-cheat-sheet",
@@ -642,7 +1061,9 @@
    "tags": [
     "AWS",
     "Cloud Computing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/aws-services-cheat-sheet/"
   },
   {
    "slug": "aws-services-evolution",
@@ -653,7 +1074,9 @@
    "tags": [
     "Cloud Computing",
     "AWS"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/aws-services-evolution/"
   },
   {
    "slug": "azure-services-cheat-sheet",
@@ -664,7 +1087,9 @@
    "tags": [
     "Azure",
     "Cloud Computing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/azure-services-cheat-sheet/"
   },
   {
    "slug": "b-tree-vs",
@@ -675,7 +1100,9 @@
    "tags": [
     "Data Structures",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/b-tree-vs/"
   },
   {
    "slug": "big-data-pipeline-cheatsheet-for-aws-azure-and-google-cloud",
@@ -686,7 +1113,9 @@
    "tags": [
     "Big Data",
     "Cloud Computing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/big-data-pipeline-cheatsheet-for-aws-azure-and-google-cloud/"
   },
   {
    "slug": "big-endian-vs-little-endian",
@@ -697,7 +1126,9 @@
    "tags": [
     "Computer Architecture",
     "Data Representation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/big-endian-vs-little-endian/"
   },
   {
    "slug": "blocking-vs-non-blocking-queue",
@@ -708,7 +1139,9 @@
    "tags": [
     "Concurrency",
     "Data Structures"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/blocking-vs-non-blocking-queue/"
   },
   {
    "slug": "build-a-simple-chat-application",
@@ -719,7 +1152,9 @@
    "tags": [
     "Redis",
     "Chat Application"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/build-a-simple-chat-application/"
   },
   {
    "slug": "most-popular-cache-eviction",
@@ -730,7 +1165,9 @@
    "tags": [
     "Caching",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/most-popular-cache-eviction/"
   },
   {
    "slug": "cache-miss-attack",
@@ -741,7 +1178,9 @@
    "tags": [
     "Caching",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cache-miss-attack/"
   },
   {
    "slug": "cache-systems-every-developer-should-know",
@@ -752,7 +1191,9 @@
    "tags": [
     "Caching",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cache-systems-every-developer-should-know/"
   },
   {
    "slug": "can-kafka-lose-messages",
@@ -763,7 +1204,9 @@
    "tags": [
     "Kafka",
     "Message Loss"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/can-kafka-lose-messages/"
   },
   {
    "slug": "cap-theorem-one-of-the-most-misunderstood-terms",
@@ -774,7 +1217,9 @@
    "tags": [
     "distributed systems",
     "cap theorem"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cap-theorem-one-of-the-most-misunderstood-terms/"
   },
   {
    "slug": "cap-base-solid-kiss-what-do-these-acronyms-mean",
@@ -785,7 +1230,9 @@
    "tags": [
     "System Design",
     "Software Engineering"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cap-base-solid-kiss-what-do-these-acronyms-mean/"
   },
   {
    "slug": "change-data-capture-key-to-leverage-real-time-data",
@@ -796,7 +1243,9 @@
    "tags": [
     "Data Streaming",
     "Data Synchronization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/change-data-capture-key-to-leverage-real-time-data/"
   },
   {
    "slug": "chatgpt-timeline",
@@ -807,7 +1256,9 @@
    "tags": [
     "AI History",
     "NLP"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/chatgpt-timeline/"
   },
   {
    "slug": "choose-the-right-database-for-metric-collecting-system",
@@ -818,7 +1269,9 @@
    "tags": [
     "databases",
     "metrics"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/choose-the-right-database-for-metric-collecting-system/"
   },
   {
    "slug": "cicd-pipeline-explained-in-simple-terms",
@@ -829,7 +1282,9 @@
    "tags": [
     "CI/CD",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cicd-pipeline-explained-in-simple-terms/"
   },
   {
    "slug": "cicd-simplified-visual-guide",
@@ -840,7 +1295,9 @@
    "tags": [
     "CI/CD",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cicd-simplified-visual-guide/"
   },
   {
    "slug": "cloud-comparison-cheat-sheet",
@@ -851,7 +1308,9 @@
    "tags": [
     "Cloud Computing",
     "Comparison"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-comparison-cheat-sheet/"
   },
   {
    "slug": "cloud-cost-reduction-techniques",
@@ -862,7 +1321,9 @@
    "tags": [
     "Cloud Cost Optimization",
     "Resource Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-cost-reduction-techniques/"
   },
   {
    "slug": "cloud-database-cheat-sheet",
@@ -873,7 +1334,9 @@
    "tags": [
     "Cloud Computing",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-database-cheat-sheet/"
   },
   {
    "slug": "cloud-disaster-recovery-strategies",
@@ -884,7 +1347,9 @@
    "tags": [
     "Cloud Computing",
     "Disaster Recovery"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-disaster-recovery-strategies/"
   },
   {
    "slug": "cloud-load-balancer-cheat-sheet",
@@ -895,7 +1360,9 @@
    "tags": [
     "Cloud Computing",
     "Load Balancing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-load-balancer-cheat-sheet/"
   },
   {
    "slug": "cloud-monitoring-cheat-sheet",
@@ -906,7 +1373,9 @@
    "tags": [
     "Cloud Computing",
     "Monitoring"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-monitoring-cheat-sheet/"
   },
   {
    "slug": "cloud-native-anti-patterns",
@@ -917,7 +1386,9 @@
    "tags": [
     "Cloud Native",
     "Anti-Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cloud-native-anti-patterns/"
   },
   {
    "slug": "concurrency-is-not-parallelism",
@@ -928,7 +1399,9 @@
    "tags": [
     "Concurrency",
     "Parallelism"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/concurrency-is-not-parallelism/"
   },
   {
    "slug": "consistent-hashing",
@@ -939,7 +1412,9 @@
    "tags": [
     "Consistent Hashing",
     "Distributed Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/consistent-hashing/"
   },
   {
    "slug": "what-are-the-differences-between-cookies-and-sessions",
@@ -950,7 +1425,9 @@
    "tags": [
     "cookies",
     "sessions"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-differences-between-cookies-and-sessions/"
   },
   {
    "slug": "cookies-vs-sessions-vs-jwt-vs-paseto",
@@ -961,7 +1438,9 @@
    "tags": [
     "Authentication",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cookies-vs-sessions-vs-jwt-vs-paseto/"
   },
   {
    "slug": "cybersecurity-101-in-one-picture",
@@ -972,7 +1451,9 @@
    "tags": [
     "Cybersecurity",
     "Fundamentals"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/cybersecurity-101-in-one-picture/"
   },
   {
    "slug": "data-pipelines-overview",
@@ -983,7 +1464,9 @@
    "tags": [
     "data-pipelines",
     "data-processing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/data-pipelines-overview/"
   },
   {
    "slug": "how-is-data-transmitted-between-applications",
@@ -994,7 +1477,9 @@
    "tags": [
     "networking",
     "data-transfer"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-is-data-transmitted-between-applications/"
   },
   {
    "slug": "what-are-database-isolation-levels",
@@ -1005,7 +1490,9 @@
    "tags": [
     "Databases",
     "Transactions"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-database-isolation-levels/"
   },
   {
    "slug": "what-are-the-differences-among-database-locks",
@@ -1016,7 +1503,9 @@
    "tags": [
     "Database Locking",
     "Concurrency Control"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-differences-among-database-locks/"
   },
   {
    "slug": "database-middleware",
@@ -1027,7 +1516,9 @@
    "tags": [
     "Database Routing",
     "Proxy"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/database-middleware/"
   },
   {
    "slug": "deepseek-1-pager",
@@ -1038,7 +1529,9 @@
    "tags": [
     "AI Models",
     "DeepSeek"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/deepseek-1-pager/"
   },
   {
    "slug": "delivery-semantics",
@@ -1049,7 +1542,9 @@
    "tags": [
     "Message Queues",
     "Delivery Semantics"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/delivery-semantics/"
   },
   {
    "slug": "how-to-deploy-services",
@@ -1060,7 +1555,9 @@
    "tags": [
     "Deployment",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-deploy-services/"
   },
   {
    "slug": "design-gmail",
@@ -1071,7 +1568,9 @@
    "tags": [
     "Email",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/design-gmail/"
   },
   {
    "slug": "design-google-maps",
@@ -1082,7 +1581,9 @@
    "tags": [
     "System Design",
     "Maps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/design-google-maps/"
   },
   {
    "slug": "design-patterns-cheat-sheet-part-1-and-part-2",
@@ -1093,7 +1594,9 @@
    "tags": [
     "design patterns",
     "software design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/design-patterns-cheat-sheet-part-1-and-part-2/"
   },
   {
    "slug": "design-stock-exchange",
@@ -1104,7 +1607,9 @@
    "tags": [
     "System Design",
     "Trading Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/design-stock-exchange/"
   },
   {
    "slug": "how-do-we-design-a-chat-application-like-whatsapp-facebook-messenger-or-discord",
@@ -1115,7 +1620,9 @@
    "tags": [
     "architecture",
     "messaging"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-a-chat-application-like-whatsapp-facebook-messenger-or-discord/"
   },
   {
    "slug": "how-do-we-design-a-permission-system",
@@ -1126,7 +1633,9 @@
    "tags": [
     "access control",
     "rbac"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-a-permission-system/"
   },
   {
    "slug": "devops-vs-noops",
@@ -1137,7 +1646,9 @@
    "tags": [
     "Nginx",
     "Web Servers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/devops-vs-noops/"
   },
   {
    "slug": "devops-vs-sre-vs-paltform-engg",
@@ -1148,7 +1659,9 @@
    "tags": [
     "DevOps",
     "SRE"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/devops-vs-sre-vs-paltform-engg/"
   },
   {
    "slug": "diagram-as-code",
@@ -1159,7 +1672,9 @@
    "tags": [
     "diagrams",
     "architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/diagram-as-code/"
   },
   {
    "slug": "differences-in-event-sourcing-system-design",
@@ -1170,7 +1685,9 @@
    "tags": [
     "event sourcing",
     "system design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/differences-in-event-sourcing-system-design/"
   },
   {
    "slug": "digital-wallet-in-traditional-banks-vs-wallet-in-blockchain",
@@ -1181,7 +1698,9 @@
    "tags": [
     "Blockchain",
     "Digital Wallets"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/digital-wallet-in-traditional-banks-vs-wallet-in-blockchain/"
   },
   {
    "slug": "dns-record-types-you-should-know",
@@ -1192,7 +1711,9 @@
    "tags": [
     "DNS",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/dns-record-types-you-should-know/"
   },
   {
    "slug": "do-you-know-all-the-components-of-a-url",
@@ -1203,7 +1724,9 @@
    "tags": [
     "networking",
     "web-development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/do-you-know-all-the-components-of-a-url/"
   },
   {
    "slug": "e-commerce-workflow",
@@ -1214,7 +1737,9 @@
    "tags": [
     "E-commerce",
     "Supply Chain"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/e-commerce-workflow/"
   },
   {
    "slug": "encoding-vs-encryption-vs-tokenization",
@@ -1225,7 +1750,9 @@
    "tags": [
     "Data Security",
     "Data Handling"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/encoding-vs-encryption-vs-tokenization/"
   },
   {
    "slug": "erasure-coding",
@@ -1236,7 +1763,9 @@
    "tags": [
     "Data Storage",
     "Data Redundancy"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/erasure-coding/"
   },
   {
    "slug": "evolution-of-airbnb's-microservice",
@@ -1247,7 +1776,9 @@
    "tags": [
     "Microservices",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/evolution-of-airbnb's-microservice/"
   },
   {
    "slug": "evolution-of-the-netflix-api-architecture",
@@ -1258,7 +1789,9 @@
    "tags": [
     "API Architecture",
     "Netflix"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/evolution-of-the-netflix-api-architecture/"
   },
   {
    "slug": "evolution-of-uber's-api-layer",
@@ -1269,7 +1802,9 @@
    "tags": [
     "API Gateway",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/evolution-of-uber's-api-layer/"
   },
   {
    "slug": "possible-experiment-platform-architecture",
@@ -1280,7 +1815,9 @@
    "tags": [
     "A/B Testing",
     "Experimentation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/possible-experiment-platform-architecture/"
   },
   {
    "slug": "explain-the-top-6-use-cases-of-object-stores",
@@ -1291,7 +1828,9 @@
    "tags": [
     "Object Storage",
     "Data Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explain-the-top-6-use-cases-of-object-stores/"
   },
   {
    "slug": "explaining-5-unique-id-generators-in-distributed-systems",
@@ -1302,7 +1841,9 @@
    "tags": [
     "Distributed Systems",
     "Unique IDs"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-5-unique-id-generators-in-distributed-systems/"
   },
   {
    "slug": "explaining-8-popular-network-protocols-in-1-diagram",
@@ -1313,7 +1854,9 @@
    "tags": [
     "Networking",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-8-popular-network-protocols-in-1-diagram/"
   },
   {
    "slug": "explaining-9-types-of-api-testing",
@@ -1325,7 +1868,9 @@
    "tags": [
     "API Testing",
     "Software Testing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-9-types-of-api-testing/"
   },
   {
    "slug": "explaining-json-web-token-jwt-to-a-10-year-old-kid",
@@ -1336,7 +1881,9 @@
    "tags": [
     "JWT",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-json-web-token-jwt-to-a-10-year-old-kid/"
   },
   {
    "slug": "explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram",
@@ -1347,7 +1894,9 @@
    "tags": [
     "Data Structures",
     "Queues"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram/"
   },
   {
    "slug": "firewall-explained-to-kids-and-adults",
@@ -1358,7 +1907,9 @@
    "tags": [
     "Network Security",
     "Firewall"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/firewall-explained-to-kids-and-adults/"
   },
   {
    "slug": "fixing-bugs-automatically-at-meta-scale",
@@ -1369,7 +1920,9 @@
    "tags": [
     "Automation",
     "Debugging"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/fixing-bugs-automatically-at-meta-scale/"
   },
   {
    "slug": "foreign-exchange-payments",
@@ -1380,7 +1933,9 @@
    "tags": [
     "Payments",
     "Foreign Exchange"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/foreign-exchange-payments/"
   },
   {
    "slug": "how-to-load-your-websites-at-lightning-speed",
@@ -1391,7 +1946,9 @@
    "tags": [
     "frontend",
     "performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-load-your-websites-at-lightning-speed/"
   },
   {
    "slug": "git-commands-cheat-sheet",
@@ -1402,7 +1959,9 @@
    "tags": [
     "Git",
     "Version Control"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/git-commands-cheat-sheet/"
   },
   {
    "slug": "git-merge-vs-git-rebate",
@@ -1413,7 +1972,9 @@
    "tags": [
     "Git",
     "Version Control"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/git-merge-vs-git-rebate/"
   },
   {
    "slug": "git-vs-github",
@@ -1424,7 +1985,9 @@
    "tags": [
     "Version Control",
     "Git"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/git-vs-github/"
   },
   {
    "slug": "graphql-adoption-patterns",
@@ -1435,7 +1998,9 @@
    "tags": [
     "GraphQL",
     "API"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/graphql-adoption-patterns/"
   },
   {
    "slug": "handling-hotspot-accounts",
@@ -1446,7 +2011,9 @@
    "tags": [
     "Payment Systems",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/handling-hotspot-accounts/"
   },
   {
    "slug": "hidden-costs-of-the-cloud",
@@ -1457,7 +2024,9 @@
    "tags": [
     "Cloud Cost",
     "Cost Optimization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/hidden-costs-of-the-cloud/"
   },
   {
    "slug": "how-does-ach-payment-work",
@@ -1468,7 +2037,9 @@
    "tags": [
     "ACH",
     "Payments"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-ach-payment-work/"
   },
   {
    "slug": "how-are-notifications-pushed-to-our-phones-or-pcs",
@@ -1479,7 +2050,9 @@
    "tags": [
     "notifications",
     "mobile"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-are-notifications-pushed-to-our-phones-or-pcs/"
   },
   {
    "slug": "how-does-aws-lambda-work-behind-the-scenes",
@@ -1490,7 +2063,9 @@
    "tags": [
     "AWS Lambda",
     "Serverless"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-aws-lambda-work-behind-the-scenes/"
   },
   {
    "slug": "how-do-big-keys-impact-redis-persistence",
@@ -1501,7 +2076,9 @@
    "tags": [
     "Redis",
     "Persistence"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-big-keys-impact-redis-persistence/"
   },
   {
    "slug": "how-does-the-browser-render-a-web-page",
@@ -1512,7 +2089,9 @@
    "tags": [
     "browsers",
     "rendering"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-the-browser-render-a-web-page/"
   },
   {
    "slug": "how-can-cache-systems-go-wrong",
@@ -1523,7 +2102,9 @@
    "tags": [
     "Caching",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-can-cache-systems-go-wrong/"
   },
   {
    "slug": "how-can-redis-be-used",
@@ -1534,7 +2115,9 @@
    "tags": [
     "Redis",
     "Use Cases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-can-redis-be-used/"
   },
   {
    "slug": "how-digital-signatures-work",
@@ -1545,7 +2128,9 @@
    "tags": [
     "Cryptography",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-digital-signatures-work/"
   },
   {
    "slug": "how-discord-stores-trillions-of-messages",
@@ -1556,7 +2141,9 @@
    "tags": [
     "Databases",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-discord-stores-trillions-of-messages/"
   },
   {
    "slug": "how-do-airtags-work",
@@ -1567,7 +2154,9 @@
    "tags": [
     "Bluetooth",
     "Tracking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-airtags-work/"
   },
   {
    "slug": "how-applegoogle-pay-works",
@@ -1578,7 +2167,9 @@
    "tags": [
     "Payment Systems",
     "Mobile Payments"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-applegoogle-pay-works/"
   },
   {
    "slug": "how-do-c++-java-python-work",
@@ -1589,7 +2180,9 @@
    "tags": [
     "programming-languages",
     "compilers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-c%2B%2B-java-python-work/"
   },
   {
    "slug": "how-do-companies-ship-code-to-production",
@@ -1600,7 +2193,9 @@
    "tags": [
     "software-engineering",
     "deployment"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-companies-ship-code-to-production/"
   },
   {
    "slug": "how-do-computer-programs-run",
@@ -1611,7 +2206,9 @@
    "tags": [
     "operating-systems",
     "execution"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-computer-programs-run/"
   },
   {
    "slug": "how-do-search-engines-work",
@@ -1622,7 +2219,9 @@
    "tags": [
     "Search Engines",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-search-engines-work/"
   },
   {
    "slug": "how-do-sql-joins-work",
@@ -1633,7 +2232,9 @@
    "tags": [
     "SQL",
     "Database"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-sql-joins-work/"
   },
   {
    "slug": "how-do-we-incorporate-event-sourcing-into-the-systems",
@@ -1644,7 +2245,9 @@
    "tags": [
     "event sourcing",
     "microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-incorporate-event-sourcing-into-the-systems/"
   },
   {
    "slug": "how-do-we-manage-configurations-in-a-system",
@@ -1655,7 +2258,9 @@
    "tags": [
     "Infrastructure as Code",
     "Configuration Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-manage-configurations-in-a-system/"
   },
   {
    "slug": "how-do-we-manage-sensitive-data-in-a-system",
@@ -1666,7 +2271,9 @@
    "tags": [
     "data security",
     "data management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-manage-sensitive-data-in-a-system/"
   },
   {
    "slug": "how-do-we-perform-pagination-in-api-design",
@@ -1677,7 +2284,9 @@
    "tags": [
     "API Design",
     "Pagination"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-perform-pagination-in-api-design/"
   },
   {
    "slug": "how-does-a-typical-push-notification-system-work",
@@ -1688,7 +2297,9 @@
    "tags": [
     "System Design",
     "Notifications"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-a-typical-push-notification-system-work/"
   },
   {
    "slug": "how-does-a-vpn-work",
@@ -1699,7 +2310,9 @@
    "tags": [
     "VPN",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-a-vpn-work/"
   },
   {
    "slug": "how-does-cnd-work",
@@ -1710,7 +2323,9 @@
    "tags": [
     "CDN",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-cnd-work/"
   },
   {
    "slug": "how-does-chatgpt-work",
@@ -1721,7 +2336,9 @@
    "tags": [
     "ChatGPT",
     "Machine Learning"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-chatgpt-work/"
   },
   {
    "slug": "how-does-docker-work",
@@ -1732,7 +2349,9 @@
    "tags": [
     "Docker",
     "Containers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-docker-work/"
   },
   {
    "slug": "how-does-garbage-collection-work",
@@ -1743,7 +2362,9 @@
    "tags": [
     "garbage collection",
     "memory management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-garbage-collection-work/"
   },
   {
    "slug": "git-workflow",
@@ -1754,7 +2375,9 @@
    "tags": [
     "Git",
     "Version Control"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/git-workflow/"
   },
   {
    "slug": "how-does-grpc-work",
@@ -1765,7 +2388,9 @@
    "tags": [
     "gRPC",
     "RPC"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-grpc-work/"
   },
   {
    "slug": "how-does-https-work",
@@ -1776,7 +2401,9 @@
    "tags": [
     "HTTPS",
     "Encryption"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-https-work/"
   },
   {
    "slug": "how-does-javascript-work",
@@ -1787,7 +2414,9 @@
    "tags": [
     "javascript",
     "programming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-javascript-work/"
   },
   {
    "slug": "how-does-redis-persist-data",
@@ -1798,7 +2427,9 @@
    "tags": [
     "Redis",
     "Data Persistence"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-redis-persist-data/"
   },
   {
    "slug": "how-does-rest-api-work",
@@ -1809,7 +2440,9 @@
    "tags": [
     "rest-api",
     "web-development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-rest-api-work/"
   },
   {
    "slug": "how-does-ssh-work",
@@ -1820,7 +2453,9 @@
    "tags": [
     "SSH",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-ssh-work/"
   },
   {
    "slug": "how-does-terraform-turn-code-into-cloud",
@@ -1831,7 +2466,9 @@
    "tags": [
     "Terraform",
     "Infrastructure as Code"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-terraform-turn-code-into-cloud/"
   },
   {
    "slug": "how-does-the-domain-name-system-dns-lookup-work",
@@ -1842,7 +2479,9 @@
    "tags": [
     "DNS",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-the-domain-name-system-dns-lookup-work/"
   },
   {
    "slug": "how-does-twitter-recommend-tweets",
@@ -1853,7 +2492,9 @@
    "tags": [
     "System Design",
     "Recommendation Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-twitter-recommend-tweets/"
   },
   {
    "slug": "how-does-visa-make-money",
@@ -1864,7 +2505,9 @@
    "tags": [
     "Fintech",
     "Visa"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-visa-make-money/"
   },
   {
    "slug": "how-does-git-work",
@@ -1875,7 +2518,9 @@
    "tags": [
     "git",
     "version control"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-git-work/"
   },
   {
    "slug": "how-does-google-authenticator-or-other-types-of-2-factor-authenticators-work",
@@ -1886,7 +2531,9 @@
    "tags": [
     "2FA",
     "Authentication"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-google-authenticator-or-other-types-of-2-factor-authenticators-work/"
   },
   {
    "slug": "how-do-googleapple-maps-blur-license-plates-and-human-faces-on-street-view",
@@ -1897,7 +2544,9 @@
    "tags": [
     "Machine Learning",
     "Image Processing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-googleapple-maps-blur-license-plates-and-human-faces-on-street-view/"
   },
   {
    "slug": "how-does-graphql-work-in-the-real-world",
@@ -1908,7 +2557,9 @@
    "tags": [
     "GraphQL",
     "LinkedIn"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-graphql-work-in-the-real-world/"
   },
   {
    "slug": "how-is-email-delivered",
@@ -1919,7 +2570,9 @@
    "tags": [
     "EmailProtocols",
     "EmailDelivery"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-is-email-delivered/"
   },
   {
    "slug": "how-levelsfyi-scaled-to-millions-of-users-with-google-sheets",
@@ -1930,7 +2583,9 @@
    "tags": [
     "Scalability",
     "Google Sheets"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-levelsfyi-scaled-to-millions-of-users-with-google-sheets/"
   },
   {
    "slug": "how-nat-made-the-growth-of-the-internet-possible",
@@ -1941,7 +2596,9 @@
    "tags": [
     "NAT",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-nat-made-the-growth-of-the-internet-possible/"
   },
   {
    "slug": "how-netflix-really-uses-java",
@@ -1952,7 +2609,9 @@
    "tags": [
     "Java",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-netflix-really-uses-java/"
   },
   {
    "slug": "how-does-netflix-scale-push-messaging-for-millions-of-devices",
@@ -1963,7 +2622,9 @@
    "tags": [
     "System Design",
     "Push Notifications"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-netflix-scale-push-messaging-for-millions-of-devices/"
   },
   {
    "slug": "how-does-a-password-manager-such-as-1password-or-lastpass-work",
@@ -1974,7 +2635,9 @@
    "tags": [
     "security",
     "passwords"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-a-password-manager-such-as-1password-or-lastpass-work/"
   },
   {
    "slug": "how-redis-architecture-evolve",
@@ -1985,7 +2648,9 @@
    "tags": [
     "Redis",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-redis-architecture-evolve/"
   },
   {
    "slug": "how-does-scan-to-pay-work",
@@ -1996,7 +2661,9 @@
    "tags": [
     "Payment Systems",
     "QR Codes"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-scan-to-pay-work/"
   },
   {
    "slug": "how-tiktok-manages-a-200k-file-frontend-monorepo",
@@ -2007,7 +2674,9 @@
    "tags": [
     "Monorepo",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-tiktok-manages-a-200k-file-frontend-monorepo/"
   },
   {
    "slug": "how-to-ace-system-design-interviews-like-a-boss",
@@ -2018,7 +2687,9 @@
    "tags": [
     "System Design",
     "Interview Preparation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-ace-system-design-interviews-like-a-boss/"
   },
   {
    "slug": "how-to-avoid-crawling-duplicate-urls-at-google-scale",
@@ -2029,7 +2700,9 @@
    "tags": [
     "Bloom Filter",
     "Web Crawling"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-avoid-crawling-duplicate-urls-at-google-scale/"
   },
   {
    "slug": "how-to-avoid-double-payment",
@@ -2040,7 +2713,9 @@
    "tags": [
     "Payment Systems",
     "Idempotency"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-avoid-double-payment/"
   },
   {
    "slug": "how-to-choose-the-right-database",
@@ -2051,7 +2726,9 @@
    "tags": [
     "database selection",
     "data storage"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-choose-the-right-database/"
   },
   {
    "slug": "how-do-you-decide-which-type-of-database-to-use",
@@ -2062,7 +2739,9 @@
    "tags": [
     "database selection",
     "database types"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-you-decide-which-type-of-database-to-use/"
   },
   {
    "slug": "how-do-we-design-a-secure-system",
@@ -2073,7 +2752,9 @@
    "tags": [
     "security design",
     "system design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-a-secure-system/"
   },
   {
    "slug": "how-do-we-design-a-system-for-internationalization",
@@ -2084,7 +2765,9 @@
    "tags": [
     "internationalization",
     "system design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-a-system-for-internationalization/"
   },
   {
    "slug": "how-do-we-design-effective-and-safe-apis",
@@ -2095,7 +2778,9 @@
    "tags": [
     "API Design",
     "Software Engineering"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-effective-and-safe-apis/"
   },
   {
    "slug": "how-do-we-design-for-high-availability",
@@ -2106,7 +2791,9 @@
    "tags": [
     "high-availability",
     "system-design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-design-for-high-availability/"
   },
   {
    "slug": "how-to-design-google-docs",
@@ -2117,7 +2804,9 @@
    "tags": [
     "System Design",
     "Real-time Collaboration"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-design-google-docs/"
   },
   {
    "slug": "how-to-design-secure-web-api-access-for-your-website",
@@ -2128,7 +2817,9 @@
    "tags": [
     "API Security",
     "Authentication"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-design-secure-web-api-access-for-your-website/"
   },
   {
    "slug": "how-will-you-design-the-stack-overflow-website",
@@ -2139,7 +2830,9 @@
    "tags": [
     "System Design",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-will-you-design-the-stack-overflow-website/"
   },
   {
    "slug": "how-do-we-detect-node-failures-in-distributed-systems",
@@ -2150,7 +2843,9 @@
    "tags": [
     "distributed systems",
     "failure detection"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-detect-node-failures-in-distributed-systems/"
   },
   {
    "slug": "how-to-handle-web-request-error",
@@ -2161,7 +2856,9 @@
    "tags": [
     "Error Handling",
     "Web Requests"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-handle-web-request-error/"
   },
   {
    "slug": "how-to-implement-read-replica-pattern",
@@ -2172,7 +2869,9 @@
    "tags": [
     "Database",
     "Read Replicas"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-implement-read-replica-pattern/"
   },
   {
    "slug": "how-do-we-learn-elasticsearch",
@@ -2183,7 +2882,9 @@
    "tags": [
     "Elasticsearch",
     "Search"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-learn-elasticsearch/"
   },
   {
    "slug": "how-to-learn-payments",
@@ -2194,7 +2895,9 @@
    "tags": [
     "Payments",
     "Fintech"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-learn-payments/"
   },
   {
    "slug": "how-to-release-a-mobile-app",
@@ -2205,7 +2908,9 @@
    "tags": [
     "Mobile Development",
     "App Release"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-release-a-mobile-app/"
   },
   {
    "slug": "how-do-we-transform-a-system-to-be-cloud-native",
@@ -2216,7 +2921,9 @@
    "tags": [
     "cloud-native",
     "architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-transform-a-system-to-be-cloud-native/"
   },
   {
    "slug": "how-to-upload-a-large-file-to-s3",
@@ -2227,7 +2934,9 @@
    "tags": [
     "S3",
     "Object Storage"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-upload-a-large-file-to-s3/"
   },
   {
    "slug": "how-does-visa-work-when-we-swipe-a-credit-card-at-a-merchant's-shop",
@@ -2238,7 +2947,9 @@
    "tags": [
     "VISA",
     "Payment Processing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-visa-work-when-we-swipe-a-credit-card-at-a-merchant's-shop/"
   },
   {
    "slug": "how-does-youtube-handle-massive-video-content-upload",
@@ -2249,7 +2960,9 @@
    "tags": [
     "Architecture",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-does-youtube-handle-massive-video-content-upload/"
   },
   {
    "slug": "http-cookies-explained-with-a-simple-diagram",
@@ -2260,7 +2973,9 @@
    "tags": [
     "HTTP",
     "Web Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/http-cookies-explained-with-a-simple-diagram/"
   },
   {
    "slug": "http-status-code-you-should-know",
@@ -2271,7 +2986,9 @@
    "tags": [
     "HTTP",
     "API"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/http-status-code-you-should-know/"
   },
   {
    "slug": "http1-http2-http3",
@@ -2282,7 +2999,9 @@
    "tags": [
     "HTTP",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/http1-http2-http3/"
   },
   {
    "slug": "https-ssl-handshake-and-data-encryption-explained-to-kids",
@@ -2293,7 +3012,9 @@
    "tags": [
     "HTTPS",
     "Encryption"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/https-ssl-handshake-and-data-encryption-explained-to-kids/"
   },
   {
    "slug": "how-do-message-queue-architectures-evolve",
@@ -2304,7 +3025,9 @@
    "tags": [
     "Message Queues",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-message-queue-architectures-evolve/"
   },
   {
    "slug": "imperative-vs-functional-vs-object-oriented-programming",
@@ -2315,7 +3038,9 @@
    "tags": [
     "Programming Paradigms",
     "Software Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/imperative-vs-functional-vs-object-oriented-programming/"
   },
   {
    "slug": "important-things-about-http-headers-you-may-not-know",
@@ -2326,7 +3051,9 @@
    "tags": [
     "HTTP",
     "Headers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/important-things-about-http-headers-you-may-not-know/"
   },
   {
    "slug": "a-cheatsheet-on-infrastructure-as-code-landscape",
@@ -2337,7 +3064,9 @@
    "tags": [
     "Infrastructure as Code",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheatsheet-on-infrastructure-as-code-landscape/"
   },
   {
    "slug": "how-do-processes-talk-to-each-other-on-linux",
@@ -2348,7 +3077,9 @@
    "tags": [
     "Linux",
     "IPC"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-processes-talk-to-each-other-on-linux/"
   },
   {
    "slug": "internet-traffic-routing-policies",
@@ -2359,7 +3090,9 @@
    "tags": [
     "Networking",
     "Routing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/internet-traffic-routing-policies/"
   },
   {
    "slug": "ipv4-vs-ipv6",
@@ -2370,7 +3103,9 @@
    "tags": [
     "Networking",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/ipv4-vs-ipv6/"
   },
   {
    "slug": "iqiyi-database-selection-trees",
@@ -2381,7 +3116,9 @@
    "tags": [
     "database selection",
     "iQIYI"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/iqiyi-database-selection-trees/"
   },
   {
    "slug": "is-https-safe",
@@ -2392,7 +3129,9 @@
    "tags": [
     "HTTPS",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-https-safe/"
   },
   {
    "slug": "is-microservice-architecture-the-silver-bullet",
@@ -2403,7 +3142,9 @@
    "tags": [
     "microservices",
     "architecture patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-microservice-architecture-the-silver-bullet/"
   },
   {
    "slug": "is-passkey-shaping-a-passwordless-future",
@@ -2414,7 +3155,9 @@
    "tags": [
     "Authentication",
     "Passkeys"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-passkey-shaping-a-passwordless-future/"
   },
   {
    "slug": "is-postgresql-eating-the-database-world",
@@ -2425,7 +3168,9 @@
    "tags": [
     "PostgreSQL",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-postgresql-eating-the-database-world/"
   },
   {
    "slug": "is-telegram-secure",
@@ -2436,7 +3181,9 @@
    "tags": [
     "Security",
     "Encryption"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-telegram-secure/"
   },
   {
    "slug": "java-collection-hierarchy",
@@ -2447,7 +3194,9 @@
    "tags": [
     "Java",
     "Data Structures"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/java-collection-hierarchy/"
   },
   {
    "slug": "json-files",
@@ -2458,7 +3207,9 @@
    "tags": [
     "JSON",
     "Visualization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/json-files/"
   },
   {
    "slug": "jwt-101-key-to-stateless-authentication",
@@ -2469,7 +3220,9 @@
    "tags": [
     "authentication",
     "jwt"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/jwt-101-key-to-stateless-authentication/"
   },
   {
    "slug": "key-concepts-to-understand-database-sharding",
@@ -2480,7 +3233,9 @@
    "tags": [
     "Database Sharding",
     "Database Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/key-concepts-to-understand-database-sharding/"
   },
   {
    "slug": "key-data-terms",
@@ -2491,7 +3246,9 @@
    "tags": [
     "Data Warehousing",
     "Data Lakes"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/key-data-terms/"
   },
   {
    "slug": "key-terms-in-domain-driven-design",
@@ -2502,7 +3259,9 @@
    "tags": [
     "Domain-Driven Design",
     "Software Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/key-terms-in-domain-driven-design/"
   },
   {
    "slug": "key-use-cases-for-load-balancers",
@@ -2513,7 +3272,9 @@
    "tags": [
     "Load Balancing",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/key-use-cases-for-load-balancers/"
   },
   {
    "slug": "the-ultimate-kubernetes-command-cheatsheet",
@@ -2524,7 +3285,9 @@
    "tags": [
     "Kubernetes",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-ultimate-kubernetes-command-cheatsheet/"
   },
   {
    "slug": "kubernetes-deployment-strategies",
@@ -2535,7 +3298,9 @@
    "tags": [
     "Kubernetes",
     "Deployment"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/kubernetes-deployment-strategies/"
   },
   {
    "slug": "kubernetes-periodic-table",
@@ -2546,7 +3311,9 @@
    "tags": [
     "Kubernetes",
     "Orchestration"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/kubernetes-periodic-table/"
   },
   {
    "slug": "kubernetes-tools-ecosystem",
@@ -2557,7 +3324,9 @@
    "tags": [
     "Kubernetes",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/kubernetes-tools-ecosystem/"
   },
   {
    "slug": "kubernetes-tools-stack-wheel",
@@ -2568,7 +3337,9 @@
    "tags": [
     "Kubernetes",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/kubernetes-tools-stack-wheel/"
   },
   {
    "slug": "learn-cache",
@@ -2579,7 +3350,9 @@
    "tags": [
     "Caching",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/learn-cache/"
   },
   {
    "slug": "life-is-short-use-dev-tools",
@@ -2590,7 +3363,9 @@
    "tags": [
     "Productivity",
     "Dev Tools"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/life-is-short-use-dev-tools/"
   },
   {
    "slug": "linux-boot-process-explained",
@@ -2602,7 +3377,9 @@
    "tags": [
     "Linux",
     "Operating Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/linux-boot-process-explained/"
   },
   {
    "slug": "linux-file-permission-illustrated",
@@ -2613,7 +3390,9 @@
    "tags": [
     "Linux",
     "File Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/linux-file-permission-illustrated/"
   },
   {
    "slug": "linux-file-system-explained",
@@ -2624,7 +3403,9 @@
    "tags": [
     "Linux",
     "Filesystem"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/linux-file-system-explained/"
   },
   {
    "slug": "live-streaming-explained",
@@ -2635,7 +3416,9 @@
    "tags": [
     "Live Streaming",
     "Video Streaming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/live-streaming-explained/"
   },
   {
    "slug": "load-balancer-realistic-use-cases-you-may-not-know",
@@ -2646,7 +3429,9 @@
    "tags": [
     "Load Balancing",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/load-balancer-realistic-use-cases-you-may-not-know/"
   },
   {
    "slug": "what-are-the-differences-between-a-load-balancer-and-an-api-gateway",
@@ -2657,7 +3442,9 @@
    "tags": [
     "API Gateway",
     "Load Balancer"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-differences-between-a-load-balancer-and-an-api-gateway/"
   },
   {
    "slug": "log-parsing-cheat-sheet",
@@ -2668,7 +3455,9 @@
    "tags": [
     "Log Analysis",
     "Command Line"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/log-parsing-cheat-sheet/"
   },
   {
    "slug": "logging-tracing-metrics",
@@ -2679,7 +3468,9 @@
    "tags": [
     "observability",
     "monitoring"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/logging-tracing-metrics/"
   },
   {
    "slug": "low-latency-stock-exchange",
@@ -2690,7 +3481,9 @@
    "tags": [
     "Low Latency",
     "Stock Exchange"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/low-latency-stock-exchange/"
   },
   {
    "slug": "making-sense-of-search-engine-optimization",
@@ -2701,7 +3494,9 @@
    "tags": [
     "SEO",
     "Web Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/making-sense-of-search-engine-optimization/"
   },
   {
    "slug": "mcdonald's-event-driven-architecture",
@@ -2712,7 +3507,9 @@
    "tags": [
     "Event-Driven Architecture",
     "Case Study"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/mcdonald's-event-driven-architecture/"
   },
   {
    "slug": "memcached-vs-redis",
@@ -2723,7 +3520,9 @@
    "tags": [
     "memcached",
     "redis"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/memcached-vs-redis/"
   },
   {
    "slug": "money-movement",
@@ -2734,7 +3533,9 @@
    "tags": [
     "Payments",
     "Fintech"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/money-movement/"
   },
   {
    "slug": "monorepo-vs",
@@ -2745,7 +3546,9 @@
    "tags": [
     "Monorepo",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/monorepo-vs/"
   },
   {
    "slug": "what-are-the-most-important-aws-services-to-learn",
@@ -2756,7 +3559,9 @@
    "tags": [
     "AWS",
     "Cloud Computing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-most-important-aws-services-to-learn/"
   },
   {
    "slug": "most-used-linux-commands-map",
@@ -2767,7 +3572,9 @@
    "tags": [
     "linux",
     "commands"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/most-used-linux-commands-map/"
   },
   {
    "slug": "must-know-system-design-building-blocks",
@@ -2778,7 +3585,9 @@
    "tags": [
     "system design",
     "scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/must-know-system-design-building-blocks/"
   },
   {
    "slug": "mvc-mvp-mvvm-viper-patterns",
@@ -2789,7 +3598,9 @@
    "tags": [
     "architectural patterns",
     "software design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/mvc-mvp-mvvm-viper-patterns/"
   },
   {
    "slug": "netflix-tech-stack-cicd-pipeline",
@@ -2801,7 +3612,9 @@
    "tags": [
     "CI/CD",
     "Streaming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/netflix-tech-stack-cicd-pipeline/"
   },
   {
    "slug": "netflix-tech-stack-databases",
@@ -2812,7 +3625,9 @@
    "tags": [
     "Databases",
     "Tech Stack"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/netflix-tech-stack-databases/"
   },
   {
    "slug": "netflixs-overall-architecture",
@@ -2823,7 +3638,9 @@
    "tags": [
     "Architecture",
     "Streaming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/netflixs-overall-architecture/"
   },
   {
    "slug": "netflixs-tech-stack",
@@ -2834,7 +3651,9 @@
    "tags": [
     "Architecture",
     "Streaming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/netflixs-tech-stack/"
   },
   {
    "slug": "oauth-2-explained-with-siple-terms",
@@ -2845,7 +3664,9 @@
    "tags": [
     "OAuth 2.0",
     "Authentication"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/oauth-2-explained-with-siple-terms/"
   },
   {
    "slug": "oauth-20-flows",
@@ -2856,7 +3677,9 @@
    "tags": [
     "OAuth 2.0",
     "Authorization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/oauth-20-flows/"
   },
   {
    "slug": "orchestration-vs-choreography-microservices",
@@ -2867,7 +3690,9 @@
    "tags": [
     "Microservices",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/orchestration-vs-choreography-microservices/"
   },
   {
    "slug": "what-is-osi-model",
@@ -2878,7 +3703,9 @@
    "tags": [
     "Networking",
     "OSI Model"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-osi-model/"
   },
   {
    "slug": "what-are-the-differences-between-paging-and-segmentation",
@@ -2889,7 +3716,9 @@
    "tags": [
     "Memory Management",
     "Operating Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-differences-between-paging-and-segmentation/"
   },
   {
    "slug": "paradigm-shift-how-developer-to-tester-ratio-changed-from-11-to-1001",
@@ -2900,7 +3729,9 @@
    "tags": [
     "Software Testing",
     "DevOps"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/paradigm-shift-how-developer-to-tester-ratio-changed-from-11-to-1001/"
   },
   {
    "slug": "payment-system",
@@ -2912,7 +3743,9 @@
    "tags": [
     "Payment Processing",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/payment-system/"
   },
   {
    "slug": "pessimistic-vs-optimistic-locking",
@@ -2923,7 +3756,9 @@
    "tags": [
     "Concurrency Control",
     "Database Transactions"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/pessimistic-vs-optimistic-locking/"
   },
   {
    "slug": "polling-vs-webhooks",
@@ -2934,7 +3769,9 @@
    "tags": [
     "APIs",
     "Webhooks"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/polling-vs-webhooks/"
   },
   {
    "slug": "what-is-the-difference-between-process-and-thread",
@@ -2945,7 +3782,9 @@
    "tags": [
     "Operating Systems",
     "Concurrency"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-the-difference-between-process-and-thread/"
   },
   {
    "slug": "proximity-service",
@@ -2956,7 +3795,9 @@
    "tags": [
     "Location Services",
     "Geospatial Data"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/proximity-service/"
   },
   {
    "slug": "proxy-vs-reverse-proxy",
@@ -2967,7 +3808,9 @@
    "tags": [
     "Networking",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/proxy-vs-reverse-proxy/"
   },
   {
    "slug": "push-vs-pull-in-metrics-collecting-systems",
@@ -2978,7 +3821,9 @@
    "tags": [
     "metrics",
     "monitoring"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/push-vs-pull-in-metrics-collecting-systems/"
   },
   {
    "slug": "quadtree",
@@ -2989,7 +3834,9 @@
    "tags": [
     "Data Structures",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/quadtree/"
   },
   {
    "slug": "read-replica-pattern",
@@ -3000,7 +3847,9 @@
    "tags": [
     "Database Replication",
     "Read Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/read-replica-pattern/"
   },
   {
    "slug": "my-recommended-materials-for-cracking-your-next-technical-interview",
@@ -3011,7 +3860,9 @@
    "tags": [
     "interview preparation",
     "system design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/my-recommended-materials-for-cracking-your-next-technical-interview/"
   },
   {
    "slug": "reconciliation-in-payment",
@@ -3022,7 +3873,9 @@
    "tags": [
     "Payment Systems",
     "Data Reconciliation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/reconciliation-in-payment/"
   },
   {
    "slug": "reddit's-core-architecture",
@@ -3033,7 +3886,9 @@
    "tags": [
     "Architecture",
     "Social Media"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/reddit's-core-architecture/"
   },
   {
    "slug": "resiliency-patterns",
@@ -3044,7 +3899,9 @@
    "tags": [
     "Resilience",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/resiliency-patterns/"
   },
   {
    "slug": "rest-api-cheatsheet",
@@ -3055,7 +3912,9 @@
    "tags": [
     "API",
     "REST"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/rest-api-cheatsheet/"
   },
   {
    "slug": "rest-api-vs-graphql",
@@ -3066,7 +3925,9 @@
    "tags": [
     "API",
     "GraphQL"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/rest-api-vs-graphql/"
   },
   {
    "slug": "how-do-we-retry-on-failures",
@@ -3077,7 +3938,9 @@
    "tags": [
     "distributed systems",
     "retry strategies"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-retry-on-failures/"
   },
   {
    "slug": "reverse-proxy-vs-api-gateway-vs-load-balancer",
@@ -3088,7 +3951,9 @@
    "tags": [
     "API Gateway",
     "Load Balancing"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/reverse-proxy-vs-api-gateway-vs-load-balancer/"
   },
   {
    "slug": "is-it-possible-to-run-c-c++-or-rust-on-a-web-browser",
@@ -3099,7 +3964,9 @@
    "tags": [
     "WebAssembly",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/is-it-possible-to-run-c-c%2B%2B-or-rust-on-a-web-browser/"
   },
   {
    "slug": "how-to-scale-a-website-to-support-millions-of-users",
@@ -3110,7 +3977,9 @@
    "tags": [
     "scalability",
     "architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-scale-a-website-to-support-millions-of-users/"
   },
   {
    "slug": "what's-the-difference-between-session-based-authentication-and-jwts",
@@ -3121,7 +3990,9 @@
    "tags": [
     "Authentication",
     "JWT"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what's-the-difference-between-session-based-authentication-and-jwts/"
   },
   {
    "slug": "session-cookie-jwt-token-sso-and-oauth-2",
@@ -3132,7 +4003,9 @@
    "tags": [
     "Authentication",
     "Authorization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/session-cookie-jwt-token-sso-and-oauth-2/"
   },
   {
    "slug": "explaining-sessions-tokens-jwt-sso-and-oauth-in-one-diagram",
@@ -3143,7 +4016,9 @@
    "tags": [
     "Authentication",
     "Authorization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/explaining-sessions-tokens-jwt-sso-and-oauth-in-one-diagram/"
   },
   {
    "slug": "shortlong-polling-sse-websocket",
@@ -3154,7 +4029,9 @@
    "tags": [
     "WebSockets",
     "SSE"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/shortlong-polling-sse-websocket/"
   },
   {
    "slug": "smooth-data-migration-with-avro",
@@ -3165,7 +4042,9 @@
    "tags": [
     "Data Migration",
     "Apache Avro"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/smooth-data-migration-with-avro/"
   },
   {
    "slug": "soap-vs-rest-vs-graphql-vs-rpc",
@@ -3176,7 +4055,9 @@
    "tags": [
     "API",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/soap-vs-rest-vs-graphql-vs-rpc/"
   },
   {
    "slug": "some-devops-books-i-find-enlightening",
@@ -3187,7 +4068,9 @@
    "tags": [
     "DevOps",
     "SRE"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/some-devops-books-i-find-enlightening/"
   },
   {
    "slug": "how-is-a-sql-statement-executed-in-the-database",
@@ -3198,7 +4081,9 @@
    "tags": [
     "SQL",
     "Database Internals"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-is-a-sql-statement-executed-in-the-database/"
   },
   {
    "slug": "storage-systems-overview",
@@ -3209,7 +4094,9 @@
    "tags": [
     "Storage Systems",
     "Data Storage"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/storage-systems-overview/"
   },
   {
    "slug": "how-to-store-passwords-in-the-database",
@@ -3220,7 +4107,9 @@
    "tags": [
     "password security",
     "data protection"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-to-store-passwords-in-the-database/"
   },
   {
    "slug": "swift-payment-messaging-system",
@@ -3231,7 +4120,9 @@
    "tags": [
     "Payments",
     "Finance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/swift-payment-messaging-system/"
   },
   {
    "slug": "symmetric-encryption-vs-asymmetric-encryption",
@@ -3242,7 +4133,9 @@
    "tags": [
     "Encryption",
     "Cryptography"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/symmetric-encryption-vs-asymmetric-encryption/"
   },
   {
    "slug": "system-design-blueprint-the-ultimate-guide",
@@ -3253,7 +4146,9 @@
    "tags": [
     "system-design",
     "interview-preparation"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/system-design-blueprint-the-ultimate-guide/"
   },
   {
    "slug": "system-design-cheat-sheet",
@@ -3264,7 +4159,9 @@
    "tags": [
     "System Design",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/system-design-cheat-sheet/"
   },
   {
    "slug": "what-protocol-does-online-gaming-use-to-transmit-data",
@@ -3275,7 +4172,9 @@
    "tags": [
     "Networking",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-protocol-does-online-gaming-use-to-transmit-data/"
   },
   {
    "slug": "the-12-factor-app",
@@ -3286,7 +4185,9 @@
    "tags": [
     "Application Architecture",
     "Best Practices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-12-factor-app/"
   },
   {
    "slug": "the-9-algorithms-that-dominate-our-world",
@@ -3297,7 +4198,9 @@
    "tags": [
     "Algorithms",
     "Data Science"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-9-algorithms-that-dominate-our-world/"
   },
   {
    "slug": "the-evolving-landscape-of-api-protocols-in-2023",
@@ -3308,7 +4211,9 @@
    "tags": [
     "API",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-evolving-landscape-of-api-protocols-in-2023/"
   },
   {
    "slug": "who-are-the-fantastic-four-of-system-design",
@@ -3319,7 +4224,9 @@
    "tags": [
     "system design",
     "scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/who-are-the-fantastic-four-of-system-design/"
   },
   {
    "slug": "the-fundamental-pillars-of-object-oriented-programming",
@@ -3330,7 +4237,9 @@
    "tags": [
     "OOP",
     "Principles"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-fundamental-pillars-of-object-oriented-programming/"
   },
   {
    "slug": "the-one-line-change-that-reduced-clone-times-by-a-whopping-99-says-pinterest",
@@ -3341,7 +4250,9 @@
    "tags": [
     "DevOps",
     "Git"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-one-line-change-that-reduced-clone-times-by-a-whopping-99-says-pinterest/"
   },
   {
    "slug": "the-open-source-ai-stack",
@@ -3352,7 +4263,9 @@
    "tags": [
     "AI",
     "Open Source"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-open-source-ai-stack/"
   },
   {
    "slug": "the-payments-ecosystem",
@@ -3363,7 +4276,9 @@
    "tags": [
     "Fintech",
     "Payments"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-payments-ecosystem/"
   },
   {
    "slug": "the-ultimate-api-learning-roadmap",
@@ -3374,7 +4289,9 @@
    "tags": [
     "API",
     "Roadmap"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-ultimate-api-learning-roadmap/"
   },
   {
    "slug": "the-ultimate-kafka-101-you-cannot-miss",
@@ -3385,7 +4302,9 @@
    "tags": [
     "Kafka",
     "Distributed Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-ultimate-kafka-101-you-cannot-miss/"
   },
   {
    "slug": "the-ultimate-redis-101",
@@ -3396,7 +4315,9 @@
    "tags": [
     "Redis",
     "Database"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-ultimate-redis-101/"
   },
   {
    "slug": "the-ultimate-software-architect-knowledge-map",
@@ -3407,7 +4328,9 @@
    "tags": [
     "Software Architecture",
     "Career Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/the-ultimate-software-architect-knowledge-map/"
   },
   {
    "slug": "things-to-consider-when-using-cache",
@@ -3418,7 +4341,9 @@
    "tags": [
     "Caching",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/things-to-consider-when-using-cache/"
   },
   {
    "slug": "time-series-db-tsdb-in-20-lines",
@@ -3429,7 +4354,9 @@
    "tags": [
     "Database",
     "TimeSeries"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/time-series-db-tsdb-in-20-lines/"
   },
   {
    "slug": "token-cookie-session",
@@ -3440,7 +4367,9 @@
    "tags": [
     "Authentication",
     "Authorization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/token-cookie-session/"
   },
   {
    "slug": "what-tools-does-your-team-use-to-ship-code-to-production-and-ensure-code-quality",
@@ -3451,7 +4380,9 @@
    "tags": [
     "DevOps",
     "Software Delivery"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-tools-does-your-team-use-to-ship-code-to-production-and-ensure-code-quality/"
   },
   {
    "slug": "top-10-k8s-design-patterns",
@@ -3462,7 +4393,9 @@
    "tags": [
     "Kubernetes",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-10-k8s-design-patterns/"
   },
   {
    "slug": "top-10-most-popular-open-source-databases",
@@ -3473,7 +4406,9 @@
    "tags": [
     "Databases",
     "Open Source"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-10-most-popular-open-source-databases/"
   },
   {
    "slug": "top-12-tips-for-api-security",
@@ -3484,7 +4419,9 @@
    "tags": [
     "API Security",
     "Web Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-12-tips-for-api-security/"
   },
   {
    "slug": "top-3-api-gateway-use-cases",
@@ -3495,7 +4432,9 @@
    "tags": [
     "API Gateway",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-3-api-gateway-use-cases/"
   },
   {
    "slug": "top-4-forms-of-authentication-mechanisms",
@@ -3506,7 +4445,9 @@
    "tags": [
     "Authentication",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-4-forms-of-authentication-mechanisms/"
   },
   {
    "slug": "top-4-data-sharding-algorithms-explained",
@@ -3517,7 +4458,9 @@
    "tags": [
     "Data Sharding",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-4-data-sharding-algorithms-explained/"
   },
   {
    "slug": "top-4-kubernetes-service-types-in-one-diagram",
@@ -3528,7 +4471,9 @@
    "tags": [
     "Kubernetes",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-4-kubernetes-service-types-in-one-diagram/"
   },
   {
    "slug": "top-4-most-popular-use-cases-for-udp",
@@ -3539,7 +4484,9 @@
    "tags": [
     "UDP",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-4-most-popular-use-cases-for-udp/"
   },
   {
    "slug": "top-5-caching-strategies",
@@ -3550,7 +4497,9 @@
    "tags": [
     "Caching",
     "Data Synchronization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-caching-strategies/"
   },
   {
    "slug": "top-5-common-ways-to-improve-api-performance",
@@ -3561,7 +4510,9 @@
    "tags": [
     "api performance",
     "optimization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-common-ways-to-improve-api-performance/"
   },
   {
    "slug": "top-5-kafka-use-cases",
@@ -3572,7 +4523,9 @@
    "tags": [
     "Kafka",
     "Data Streaming"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-kafka-use-cases/"
   },
   {
    "slug": "top-5-most-used-deployment-strategies",
@@ -3583,7 +4536,9 @@
    "tags": [
     "deployment strategies",
     "software deployment"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-most-used-deployment-strategies/"
   },
   {
    "slug": "top-5-software-architectural-patterns",
@@ -3594,7 +4549,9 @@
    "tags": [
     "Software Architecture",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-software-architectural-patterns/"
   },
   {
    "slug": "top-5-strategies-to-reduce-latency",
@@ -3605,7 +4562,9 @@
    "tags": [
     "Latency",
     "Optimization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-strategies-to-reduce-latency/"
   },
   {
    "slug": "top-5-trade-offs-in-system-designs",
@@ -3616,7 +4575,9 @@
    "tags": [
     "system design",
     "trade-offs"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-5-trade-offs-in-system-designs/"
   },
   {
    "slug": "top-6-cases-to-apply-idempotency",
@@ -3627,7 +4588,9 @@
    "tags": [
     "Idempotency",
     "Distributed Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-cases-to-apply-idempotency/"
   },
   {
    "slug": "top-6-cloud-messaging-patterns",
@@ -3638,7 +4601,9 @@
    "tags": [
     "Cloud Messaging",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-cloud-messaging-patterns/"
   },
   {
    "slug": "how-do-we-manage-data",
@@ -3649,7 +4614,9 @@
    "tags": [
     "data management",
     "data patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/how-do-we-manage-data/"
   },
   {
    "slug": "top-6-database-models",
@@ -3660,7 +4627,9 @@
    "tags": [
     "Database Models",
     "Data Structures"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-database-models/"
   },
   {
    "slug": "top-6-elasticsearch-use-cases",
@@ -3671,7 +4640,9 @@
    "tags": [
     "Search",
     "Analytics"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-elasticsearch-use-cases/"
   },
   {
    "slug": "top-6-firewall-use-cases",
@@ -3682,7 +4653,9 @@
    "tags": [
     "Network Security",
     "Firewall"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-firewall-use-cases/"
   },
   {
    "slug": "top-6-load-balancing-algorithms",
@@ -3693,7 +4666,9 @@
    "tags": [
     "Load Balancing",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-load-balancing-algorithms/"
   },
   {
    "slug": "top-6-most-commonly-used-server-types",
@@ -3704,7 +4679,9 @@
    "tags": [
     "servers",
     "networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-most-commonly-used-server-types/"
   },
   {
    "slug": "top-6-multithreading-design-patterns-you-must-know",
@@ -3715,7 +4692,9 @@
    "tags": [
     "Concurrency",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-multithreading-design-patterns-you-must-know/"
   },
   {
    "slug": "top-6-tools-to-turn-code-into-beautiful-diagrams",
@@ -3726,7 +4705,9 @@
    "tags": [
     "Diagramming",
     "Code Visualization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-6-tools-to-turn-code-into-beautiful-diagrams/"
   },
   {
    "slug": "top-7-most-used-distributed-system-patterns",
@@ -3737,7 +4718,9 @@
    "tags": [
     "distributed systems",
     "system design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-7-most-used-distributed-system-patterns/"
   },
   {
    "slug": "top-8-c++-use-cases",
@@ -3748,7 +4731,9 @@
    "tags": [
     "C++",
     "Use Cases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-8-c%2B%2B-use-cases/"
   },
   {
    "slug": "top-8-cache-eviction-strategies",
@@ -3759,7 +4744,9 @@
    "tags": [
     "Caching",
     "Algorithms"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-8-cache-eviction-strategies/"
   },
   {
    "slug": "top-8-must-know-docker-concepts",
@@ -3770,7 +4757,9 @@
    "tags": [
     "Docker",
     "Containers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-8-must-know-docker-concepts/"
   },
   {
    "slug": "top-8-programming-paradigms",
@@ -3781,7 +4770,9 @@
    "tags": [
     "Programming Paradigms",
     "Software Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-8-programming-paradigms/"
   },
   {
    "slug": "top-8-standards-every-developer-should-know",
@@ -3792,7 +4783,9 @@
    "tags": [
     "Software Standards",
     "Web Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-8-standards-every-developer-should-know/"
   },
   {
    "slug": "top-9-architectural-patterns-for-data-and-communication-flow",
@@ -3803,7 +4796,9 @@
    "tags": [
     "Architecture",
     "Data Flow"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-9-architectural-patterns-for-data-and-communication-flow/"
   },
   {
    "slug": "top-9-cases-behind-100-cpu-usage",
@@ -3814,7 +4809,9 @@
    "tags": [
     "CPU Usage",
     "Troubleshooting"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-9-cases-behind-100-cpu-usage/"
   },
   {
    "slug": "top-9-engineering-blog-favorites",
@@ -3825,7 +4822,9 @@
    "tags": [
     "Engineering Blogs",
     "Software Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-9-engineering-blog-favorites/"
   },
   {
    "slug": "top-9-http-request-methods",
@@ -3836,7 +4835,9 @@
    "tags": [
     "HTTP",
     "API"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-9-http-request-methods/"
   },
   {
    "slug": "top-9-website-performance-metrics-you-cannot-ignore",
@@ -3847,7 +4848,9 @@
    "tags": [
     "web-performance",
     "metrics"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-9-website-performance-metrics-you-cannot-ignore/"
   },
   {
    "slug": "what-are-the-top-caching-strategies",
@@ -3858,7 +4861,9 @@
    "tags": [
     "caching",
     "performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-top-caching-strategies/"
   },
   {
    "slug": "top-eventual-consistency-patterns-you-must-know",
@@ -3869,7 +4874,9 @@
    "tags": [
     "Consistency",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-eventual-consistency-patterns-you-must-know/"
   },
   {
    "slug": "top-network-security-cheatsheet",
@@ -3880,7 +4887,9 @@
    "tags": [
     "Network Security",
     "Cybersecurity"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/top-network-security-cheatsheet/"
   },
   {
    "slug": "twitter-10-tech-stack",
@@ -3891,7 +4900,9 @@
    "tags": [
     "Architecture",
     "Social Media"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/twitter-10-tech-stack/"
   },
   {
    "slug": "twitter-architecture-2022-vs-2012",
@@ -3902,7 +4913,9 @@
    "tags": [
     "System Design",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/twitter-architecture-2022-vs-2012/"
   },
   {
    "slug": "types-of-databases",
@@ -3913,7 +4926,9 @@
    "tags": [
     "Database",
     "NoSQL"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/types-of-databases/"
   },
   {
    "slug": "types-of-memory",
@@ -3924,7 +4939,9 @@
    "tags": [
     "Memory Management",
     "System Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/types-of-memory/"
   },
   {
    "slug": "types-of-memory-and-storage",
@@ -3935,7 +4952,9 @@
    "tags": [
     "memory",
     "storage"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/types-of-memory-and-storage/"
   },
   {
    "slug": "types-of-message-queue",
@@ -3946,7 +4965,9 @@
    "tags": [
     "Message Queue",
     "Messaging Systems"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/types-of-message-queue/"
   },
   {
    "slug": "types-of-vpns",
@@ -3957,7 +4978,9 @@
    "tags": [
     "VPN",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/types-of-vpns/"
   },
   {
    "slug": "typical-aws-network-architecture-in-one-diagram",
@@ -3968,7 +4991,9 @@
    "tags": [
     "AWS Networking",
     "Cloud Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/typical-aws-network-architecture-in-one-diagram/"
   },
   {
    "slug": "what-does-a-typical-microservice-architecture-look-like",
@@ -3979,7 +5004,9 @@
    "tags": [
     "Microservices",
     "Architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-does-a-typical-microservice-architecture-look-like/"
   },
   {
    "slug": "uber-tech-stack",
@@ -3990,7 +5017,9 @@
    "tags": [
     "Architecture",
     "Scalability"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/uber-tech-stack/"
   },
   {
    "slug": "uber-tech-stack-cicd",
@@ -4001,7 +5030,9 @@
    "tags": [
     "CI/CD",
     "Uber"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/uber-tech-stack-cicd/"
   },
   {
    "slug": "a-cheatsheet-for-uml-class-diagrams",
@@ -4012,7 +5043,9 @@
    "tags": [
     "UML",
     "Design Patterns"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/a-cheatsheet-for-uml-class-diagrams/"
   },
   {
    "slug": "understanding-database-types",
@@ -4023,7 +5056,9 @@
    "tags": [
     "databases",
     "data management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/understanding-database-types/"
   },
   {
    "slug": "unicast-vs-broadcast-vs-multicast-vs-anycast",
@@ -4034,7 +5069,9 @@
    "tags": [
     "Network Communication",
     "Protocols"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/unicast-vs-broadcast-vs-multicast-vs-anycast/"
   },
   {
    "slug": "unified-payments-interface-upi-in-india",
@@ -4045,7 +5082,9 @@
    "tags": [
     "Fintech",
     "UPI"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/unified-payments-interface-upi-in-india/"
   },
   {
    "slug": "unique-id-generator",
@@ -4056,7 +5095,9 @@
    "tags": [
     "ID Generation",
     "System Design"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/unique-id-generator/"
   },
   {
    "slug": "url-uri-urn-do-you-know-the-differences",
@@ -4067,7 +5108,9 @@
    "tags": [
     "Networking",
     "Web"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/url-uri-urn-do-you-know-the-differences/"
   },
   {
    "slug": "vertical-partitioning-vs-horizontal-partitioning",
@@ -4078,7 +5121,9 @@
    "tags": [
     "Database Partitioning",
     "Sharding"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/vertical-partitioning-vs-horizontal-partitioning/"
   },
   {
    "slug": "visualizing-a-sql-query",
@@ -4089,7 +5134,9 @@
    "tags": [
     "SQL",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/visualizing-a-sql-query/"
   },
   {
    "slug": "what-are-the-differences-between-wan-lan-pan-and-man",
@@ -4100,7 +5147,9 @@
    "tags": [
     "network types",
     "network architecture"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-differences-between-wan-lan-pan-and-man/"
   },
   {
    "slug": "what-are-the-greenest-programming-languages",
@@ -4111,7 +5160,9 @@
    "tags": [
     "Programming Languages",
     "Energy Efficiency"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-are-the-greenest-programming-languages/"
   },
   {
    "slug": "what-do-version-numbers-mean",
@@ -4122,7 +5173,9 @@
    "tags": [
     "Versioning",
     "SemVer"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-do-version-numbers-mean/"
   },
   {
    "slug": "what-does-acid-mean",
@@ -4133,7 +5186,9 @@
    "tags": [
     "Databases",
     "ACID"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-does-acid-mean/"
   },
   {
    "slug": "what-does-api-gateway-do",
@@ -4144,7 +5199,9 @@
    "tags": [
     "API Gateway",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-does-api-gateway-do/"
   },
   {
    "slug": "what-happens-when-you-type-a-url-into-your-browser",
@@ -4155,7 +5212,9 @@
    "tags": [
     "Networking",
     "Browsers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-happens-when-you-type-a-url-into-your-browser/"
   },
   {
    "slug": "what-happens-when-you-type-google",
@@ -4166,7 +5225,9 @@
    "tags": [
     "Networking",
     "Web Browsers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-happens-when-you-type-google/"
   },
   {
    "slug": "what-happens-when-you-upload-a-file-to-amazon-s3",
@@ -4177,7 +5238,9 @@
    "tags": [
     "Amazon S3",
     "Cloud Storage"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-happens-when-you-upload-a-file-to-amazon-s3/"
   },
   {
    "slug": "what-is-a-cookie",
@@ -4188,7 +5251,9 @@
    "tags": [
     "Web Security",
     "Cookies"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-a-cookie/"
   },
   {
    "slug": "what-is-a-deadlock",
@@ -4199,7 +5264,9 @@
    "tags": [
     "Concurrency",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-a-deadlock/"
   },
   {
    "slug": "what-is-a-load-balancer",
@@ -4210,7 +5277,9 @@
    "tags": [
     "Load Balancing",
     "Networking"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-a-load-balancer/"
   },
   {
    "slug": "what-is-a-stop-loss-order-and-how-does-it-work",
@@ -4221,7 +5290,9 @@
    "tags": [
     "Trading",
     "Risk Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-a-stop-loss-order-and-how-does-it-work/"
   },
   {
    "slug": "what-is-an-ai-agent",
@@ -4232,7 +5303,9 @@
    "tags": [
     "AI Agents",
     "Machine Learning"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-an-ai-agent/"
   },
   {
    "slug": "what-is-cdn-content-delivery-network",
@@ -4243,7 +5316,9 @@
    "tags": [
     "CDN",
     "Content Delivery"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-cdn-content-delivery-network/"
   },
   {
    "slug": "what-is-cloud-native",
@@ -4254,7 +5329,9 @@
    "tags": [
     "Cloud Computing",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-cloud-native/"
   },
   {
    "slug": "what-is-css-cascading-style-sheets",
@@ -4265,7 +5342,9 @@
    "tags": [
     "CSS",
     "Web Development"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-css-cascading-style-sheets/"
   },
   {
    "slug": "what-is-devsecops",
@@ -4276,7 +5355,9 @@
    "tags": [
     "DevOps",
     "Security"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-devsecops/"
   },
   {
    "slug": "what-is-elk-stack-and-why-is-it-so-popular-for-log-management",
@@ -4287,7 +5368,9 @@
    "tags": [
     "ELK Stack",
     "Log Management"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-elk-stack-and-why-is-it-so-popular-for-log-management/"
   },
   {
    "slug": "what-is-graphql",
@@ -4298,7 +5381,9 @@
    "tags": [
     "GraphQL",
     "API"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-graphql/"
   },
   {
    "slug": "what-is-grpc",
@@ -4309,7 +5394,9 @@
    "tags": [
     "gRPC",
     "Microservices"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-grpc/"
   },
   {
    "slug": "what-is-k8s-kubernetes",
@@ -4320,7 +5407,9 @@
    "tags": [
     "Kubernetes",
     "Containers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-k8s-kubernetes/"
   },
   {
    "slug": "what-is-serverless-db",
@@ -4331,7 +5420,9 @@
    "tags": [
     "Serverless",
     "Database"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-serverless-db/"
   },
   {
    "slug": "v1what-is-sso-single-sign-on",
@@ -4342,7 +5433,9 @@
    "tags": [
     "authentication",
     "SSO"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/v1what-is-sso-single-sign-on/"
   },
   {
    "slug": "what-is-the-best-way-to-learn-sql",
@@ -4353,7 +5446,9 @@
    "tags": [
     "SQL",
     "Databases"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-the-best-way-to-learn-sql/"
   },
   {
    "slug": "what-is-the-journey-of-a-slack-message",
@@ -4364,7 +5459,9 @@
    "tags": [
     "System Design",
     "Messaging"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-the-journey-of-a-slack-message/"
   },
   {
    "slug": "what-is-web-3",
@@ -4375,7 +5472,9 @@
    "tags": [
     "Web3",
     "Decentralization"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-is-web-3/"
   },
   {
    "slug": "what-makes-aws-lambda-so-fast",
@@ -4386,7 +5485,9 @@
    "tags": [
     "AWS Lambda",
     "Serverless"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-makes-aws-lambda-so-fast/"
   },
   {
    "slug": "what-makes-http2-faster-than-http1",
@@ -4397,7 +5498,9 @@
    "tags": [
     "HTTP2",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/what-makes-http2-faster-than-http1/"
   },
   {
    "slug": "which-latency-numbers-should-you-know",
@@ -4408,7 +5511,9 @@
    "tags": [
     "latency",
     "performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/which-latency-numbers-should-you-know/"
   },
   {
    "slug": "why-are-content-delivery-networks-cdn-so-popular",
@@ -4419,7 +5524,9 @@
    "tags": [
     "CDN",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-are-content-delivery-networks-cdn-so-popular/"
   },
   {
    "slug": "why-is-kafka-fast",
@@ -4430,7 +5537,9 @@
    "tags": [
     "Kafka",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-is-kafka-fast/"
   },
   {
    "slug": "why-is-nginx-so-popular",
@@ -4441,7 +5550,9 @@
    "tags": [
     "Nginx",
     "Web Servers"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-is-nginx-so-popular/"
   },
   {
    "slug": "why-is-redis-so-fast",
@@ -4452,7 +5563,9 @@
    "tags": [
     "Redis",
     "Performance"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-is-redis-so-fast/"
   },
   {
    "slug": "do-you-know-why-meta-google-and-amazon-all-stop-using-leap-seconds",
@@ -4463,7 +5576,9 @@
    "tags": [
     "Time Synchronization",
     "Leap Seconds"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/do-you-know-why-meta-google-and-amazon-all-stop-using-leap-seconds/"
   },
   {
    "slug": "why-is-postgresql-voted-as-the-most-loved-database-by-stackoverflow-2022-developer-survey",
@@ -4474,7 +5589,9 @@
    "tags": [
     "PostgreSQL",
     "Database"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-is-postgresql-voted-as-the-most-loved-database-by-stackoverflow-2022-developer-survey/"
   },
   {
    "slug": "why-do-we-need-to-use-a-distributed-lock",
@@ -4485,7 +5602,33 @@
    "tags": [
     "distributed systems",
     "concurrency"
-   ]
+   ],
+   "source": "bytebytego",
+   "url": "https://bytebytego.com/guides/why-do-we-need-to-use-a-distributed-lock/"
+  },
+  {
+   "slug": "diagrams-system-design-netflix",
+   "title": "Netflix",
+   "categories": [
+    "community-diagrams"
+   ],
+   "tags": [
+    "diagrams"
+   ],
+   "url": "https://github.com/Chaki34/system-design-diagrams/tree/HEAD/System%20Design%20-%20Netflix",
+   "source": "diagrams"
+  },
+  {
+   "slug": "diagrams-url-shortener",
+   "title": "Url Shortener",
+   "categories": [
+    "community-diagrams"
+   ],
+   "tags": [
+    "diagrams"
+   ],
+   "url": "https://github.com/Chaki34/system-design-diagrams/tree/HEAD/url-shortener",
+   "source": "diagrams"
   }
  ]
 }

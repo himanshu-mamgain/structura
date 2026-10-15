@@ -73,6 +73,7 @@ const roleTable = Object.entries(ROLE_PERMISSIONS)
   .join('\n')
 
 export const rbac: StaticTopic = {
+  difficulty: 'Beginner',
   kind: 'static',
   id: 'rbac',
   title: 'Role-Based Access Control (RBAC)',
@@ -87,6 +88,7 @@ export const rbac: StaticTopic = {
     [90, "Recap"],
   ],
   guides: [
+    "primer-security",
     "jwt-101-key-to-stateless-authentication",
     "what's-the-difference-between-session-based-authentication-and-jwts",
     "oauth-2-explained-with-siple-terms",

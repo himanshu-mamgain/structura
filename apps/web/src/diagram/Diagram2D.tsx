@@ -57,16 +57,31 @@ export interface Diagram2DProps {
   diagram: LayoutDiagram
   /** Labels of the boxes in focus (e.g. the walkthrough step); null shows everything. */
   focus: string[] | null
-  /** Zoom controls render into the card header through this callback's return. */
   className?: string
+  /** The box being inspected. */
+  selected?: string | null
+  /** Boxes simulated as down: drawn broken, with their arrows cut. */
+  failed?: ReadonlySet<string>
+  /** A box was clicked (or the background: null). */
+  onSelect?: (id: string | null) => void
 }
 
-export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
+export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect }: Diagram2DProps) {
   const [placed, setPlaced] = useState<Layout | null>(null)
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
   const host = useRef<HTMLDivElement>(null)
   const drag = useRef<{ x: number; y: number; vx: number; vy: number } | null>(null)
   const [dragging, setDragging] = useState(false)
+  const down = useRef({ x: 0, y: 0 })
+
+  /** A click (not a drag) on a box selects it; on empty space, clears the selection. */
+  function onPointerUp(e: ReactPointerEvent) {
+    drag.current = null
+    setDragging(false)
+    if (Math.hypot(e.clientX - down.current.x, e.clientY - down.current.y) > 5) return
+    const hit = document.elementsFromPoint(e.clientX, e.clientY).find((el) => el.closest('[data-node]'))
+    onSelect?.(hit?.closest('[data-node]')?.getAttribute('data-node') ?? null)
+  }
 
   useEffect(() => {
     let alive = true
@@ -159,6 +174,7 @@ export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
   }
 
   function onPointerDown(e: ReactPointerEvent) {
+    down.current = { x: e.clientX, y: e.clientY }
     drag.current = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y }
     setDragging(true)
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -182,7 +198,7 @@ export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
         className="d2-canvas"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
-        onPointerUp={() => ((drag.current = null), setDragging(false))}
+        onPointerUp={onPointerUp}
         onPointerCancel={() => ((drag.current = null), setDragging(false))}
       >
         {!placed && <p className="d2-loading">Laying out…</p>}
@@ -220,11 +236,12 @@ export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
               const from = diagram.nodes.find((n) => n.id === edge.from)!
               const to = diagram.nodes.find((n) => n.id === edge.to)!
               const lit = nodeFocused(from.label, from.table?.lines[0]) && nodeFocused(to.label, to.table?.lines[0])
+              const broken = failed?.has(edge.from) || failed?.has(edge.to)
               const { from: p, to: q, horizontal } = sides(a, b)
               const { d, mid } = curve(p, q, horizontal)
               const width = edge.label ? edge.label.length * 7.4 + 18 : 0
               return (
-                <g key={i} className={`d2-edge${edge.dashed ? ' is-dashed' : ''}${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}`}>
+                <g key={i} className={`d2-edge${edge.dashed ? ' is-dashed' : ''}${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${broken ? ' is-broken' : ''}`}>
                   <path d={d} markerEnd="url(#d2-arrow)" />
                   {edge.label && (
                     <g transform={`translate(${mid.x} ${mid.y})`}>
@@ -243,11 +260,11 @@ export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
               if (!p) return null
               const color = COLORS[node.color] ?? COLORS.grey
               const lit = nodeFocused(node.label, node.table?.lines[0])
-              const cls = `d2-node${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}`
+              const cls = `d2-node${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${selected === node.id ? ' is-selected' : ''}${failed?.has(node.id) ? ' is-failed' : ''}`
               if (node.table) {
                 const [name, ...columns] = node.table.lines
                 return (
-                  <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls}>
+                  <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
                     <div className="d2-table" style={{ borderColor: color }}>
                       <strong style={{ background: `${color}26` }}>{name}</strong>
                       {columns.map((line, i) => (
@@ -259,7 +276,7 @@ export function Diagram2D({ diagram, focus, className = '' }: Diagram2DProps) {
               }
               const Icon = iconFor(node.label)
               return (
-                <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls}>
+                <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
                   <div className={`d2-box is-${node.shape}`} style={{ borderColor: color, background: `${color}1a`, color }}>
                     <Icon size={22} strokeWidth={2} aria-hidden />
                     <span>{node.label}</span>

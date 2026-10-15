@@ -26,6 +26,10 @@ export interface StaticTopic {
   chapters?: [number, string][]
   /** The few points worth remembering, shown beside the explanation. */
   takeaways: string[]
-  /** Related guides in the library (ByteByteGo slugs), for going deeper. */
+  /** How much background the topic assumes. */
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
+  /** Related guides in the library (slugs from library.json), for going deeper. */
   guides?: string[]
+  /** Credit when the topic is adapted from an openly licensed work (required by CC BY). */
+  adaptedFrom?: { title: string; author: string; url: string; license: string; licenseUrl: string }
 }

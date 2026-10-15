@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, Box, ChevronLeft, ChevronRight, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Square, Video, Zap } from 'lucide-react'
+import { AlertTriangle, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import { LoadPanel } from '../board/LoadPanel'
 import { BoardCanvas } from '../board/react'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
+import { failureEffect, responsibility, sameComponent, stepsThrough } from '../diagram/inspect'
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
+import { readiness, updateTopic, useProgress } from '../learn/progress'
 import { erdToDiagram } from '../learn/erd'
 import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
-import { guidesFor, guideUrl, LIBRARY } from '../topics/library'
+import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
 import { topicIcon } from './topicIcons'
 
@@ -18,6 +20,7 @@ type Tab = 'explain' | 'walk' | 'code' | 'data'
 
 /** Seconds a walkthrough step stays on screen: long enough to read it. */
 const stepDuration = (text: string) => Math.max(3500, text.length * 60)
+const isCache = (label: string) => /cache|redis|cdn/i.test(label)
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 function useNarrow() {
@@ -49,9 +52,26 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   const [board3d, setBoard3d] = useState(false)
   const [duration, setDuration] = useState<number | null>(null)
   const [videoTime, setVideoTime] = useState(0)
+  const [selected, setSelected] = useState<string | null>(null)
+  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
   const video = useRef<HTMLVideoElement>(null)
   const content = useRef<HTMLElement>(null)
+  const lastSaved = useRef(0)
   const Icon = topicIcon(topic.id)
+  const progress = useProgress().topics[topic.id]
+  const ready = readiness(topic, progress)
+
+  // Progress: when the topic was opened, which sections were read.
+  useEffect(() => updateTopic(topic.id, { lastOpenedAt: Date.now() }), [topic.id])
+  useEffect(() => {
+    if (tab !== 'explain') return
+    updateTopic(topic.id, (p) => ({ sectionsRead: [...new Set([...(p.sectionsRead ?? []), section])] }))
+  }, [topic.id, tab, section])
+
+  function saveVideo(v: HTMLVideoElement) {
+    lastSaved.current = Date.now()
+    updateTopic(topic.id, { videoTime: v.currentTime, videoDuration: v.duration, lastWatchedAt: Date.now() })
+  }
 
   const explanation = topic.explanation
   const steps = trace?.steps ?? []
@@ -74,13 +94,14 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
       const built = buildSteps(board, { ...explanation, trace })[walk.index]
       if (built) focusStep(board, built)
     }
+    if (walk.index === steps.length - 1) updateTopic(topic.id, { walked: true })
     if (!walk.playing) return
     const timer = setTimeout(
       () => setWalk((w) => (w && w.index < steps.length - 1 ? { ...w, index: w.index + 1 } : w && { ...w, playing: false })),
       stepDuration(step.text),
     )
     return () => clearTimeout(timer)
-  }, [walk, mode, board3d, board, steps, explanation, trace])
+  }, [walk, mode, board3d, board, steps, explanation, trace, topic.id])
 
   const walking = Boolean(walk)
   useEffect(() => {
@@ -107,7 +128,27 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     void v.play()
   }
 
+  const nodes = diagramView === 'data' && dataModel ? dataModel.nodes : topic.architecture.nodes
+  const edges = diagramView === 'data' && dataModel ? dataModel.edges : topic.architecture.edges
+  const labelOf = (id: string) => nodes.find((n) => n.id === id)?.label ?? id
+  const inspected = selected ? (nodes.find((n) => n.id === selected) ?? null) : null
+  const inspectedIn = inspected ? edges.filter((e) => e.to === inspected.id) : []
+  const inspectedOut = inspected ? edges.filter((e) => e.from === inspected.id) : []
+  const inspectedSteps = inspected ? stepsThrough(trace, inspected.label) : []
+  const failedLabels = topic.architecture.nodes.filter((n) => failed.has(n.id)).map((n) => n.label)
+  const resumeAt = progress?.videoTime && progress.videoTime > 5 && progress.videoTime < (progress.videoDuration ?? 0) - 5 ? progress.videoTime : 0
+
+  function toggleFailure(id: string) {
+    setFailed((f) => {
+      const next = new Set(f)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   const step = walk ? steps[walk.index] : null
+  const downInStep = step ? failedLabels.filter((l) => step.nodes.some((n) => sameComponent(n, l))) : []
   const focus = step && diagramView === 'architecture' ? step.nodes : null
   const chapterIndex = topic.chapters ? topic.chapters.findLastIndex(([start]) => videoTime >= start) : -1
 
@@ -119,13 +160,55 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
         </span>
         <div className="topic-heading">
           <h1>{topic.title}</h1>
+          <div className="topic-meta">
+            <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span>
+            <span className="readiness" title="Interview readiness: sections read, walkthrough, video and completion">
+              <span className="readiness-bar">
+                <span style={{ width: `${ready}%` }} />
+              </span>
+              {ready}% interview ready
+            </span>
+          </div>
           <p>{explanation.summary}</p>
+          {topic.adaptedFrom && (
+            <p className="credit">
+              Adapted from{' '}
+              <a href={topic.adaptedFrom.url} target="_blank" rel="noreferrer">
+                {topic.adaptedFrom.title}
+              </a>{' '}
+              by {topic.adaptedFrom.author}, licensed{' '}
+              <a href={topic.adaptedFrom.licenseUrl} target="_blank" rel="noreferrer">
+                {topic.adaptedFrom.license}
+              </a>
+              . Changes: walkthrough, simulator, code and diagram are Structura's.
+            </p>
+          )}
         </div>
-        {topic.video && (
-          <button type="button" className="btn btn-primary" onClick={watch}>
-            <Play size={16} fill="currentColor" /> Watch video{duration ? ` (${clock(duration)})` : ''}
+        <div className="topic-actions">
+          <button
+            type="button"
+            className={`icon-btn${progress?.bookmarked ? ' is-on' : ''}`}
+            onClick={() => updateTopic(topic.id, (p) => ({ bookmarked: !p.bookmarked }))}
+            aria-pressed={Boolean(progress?.bookmarked)}
+            title={progress?.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+          >
+            {progress?.bookmarked ? <BookmarkCheck size={19} /> : <Bookmark size={19} />}
           </button>
-        )}
+          <button
+            type="button"
+            className={`btn btn-ghost${progress?.completed ? ' is-on' : ''}`}
+            onClick={() => updateTopic(topic.id, (p) => ({ completed: !p.completed }))}
+            aria-pressed={Boolean(progress?.completed)}
+          >
+            {progress?.completed ? <CheckCircle2 size={17} /> : <Circle size={17} />} {progress?.completed ? 'Completed' : 'Mark complete'}
+          </button>
+          {topic.video && (
+            <button type="button" className="btn btn-primary" onClick={watch}>
+              <Play size={16} fill="currentColor" />
+              {resumeAt ? `Resume ${clock(resumeAt)}` : `Watch video${duration ? ` (${clock(duration)})` : ''}`}
+            </button>
+          )}
+        </div>
       </header>
 
       <nav className="tabs" aria-label="Sections">
@@ -151,7 +234,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
         )}
       </nav>
 
-      <div className="topic-grid">
+      <div className={`topic-grid${topic.video || showLoad ? '' : ' no-side'}`}>
         <section className="card diagram-card" aria-label="Diagram">
           <header className="card-head">
             <div className="seg" role="group" aria-label="Diagram">
@@ -191,9 +274,56 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
           </header>
           <div className="diagram-body">
             {mode === '2d' ? (
-              <Diagram2D diagram={diagramView === 'data' && dataModel ? dataModel : architecture} focus={focus} />
+              <Diagram2D
+                diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
+                focus={focus}
+                selected={selected}
+                failed={failed}
+                onSelect={setSelected}
+              />
             ) : (
               <BoardCanvas board={board} />
+            )}
+            {inspected && (
+              <aside className="inspector" aria-label={`Component: ${inspected.label}`}>
+                <header>
+                  <strong>{inspected.label}</strong>
+                  <button type="button" className="icon-btn" onClick={() => setSelected(null)} aria-label="Close inspector">
+                    <X size={16} />
+                  </button>
+                </header>
+                <p>{responsibility(topic, inspected.label) ?? 'One of the building blocks of this design; its connections are below.'}</p>
+                {inspectedIn.length > 0 && (
+                  <dl>
+                    <dt>Called by</dt>
+                    <dd>{inspectedIn.map((e) => `${labelOf(e.from)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
+                  </dl>
+                )}
+                {inspectedOut.length > 0 && (
+                  <dl>
+                    <dt>Calls</dt>
+                    <dd>{inspectedOut.map((e) => `${labelOf(e.to)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
+                  </dl>
+                )}
+                {inspectedSteps.length > 0 && (
+                  <div className="inspector-steps">
+                    <span>In the walkthrough:</span>
+                    {inspectedSteps.map((i) => (
+                      <button key={i} type="button" onClick={() => (setTab('walk'), setWalk({ index: i, playing: false }))}>
+                        step {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {diagramView === 'architecture' && (
+                  <>
+                    <button type="button" className={`btn ${failed.has(inspected.id) ? 'btn-ghost is-on' : 'btn-danger'}`} onClick={() => toggleFailure(inspected.id)}>
+                      <Power size={15} /> {failed.has(inspected.id) ? 'Bring it back' : isCache(inspected.label) ? 'Turn the cache off' : 'Simulate failure'}
+                    </button>
+                    {failed.has(inspected.id) && <p className="inspector-impact">{failureEffect(inspected.label, inspectedSteps.length, steps.length)}</p>}
+                  </>
+                )}
+              </aside>
             )}
             {step && walk && (
               <div className="walk-caption" aria-live="polite">
@@ -201,6 +331,12 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                   {walk.index + 1}/{steps.length}
                 </span>
                 <p>{step.text}</p>
+                {downInStep.length > 0 && (
+                  <p className="walk-broken">
+                    <AlertTriangle size={15} /> {downInStep.join(', ')} {downInStep.length > 1 ? 'are' : 'is'} down: this step{' '}
+                    {downInStep.every(isCache) ? 'falls back to the slower path' : 'fails'}.
+                  </p>
+                )}
                 <div className="walk-buttons">
                   <button type="button" onClick={() => setWalk({ index: Math.max(0, walk.index - 1), playing: false })} disabled={walk.index === 0} aria-label="Previous step">
                     <ChevronLeft size={18} />
@@ -230,7 +366,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
           </div>
         </section>
 
-        <aside className="side-col">
+        <aside className="side-col" hidden={!topic.video && !showLoad}>
           {showLoad && topic.loadTest && <LoadPanel board={board} test={topic.loadTest} onClose={() => setShowLoad(false)} />}
           {topic.video && (
             <section className="card video-card" aria-label="Video walkthrough">
@@ -242,12 +378,23 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
               </header>
               <video
                 ref={video}
-                src={`${topic.video}#t=2`}
+                src={topic.video}
+                poster={topic.video.replace(/\.mp4$/, '.jpg')}
                 controls
                 playsInline
                 preload="metadata"
-                onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-                onTimeUpdate={(e) => setVideoTime(e.currentTarget.currentTime)}
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget
+                  setDuration(v.duration)
+                  // Pick up where the learner left off.
+                  if (resumeAt) v.currentTime = resumeAt
+                }}
+                onTimeUpdate={(e) => {
+                  setVideoTime(e.currentTarget.currentTime)
+                  if (Date.now() - lastSaved.current > 5000) saveVideo(e.currentTarget)
+                }}
+                onPause={(e) => saveVideo(e.currentTarget)}
+                onEnded={(e) => saveVideo(e.currentTarget)}
               />
               {topic.chapters && (
                 <ol className="chapters">
@@ -368,11 +515,11 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
           </ol>
           {guidesFor(topic).length > 0 && (
             <>
-              <h3 className="deeper-title">Go deeper · {LIBRARY.source.name}</h3>
+              <h3 className="deeper-title">Go deeper</h3>
               <ul className="deeper">
                 {guidesFor(topic).map((g) => (
                   <li key={g.slug}>
-                    <a href={guideUrl(g.slug)} target="_blank" rel="noreferrer">
+                    <a href={g.url} target="_blank" rel="noreferrer" title={sourceOf(g).name}>
                       {g.title} <ExternalLink size={13} aria-hidden />
                     </a>
                   </li>

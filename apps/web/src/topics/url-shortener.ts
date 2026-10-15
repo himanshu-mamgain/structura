@@ -58,6 +58,7 @@ const simulator: Simulator = {
 }
 
 export const urlShortener: StaticTopic = {
+  difficulty: 'Beginner',
   kind: 'static',
   id: 'url-shortener',
   title: 'URL Shortener',
@@ -72,6 +73,8 @@ export const urlShortener: StaticTopic = {
     [83, "Recap"],
   ],
   guides: [
+    "primer-design-pastebincom-or-bitly",
+    "primer-cache",
     "explaining-5-unique-id-generators-in-distributed-systems",
     "unique-id-generator",
     "top-5-caching-strategies",

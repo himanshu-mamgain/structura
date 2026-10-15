@@ -1,36 +1,35 @@
 import { useEffect, useState } from 'react'
-import { BookMarked, Boxes, ExternalLink, Footprints, House, Library, Menu, Search, Video, X, Zap } from 'lucide-react'
+import { BookA, BookMarked, Bookmark, Boxes, CheckCircle2, ExternalLink, GraduationCap, House, Menu, Search, X } from 'lucide-react'
 import { board } from './board/store'
+import { useProgress } from './learn/progress'
 import { InstallButton } from './pwa/InstallButton'
+import { Home } from './shell/Home'
+import { Glossary, Quiz } from './shell/Practice'
 import { TopicView } from './shell/TopicView'
 import { topicIcon } from './shell/topicIcons'
 import { STATIC_TOPICS, type StaticTopic } from './topics'
-import { categoryTitle, guideUrl, LIBRARY, topicForGuide } from './topics/library'
+import { categoryTitle, LIBRARY } from './topics/library'
 
-/** The open topic lives in the URL (?topic=url-shortener), so links can be shared. */
-function readTopic(): string | null {
-  return new URLSearchParams(window.location.search).get('topic')
-}
+type Page = 'quiz' | 'glossary'
 
-/** A library category filter on Home: ?library=caching-performance. */
-function readCategory(): string | null {
-  return new URLSearchParams(window.location.search).get('library')
+/** Where the learner is lives in the URL (?topic=…, ?page=quiz, ?library=…), so links can be shared. */
+function readRoute() {
+  const query = new URLSearchParams(window.location.search)
+  const page = query.get('page')
+  return { topicId: query.get('topic'), category: query.get('library'), page: page === 'quiz' || page === 'glossary' ? (page as Page) : null }
 }
 
 export default function App() {
-  const [topicId, setTopicId] = useState(readTopic)
-  const [category, setCategory] = useState(readCategory)
+  const [route, setRoute] = useState(readRoute)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const topic = STATIC_TOPICS.find((t) => t.id === topicId) ?? null
+  const progress = useProgress()
+  const topic = STATIC_TOPICS.find((t) => t.id === route.topicId) ?? null
   // ?topic=…&load opens the topic with its load test running.
   const [openLoad] = useState(() => new URLSearchParams(window.location.search).has('load'))
 
   useEffect(() => {
-    const onPop = () => {
-      setTopicId(readTopic())
-      setCategory(readCategory())
-    }
+    const onPop = () => setRoute(readRoute())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
@@ -39,8 +38,7 @@ export default function App() {
     const url = new URL(window.location.href)
     url.search = search
     window.history.pushState(null, '', url)
-    setTopicId(readTopic())
-    setCategory(readCategory())
+    setRoute(readRoute())
     setMenuOpen(false)
     setQuery('')
   }
@@ -50,14 +48,20 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  function openPage(page: Page) {
+    navigate(`?page=${page}`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openCategory(id: string | null) {
     navigate(id ? `?library=${id}` : '')
     requestAnimationFrame(() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' }))
   }
 
   const q = query.trim().toLowerCase()
-  const matches = q ? STATIC_TOPICS.filter((t) => `${t.title} ${t.blurb}`.toLowerCase().includes(q)) : []
+  const matches = q ? STATIC_TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty}`.toLowerCase().includes(q)) : []
   const guideMatches = q ? LIBRARY.guides.filter((g) => `${g.title} ${g.tags.join(' ')}`.toLowerCase().includes(q)).slice(0, 8) : []
+  const home = !topic && !route.page
 
   return (
     <div className="shell">
@@ -75,21 +79,30 @@ export default function App() {
           </button>
         </div>
         <nav>
-          <button type="button" className={`nav-item${topic || category ? '' : ' is-active'}`} onClick={() => open(null)}>
+          <button type="button" className={`nav-item${home && !route.category ? ' is-active' : ''}`} onClick={() => open(null)}>
             <House size={18} /> Home
           </button>
           <p className="nav-group">System design</p>
           {STATIC_TOPICS.map((t) => {
             const Icon = topicIcon(t.id)
+            const tp = progress.topics[t.id]
             return (
               <button key={t.id} type="button" className={`nav-item${t.id === topic?.id ? ' is-active' : ''}`} onClick={() => open(t)}>
-                <Icon size={18} /> {t.title}
+                <Icon size={18} /> <span className="nav-label">{t.title}</span>
+                {tp?.completed ? <CheckCircle2 className="nav-flag is-done" size={15} aria-label="Completed" /> : tp?.bookmarked ? <Bookmark className="nav-flag" size={14} aria-label="Bookmarked" /> : null}
               </button>
             )
           })}
+          <p className="nav-group">Practice</p>
+          <button type="button" className={`nav-item${route.page === 'quiz' ? ' is-active' : ''}`} onClick={() => openPage('quiz')}>
+            <GraduationCap size={18} /> Quiz
+          </button>
+          <button type="button" className={`nav-item${route.page === 'glossary' ? ' is-active' : ''}`} onClick={() => openPage('glossary')}>
+            <BookA size={18} /> Glossary
+          </button>
           <p className="nav-group">Library</p>
           {LIBRARY.categories.map((c) => (
-            <button key={c.id} type="button" className={`nav-item is-small${!topic && category === c.id ? ' is-active' : ''}`} onClick={() => openCategory(c.id)}>
+            <button key={c.id} type="button" className={`nav-item is-small${home && route.category === c.id ? ' is-active' : ''}`} onClick={() => openCategory(c.id)}>
               <BookMarked size={16} /> {c.title}
             </button>
           ))}
@@ -120,13 +133,15 @@ export default function App() {
                   <li key={t.id}>
                     <button type="button" onClick={() => open(t)}>
                       <strong>{t.title}</strong>
-                      <span>Interactive topic · {t.blurb}</span>
+                      <span>
+                        Interactive topic · {t.difficulty} · {t.blurb}
+                      </span>
                     </button>
                   </li>
                 ))}
                 {guideMatches.map((g) => (
                   <li key={g.slug}>
-                    <a href={guideUrl(g.slug)} target="_blank" rel="noreferrer" onClick={() => setQuery('')}>
+                    <a href={g.url} target="_blank" rel="noreferrer" onClick={() => setQuery('')}>
                       <strong>
                         {g.title} <ExternalLink size={12} aria-hidden />
                       </strong>
@@ -142,110 +157,15 @@ export default function App() {
         <main className="content">
           {topic ? (
             <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} />
+          ) : route.page === 'quiz' ? (
+            <Quiz />
+          ) : route.page === 'glossary' ? (
+            <Glossary />
           ) : (
-            <Home onOpen={open} category={category} onCategory={openCategory} />
+            <Home onOpen={open} onPage={openPage} category={route.category} onCategory={openCategory} />
           )}
         </main>
       </div>
     </div>
-  )
-}
-
-function Home({ onOpen, category, onCategory }: { onOpen: (topic: StaticTopic) => void; category: string | null; onCategory: (id: string | null) => void }) {
-  return (
-    <div className="home">
-      <section className="hero">
-        <h1>Learn system design by seeing it</h1>
-        <p>Each topic has a diagram you can walk through step by step, a 3D city you can put load on, a narrated video, code and the key takeaways.</p>
-      </section>
-      <div className="topic-cards">
-        {STATIC_TOPICS.map((t) => {
-          const Icon = topicIcon(t.id)
-          return (
-            <button key={t.id} type="button" className="card topic-card" onClick={() => onOpen(t)}>
-              <span className="topic-icon" aria-hidden>
-                <Icon size={24} />
-              </span>
-              <strong>{t.title}</strong>
-              <span className="topic-card-blurb">{t.blurb}</span>
-              <span className="chips">
-                {t.video && (
-                  <span>
-                    <Video size={13} /> Video
-                  </span>
-                )}
-                {t.explanation.trace && (
-                  <span>
-                    <Footprints size={13} /> Walkthrough
-                  </span>
-                )}
-                {t.loadTest && (
-                  <span>
-                    <Zap size={13} /> Load test
-                  </span>
-                )}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-      <LibraryList category={category} onCategory={onCategory} onOpen={onOpen} />
-    </div>
-  )
-}
-
-/** The whole syllabus: every guide title, filterable by category, linking to the original. */
-function LibraryList({ category, onCategory, onOpen }: { category: string | null; onCategory: (id: string | null) => void; onOpen: (topic: StaticTopic) => void }) {
-  const [limit, setLimit] = useState(60)
-  const guides = category ? LIBRARY.guides.filter((g) => g.categories.includes(category)) : LIBRARY.guides
-  return (
-    <section className="library" id="library" aria-label="Library">
-      <header className="library-head">
-        <h2>
-          <Library size={20} /> Library
-        </h2>
-        <p>
-          {LIBRARY.guides.length} guides from{' '}
-          <a href={LIBRARY.source.repo} target="_blank" rel="noreferrer">
-            {LIBRARY.source.name}
-          </a>
-          , our syllabus. Titles link to the originals; the ones marked Interactive are already Structura topics.
-        </p>
-      </header>
-      <div className="library-cats">
-        <button type="button" aria-pressed={!category} onClick={() => onCategory(null)}>
-          All
-        </button>
-        {LIBRARY.categories.map((c) => (
-          <button key={c.id} type="button" aria-pressed={category === c.id} onClick={() => onCategory(c.id)}>
-            {c.title}
-          </button>
-        ))}
-      </div>
-      <ul className="guides">
-        {guides.slice(0, limit).map((g) => {
-          const covered = topicForGuide(g.slug)
-          return (
-            <li key={g.slug} className="guide">
-              <a href={guideUrl(g.slug)} target="_blank" rel="noreferrer">
-                {g.title} <ExternalLink size={13} aria-hidden />
-              </a>
-              <span className="guide-tags">{g.tags.slice(0, 3).join(' · ')}</span>
-              {covered && (
-                <button type="button" className="guide-interactive" onClick={() => onOpen(covered)}>
-                  Interactive: {covered.title}
-                </button>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-      {guides.length > limit && (
-        <button type="button" className="btn btn-ghost library-more" onClick={() => setLimit(limit + 90)}>
-          Show more ({guides.length - limit} left)
-        </button>
-      )}
-      <p className="library-note">{LIBRARY.source.license}</p>
-    </section>
   )
 }
