@@ -9,11 +9,33 @@ export function useBoard(board: Board = defaultBoard): Board {
   return board
 }
 
-/** Screen pixels covered by the side panels: the card or topics list on the left, the load test on the right. */
-export function panelInsets(): { left: number; right: number } {
-  const left = document.querySelector('.explain')?.getBoundingClientRect().right ?? 0
-  const load = document.querySelector('.load')?.getBoundingClientRect()
-  return { left, right: load ? window.innerWidth - load.left : 0 }
+export interface Insets {
+  left: number
+  right: number
+  top: number
+  bottom: number
+}
+
+/**
+ * Screen pixels covered by the UI on each side, so the camera frames the diagram
+ * in the space that's left. Wide panels (a phone's bottom sheet) cover the
+ * bottom; narrow ones (desktop side panels) cover the side they sit on.
+ */
+export function panelInsets(): Insets {
+  const W = window.innerWidth
+  const H = window.innerHeight
+  const insets: Insets = { left: 0, right: 0, top: 0, bottom: 0 }
+  for (const el of document.querySelectorAll('.sheet, .dock, .topbar')) {
+    const r = el.getBoundingClientRect()
+    if (!r.width || !r.height) continue
+    // Wide or centred (a phone sheet, the dock, the top bar): it covers the top or bottom.
+    if (r.width > W * 0.6 || (r.left < W / 2 && r.right > W / 2)) {
+      if (r.top > H / 2) insets.bottom = Math.max(insets.bottom, H - r.top)
+      else insets.top = Math.max(insets.top, r.bottom)
+    } else if (r.left < W / 2) insets.left = Math.max(insets.left, r.right)
+    else insets.right = Math.max(insets.right, W - r.left)
+  }
+  return insets
 }
 
 /** The 3D canvas, with a stats tooltip for whatever box is under the pointer. */
@@ -52,34 +74,6 @@ export function BoardCanvas({ board }: { board: Board }) {
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-/** Switches between pages (each learning topic opens on its own page). */
-export function PageBar({ board }: { board: Board }) {
-  useBoard(board)
-  const pages = board.pageList
-  return (
-    <div className="pagebar">
-      <select value={board.page.id} onChange={(e) => board.switchTo(e.target.value)} aria-label="Page">
-        {pages.map((page) => (
-          <option key={page.id} value={page.id}>
-            {page.name}
-          </option>
-        ))}
-      </select>
-      <button type="button" onClick={() => board.newPage()} title="New page" aria-label="New page">
-        +
-      </button>
-      {pages.length > 1 && (
-        <button type="button" onClick={() => board.deletePage(board.page.id)} title="Delete this page" aria-label="Delete this page">
-          🗑
-        </button>
-      )}
-      <button type="button" onClick={() => board.fitAll()} title="Show everything" aria-label="Show everything">
-        ⤢
-      </button>
     </div>
   )
 }

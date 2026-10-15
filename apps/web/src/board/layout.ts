@@ -42,27 +42,50 @@ function nodeSize(node: DiagramNode) {
   return { width: positive(w, 160), height: positive(h, NODE_HEIGHT) }
 }
 
+export interface LayoutOptions {
+  /**
+   * Width-to-height ratio of the space the diagram will be shown in. When set,
+   * both flow directions are tried and the one closer to this shape is kept.
+   */
+  fitRatio?: number
+  /** Caps the gap between layers (normally sized to fit the longest arrow label). */
+  maxLayerGap?: number
+}
+
+/** Positions the graph, choosing the flow direction that best fits the space when asked to. */
+export async function layout(diagram: LayoutDiagram, options: LayoutOptions = {}): Promise<Layout> {
+  if (!options.fitRatio) return layoutOnce(diagram, options)
+  const [right, down] = await Promise.all([layoutOnce({ ...diagram, direction: 'right' }, options), layoutOnce({ ...diagram, direction: 'down' }, options)])
+  const misfit = (l: Layout) => Math.abs(Math.log(l.w / l.h / options.fitRatio!))
+  return misfit(right) <= misfit(down) ? right : down
+}
+
 /** Positions the graph with ELK's layered algorithm (the classic flowchart layout). */
-export async function layout(diagram: LayoutDiagram): Promise<Layout> {
+async function layoutOnce(diagram: LayoutDiagram, options: LayoutOptions): Promise<Layout> {
   // Loaded on demand: the layout engine is large and only needed when drawing diagrams.
   const { default: ELK } = await import('elkjs/lib/elk.bundled.js')
 
   const groupIds = new Set(diagram.groups.map((g) => g.id))
   const nodeIds = new Set(diagram.nodes.map((n) => n.id))
 
+  // Arrows back to an earlier box (a reply to the user, say) are laid out as if
+  // they pointed forward, so the flow starts where the topic lists its first box.
+  // Only positions come from ELK; arrows are drawn with their real direction.
+  const order = new Map(diagram.nodes.map((n, i) => [n.id, i]))
   const edges: ElkExtendedEdge[] = diagram.edges
     .filter((e) => nodeIds.has(e.from) && nodeIds.has(e.to) && e.from !== e.to)
     .map((edge, i) => ({
       id: `edge:${i}`,
-      sources: [edge.from],
-      targets: [edge.to],
+      ...(order.get(edge.to)! < order.get(edge.from)! ? { sources: [edge.to], targets: [edge.from] } : { sources: [edge.from], targets: [edge.to] }),
       // Give labels real size so ELK leaves room for them between layers.
       labels: edge.label ? [{ text: edge.label, width: textWidth(edge.label) + 16, height: 28 }] : [],
     }))
 
-  // Leave room between columns for the longest arrow label.
+  // Left to right, leave room between columns for the longest arrow label. Top to
+  // bottom, labels lie across the gap, so it only needs their height.
   const widestLabel = Math.max(0, ...edges.flatMap((e) => e.labels ?? []).map((l) => l.width ?? 0))
-  const layerGap = String(Math.min(360, Math.max(96, Math.ceil(widestLabel + 64))))
+  const layerGap =
+    diagram.direction === 'down' ? '110' : String(Math.min(options.maxLayerGap ?? 360, Math.max(96, Math.ceil(widestLabel + 64))))
 
   const toElkNode = (node: DiagramNode): ElkNode => ({ id: node.id, ...nodeSize(node) })
   const groups: ElkNode[] = diagram.groups.map((group) => ({

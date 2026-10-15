@@ -20,4 +20,12 @@ export interface StaticTopic {
   simulator?: Simulator
   /** Lets the 3D lab put real load through the design. */
   loadTest?: LoadTest
+  /** A narrated explainer video (rendered by apps/video into public/videos). */
+  video?: string
+  /** The video's chapters: start second and title (from apps/video scripts/chapters.ts). */
+  chapters?: [number, string][]
+  /** The few points worth remembering, shown beside the explanation. */
+  takeaways: string[]
+  /** Related guides in the library (ByteByteGo slugs), for going deeper. */
+  guides?: string[]
 }

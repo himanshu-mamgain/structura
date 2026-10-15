@@ -1,0 +1,4491 @@
+{
+ "source": {
+  "name": "ByteByteGo · System Design 101",
+  "repo": "https://github.com/ByteByteGoHq/system-design-101",
+  "guideUrl": "https://bytebytego.com/guides/{slug}/",
+  "license": "CC BY-NC-ND 4.0: titles and links only; read the guides on ByteByteGo."
+ },
+ "categories": [
+  {
+   "id": "api-web-development",
+   "title": "API and Web Development",
+   "sort": 100
+  },
+  {
+   "id": "real-world-case-studies",
+   "title": "Real World Case Studies",
+   "sort": 110
+  },
+  {
+   "id": "ai-machine-learning",
+   "title": "AI and Machine Learning",
+   "sort": 120
+  },
+  {
+   "id": "database-and-storage",
+   "title": "Database and Storage",
+   "sort": 130
+  },
+  {
+   "id": "technical-interviews",
+   "title": "Technical Interviews",
+   "sort": 140
+  },
+  {
+   "id": "caching-performance",
+   "title": "Caching & Performance",
+   "sort": 150
+  },
+  {
+   "id": "payment-and-fintech",
+   "title": "Payment and Fintech",
+   "sort": 160
+  },
+  {
+   "id": "software-architecture",
+   "title": "Software Architecture",
+   "sort": 160
+  },
+  {
+   "id": "devtools-productivity",
+   "title": "DevTools & Productivity",
+   "sort": 170
+  },
+  {
+   "id": "software-development",
+   "title": "Software Development",
+   "sort": 170
+  },
+  {
+   "id": "cloud-distributed-systems",
+   "title": "Cloud & Distributed Systems",
+   "sort": 180
+  },
+  {
+   "id": "how-it-works",
+   "title": "How it Works?",
+   "sort": 190
+  },
+  {
+   "id": "devops-cicd",
+   "title": "DevOps and CI/CD",
+   "sort": 200
+  },
+  {
+   "id": "security",
+   "title": "Security",
+   "sort": 210
+  },
+  {
+   "id": "computer-fundamentals",
+   "title": "Computer Fundamentals",
+   "sort": 220
+  }
+ ],
+ "guides": [
+  {
+   "slug": "airbnb-artchitectural-evolution",
+   "title": "0 to 1.5 Billion Guests: Airbnb's Architectural Evolution",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "10-books-for-software-developers",
+   "title": "10 Books for Software Developers",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Software Development",
+    "Books"
+   ]
+  },
+  {
+   "slug": "10-essential-components-of-a-production-web-application",
+   "title": "10 Essential Components of a Production Web Application",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Web Architecture",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "10-good-coding-principles-to-improve-code-quality",
+   "title": "10 Good Coding Principles to Improve Code Quality",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "coding practices",
+    "software quality"
+   ]
+  },
+  {
+   "slug": "10-key-data-structures-we-use-every-day",
+   "title": "10 Key Data Structures We Use Every Day",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Data Structures",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "10-principles-for-building-resilient-payment-systems-by-shopify",
+   "title": "10 Principles for Building Resilient Payment Systems",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "payment systems",
+    "resilience"
+   ]
+  },
+  {
+   "slug": "10-system-design-tradeoffs-you-cannot-ignore",
+   "title": "10 System Design Tradeoffs You Cannot Ignore",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "System Design",
+    "Tradeoffs"
+   ]
+  },
+  {
+   "slug": "100x-postgres-scaling-at-figma",
+   "title": "100X Postgres Scaling at Figma",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Postgres",
+    "Scaling"
+   ]
+  },
+  {
+   "slug": "11-steps-to-go-from-junior-to-senior-developer",
+   "title": "11 Steps to Go From Junior to Senior Developer",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "career-growth",
+    "software-engineering"
+   ]
+  },
+  {
+   "slug": "15-open-source-projects-that-changed-the-world",
+   "title": "15 Open-Source Projects That Changed the World",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Open Source",
+    "Software Development"
+   ]
+  },
+  {
+   "slug": "18-common-ports-worth-knowing",
+   "title": "18 Common Ports Worth Knowing",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Networking",
+    "Ports"
+   ]
+  },
+  {
+   "slug": "18-key-design-patterns-every-developer-should-know",
+   "title": "18 Key Design Patterns Every Developer Should Know",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "design patterns",
+    "software development"
+   ]
+  },
+  {
+   "slug": "2-decades-of-cloud-evolution",
+   "title": "2 Decades of Cloud Evolution",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Cloud Evolution"
+   ]
+  },
+  {
+   "slug": "20-popular-open-source-projects-started-or-supported-by-big-companies",
+   "title": "20 Popular Open Source Projects Started by Big Companies",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Open Source",
+    "Technology"
+   ]
+  },
+  {
+   "slug": "25-papers-that-completely-transformed-the-computer-world",
+   "title": "25 Papers That Completely Transformed the Computer World",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Distributed Systems",
+    "Computer Science"
+   ]
+  },
+  {
+   "slug": "30-useful-ai-apps-that-can-help-you-in-2025",
+   "title": "30 Useful AI Apps That Can Help You in 2025",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "AI Tools",
+    "Productivity"
+   ]
+  },
+  {
+   "slug": "4-ways-netflix-uses-caching-to-hold-user-attention",
+   "title": "4 Ways Netflix Uses Caching",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Caching",
+    "Netflix"
+   ]
+  },
+  {
+   "slug": "4-ways-of-qr-code-payment",
+   "title": "4 Ways of QR Code Payment",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "QR Codes",
+    "Payments"
+   ]
+  },
+  {
+   "slug": "5-functions-to-merge-data-with-pandas",
+   "title": "5 Functions to Merge Data with Pandas",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "Pandas",
+    "Data Manipulation"
+   ]
+  },
+  {
+   "slug": "5-http-status-codes-that-should-never-have-been-created",
+   "title": "5 HTTP Status Codes That Should Never Have Been Created",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP Status Codes",
+    "Web Development"
+   ]
+  },
+  {
+   "slug": "5-important-components-of-linux",
+   "title": "5 Important Components of Linux",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "linux",
+    "operating-systems"
+   ]
+  },
+  {
+   "slug": "6-software-architectural-patterns-you-must-know",
+   "title": "6 Software Architectural Patterns You Must Know",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Architecture",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "7-must-know-strategies-to-scale-your-database",
+   "title": "7 Must-Know Strategies to Scale Your Database",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database scaling",
+    "database optimization"
+   ]
+  },
+  {
+   "slug": "8-common-system-design-problems-and-solutions",
+   "title": "8 Common System Design Problems and Solutions",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "System Design",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "8-data-structures-that-power-your-databases",
+   "title": "8 Data Structures That Power Your Databases",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Structures",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "8-key-concepts-in-ddd",
+   "title": "8 Key Concepts in Domain-Driven Design",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "DDD",
+    "Software Design"
+   ]
+  },
+  {
+   "slug": "8-key-oop-concepts-every-developer-should-know",
+   "title": "8 Key OOP Concepts Every Developer Should Know",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "OOP",
+    "Programming"
+   ]
+  },
+  {
+   "slug": "8-must-know-scalability-strategies",
+   "title": "8 Must-Know Scalability Strategies",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Scalability",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "8-tips-for-efficient-api-design",
+   "title": "8 Tips for Efficient API Design",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Design",
+    "Best Practices"
+   ]
+  },
+  {
+   "slug": "9-best-practices-for-building-microservices",
+   "title": "9 Best Practices for Building Microservices",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Microservices",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "9-best-practices-for-developing-microservices",
+   "title": "9 Best Practices for Developing Microservices",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "microservices",
+    "best practices"
+   ]
+  },
+  {
+   "slug": "9-docker-best-practices-you-must-know",
+   "title": "9 Docker Best Practices You Must Know",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Docker",
+    "Containerization"
+   ]
+  },
+  {
+   "slug": "9-essential-components-of-a-production-microservice-application",
+   "title": "9 Essential Components of a Production Microservice Application",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Microservices",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "a-beginner's-guide-to-cdn-content-delivery-network",
+   "title": "A Beginner's Guide to CDN",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "CDN",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "a-brief-history-og-programming-languages",
+   "title": "A Brief History of Programming Languages",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "programming-languages",
+    "history"
+   ]
+  },
+  {
+   "slug": "a-cheat-sheet-for-api-designs",
+   "title": "A cheat sheet for API designs",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Design",
+    "Security"
+   ]
+  },
+  {
+   "slug": "a-cheat-sheet-for-designing-fault-tolerant-systems",
+   "title": "A Cheat Sheet for Designing Fault-Tolerant Systems",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Fault Tolerance",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "a-cheat-sheet-for-system-designs",
+   "title": "A cheat sheet for system designs",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "system design",
+    "architecture"
+   ]
+  },
+  {
+   "slug": "a-cheatsheet-on-comparing-api-architectural-styles",
+   "title": "A Cheatsheet on Comparing API Architectural Styles",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "a-cheatsheet-on-database-performance",
+   "title": "A Cheatsheet on Database Performance",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database",
+    "performance"
+   ]
+  },
+  {
+   "slug": "a-cheatsheet-to-build-secure-apis",
+   "title": "A Cheatsheet to Build Secure APIs",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Security",
+    "Security"
+   ]
+  },
+  {
+   "slug": "a-crash-course-on-architectural-scalability",
+   "title": "A Crash Course on Architectural Scalability",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Scalability",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "a-crash-course-in-database-sharding",
+   "title": "A Crash Course on Database Sharding",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database",
+    "sharding"
+   ]
+  },
+  {
+   "slug": "a-roadmap-for-full-stack-development",
+   "title": "A Roadmap for Full-Stack Development",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Full-Stack Development",
+    "Software Development"
+   ]
+  },
+  {
+   "slug": "algorithms-you-should-know-before-taking-system-design-interviews",
+   "title": "Algorithms for System Design Interviews",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "System Design",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "amazon-prime-video-monitoring-service",
+   "title": "Amazon Prime Video Monitoring Service",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Microservices",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "how-does-amazon-build-system-work",
+   "title": "Amazon's Build System: Brazil",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Build Systems",
+    "Amazon"
+   ]
+  },
+  {
+   "slug": "api-gateway-101",
+   "title": "API Gateway 101",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Gateway",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "api-of-apis-app-integrations",
+   "title": "API of APIs - App Integrations",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "API Integration",
+    "No-Code"
+   ]
+  },
+  {
+   "slug": "api-vs-sdk",
+   "title": "API vs SDK",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "SDK"
+   ]
+  },
+  {
+   "slug": "aws-services-cheat-sheet",
+   "title": "AWS Services Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "AWS",
+    "Cloud Computing"
+   ]
+  },
+  {
+   "slug": "aws-services-evolution",
+   "title": "AWS Services Evolution",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "AWS"
+   ]
+  },
+  {
+   "slug": "azure-services-cheat-sheet",
+   "title": "Azure Services Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Azure",
+    "Cloud Computing"
+   ]
+  },
+  {
+   "slug": "b-tree-vs",
+   "title": "B-Tree vs. LSM-Tree",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Structures",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "big-data-pipeline-cheatsheet-for-aws-azure-and-google-cloud",
+   "title": "Big Data Pipeline Cheatsheet for AWS, Azure, and Google Cloud",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Big Data",
+    "Cloud Computing"
+   ]
+  },
+  {
+   "slug": "big-endian-vs-little-endian",
+   "title": "Big Endian vs Little Endian",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Computer Architecture",
+    "Data Representation"
+   ]
+  },
+  {
+   "slug": "blocking-vs-non-blocking-queue",
+   "title": "Blocking vs Non-Blocking Queue",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Concurrency",
+    "Data Structures"
+   ]
+  },
+  {
+   "slug": "build-a-simple-chat-application",
+   "title": "Build a Simple Chat Application with Redis",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Redis",
+    "Chat Application"
+   ]
+  },
+  {
+   "slug": "most-popular-cache-eviction",
+   "title": "Cache Eviction Policies",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "cache-miss-attack",
+   "title": "Cache Miss Attack",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Security"
+   ]
+  },
+  {
+   "slug": "cache-systems-every-developer-should-know",
+   "title": "Cache Systems Every Developer Should Know",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "can-kafka-lose-messages",
+   "title": "Can Kafka Lose Messages?",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Kafka",
+    "Message Loss"
+   ]
+  },
+  {
+   "slug": "cap-theorem-one-of-the-most-misunderstood-terms",
+   "title": "CAP Theorem: One of the Most Misunderstood Terms",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "distributed systems",
+    "cap theorem"
+   ]
+  },
+  {
+   "slug": "cap-base-solid-kiss-what-do-these-acronyms-mean",
+   "title": "CAP, BASE, SOLID, KISS, What do these acronyms mean?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "System Design",
+    "Software Engineering"
+   ]
+  },
+  {
+   "slug": "change-data-capture-key-to-leverage-real-time-data",
+   "title": "Change Data Capture: Key to Leverage Real-time Data",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Streaming",
+    "Data Synchronization"
+   ]
+  },
+  {
+   "slug": "chatgpt-timeline",
+   "title": "ChatGPT Timeline",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "AI History",
+    "NLP"
+   ]
+  },
+  {
+   "slug": "choose-the-right-database-for-metric-collecting-system",
+   "title": "Choose the Right Database for Metric Collection",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "databases",
+    "metrics"
+   ]
+  },
+  {
+   "slug": "cicd-pipeline-explained-in-simple-terms",
+   "title": "CI/CD Pipeline Explained in Simple Terms",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "CI/CD",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "cicd-simplified-visual-guide",
+   "title": "CI/CD Simplified Visual Guide",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "CI/CD",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "cloud-comparison-cheat-sheet",
+   "title": "Cloud Comparison Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Comparison"
+   ]
+  },
+  {
+   "slug": "cloud-cost-reduction-techniques",
+   "title": "Cloud Cost Reduction Techniques",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Cost Optimization",
+    "Resource Management"
+   ]
+  },
+  {
+   "slug": "cloud-database-cheat-sheet",
+   "title": "Cloud Database Cheat Sheet",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "cloud-disaster-recovery-strategies",
+   "title": "Cloud Disaster Recovery Strategies",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Disaster Recovery"
+   ]
+  },
+  {
+   "slug": "cloud-load-balancer-cheat-sheet",
+   "title": "Cloud Load Balancer Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Load Balancing"
+   ]
+  },
+  {
+   "slug": "cloud-monitoring-cheat-sheet",
+   "title": "Cloud Monitoring Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Monitoring"
+   ]
+  },
+  {
+   "slug": "cloud-native-anti-patterns",
+   "title": "Cloud Native Anti-Patterns",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Cloud Native",
+    "Anti-Patterns"
+   ]
+  },
+  {
+   "slug": "concurrency-is-not-parallelism",
+   "title": "Concurrency vs Parallelism",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Concurrency",
+    "Parallelism"
+   ]
+  },
+  {
+   "slug": "consistent-hashing",
+   "title": "Consistent Hashing Explained",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Consistent Hashing",
+    "Distributed Systems"
+   ]
+  },
+  {
+   "slug": "what-are-the-differences-between-cookies-and-sessions",
+   "title": "Cookies vs Sessions",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "cookies",
+    "sessions"
+   ]
+  },
+  {
+   "slug": "cookies-vs-sessions-vs-jwt-vs-paseto",
+   "title": "Cookies vs Sessions vs JWT vs PASETO",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Security"
+   ]
+  },
+  {
+   "slug": "cybersecurity-101-in-one-picture",
+   "title": "Cybersecurity 101",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Cybersecurity",
+    "Fundamentals"
+   ]
+  },
+  {
+   "slug": "data-pipelines-overview",
+   "title": "Data Pipelines Overview",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "data-pipelines",
+    "data-processing"
+   ]
+  },
+  {
+   "slug": "how-is-data-transmitted-between-applications",
+   "title": "Data Transmission Between Applications",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "networking",
+    "data-transfer"
+   ]
+  },
+  {
+   "slug": "what-are-database-isolation-levels",
+   "title": "Database Isolation Levels",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Databases",
+    "Transactions"
+   ]
+  },
+  {
+   "slug": "what-are-the-differences-among-database-locks",
+   "title": "Database Locks Explained",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database Locking",
+    "Concurrency Control"
+   ]
+  },
+  {
+   "slug": "database-middleware",
+   "title": "Database Middleware",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Database Routing",
+    "Proxy"
+   ]
+  },
+  {
+   "slug": "deepseek-1-pager",
+   "title": "DeepSeek 1-Pager",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "AI Models",
+    "DeepSeek"
+   ]
+  },
+  {
+   "slug": "delivery-semantics",
+   "title": "Delivery Semantics",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Message Queues",
+    "Delivery Semantics"
+   ]
+  },
+  {
+   "slug": "how-to-deploy-services",
+   "title": "Deployment Strategies",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Deployment",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "design-gmail",
+   "title": "Design Gmail",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Email",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "design-google-maps",
+   "title": "Design Google Maps",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "System Design",
+    "Maps"
+   ]
+  },
+  {
+   "slug": "design-patterns-cheat-sheet-part-1-and-part-2",
+   "title": "Design Patterns Cheat Sheet",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "design patterns",
+    "software design"
+   ]
+  },
+  {
+   "slug": "design-stock-exchange",
+   "title": "Design Stock Exchange",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "System Design",
+    "Trading Systems"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-a-chat-application-like-whatsapp-facebook-messenger-or-discord",
+   "title": "Designing a Chat Application",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "architecture",
+    "messaging"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-a-permission-system",
+   "title": "Designing a Permission System",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "access control",
+    "rbac"
+   ]
+  },
+  {
+   "slug": "devops-vs-noops",
+   "title": "DevOps vs NoOps: What's the Difference?",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Nginx",
+    "Web Servers"
+   ]
+  },
+  {
+   "slug": "devops-vs-sre-vs-paltform-engg",
+   "title": "DevOps vs. SRE vs. Platform Engineering",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "DevOps",
+    "SRE"
+   ]
+  },
+  {
+   "slug": "diagram-as-code",
+   "title": "Diagram as Code",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "diagrams",
+    "architecture"
+   ]
+  },
+  {
+   "slug": "differences-in-event-sourcing-system-design",
+   "title": "Differences in Event Sourcing System Design",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "event sourcing",
+    "system design"
+   ]
+  },
+  {
+   "slug": "digital-wallet-in-traditional-banks-vs-wallet-in-blockchain",
+   "title": "Digital Wallets: Banks vs. Blockchain",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Blockchain",
+    "Digital Wallets"
+   ]
+  },
+  {
+   "slug": "dns-record-types-you-should-know",
+   "title": "DNS Record Types You Should Know",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "DNS",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "do-you-know-all-the-components-of-a-url",
+   "title": "Do you know all the components of a URL?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "networking",
+    "web-development"
+   ]
+  },
+  {
+   "slug": "e-commerce-workflow",
+   "title": "E-commerce Workflow",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "E-commerce",
+    "Supply Chain"
+   ]
+  },
+  {
+   "slug": "encoding-vs-encryption-vs-tokenization",
+   "title": "Encoding vs Encryption vs Tokenization",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Data Security",
+    "Data Handling"
+   ]
+  },
+  {
+   "slug": "erasure-coding",
+   "title": "Erasure Coding",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Storage",
+    "Data Redundancy"
+   ]
+  },
+  {
+   "slug": "evolution-of-airbnb's-microservice",
+   "title": "Evolution of Airbnb’s Microservice Architecture",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Microservices",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "evolution-of-the-netflix-api-architecture",
+   "title": "Evolution of the Netflix API Architecture",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "API Architecture",
+    "Netflix"
+   ]
+  },
+  {
+   "slug": "evolution-of-uber's-api-layer",
+   "title": "Evolution of Uber's API Layer",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "API Gateway",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "possible-experiment-platform-architecture",
+   "title": "Experiment Platform Architecture",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "A/B Testing",
+    "Experimentation"
+   ]
+  },
+  {
+   "slug": "explain-the-top-6-use-cases-of-object-stores",
+   "title": "Explain the Top 6 Use Cases of Object Stores",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Object Storage",
+    "Data Management"
+   ]
+  },
+  {
+   "slug": "explaining-5-unique-id-generators-in-distributed-systems",
+   "title": "Explaining 5 Unique ID Generators",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Distributed Systems",
+    "Unique IDs"
+   ]
+  },
+  {
+   "slug": "explaining-8-popular-network-protocols-in-1-diagram",
+   "title": "Explaining 8 Popular Network Protocols in 1 Diagram",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Networking",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "explaining-9-types-of-api-testing",
+   "title": "Explaining 9 Types of API Testing",
+   "categories": [
+    "api-web-development",
+    "software-development"
+   ],
+   "tags": [
+    "API Testing",
+    "Software Testing"
+   ]
+  },
+  {
+   "slug": "explaining-json-web-token-jwt-to-a-10-year-old-kid",
+   "title": "Explaining JSON Web Token (JWT) to a 10 Year Old Kid",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "JWT",
+    "Security"
+   ]
+  },
+  {
+   "slug": "explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram",
+   "title": "Explaining the 4 Most Commonly Used Types of Queues",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Structures",
+    "Queues"
+   ]
+  },
+  {
+   "slug": "firewall-explained-to-kids-and-adults",
+   "title": "Firewall Explained to Kids and Adults",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Network Security",
+    "Firewall"
+   ]
+  },
+  {
+   "slug": "fixing-bugs-automatically-at-meta-scale",
+   "title": "Fixing Bugs Automatically at Meta Scale",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Automation",
+    "Debugging"
+   ]
+  },
+  {
+   "slug": "foreign-exchange-payments",
+   "title": "Foreign Exchange Payments",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payments",
+    "Foreign Exchange"
+   ]
+  },
+  {
+   "slug": "how-to-load-your-websites-at-lightning-speed",
+   "title": "Frontend Performance Optimization",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "frontend",
+    "performance"
+   ]
+  },
+  {
+   "slug": "git-commands-cheat-sheet",
+   "title": "Git Commands Cheat Sheet",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Git",
+    "Version Control"
+   ]
+  },
+  {
+   "slug": "git-merge-vs-git-rebate",
+   "title": "Git Merge vs. Git Rebase",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Git",
+    "Version Control"
+   ]
+  },
+  {
+   "slug": "git-vs-github",
+   "title": "Git vs GitHub",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Version Control",
+    "Git"
+   ]
+  },
+  {
+   "slug": "graphql-adoption-patterns",
+   "title": "GraphQL Adoption Patterns",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "GraphQL",
+    "API"
+   ]
+  },
+  {
+   "slug": "handling-hotspot-accounts",
+   "title": "Handling Hotspot Accounts",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payment Systems",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "hidden-costs-of-the-cloud",
+   "title": "Hidden Costs of the Cloud",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Cost",
+    "Cost Optimization"
+   ]
+  },
+  {
+   "slug": "how-does-ach-payment-work",
+   "title": "How ACH Payment Works",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "ACH",
+    "Payments"
+   ]
+  },
+  {
+   "slug": "how-are-notifications-pushed-to-our-phones-or-pcs",
+   "title": "How are Notifications Pushed to Our Phones or PCs?",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "notifications",
+    "mobile"
+   ]
+  },
+  {
+   "slug": "how-does-aws-lambda-work-behind-the-scenes",
+   "title": "How AWS Lambda Works Behind the Scenes",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "AWS Lambda",
+    "Serverless"
+   ]
+  },
+  {
+   "slug": "how-do-big-keys-impact-redis-persistence",
+   "title": "How Big Keys Impact Redis Persistence",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Persistence"
+   ]
+  },
+  {
+   "slug": "how-does-the-browser-render-a-web-page",
+   "title": "How Browsers Render Web Pages",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "browsers",
+    "rendering"
+   ]
+  },
+  {
+   "slug": "how-can-cache-systems-go-wrong",
+   "title": "How Can Cache Systems Go Wrong?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "how-can-redis-be-used",
+   "title": "How can Redis be used?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Use Cases"
+   ]
+  },
+  {
+   "slug": "how-digital-signatures-work",
+   "title": "How Digital Signatures Work",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Cryptography",
+    "Security"
+   ]
+  },
+  {
+   "slug": "how-discord-stores-trillions-of-messages",
+   "title": "How Discord Stores Trillions of Messages",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Databases",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "how-do-airtags-work",
+   "title": "How do AirTags work?",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Bluetooth",
+    "Tracking"
+   ]
+  },
+  {
+   "slug": "how-applegoogle-pay-works",
+   "title": "How do Apple Pay and Google Pay work?",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payment Systems",
+    "Mobile Payments"
+   ]
+  },
+  {
+   "slug": "how-do-c++-java-python-work",
+   "title": "How Do C++, Java, Python Work?",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "programming-languages",
+    "compilers"
+   ]
+  },
+  {
+   "slug": "how-do-companies-ship-code-to-production",
+   "title": "How do Companies Ship Code to Production?",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "software-engineering",
+    "deployment"
+   ]
+  },
+  {
+   "slug": "how-do-computer-programs-run",
+   "title": "How Do Computer Programs Run?",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "operating-systems",
+    "execution"
+   ]
+  },
+  {
+   "slug": "how-do-search-engines-work",
+   "title": "How Do Search Engines Work?",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Search Engines",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "how-do-sql-joins-work",
+   "title": "How do SQL Joins Work?",
+   "categories": [
+    "technical-interviews"
+   ],
+   "tags": [
+    "SQL",
+    "Database"
+   ]
+  },
+  {
+   "slug": "how-do-we-incorporate-event-sourcing-into-the-systems",
+   "title": "How do we incorporate Event Sourcing into systems?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "event sourcing",
+    "microservices"
+   ]
+  },
+  {
+   "slug": "how-do-we-manage-configurations-in-a-system",
+   "title": "How do we manage configurations in a system?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Infrastructure as Code",
+    "Configuration Management"
+   ]
+  },
+  {
+   "slug": "how-do-we-manage-sensitive-data-in-a-system",
+   "title": "How do we manage sensitive data in a system?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "data security",
+    "data management"
+   ]
+  },
+  {
+   "slug": "how-do-we-perform-pagination-in-api-design",
+   "title": "How do we Perform Pagination in API Design?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Design",
+    "Pagination"
+   ]
+  },
+  {
+   "slug": "how-does-a-typical-push-notification-system-work",
+   "title": "How Does a Typical Push Notification System Work?",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Notifications"
+   ]
+  },
+  {
+   "slug": "how-does-a-vpn-work",
+   "title": "How Does a VPN Work?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "VPN",
+    "Security"
+   ]
+  },
+  {
+   "slug": "how-does-cnd-work",
+   "title": "How Does CDN Work?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "CDN",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "how-does-chatgpt-work",
+   "title": "How does ChatGPT work?",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "ChatGPT",
+    "Machine Learning"
+   ]
+  },
+  {
+   "slug": "how-does-docker-work",
+   "title": "How does Docker work?",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Docker",
+    "Containers"
+   ]
+  },
+  {
+   "slug": "how-does-garbage-collection-work",
+   "title": "How does Garbage Collection work?",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "garbage collection",
+    "memory management"
+   ]
+  },
+  {
+   "slug": "git-workflow",
+   "title": "How does Git Work?",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Git",
+    "Version Control"
+   ]
+  },
+  {
+   "slug": "how-does-grpc-work",
+   "title": "How does gRPC work?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "gRPC",
+    "RPC"
+   ]
+  },
+  {
+   "slug": "how-does-https-work",
+   "title": "How does HTTPS work?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "HTTPS",
+    "Encryption"
+   ]
+  },
+  {
+   "slug": "how-does-javascript-work",
+   "title": "How does Javascript Work?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "javascript",
+    "programming"
+   ]
+  },
+  {
+   "slug": "how-does-redis-persist-data",
+   "title": "How Does Redis Persist Data?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Data Persistence"
+   ]
+  },
+  {
+   "slug": "how-does-rest-api-work",
+   "title": "How does REST API work?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "rest-api",
+    "web-development"
+   ]
+  },
+  {
+   "slug": "how-does-ssh-work",
+   "title": "How does SSH work?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "SSH",
+    "Security"
+   ]
+  },
+  {
+   "slug": "how-does-terraform-turn-code-into-cloud",
+   "title": "How does Terraform turn Code into Cloud?",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Terraform",
+    "Infrastructure as Code"
+   ]
+  },
+  {
+   "slug": "how-does-the-domain-name-system-dns-lookup-work",
+   "title": "How Does the Domain Name System (DNS) Lookup Work?",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "DNS",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "how-does-twitter-recommend-tweets",
+   "title": "How does Twitter recommend “For You” Timeline in 1.5 seconds?",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Recommendation Systems"
+   ]
+  },
+  {
+   "slug": "how-does-visa-make-money",
+   "title": "How does Visa make money?",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Fintech",
+    "Visa"
+   ]
+  },
+  {
+   "slug": "how-does-git-work",
+   "title": "How Git Works",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "git",
+    "version control"
+   ]
+  },
+  {
+   "slug": "how-does-google-authenticator-or-other-types-of-2-factor-authenticators-work",
+   "title": "How Google Authenticator Works",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "2FA",
+    "Authentication"
+   ]
+  },
+  {
+   "slug": "how-do-googleapple-maps-blur-license-plates-and-human-faces-on-street-view",
+   "title": "How Google/Apple Maps Blur License Plates and Faces",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Machine Learning",
+    "Image Processing"
+   ]
+  },
+  {
+   "slug": "how-does-graphql-work-in-the-real-world",
+   "title": "How GraphQL Works at LinkedIn",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "GraphQL",
+    "LinkedIn"
+   ]
+  },
+  {
+   "slug": "how-is-email-delivered",
+   "title": "How is Email Delivered?",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "EmailProtocols",
+    "EmailDelivery"
+   ]
+  },
+  {
+   "slug": "how-levelsfyi-scaled-to-millions-of-users-with-google-sheets",
+   "title": "How Levelsfyi Scaled to Millions of Users with Google Sheets",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Scalability",
+    "Google Sheets"
+   ]
+  },
+  {
+   "slug": "how-nat-made-the-growth-of-the-internet-possible",
+   "title": "How NAT Enabled the Internet",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "NAT",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "how-netflix-really-uses-java",
+   "title": "How Netflix Really Uses Java",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Java",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "how-does-netflix-scale-push-messaging-for-millions-of-devices",
+   "title": "How Netflix Scales Push Messaging",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Push Notifications"
+   ]
+  },
+  {
+   "slug": "how-does-a-password-manager-such-as-1password-or-lastpass-work",
+   "title": "How Password Managers Work",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "security",
+    "passwords"
+   ]
+  },
+  {
+   "slug": "how-redis-architecture-evolve",
+   "title": "How Redis Architecture Evolved",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "how-does-scan-to-pay-work",
+   "title": "How Scan to Pay Works",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payment Systems",
+    "QR Codes"
+   ]
+  },
+  {
+   "slug": "how-tiktok-manages-a-200k-file-frontend-monorepo",
+   "title": "How TikTok Manages a 200K File Frontend MonoRepo",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Monorepo",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "how-to-ace-system-design-interviews-like-a-boss",
+   "title": "How to Ace System Design Interviews",
+   "categories": [
+    "technical-interviews"
+   ],
+   "tags": [
+    "System Design",
+    "Interview Preparation"
+   ]
+  },
+  {
+   "slug": "how-to-avoid-crawling-duplicate-urls-at-google-scale",
+   "title": "How to Avoid Crawling Duplicate URLs at Google Scale?",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Bloom Filter",
+    "Web Crawling"
+   ]
+  },
+  {
+   "slug": "how-to-avoid-double-payment",
+   "title": "How to Avoid Double Payment",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payment Systems",
+    "Idempotency"
+   ]
+  },
+  {
+   "slug": "how-to-choose-the-right-database",
+   "title": "How to Choose the Right Database",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database selection",
+    "data storage"
+   ]
+  },
+  {
+   "slug": "how-do-you-decide-which-type-of-database-to-use",
+   "title": "How to Decide Which Type of Database to Use",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database selection",
+    "database types"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-a-secure-system",
+   "title": "How to Design a Secure System",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "security design",
+    "system design"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-a-system-for-internationalization",
+   "title": "How to Design a System for Internationalization",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "internationalization",
+    "system design"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-effective-and-safe-apis",
+   "title": "How to Design Effective and Safe APIs",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Design",
+    "Software Engineering"
+   ]
+  },
+  {
+   "slug": "how-do-we-design-for-high-availability",
+   "title": "How to Design for High Availability",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "high-availability",
+    "system-design"
+   ]
+  },
+  {
+   "slug": "how-to-design-google-docs",
+   "title": "How to Design Google Docs",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "System Design",
+    "Real-time Collaboration"
+   ]
+  },
+  {
+   "slug": "how-to-design-secure-web-api-access-for-your-website",
+   "title": "How to Design Secure Web API Access",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Security",
+    "Authentication"
+   ]
+  },
+  {
+   "slug": "how-will-you-design-the-stack-overflow-website",
+   "title": "How to Design Stack Overflow",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "how-do-we-detect-node-failures-in-distributed-systems",
+   "title": "How to Detect Node Failures in Distributed Systems",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "distributed systems",
+    "failure detection"
+   ]
+  },
+  {
+   "slug": "how-to-handle-web-request-error",
+   "title": "How to Handle Web Request Errors",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Error Handling",
+    "Web Requests"
+   ]
+  },
+  {
+   "slug": "how-to-implement-read-replica-pattern",
+   "title": "How to Implement Read Replica Pattern",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database",
+    "Read Replicas"
+   ]
+  },
+  {
+   "slug": "how-do-we-learn-elasticsearch",
+   "title": "How to Learn Elasticsearch",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Elasticsearch",
+    "Search"
+   ]
+  },
+  {
+   "slug": "how-to-learn-payments",
+   "title": "How to Learn Payments",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payments",
+    "Fintech"
+   ]
+  },
+  {
+   "slug": "how-to-release-a-mobile-app",
+   "title": "How To Release A Mobile App",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Mobile Development",
+    "App Release"
+   ]
+  },
+  {
+   "slug": "how-do-we-transform-a-system-to-be-cloud-native",
+   "title": "How to Transform a System to be Cloud Native",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "cloud-native",
+    "architecture"
+   ]
+  },
+  {
+   "slug": "how-to-upload-a-large-file-to-s3",
+   "title": "How to Upload a Large File to S3",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "S3",
+    "Object Storage"
+   ]
+  },
+  {
+   "slug": "how-does-visa-work-when-we-swipe-a-credit-card-at-a-merchant's-shop",
+   "title": "How VISA Works When Swiping a Credit Card",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "VISA",
+    "Payment Processing"
+   ]
+  },
+  {
+   "slug": "how-does-youtube-handle-massive-video-content-upload",
+   "title": "How YouTube Handles Massive Video Uploads",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "http-cookies-explained-with-a-simple-diagram",
+   "title": "HTTP Cookies Explained With a Simple Diagram",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "HTTP",
+    "Web Development"
+   ]
+  },
+  {
+   "slug": "http-status-code-you-should-know",
+   "title": "HTTP Status Codes You Should Know",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP",
+    "API"
+   ]
+  },
+  {
+   "slug": "http1-http2-http3",
+   "title": "HTTP/1 -> HTTP/2 -> HTTP/3",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "https-ssl-handshake-and-data-encryption-explained-to-kids",
+   "title": "HTTPS, SSL Handshake, and Data Encryption Explained",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "HTTPS",
+    "Encryption"
+   ]
+  },
+  {
+   "slug": "how-do-message-queue-architectures-evolve",
+   "title": "IBM MQ -> RabbitMQ -> Kafka -> Pulsar: Message Queue Evolution",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Message Queues",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "imperative-vs-functional-vs-object-oriented-programming",
+   "title": "Imperative vs Functional vs Object-oriented Programming",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Programming Paradigms",
+    "Software Design"
+   ]
+  },
+  {
+   "slug": "important-things-about-http-headers-you-may-not-know",
+   "title": "Important Things About HTTP Headers",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP",
+    "Headers"
+   ]
+  },
+  {
+   "slug": "a-cheatsheet-on-infrastructure-as-code-landscape",
+   "title": "Infrastructure as Code Landscape Cheatsheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Infrastructure as Code",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "how-do-processes-talk-to-each-other-on-linux",
+   "title": "Inter-Process Communication on Linux",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Linux",
+    "IPC"
+   ]
+  },
+  {
+   "slug": "internet-traffic-routing-policies",
+   "title": "Internet Traffic Routing Policies",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Networking",
+    "Routing"
+   ]
+  },
+  {
+   "slug": "ipv4-vs-ipv6",
+   "title": "IPv4 vs. IPv6: Differences",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Networking",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "iqiyi-database-selection-trees",
+   "title": "iQIYI Database Selection Trees",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "database selection",
+    "iQIYI"
+   ]
+  },
+  {
+   "slug": "is-https-safe",
+   "title": "Is HTTPS Safe?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "HTTPS",
+    "Security"
+   ]
+  },
+  {
+   "slug": "is-microservice-architecture-the-silver-bullet",
+   "title": "Is Microservice Architecture the Silver Bullet?",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "microservices",
+    "architecture patterns"
+   ]
+  },
+  {
+   "slug": "is-passkey-shaping-a-passwordless-future",
+   "title": "Is PassKey Shaping a Passwordless Future?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Passkeys"
+   ]
+  },
+  {
+   "slug": "is-postgresql-eating-the-database-world",
+   "title": "Is PostgreSQL Eating the Database World?",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "PostgreSQL",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "is-telegram-secure",
+   "title": "Is Telegram Secure?",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Security",
+    "Encryption"
+   ]
+  },
+  {
+   "slug": "java-collection-hierarchy",
+   "title": "Java Collection Hierarchy",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Java",
+    "Data Structures"
+   ]
+  },
+  {
+   "slug": "json-files",
+   "title": "JSON Crack: Visualize JSON Files",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "JSON",
+    "Visualization"
+   ]
+  },
+  {
+   "slug": "jwt-101-key-to-stateless-authentication",
+   "title": "JWT 101: Key to Stateless Authentication",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "authentication",
+    "jwt"
+   ]
+  },
+  {
+   "slug": "key-concepts-to-understand-database-sharding",
+   "title": "Key Concepts to Understand Database Sharding",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database Sharding",
+    "Database Design"
+   ]
+  },
+  {
+   "slug": "key-data-terms",
+   "title": "Key Data Terms",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "Data Warehousing",
+    "Data Lakes"
+   ]
+  },
+  {
+   "slug": "key-terms-in-domain-driven-design",
+   "title": "Key Terms in Domain-Driven Design",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Domain-Driven Design",
+    "Software Design"
+   ]
+  },
+  {
+   "slug": "key-use-cases-for-load-balancers",
+   "title": "Key Use Cases for Load Balancers",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Load Balancing",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "the-ultimate-kubernetes-command-cheatsheet",
+   "title": "Kubernetes Command Cheatsheet",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "kubernetes-deployment-strategies",
+   "title": "Kubernetes Deployment Strategies",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "Deployment"
+   ]
+  },
+  {
+   "slug": "kubernetes-periodic-table",
+   "title": "Kubernetes Periodic Table",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "Orchestration"
+   ]
+  },
+  {
+   "slug": "kubernetes-tools-ecosystem",
+   "title": "Kubernetes Tools Ecosystem",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "kubernetes-tools-stack-wheel",
+   "title": "Kubernetes Tools Stack Wheel",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "learn-cache",
+   "title": "Learn Cache",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "life-is-short-use-dev-tools",
+   "title": "Life is Short, Use Dev Tools",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Productivity",
+    "Dev Tools"
+   ]
+  },
+  {
+   "slug": "linux-boot-process-explained",
+   "title": "Linux Boot Process Explained",
+   "categories": [
+    "software-architecture",
+    "software-development"
+   ],
+   "tags": [
+    "Linux",
+    "Operating Systems"
+   ]
+  },
+  {
+   "slug": "linux-file-permission-illustrated",
+   "title": "Linux File Permissions Illustrated",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Linux",
+    "File Management"
+   ]
+  },
+  {
+   "slug": "linux-file-system-explained",
+   "title": "Linux File System Explained",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Linux",
+    "Filesystem"
+   ]
+  },
+  {
+   "slug": "live-streaming-explained",
+   "title": "Live Streaming Explained",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Live Streaming",
+    "Video Streaming"
+   ]
+  },
+  {
+   "slug": "load-balancer-realistic-use-cases-you-may-not-know",
+   "title": "Load Balancer Realistic Use Cases",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Load Balancing",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "what-are-the-differences-between-a-load-balancer-and-an-api-gateway",
+   "title": "Load Balancer vs. API Gateway",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Gateway",
+    "Load Balancer"
+   ]
+  },
+  {
+   "slug": "log-parsing-cheat-sheet",
+   "title": "Log Parsing Cheat Sheet",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Log Analysis",
+    "Command Line"
+   ]
+  },
+  {
+   "slug": "logging-tracing-metrics",
+   "title": "Logging, Tracing, and Metrics",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "observability",
+    "monitoring"
+   ]
+  },
+  {
+   "slug": "low-latency-stock-exchange",
+   "title": "Low Latency Stock Exchange",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Low Latency",
+    "Stock Exchange"
+   ]
+  },
+  {
+   "slug": "making-sense-of-search-engine-optimization",
+   "title": "Making Sense of Search Engine Optimization",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "SEO",
+    "Web Development"
+   ]
+  },
+  {
+   "slug": "mcdonald's-event-driven-architecture",
+   "title": "McDonald’s Event-Driven Architecture",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Event-Driven Architecture",
+    "Case Study"
+   ]
+  },
+  {
+   "slug": "memcached-vs-redis",
+   "title": "Memcached vs Redis",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "memcached",
+    "redis"
+   ]
+  },
+  {
+   "slug": "money-movement",
+   "title": "Money Movement",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payments",
+    "Fintech"
+   ]
+  },
+  {
+   "slug": "monorepo-vs",
+   "title": "Monorepo vs. Microrepo: Which is Best?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Monorepo",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "what-are-the-most-important-aws-services-to-learn",
+   "title": "Most Important AWS Services to Learn",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "AWS",
+    "Cloud Computing"
+   ]
+  },
+  {
+   "slug": "most-used-linux-commands-map",
+   "title": "Most Used Linux Commands Map",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "linux",
+    "commands"
+   ]
+  },
+  {
+   "slug": "must-know-system-design-building-blocks",
+   "title": "Must Know System Design Building Blocks",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "system design",
+    "scalability"
+   ]
+  },
+  {
+   "slug": "mvc-mvp-mvvm-viper-patterns",
+   "title": "MVC, MVP, MVVM, VIPER Patterns",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "architectural patterns",
+    "software design"
+   ]
+  },
+  {
+   "slug": "netflix-tech-stack-cicd-pipeline",
+   "title": "Netflix Tech Stack - CI/CD Pipeline",
+   "categories": [
+    "real-world-case-studies",
+    "devops-cicd"
+   ],
+   "tags": [
+    "CI/CD",
+    "Streaming"
+   ]
+  },
+  {
+   "slug": "netflix-tech-stack-databases",
+   "title": "Netflix Tech Stack - Databases",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Databases",
+    "Tech Stack"
+   ]
+  },
+  {
+   "slug": "netflixs-overall-architecture",
+   "title": "Netflix's Overall Architecture",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Streaming"
+   ]
+  },
+  {
+   "slug": "netflixs-tech-stack",
+   "title": "Netflix's Tech Stack",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Streaming"
+   ]
+  },
+  {
+   "slug": "oauth-2-explained-with-siple-terms",
+   "title": "OAuth 2.0 Explained With Simple Terms",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "OAuth 2.0",
+    "Authentication"
+   ]
+  },
+  {
+   "slug": "oauth-20-flows",
+   "title": "OAuth 2.0 Flows",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "OAuth 2.0",
+    "Authorization"
+   ]
+  },
+  {
+   "slug": "orchestration-vs-choreography-microservices",
+   "title": "Orchestration vs. Choreography in Microservices",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Microservices",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "what-is-osi-model",
+   "title": "OSI Model Explained",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Networking",
+    "OSI Model"
+   ]
+  },
+  {
+   "slug": "what-are-the-differences-between-paging-and-segmentation",
+   "title": "Paging vs Segmentation",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Memory Management",
+    "Operating Systems"
+   ]
+  },
+  {
+   "slug": "paradigm-shift-how-developer-to-tester-ratio-changed-from-11-to-1001",
+   "title": "Paradigm Shift: Developer to Tester Ratio",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Software Testing",
+    "DevOps"
+   ]
+  },
+  {
+   "slug": "payment-system",
+   "title": "Payment System",
+   "categories": [
+    "payment-and-fintech",
+    "how-it-works"
+   ],
+   "tags": [
+    "Payment Processing",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "pessimistic-vs-optimistic-locking",
+   "title": "Pessimistic vs Optimistic Locking",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Concurrency Control",
+    "Database Transactions"
+   ]
+  },
+  {
+   "slug": "polling-vs-webhooks",
+   "title": "Polling vs Webhooks",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "APIs",
+    "Webhooks"
+   ]
+  },
+  {
+   "slug": "what-is-the-difference-between-process-and-thread",
+   "title": "Process vs Thread: Key Differences",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Operating Systems",
+    "Concurrency"
+   ]
+  },
+  {
+   "slug": "proximity-service",
+   "title": "Proximity Service",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Location Services",
+    "Geospatial Data"
+   ]
+  },
+  {
+   "slug": "proxy-vs-reverse-proxy",
+   "title": "Proxy vs Reverse Proxy",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Networking",
+    "Security"
+   ]
+  },
+  {
+   "slug": "push-vs-pull-in-metrics-collecting-systems",
+   "title": "Push vs Pull in Metrics Collection Systems",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "metrics",
+    "monitoring"
+   ]
+  },
+  {
+   "slug": "quadtree",
+   "title": "Quadtree",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Data Structures",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "read-replica-pattern",
+   "title": "Read Replica Pattern",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database Replication",
+    "Read Scalability"
+   ]
+  },
+  {
+   "slug": "my-recommended-materials-for-cracking-your-next-technical-interview",
+   "title": "Recommended Materials for Technical Interviews",
+   "categories": [
+    "technical-interviews"
+   ],
+   "tags": [
+    "interview preparation",
+    "system design"
+   ]
+  },
+  {
+   "slug": "reconciliation-in-payment",
+   "title": "Reconciliation in Payment",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payment Systems",
+    "Data Reconciliation"
+   ]
+  },
+  {
+   "slug": "reddit's-core-architecture",
+   "title": "Reddit's Core Architecture",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Social Media"
+   ]
+  },
+  {
+   "slug": "resiliency-patterns",
+   "title": "Resiliency Patterns",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Resilience",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "rest-api-cheatsheet",
+   "title": "REST API Cheatsheet",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "REST"
+   ]
+  },
+  {
+   "slug": "rest-api-vs-graphql",
+   "title": "REST API vs. GraphQL",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "GraphQL"
+   ]
+  },
+  {
+   "slug": "how-do-we-retry-on-failures",
+   "title": "Retry Strategies for System Failures",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "distributed systems",
+    "retry strategies"
+   ]
+  },
+  {
+   "slug": "reverse-proxy-vs-api-gateway-vs-load-balancer",
+   "title": "Reverse Proxy vs. API Gateway vs. Load Balancer",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Gateway",
+    "Load Balancing"
+   ]
+  },
+  {
+   "slug": "is-it-possible-to-run-c-c++-or-rust-on-a-web-browser",
+   "title": "Running C, C++, or Rust in a Web Browser",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "WebAssembly",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "how-to-scale-a-website-to-support-millions-of-users",
+   "title": "Scaling Websites for Millions of Users",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "scalability",
+    "architecture"
+   ]
+  },
+  {
+   "slug": "what's-the-difference-between-session-based-authentication-and-jwts",
+   "title": "Session-based Authentication vs. JWT",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "JWT"
+   ]
+  },
+  {
+   "slug": "session-cookie-jwt-token-sso-and-oauth-2",
+   "title": "Session, Cookie, JWT, Token, SSO, and OAuth 2.0 Explained",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Authorization"
+   ]
+  },
+  {
+   "slug": "explaining-sessions-tokens-jwt-sso-and-oauth-in-one-diagram",
+   "title": "Sessions, Tokens, JWT, SSO, and OAuth Explained",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Authorization"
+   ]
+  },
+  {
+   "slug": "shortlong-polling-sse-websocket",
+   "title": "Short/long polling, SSE, WebSocket",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "WebSockets",
+    "SSE"
+   ]
+  },
+  {
+   "slug": "smooth-data-migration-with-avro",
+   "title": "Smooth Data Migration with Avro",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Migration",
+    "Apache Avro"
+   ]
+  },
+  {
+   "slug": "soap-vs-rest-vs-graphql-vs-rpc",
+   "title": "SOAP vs REST vs GraphQL vs RPC",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "some-devops-books-i-find-enlightening",
+   "title": "Some DevOps Books I Find Enlightening",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "DevOps",
+    "SRE"
+   ]
+  },
+  {
+   "slug": "how-is-a-sql-statement-executed-in-the-database",
+   "title": "SQL Statement Execution in Database",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "SQL",
+    "Database Internals"
+   ]
+  },
+  {
+   "slug": "storage-systems-overview",
+   "title": "Storage Systems Overview",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Storage Systems",
+    "Data Storage"
+   ]
+  },
+  {
+   "slug": "how-to-store-passwords-in-the-database",
+   "title": "Storing Passwords Safely: A Comprehensive Guide",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "password security",
+    "data protection"
+   ]
+  },
+  {
+   "slug": "swift-payment-messaging-system",
+   "title": "SWIFT Payment Messaging System",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Payments",
+    "Finance"
+   ]
+  },
+  {
+   "slug": "symmetric-encryption-vs-asymmetric-encryption",
+   "title": "Symmetric vs Asymmetric Encryption",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Encryption",
+    "Cryptography"
+   ]
+  },
+  {
+   "slug": "system-design-blueprint-the-ultimate-guide",
+   "title": "System Design Blueprint: The Ultimate Guide",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "system-design",
+    "interview-preparation"
+   ]
+  },
+  {
+   "slug": "system-design-cheat-sheet",
+   "title": "System Design Cheat Sheet",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "System Design",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "what-protocol-does-online-gaming-use-to-transmit-data",
+   "title": "TCP vs UDP for Online Gaming",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Networking",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "the-12-factor-app",
+   "title": "The 12-Factor App",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Application Architecture",
+    "Best Practices"
+   ]
+  },
+  {
+   "slug": "the-9-algorithms-that-dominate-our-world",
+   "title": "The 9 Algorithms That Dominate Our World",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Algorithms",
+    "Data Science"
+   ]
+  },
+  {
+   "slug": "the-evolving-landscape-of-api-protocols-in-2023",
+   "title": "The Evolving Landscape of API Protocols in 2023",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "who-are-the-fantastic-four-of-system-design",
+   "title": "The Fantastic Four of System Design",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "system design",
+    "scalability"
+   ]
+  },
+  {
+   "slug": "the-fundamental-pillars-of-object-oriented-programming",
+   "title": "The Fundamental Pillars of Object-Oriented Programming",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "OOP",
+    "Principles"
+   ]
+  },
+  {
+   "slug": "the-one-line-change-that-reduced-clone-times-by-a-whopping-99-says-pinterest",
+   "title": "The one-line change that reduced clone times by 99% at Pinterest",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "DevOps",
+    "Git"
+   ]
+  },
+  {
+   "slug": "the-open-source-ai-stack",
+   "title": "The Open Source AI Stack",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "AI",
+    "Open Source"
+   ]
+  },
+  {
+   "slug": "the-payments-ecosystem",
+   "title": "The Payments Ecosystem",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Fintech",
+    "Payments"
+   ]
+  },
+  {
+   "slug": "the-ultimate-api-learning-roadmap",
+   "title": "The Ultimate API Learning Roadmap",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API",
+    "Roadmap"
+   ]
+  },
+  {
+   "slug": "the-ultimate-kafka-101-you-cannot-miss",
+   "title": "The Ultimate Kafka 101 You Cannot Miss",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Kafka",
+    "Distributed Systems"
+   ]
+  },
+  {
+   "slug": "the-ultimate-redis-101",
+   "title": "The Ultimate Redis 101",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Database"
+   ]
+  },
+  {
+   "slug": "the-ultimate-software-architect-knowledge-map",
+   "title": "The Ultimate Software Architect Knowledge Map",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Software Architecture",
+    "Career Development"
+   ]
+  },
+  {
+   "slug": "things-to-consider-when-using-cache",
+   "title": "Things to Consider When Using Cache",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "time-series-db-tsdb-in-20-lines",
+   "title": "Time Series DB (TSDB) in 20 Lines",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database",
+    "TimeSeries"
+   ]
+  },
+  {
+   "slug": "token-cookie-session",
+   "title": "Token, Cookie, Session",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Authorization"
+   ]
+  },
+  {
+   "slug": "what-tools-does-your-team-use-to-ship-code-to-production-and-ensure-code-quality",
+   "title": "Tools for Shipping Code to Production",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "DevOps",
+    "Software Delivery"
+   ]
+  },
+  {
+   "slug": "top-10-k8s-design-patterns",
+   "title": "Top 10 Kubernetes Design Patterns",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "top-10-most-popular-open-source-databases",
+   "title": "Top 10 Most Popular Open-Source Databases",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Databases",
+    "Open Source"
+   ]
+  },
+  {
+   "slug": "top-12-tips-for-api-security",
+   "title": "Top 12 Tips for API Security",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Security",
+    "Web Security"
+   ]
+  },
+  {
+   "slug": "top-3-api-gateway-use-cases",
+   "title": "Top 3 API Gateway Use Cases",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Gateway",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "top-4-forms-of-authentication-mechanisms",
+   "title": "Top 4 Authentication Mechanisms",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Authentication",
+    "Security"
+   ]
+  },
+  {
+   "slug": "top-4-data-sharding-algorithms-explained",
+   "title": "Top 4 Data Sharding Algorithms Explained",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Data Sharding",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "top-4-kubernetes-service-types-in-one-diagram",
+   "title": "Top 4 Kubernetes Service Types",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "top-4-most-popular-use-cases-for-udp",
+   "title": "Top 4 Most Popular Use Cases for UDP",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "UDP",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "top-5-caching-strategies",
+   "title": "Top 5 Caching Strategies",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Data Synchronization"
+   ]
+  },
+  {
+   "slug": "top-5-common-ways-to-improve-api-performance",
+   "title": "Top 5 Common Ways to Improve API Performance",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "api performance",
+    "optimization"
+   ]
+  },
+  {
+   "slug": "top-5-kafka-use-cases",
+   "title": "Top 5 Kafka Use Cases",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Kafka",
+    "Data Streaming"
+   ]
+  },
+  {
+   "slug": "top-5-most-used-deployment-strategies",
+   "title": "Top 5 Most-Used Deployment Strategies",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "deployment strategies",
+    "software deployment"
+   ]
+  },
+  {
+   "slug": "top-5-software-architectural-patterns",
+   "title": "Top 5 Software Architectural Patterns",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Software Architecture",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "top-5-strategies-to-reduce-latency",
+   "title": "Top 5 Strategies to Reduce Latency",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Latency",
+    "Optimization"
+   ]
+  },
+  {
+   "slug": "top-5-trade-offs-in-system-designs",
+   "title": "Top 5 Trade-offs in System Designs",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "system design",
+    "trade-offs"
+   ]
+  },
+  {
+   "slug": "top-6-cases-to-apply-idempotency",
+   "title": "Top 6 Cases to Apply Idempotency",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Idempotency",
+    "Distributed Systems"
+   ]
+  },
+  {
+   "slug": "top-6-cloud-messaging-patterns",
+   "title": "Top 6 Cloud Messaging Patterns",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Messaging",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "how-do-we-manage-data",
+   "title": "Top 6 Data Management Patterns",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "data management",
+    "data patterns"
+   ]
+  },
+  {
+   "slug": "top-6-database-models",
+   "title": "Top 6 Database Models",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database Models",
+    "Data Structures"
+   ]
+  },
+  {
+   "slug": "top-6-elasticsearch-use-cases",
+   "title": "Top 6 Elasticsearch Use Cases",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Search",
+    "Analytics"
+   ]
+  },
+  {
+   "slug": "top-6-firewall-use-cases",
+   "title": "Top 6 Firewall Use Cases",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Network Security",
+    "Firewall"
+   ]
+  },
+  {
+   "slug": "top-6-load-balancing-algorithms",
+   "title": "Top 6 Load Balancing Algorithms",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Load Balancing",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "top-6-most-commonly-used-server-types",
+   "title": "Top 6 Most Commonly Used Server Types",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "servers",
+    "networking"
+   ]
+  },
+  {
+   "slug": "top-6-multithreading-design-patterns-you-must-know",
+   "title": "Top 6 Multithreading Design Patterns You Must Know",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Concurrency",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "top-6-tools-to-turn-code-into-beautiful-diagrams",
+   "title": "Top 6 Tools to Turn Code into Beautiful Diagrams",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "Diagramming",
+    "Code Visualization"
+   ]
+  },
+  {
+   "slug": "top-7-most-used-distributed-system-patterns",
+   "title": "Top 7 Most-Used Distributed System Patterns",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "distributed systems",
+    "system design"
+   ]
+  },
+  {
+   "slug": "top-8-c++-use-cases",
+   "title": "Top 8 C++ Use Cases",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "C++",
+    "Use Cases"
+   ]
+  },
+  {
+   "slug": "top-8-cache-eviction-strategies",
+   "title": "Top 8 Cache Eviction Strategies",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Caching",
+    "Algorithms"
+   ]
+  },
+  {
+   "slug": "top-8-must-know-docker-concepts",
+   "title": "Top 8 Must-Know Docker Concepts",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Docker",
+    "Containers"
+   ]
+  },
+  {
+   "slug": "top-8-programming-paradigms",
+   "title": "Top 8 Programming Paradigms",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Programming Paradigms",
+    "Software Development"
+   ]
+  },
+  {
+   "slug": "top-8-standards-every-developer-should-know",
+   "title": "Top 8 Standards Every Developer Should Know",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Software Standards",
+    "Web Development"
+   ]
+  },
+  {
+   "slug": "top-9-architectural-patterns-for-data-and-communication-flow",
+   "title": "Top 9 Architectural Patterns for Data and Communication Flow",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Architecture",
+    "Data Flow"
+   ]
+  },
+  {
+   "slug": "top-9-cases-behind-100-cpu-usage",
+   "title": "Top 9 Causes of 100% CPU Usage",
+   "categories": [
+    "devtools-productivity"
+   ],
+   "tags": [
+    "CPU Usage",
+    "Troubleshooting"
+   ]
+  },
+  {
+   "slug": "top-9-engineering-blog-favorites",
+   "title": "Top 9 Engineering Blogs",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Engineering Blogs",
+    "Software Development"
+   ]
+  },
+  {
+   "slug": "top-9-http-request-methods",
+   "title": "Top 9 HTTP Request Methods",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP",
+    "API"
+   ]
+  },
+  {
+   "slug": "top-9-website-performance-metrics-you-cannot-ignore",
+   "title": "Top 9 Website Performance Metrics You Cannot Ignore",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "web-performance",
+    "metrics"
+   ]
+  },
+  {
+   "slug": "what-are-the-top-caching-strategies",
+   "title": "Top Caching Strategies",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "caching",
+    "performance"
+   ]
+  },
+  {
+   "slug": "top-eventual-consistency-patterns-you-must-know",
+   "title": "Top Eventual Consistency Patterns You Must Know",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Consistency",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "top-network-security-cheatsheet",
+   "title": "Top Network Security Cheatsheet",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Network Security",
+    "Cybersecurity"
+   ]
+  },
+  {
+   "slug": "twitter-10-tech-stack",
+   "title": "Twitter 1.0 Tech Stack",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Social Media"
+   ]
+  },
+  {
+   "slug": "twitter-architecture-2022-vs-2012",
+   "title": "Twitter Architecture 2022 vs. 2012",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "types-of-databases",
+   "title": "Types of Databases",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Database",
+    "NoSQL"
+   ]
+  },
+  {
+   "slug": "types-of-memory",
+   "title": "Types of Memory",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Memory Management",
+    "System Architecture"
+   ]
+  },
+  {
+   "slug": "types-of-memory-and-storage",
+   "title": "Types of Memory and Storage",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "memory",
+    "storage"
+   ]
+  },
+  {
+   "slug": "types-of-message-queue",
+   "title": "Types of Message Queues",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Message Queue",
+    "Messaging Systems"
+   ]
+  },
+  {
+   "slug": "types-of-vpns",
+   "title": "Types of VPNs",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "VPN",
+    "Security"
+   ]
+  },
+  {
+   "slug": "typical-aws-network-architecture-in-one-diagram",
+   "title": "Typical AWS Network Architecture",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "AWS Networking",
+    "Cloud Architecture"
+   ]
+  },
+  {
+   "slug": "what-does-a-typical-microservice-architecture-look-like",
+   "title": "Typical Microservice Architecture",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "Microservices",
+    "Architecture"
+   ]
+  },
+  {
+   "slug": "uber-tech-stack",
+   "title": "Uber Tech Stack",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "Architecture",
+    "Scalability"
+   ]
+  },
+  {
+   "slug": "uber-tech-stack-cicd",
+   "title": "Uber Tech Stack - CI/CD",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "CI/CD",
+    "Uber"
+   ]
+  },
+  {
+   "slug": "a-cheatsheet-for-uml-class-diagrams",
+   "title": "UML Class Diagrams Cheatsheet",
+   "categories": [
+    "software-architecture"
+   ],
+   "tags": [
+    "UML",
+    "Design Patterns"
+   ]
+  },
+  {
+   "slug": "understanding-database-types",
+   "title": "Understanding Database Types",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "databases",
+    "data management"
+   ]
+  },
+  {
+   "slug": "unicast-vs-broadcast-vs-multicast-vs-anycast",
+   "title": "Unicast vs Broadcast vs Multicast vs Anycast",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Network Communication",
+    "Protocols"
+   ]
+  },
+  {
+   "slug": "unified-payments-interface-upi-in-india",
+   "title": "Unified Payments Interface (UPI)",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Fintech",
+    "UPI"
+   ]
+  },
+  {
+   "slug": "unique-id-generator",
+   "title": "Unique ID Generator",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "ID Generation",
+    "System Design"
+   ]
+  },
+  {
+   "slug": "url-uri-urn-do-you-know-the-differences",
+   "title": "URL, URI, URN - Differences Explained",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Networking",
+    "Web"
+   ]
+  },
+  {
+   "slug": "vertical-partitioning-vs-horizontal-partitioning",
+   "title": "Vertical vs Horizontal Partitioning",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Database Partitioning",
+    "Sharding"
+   ]
+  },
+  {
+   "slug": "visualizing-a-sql-query",
+   "title": "Visualizing a SQL Query",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "SQL",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "what-are-the-differences-between-wan-lan-pan-and-man",
+   "title": "What are the differences between WAN, LAN, PAN and MAN?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "network types",
+    "network architecture"
+   ]
+  },
+  {
+   "slug": "what-are-the-greenest-programming-languages",
+   "title": "What Are the Greenest Programming Languages?",
+   "categories": [
+    "software-development"
+   ],
+   "tags": [
+    "Programming Languages",
+    "Energy Efficiency"
+   ]
+  },
+  {
+   "slug": "what-do-version-numbers-mean",
+   "title": "What do version numbers mean?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Versioning",
+    "SemVer"
+   ]
+  },
+  {
+   "slug": "what-does-acid-mean",
+   "title": "What does ACID mean?",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Databases",
+    "ACID"
+   ]
+  },
+  {
+   "slug": "what-does-api-gateway-do",
+   "title": "What Does an API Gateway Do?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "API Gateway",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "what-happens-when-you-type-a-url-into-your-browser",
+   "title": "What Happens When You Type a URL Into Your Browser?",
+   "categories": [
+    "technical-interviews"
+   ],
+   "tags": [
+    "Networking",
+    "Browsers"
+   ]
+  },
+  {
+   "slug": "what-happens-when-you-type-google",
+   "title": "What Happens When You Type google.com Into a Browser?",
+   "categories": [
+    "technical-interviews"
+   ],
+   "tags": [
+    "Networking",
+    "Web Browsers"
+   ]
+  },
+  {
+   "slug": "what-happens-when-you-upload-a-file-to-amazon-s3",
+   "title": "What Happens When You Upload a File to Amazon S3?",
+   "categories": [
+    "how-it-works"
+   ],
+   "tags": [
+    "Amazon S3",
+    "Cloud Storage"
+   ]
+  },
+  {
+   "slug": "what-is-a-cookie",
+   "title": "What is a Cookie?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "Web Security",
+    "Cookies"
+   ]
+  },
+  {
+   "slug": "what-is-a-deadlock",
+   "title": "What is a Deadlock?",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "Concurrency",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "what-is-a-load-balancer",
+   "title": "What is a Load Balancer?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "Load Balancing",
+    "Networking"
+   ]
+  },
+  {
+   "slug": "what-is-a-stop-loss-order-and-how-does-it-work",
+   "title": "What is a Stop-Loss Order and How Does it Work?",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Trading",
+    "Risk Management"
+   ]
+  },
+  {
+   "slug": "what-is-an-ai-agent",
+   "title": "What is an AI Agent?",
+   "categories": [
+    "ai-machine-learning"
+   ],
+   "tags": [
+    "AI Agents",
+    "Machine Learning"
+   ]
+  },
+  {
+   "slug": "what-is-cdn-content-delivery-network",
+   "title": "What is CDN (Content Delivery Network)?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "CDN",
+    "Content Delivery"
+   ]
+  },
+  {
+   "slug": "what-is-cloud-native",
+   "title": "What is Cloud Native?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Cloud Computing",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "what-is-css-cascading-style-sheets",
+   "title": "What is CSS (Cascading Style Sheets)?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "CSS",
+    "Web Development"
+   ]
+  },
+  {
+   "slug": "what-is-devsecops",
+   "title": "What is DevSecOps?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "DevOps",
+    "Security"
+   ]
+  },
+  {
+   "slug": "what-is-elk-stack-and-why-is-it-so-popular-for-log-management",
+   "title": "What is ELK Stack and Why is it Popular?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "ELK Stack",
+    "Log Management"
+   ]
+  },
+  {
+   "slug": "what-is-graphql",
+   "title": "What is GraphQL?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "GraphQL",
+    "API"
+   ]
+  },
+  {
+   "slug": "what-is-grpc",
+   "title": "What is gRPC?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "gRPC",
+    "Microservices"
+   ]
+  },
+  {
+   "slug": "what-is-k8s-kubernetes",
+   "title": "What is Kubernetes (k8s)?",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Kubernetes",
+    "Containers"
+   ]
+  },
+  {
+   "slug": "what-is-serverless-db",
+   "title": "What is Serverless DB?",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Serverless",
+    "Database"
+   ]
+  },
+  {
+   "slug": "v1what-is-sso-single-sign-on",
+   "title": "What is SSO (Single Sign-On)?",
+   "categories": [
+    "security"
+   ],
+   "tags": [
+    "authentication",
+    "SSO"
+   ]
+  },
+  {
+   "slug": "what-is-the-best-way-to-learn-sql",
+   "title": "What is the Best Way to Learn SQL?",
+   "categories": [
+    "computer-fundamentals"
+   ],
+   "tags": [
+    "SQL",
+    "Databases"
+   ]
+  },
+  {
+   "slug": "what-is-the-journey-of-a-slack-message",
+   "title": "What is the Journey of a Slack Message?",
+   "categories": [
+    "real-world-case-studies"
+   ],
+   "tags": [
+    "System Design",
+    "Messaging"
+   ]
+  },
+  {
+   "slug": "what-is-web-3",
+   "title": "What is Web 3.0? Why doesn't it have ads?",
+   "categories": [
+    "payment-and-fintech"
+   ],
+   "tags": [
+    "Web3",
+    "Decentralization"
+   ]
+  },
+  {
+   "slug": "what-makes-aws-lambda-so-fast",
+   "title": "What makes AWS Lambda so fast?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "AWS Lambda",
+    "Serverless"
+   ]
+  },
+  {
+   "slug": "what-makes-http2-faster-than-http1",
+   "title": "What makes HTTP2 faster than HTTP1?",
+   "categories": [
+    "api-web-development"
+   ],
+   "tags": [
+    "HTTP2",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "which-latency-numbers-should-you-know",
+   "title": "Which Latency Numbers Should You Know?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "latency",
+    "performance"
+   ]
+  },
+  {
+   "slug": "why-are-content-delivery-networks-cdn-so-popular",
+   "title": "Why are Content Delivery Networks (CDN) so Popular?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "CDN",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "why-is-kafka-fast",
+   "title": "Why is Kafka Fast?",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "Kafka",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "why-is-nginx-so-popular",
+   "title": "Why is Nginx so Popular?",
+   "categories": [
+    "devops-cicd"
+   ],
+   "tags": [
+    "Nginx",
+    "Web Servers"
+   ]
+  },
+  {
+   "slug": "why-is-redis-so-fast",
+   "title": "Why is Redis so Fast?",
+   "categories": [
+    "caching-performance"
+   ],
+   "tags": [
+    "Redis",
+    "Performance"
+   ]
+  },
+  {
+   "slug": "do-you-know-why-meta-google-and-amazon-all-stop-using-leap-seconds",
+   "title": "Why Meta, Google, and Amazon Stop Using Leap Seconds",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "Time Synchronization",
+    "Leap Seconds"
+   ]
+  },
+  {
+   "slug": "why-is-postgresql-voted-as-the-most-loved-database-by-stackoverflow-2022-developer-survey",
+   "title": "Why PostgreSQL is the Most Loved Database",
+   "categories": [
+    "database-and-storage"
+   ],
+   "tags": [
+    "PostgreSQL",
+    "Database"
+   ]
+  },
+  {
+   "slug": "why-do-we-need-to-use-a-distributed-lock",
+   "title": "Why Use a Distributed Lock?",
+   "categories": [
+    "cloud-distributed-systems"
+   ],
+   "tags": [
+    "distributed systems",
+    "concurrency"
+   ]
+  }
+ ]
+}

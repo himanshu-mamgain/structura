@@ -19,7 +19,9 @@ export function goToTopicPage(board: Board, title: string, topicId?: string): bo
 export async function openStaticTopic(board: Board, topic: StaticTopic) {
   const existed = goToTopicPage(board, topic.title, topic.id)
   if (!existed || board.page.nodes.length === 0) {
-    await new DiagramBuilder(board).finish(topic.architecture)
+    // Phones in portrait get a top-to-bottom flow; wide screens left to right.
+    const portrait = window.innerHeight > window.innerWidth
+    await new DiagramBuilder(board).finish(portrait ? { ...topic.architecture, direction: 'down' } : topic.architecture)
     // Below, not beside: architectures are wide left-to-right flows.
     if (topic.database) await new DiagramBuilder(board, 'below').finish(erdToDiagram(topic.database))
   }

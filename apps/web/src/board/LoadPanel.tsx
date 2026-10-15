@@ -106,7 +106,7 @@ export function LoadPanel({ board, test, onClose }: { board: Board; test: LoadTe
   const retrying = result && result.attemptsPerS > result.offeredPerS * 1.05
 
   return (
-    <aside className="load" aria-label="Load test">
+    <aside className="card load" aria-label="Load test">
       <header>
         <h2>⚡ Load test</h2>
         {running && <span className="load-running">simulating…</span>}

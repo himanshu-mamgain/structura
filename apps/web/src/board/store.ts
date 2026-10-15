@@ -183,6 +183,11 @@ export class Board {
     this.emit()
   }
 
+  /** Frames the last framed area again, e.g. after a panel opened and the free space changed. */
+  refit() {
+    if (this.fit) this.frame(this.fit.bounds, this.fit.margin)
+  }
+
   /** Frames everything on the page. */
   fitAll() {
     const bounds = boundsOf([...this.page.nodes, ...this.page.frames])

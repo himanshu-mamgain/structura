@@ -1,23 +1,16 @@
 :root {
-  --assistant-bg: #ffffff;
-  --assistant-fg: #1d1d1f;
-  --assistant-muted: #6b6b76;
-  --assistant-border: #e3e3e8;
-  --assistant-accent: #4f46e5;
-  --assistant-danger: #dc2626;
-  --assistant-input: #f4f4f7;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --assistant-bg: #1f1f24;
-    --assistant-fg: #ececf1;
-    --assistant-muted: #9a9aa6;
-    --assistant-border: #34343c;
-    --assistant-accent: #818cf8;
-    --assistant-danger: #f87171;
-    --assistant-input: #2a2a31;
-  }
+  /* One dark theme for everything: panels are glass over the dark 3D city. */
+  --assistant-bg: rgba(18, 20, 28, 0.94);
+  --assistant-fg: #eef0f6;
+  --assistant-muted: #9aa3b5;
+  --assistant-border: rgba(255, 255, 255, 0.1);
+  --assistant-accent: #8ab4ff;
+  --assistant-danger: #ff6b81;
+  --assistant-input: rgba(255, 255, 255, 0.06);
+  --brand: #d4ff3f;
+  --dock-h: calc(66px + env(safe-area-inset-bottom));
+  --top-h: calc(58px + env(safe-area-inset-top));
+  color-scheme: dark;
 }
 
 html,
@@ -30,22 +23,6 @@ body,
 .app {
   position: fixed;
   inset: 0;
-}
-
-.assistant {
-  position: absolute;
-  right: 12px;
-  bottom: 64px;
-  z-index: 1000;
-  width: min(320px, calc(100vw - 24px));
-  box-sizing: border-box;
-  padding: 12px;
-  border: 1px solid var(--assistant-border);
-  border-radius: 12px;
-  background: var(--assistant-bg);
-  color: var(--assistant-fg);
-  font: 13px/1.45 system-ui, sans-serif;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .assistant-header {
@@ -151,21 +128,6 @@ body,
   outline-offset: -1px;
 }
 
-.install {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  max-width: calc(100vw - 32px);
-  font: 13px/1.45 system-ui, sans-serif;
-}
-
 .install-btn,
 .install-close {
   border: 1px solid var(--assistant-border);
@@ -200,16 +162,6 @@ body,
   text-align: center;
 }
 
-/* Phones: the assistant panel spans the full width, above the bottom edge. */
-@media (max-width: 640px) {
-  .assistant {
-    left: 8px;
-    right: 8px;
-    bottom: 84px;
-    width: auto;
-  }
-}
-
 .assistant-chip {
   margin-top: 8px;
   padding: 4px 10px;
@@ -220,25 +172,6 @@ body,
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-}
-
-/* In-depth explanation card, beside the canvas on the left. */
-.explain {
-  position: absolute;
-  top: 56px;
-  left: 8px;
-  bottom: 72px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  width: min(440px, calc(100vw - 16px));
-  box-sizing: border-box;
-  border: 1px solid var(--assistant-border);
-  border-radius: 12px;
-  background: var(--assistant-bg);
-  color: var(--assistant-fg);
-  font: 14px/1.55 system-ui, sans-serif;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .explain-header {
@@ -307,15 +240,6 @@ body,
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-}
-
-/* Phones: the card takes the top part of the screen, above the assistant panel. */
-@media (max-width: 640px) {
-  .explain {
-    top: 52px;
-    bottom: auto;
-    max-height: 45vh;
-  }
 }
 
 /* Learning topics list (shares the card's position and frame). */
@@ -694,17 +618,6 @@ body,
   font-weight: 600;
 }
 
-/* Page switcher, top left. */
-.pagebar {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 1000;
-  display: flex;
-  gap: 4px;
-  font: 13px/1.4 system-ui, sans-serif;
-}
-
 .pagebar select,
 .pagebar button {
   height: 32px;
@@ -719,25 +632,6 @@ body,
 
 .pagebar select {
   max-width: min(260px, 50vw);
-}
-
-/* Load test, top right. */
-.load {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
-  width: min(320px, calc(100vw - 16px));
-  max-height: calc(100% - 300px);
-  overflow-y: auto;
-  box-sizing: border-box;
-  padding: 10px 14px 12px;
-  border: 1px solid var(--assistant-border);
-  border-radius: 12px;
-  background: var(--assistant-bg);
-  color: var(--assistant-fg);
-  font: 13px/1.45 system-ui, sans-serif;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .load header {
@@ -848,14 +742,54 @@ body,
   background: #ef4444;
 }
 
-/* The page bar sits where the card starts; push the card below it. */
-.explain {
-  top: 48px;
+.topic-badge.is-video {
+  background: color-mix(in srgb, #ef4444 16%, transparent);
+  color: #ef4444;
+}
+
+/* Narrated explainer video: a vertical player over everything. */
+.video-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.video-frame {
+  position: relative;
+  height: min(92vh, calc((100vw - 32px) * 16 / 9));
+  aspect-ratio: 9 / 16;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  background: #000;
+}
+
+.video-close {
+  position: absolute;
+  top: -6px;
+  right: -46px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 @media (max-width: 640px) {
-  .load {
-    top: 48px;
-    max-height: 40vh;
+  .video-close {
+    top: 8px;
+    right: 8px;
+    z-index: 1;
   }
 }

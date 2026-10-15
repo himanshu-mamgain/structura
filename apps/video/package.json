@@ -1,0 +1,32 @@
+{
+  "name": "@structura/video",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Explainer videos rendered with Remotion (React to MP4).",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "npm run render:docker && npm run render:uber && npm run render:url && npm run render:rbac",
+    "render:docker": "remotion render src/index.ts DockerVsVm ../web/public/videos/docker-vs-vm.mp4",
+    "render:uber": "remotion render src/index.ts UberSurge ../web/public/videos/uber-surge.mp4",
+    "render:url": "remotion render src/index.ts UrlShortener ../web/public/videos/url-shortener.mp4",
+    "render:rbac": "remotion render src/index.ts Rbac ../web/public/videos/rbac.mp4",
+    "typecheck": "tsc --noEmit",
+    "voice": "node scripts/voice.mjs",
+    "voices": "node scripts/voices.mjs"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "@remotion/cli": "^4.0.535",
+    "@remotion/three": "^4.0.535",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.535",
+    "three": "^0.186.1"
+  }
+}

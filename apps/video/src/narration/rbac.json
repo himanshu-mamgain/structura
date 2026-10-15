@@ -1,0 +1,28 @@
+{
+  "voice": "Heera",
+  "scenes": {
+    "auth": [
+      { "id": "auth-1", "text": "Every request asks two questions: who are you, and what may you do?", "highlight": "two questions", "frames": 180 },
+      { "id": "auth-2", "text": "Who are you is authentication. Failing it is a 401.", "say": "Who are you, is authentication. Failing it is a four oh one.", "highlight": "authentication", "frames": 150 },
+      { "id": "auth-3", "text": "What may you do is authorization. Failing it is a 403.", "say": "What may you do, is authorization. Failing it is a four oh three.", "highlight": "authorization", "frames": 150 }
+    ],
+    "model": [
+      { "id": "model-1", "text": "Permissions go to roles, not to people.", "highlight": "roles", "frames": 150 },
+      { "id": "model-2", "text": "An editor may read and write articles, but not delete them.", "highlight": "read and write", "frames": 180 },
+      { "id": "model-3", "text": "Give Maya the editor role, and she gets exactly that.", "highlight": "editor role", "frames": 150 }
+    ],
+    "flow": [
+      { "id": "flow-1", "text": "Maya signs in. The login service checks her password and loads her roles.", "highlight": "loads her roles", "frames": 180 },
+      { "id": "flow-2", "text": "It returns a signed token that carries those roles.", "highlight": "signed token", "frames": 150 },
+      { "id": "flow-3", "text": "Every request brings that token to the API gateway.", "say": "Every request brings that token to the A P I gateway.", "highlight": "API gateway", "frames": 150 },
+      { "id": "flow-4", "text": "The gateway checks the signature and the expiry.", "highlight": "signature and the expiry", "frames": 120 },
+      { "id": "flow-5", "text": "The policy check turns her roles into permissions.", "highlight": "roles into permissions", "frames": 150 },
+      { "id": "flow-6", "text": "Allowed: the request reaches the service, and the decision is logged.", "highlight": "Allowed", "frames": 150 }
+    ],
+    "deny": [
+      { "id": "deny-1", "text": "Now Maya tries to delete an article.", "highlight": "delete", "frames": 150 },
+      { "id": "deny-2", "text": "Editors can't delete, so the answer is 403 Forbidden.", "say": "Editors can't delete, so the answer is four oh three, Forbidden.", "highlight": "403 Forbidden", "frames": 165 },
+      { "id": "deny-3", "text": "With an expired token, it would be 401: sign in again.", "say": "With an expired token, it would be four oh one. Sign in again.", "highlight": "401", "frames": 150 }
+    ]
+  }
+}

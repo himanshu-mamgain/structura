@@ -244,6 +244,7 @@ export class BoardScene {
   private readonly pointer = new THREE.Vector2()
   private readonly resize: ResizeObserver
   private readonly clock = new THREE.Clock()
+  private frameCount = 0
   private readonly matrix = new THREE.Matrix4()
   private readonly quaternion = new THREE.Quaternion()
   private readonly temp = new THREE.Vector3()
@@ -259,7 +260,7 @@ export class BoardScene {
     private readonly host: HTMLElement,
     private readonly board: Board,
     /** Screen pixels covered by side panels, so framing leaves room for them. */
-    private readonly insets: () => { left: number; right: number },
+    private readonly insets: () => { left: number; right: number; top: number; bottom: number },
     private readonly onHover: (info: HoverInfo | null) => void,
   ) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -704,15 +705,24 @@ export class BoardScene {
     const fov = THREE.MathUtils.degToRad(this.camera.fov)
     // The content must fit the part of the screen not covered by the panels.
     const width = this.host.clientWidth || 1
+    const height = this.host.clientHeight || 1
     const covered = this.insets()
     const left = Math.min(covered.left, width / 2) / width
     const right = Math.min(covered.right, width / 2) / width
+    const top = Math.min(covered.top, height / 3) / height
+    const bottom = Math.min(covered.bottom, height * 0.6) / height
     const usable = Math.max(0.3, 1 - left - right)
-    const fit = Math.max(w / (aspect * usable), d * 1.5) / (2 * Math.tan(fov / 2))
+    const usableHeight = Math.max(0.3, 1 - top - bottom)
+    const fit = Math.max(w / (aspect * usable), (d * 1.5) / usableHeight) / (2 * Math.tan(fov / 2))
     const distance = Math.max(4, fit * 1.12)
-    const visibleWidth = 2 * distance * Math.tan(fov / 2) * aspect
-    // Shift the view so the content sits centred in the uncovered part.
-    const target = center.clone().add(new THREE.Vector3(((right - left) / 2) * visibleWidth, 0, 0))
+    const visibleHeight = 2 * distance * Math.tan(fov / 2)
+    const visibleWidth = visibleHeight * aspect
+    // Shift the view so the content sits centred in the uncovered part. On the
+    // ground, a screen-height step is longer by 1 / sin(camera elevation).
+    const elevation = Math.atan2(0.55, 0.84)
+    const target = center
+      .clone()
+      .add(new THREE.Vector3(((right - left) / 2) * visibleWidth, 0, (((bottom - top) / 2) * visibleHeight) / Math.sin(elevation)))
     // A low, cinematic angle, like a drone shot over a city.
     const position = target.clone().add(new THREE.Vector3(0, distance * 0.55, distance * 0.84))
     if (instant) {
@@ -841,6 +851,43 @@ export class BoardScene {
 
     this.renderer.render(this.scene, this.camera)
     this.labels.render(this.scene, this.camera)
+    if (++this.frameCount % 6 === 0) this.declutter()
+  }
+
+  /**
+   * Hides labels that would overlap a more important one, like a map does when
+   * zoomed out: selected and in-focus buildings first, then busy ones, then the
+   * biggest. Arrow labels give way to building labels.
+   */
+  private declutter() {
+    const placed: DOMRect[] = []
+    const overlaps = (r: DOMRect) => placed.some((p) => r.left < p.right + 4 && r.right > p.left - 4 && r.top < p.bottom + 2 && r.bottom > p.top - 2)
+    const views = [...this.nodes.values()].filter((v) => v.label.visible)
+    const rank = (v: NodeView) => {
+      const el = v.label.element
+      return (
+        (el.classList.contains('is-selected') ? 4e6 : 0) +
+        (el.classList.contains('is-dimmed') ? 0 : 2e6) +
+        (v.stats && v.stats.utilization > 0.9 ? 1e6 : 0) +
+        v.node.w * v.node.h
+      )
+    }
+    views.sort((a, b) => rank(b) - rank(a))
+    for (const view of views) {
+      const el = view.label.element
+      const r = el.getBoundingClientRect()
+      const crowded = r.width > 0 && overlaps(r)
+      el.classList.toggle('is-crowded', crowded)
+      if (!crowded && r.width > 0) placed.push(r)
+    }
+    for (const edge of this.edges) {
+      const el = edge.label?.element
+      if (!el) continue
+      const r = el.getBoundingClientRect()
+      const crowded = r.width > 0 && overlaps(r)
+      el.classList.toggle('is-crowded', crowded)
+      if (!crowded && r.width > 0) placed.push(r)
+    }
   }
 
   // ─── Pointer ─────────────────────────────────────────────────────────────

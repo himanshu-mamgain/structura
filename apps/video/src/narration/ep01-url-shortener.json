@@ -1,0 +1,35 @@
+{
+  "voice": "Heera",
+  "scenes": {
+    "hook": [
+      { "id": "hook-1", "text": "Interviewer bola: ek URL shortener design karo.", "say": "Interviewer bola. Ek U R L shortener design karo.", "highlight": "URL shortener", "frames": 150 },
+      { "id": "hook-2", "text": "Sirf saat characters. Har din das crore naye links.", "highlight": "saat characters", "frames": 150 },
+      { "id": "hook-3", "text": "Code kabhi repeat nahi hona chahiye. Kaise karoge?", "highlight": "repeat nahi", "frames": 150 }
+    ],
+    "trap": [
+      { "id": "trap-1", "text": "Sabka pehla jawab: random code bana do.", "highlight": "random code", "frames": 135 },
+      { "id": "trap-2", "text": "Par das din mein, ek arab links. Aur ek lakh se zyada collisions.", "highlight": "collisions", "frames": 180 },
+      { "id": "trap-3", "text": "Har collision pe database check, phir retry. System dheema.", "highlight": "dheema", "frames": 150 }
+    ],
+    "logic": [
+      { "id": "logic-1", "text": "Sahi tareeka: ek counter rakho. Har link ko agla number.", "highlight": "counter", "frames": 150 },
+      { "id": "logic-2", "text": "Phir us number ko base 62 mein likho.", "say": "Phir us number ko base baasath mein likho.", "highlight": "base 62", "frames": 120 },
+      { "id": "logic-3", "text": "Sau pachees arab ka number, sirf saat characters mein.", "highlight": "saat characters", "frames": 150 },
+      { "id": "logic-4", "text": "Number kabhi dobara nahi aata. Zero collisions.", "highlight": "Zero collisions", "frames": 135 }
+    ],
+    "build": [
+      { "id": "build-1", "text": "Ab koi link kholta hai. Pehle Redis cache dekho.", "say": "Ab koi link kholta hai. Pehle Redis cache dekho.", "highlight": "Redis cache", "frames": 150 },
+      { "id": "build-2", "text": "Miss hua toh database se lo, aur cache mein rakh do.", "highlight": "cache mein", "frames": 165 },
+      { "id": "build-3", "text": "Uske baad har click: ek millisecond se kam.", "highlight": "ek millisecond", "frames": 150 }
+    ],
+    "twist": [
+      { "id": "twist-1", "text": "Twist: ek hi counter? Saare servers wahin atak jayenge.", "highlight": "atak", "frames": 150 },
+      { "id": "twist-2", "text": "Toh har server ek baar mein hazaar IDs ka block le leta hai.", "highlight": "hazaar IDs", "frames": 180 },
+      { "id": "twist-3", "text": "Aur codes guess na ho, isliye number ko shuffle karke encode karo.", "highlight": "shuffle", "frames": 165 }
+    ],
+    "recap": [
+      { "id": "recap-1", "text": "Recap: counter, base 62, cache, aur ID blocks.", "say": "Recap. Counter, base baasath, cache, aur I D blocks.", "highlight": "counter, cache, blocks", "frames": 165 },
+      { "id": "recap-2", "text": "Agle episode mein: rate limiter. Follow kar lo.", "highlight": "rate limiter", "frames": 135 }
+    ]
+  }
+}
