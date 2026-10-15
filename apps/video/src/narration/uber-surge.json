@@ -1,0 +1,33 @@
+{
+  "voice": "Heera",
+  "scenes": {
+    "surge": [
+      { "id": "surge-1", "text": "Uber splits every city into small hexagons.", "highlight": "hexagons", "frames": 120 },
+      { "id": "surge-2", "text": "In each one, it compares riders asking with drivers free.", "highlight": "riders asking", "frames": 150 },
+      { "id": "surge-3", "text": "More riders than drivers? The price surges.", "highlight": "surges", "frames": 150 },
+      { "id": "surge-4", "text": "Higher prices pull more drivers in, and it settles.", "highlight": "pull more drivers in", "frames": 150 }
+    ],
+    "gaming": [
+      { "id": "gaming-1", "text": "But a price set by supply can be gamed.", "highlight": "gamed", "frames": 105 },
+      { "id": "gaming-2", "text": "Drivers at some airports went offline together.", "highlight": "offline together", "frames": 150 },
+      { "id": "gaming-3", "text": "No cars on the map, so the price surged.", "highlight": "surged", "frames": 120 },
+      { "id": "gaming-4", "text": "Then they came back online and took surge fares.", "highlight": "came back online", "frames": 135 },
+      { "id": "gaming-5", "text": "That's artificial scarcity: a fake shortage, a real price.", "say": "That's artificial scarcity. A fake shortage, a real price.", "highlight": "artificial scarcity", "frames": 150 }
+    ],
+    "smooth": [
+      { "id": "smooth-1", "text": "Fix one: never price from a single snapshot.", "highlight": "single snapshot", "frames": 120 },
+      { "id": "smooth-2", "text": "Average supply over minutes and nearby hexagons.", "highlight": "minutes and nearby hexagons", "frames": 150 },
+      { "id": "smooth-3", "text": "A sudden dip barely moves the price.", "highlight": "barely moves", "frames": 120 }
+    ],
+    "fixes": [
+      { "id": "fixes-1", "text": "Fix two: flag many drivers going offline at once, in one place.", "highlight": "at once, in one place", "frames": 180 },
+      { "id": "fixes-2", "text": "Fix three: lock the rider's price when they request.", "highlight": "lock", "frames": 150 },
+      { "id": "fixes-3", "text": "Fix four: forecast demand and send drivers early.", "highlight": "forecast", "frames": 150 }
+    ],
+    "pipeline": [
+      { "id": "pipeline-1", "text": "Under the hood, every driver's location streams in every few seconds.", "highlight": "streams in", "frames": 180 },
+      { "id": "pipeline-2", "text": "A stream processor counts riders and drivers per hexagon.", "highlight": "per hexagon", "frames": 150 },
+      { "id": "pipeline-3", "text": "The pricing service turns those counts into the price you see.", "highlight": "the price you see", "frames": 150 }
+    ]
+  }
+}

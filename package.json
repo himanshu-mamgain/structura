@@ -7,15 +7,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n server,web -c blue,magenta \"npm:dev -w @structura/server\" \"npm:dev -w @structura/web\"",
+    "dev": "npm run dev -w @structura/web",
     "build": "npm run build --workspaces --if-present",
+    "lan": "npm run build -w @structura/web && npm run preview -w @structura/web",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5",
     "typescript": "^7.0.2"
   }
 }

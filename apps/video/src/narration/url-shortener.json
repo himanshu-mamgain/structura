@@ -1,0 +1,28 @@
+{
+  "voice": "Heera",
+  "scenes": {
+    "shorten": [
+      { "id": "shorten-1", "text": "You paste a long link and ask for a short one.", "highlight": "short one", "frames": 150 },
+      { "id": "shorten-2", "text": "A key generator hands out the next unique number.", "highlight": "unique number", "frames": 150 },
+      { "id": "shorten-3", "text": "Base62 writes that number in just seven characters.", "say": "Base 62 writes that number in just seven characters.", "highlight": "seven characters", "frames": 150 },
+      { "id": "shorten-4", "text": "The code and the long URL are saved together.", "say": "The code and the long U R L are saved together.", "highlight": "saved together", "frames": 150 }
+    ],
+    "base62": [
+      { "id": "base62-1", "text": "Base62 uses digits, lowercase and uppercase letters.", "say": "Base 62 uses digits, lower case and upper case letters.", "highlight": "digits, lowercase and uppercase", "frames": 150 },
+      { "id": "base62-2", "text": "Seven characters give 3.5 trillion codes.", "say": "Seven characters give three and a half trillion codes.", "highlight": "3.5 trillion", "frames": 150 },
+      { "id": "base62-3", "text": "Every number is used once, so codes never collide.", "highlight": "never collide", "frames": 150 }
+    ],
+    "redirect": [
+      { "id": "redirect-1", "text": "Now someone clicks the short link.", "highlight": "clicks", "frames": 120 },
+      { "id": "redirect-2", "text": "The first time, the cache misses, so we read the database.", "highlight": "cache misses", "frames": 180 },
+      { "id": "redirect-3", "text": "Then we keep the answer in the cache.", "highlight": "keep the answer", "frames": 150 },
+      { "id": "redirect-4", "text": "Every click after that is a cache hit: under a millisecond.", "say": "Every click after that is a cache hit. Under a millisecond.", "highlight": "cache hit", "frames": 150 },
+      { "id": "redirect-5", "text": "The browser gets a 302 redirect to the long URL.", "say": "The browser gets a three oh two redirect to the long U R L.", "highlight": "302 redirect", "frames": 150 }
+    ],
+    "scale": [
+      { "id": "scale-1", "text": "Reads beat writes about a hundred to one.", "highlight": "a hundred to one", "frames": 150 },
+      { "id": "scale-2", "text": "So cache hard, and add more redirect servers.", "highlight": "cache hard", "frames": 150 },
+      { "id": "scale-3", "text": "Count clicks through a queue, never in the redirect path.", "highlight": "through a queue", "frames": 150 }
+    ]
+  }
+}

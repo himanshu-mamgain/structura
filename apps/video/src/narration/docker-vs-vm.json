@@ -1,0 +1,33 @@
+{
+  "voice": "Heera",
+  "scenes": {
+    "problem": [
+      { "id": "problem-1", "text": "“It works on my machine.”", "say": "It works on my machine.", "highlight": "my machine", "frames": 105 },
+      { "id": "problem-2", "text": "Then it breaks on the server.", "highlight": "breaks", "frames": 105 }
+    ],
+    "vm": [
+      { "id": "vm-1", "text": "A virtual machine pretends to be a whole computer.", "highlight": "whole computer", "frames": 150 },
+      { "id": "vm-2", "text": "A hypervisor splits the real hardware into VMs.", "say": "A hypervisor splits the real hardware into V Ms.", "highlight": "hypervisor", "frames": 150 },
+      { "id": "vm-3", "text": "Each VM boots its own full operating system.", "say": "Each V M boots its own full operating system.", "highlight": "its own full operating system", "frames": 150 },
+      { "id": "vm-4", "text": "Strong walls, but heavy: gigabytes and minutes.", "highlight": "heavy", "frames": 120 }
+    ],
+    "containers": [
+      { "id": "containers-1", "text": "Containers skip the extra operating systems.", "highlight": "skip", "frames": 150 },
+      { "id": "containers-2", "text": "They share the host’s kernel: one for all.", "say": "They share the host's kernel. One for all.", "highlight": "share", "frames": 150 },
+      { "id": "containers-3", "text": "Linux namespaces and cgroups keep them apart.", "say": "Linux namespaces and C groups keep them apart.", "highlight": "namespaces and cgroups", "frames": 120 },
+      { "id": "containers-4", "text": "Light: megabytes, and they start in a second.", "highlight": "Light", "frames": 120 }
+    ],
+    "compare": [
+      { "id": "compare-1", "text": "Same apps, very different cost.", "highlight": "very different", "frames": 210 },
+      { "id": "compare-2", "text": "VMs isolate better. Containers pack tighter.", "say": "V Ms isolate better. Containers pack tighter.", "highlight": "pack tighter", "frames": 210 }
+    ],
+    "when": [
+      { "id": "when-1", "text": "Need a different OS or hard isolation? Use a VM.", "say": "Need a different operating system, or hard isolation? Use a V M.", "highlight": "VM", "frames": 180 },
+      { "id": "when-2", "text": "In the cloud, containers usually run inside VMs.", "say": "In the cloud, containers usually run inside V Ms.", "highlight": "inside VMs", "frames": 180 }
+    ],
+    "workflow": [
+      { "id": "workflow-1", "text": "A Dockerfile is the recipe; the image is the result.", "say": "A Docker file is the recipe. The image is the result.", "highlight": "image", "frames": 150 },
+      { "id": "workflow-2", "text": "Run the image, and you get a container.", "highlight": "container", "frames": 150 }
+    ]
+  }
+}

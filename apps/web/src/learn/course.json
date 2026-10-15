@@ -1,0 +1,352 @@
+{
+ "source": {
+  "name": "System Design 101 course by Mominur Rahman",
+  "repo": "https://github.com/mominurr/system-design-101",
+  "license": "MIT",
+  "notice": "/licenses/system-design-101-course.txt"
+ },
+ "quiz": [
+  {
+   "question": "What is the main purpose of a CDN (Content Delivery Network)?",
+   "options": [
+    "To store user data in a relational database",
+    "To distribute static content from servers geographically close to users",
+    "To balance load across backend servers",
+    "To encrypt data between client and server"
+   ],
+   "correct": 1,
+   "explanation": "A CDN caches static content (images, JS, CSS) on servers located close to users worldwide, dramatically reducing load times by shortening the physical distance data must travel."
+  },
+  {
+   "question": "What does an API do?",
+   "options": [
+    "It is a programming language for building backends",
+    "It stores and retrieves data from a database",
+    "It defines a contract for how two software systems communicate",
+    "It encrypts data stored on a server"
+   ],
+   "correct": 2,
+   "explanation": "An API (Application Programming Interface) is a defined contract specifying how two pieces of software communicate — what requests can be made, in what format, and what the response will look like."
+  },
+  {
+   "question": "What is the difference between Authentication and Authorization?",
+   "options": [
+    "They are the same concept — both verify your identity",
+    "Authentication is about what you can do; authorization is about who you are",
+    "Authentication verifies WHO you are; authorization checks WHAT you can do",
+    "Authentication uses passwords; authorization uses tokens"
+   ],
+   "correct": 2,
+   "explanation": "Authentication = proving identity (login). Authorization = checking permissions (can this user access this resource?). They are separate steps — you first authenticate, then the system authorizes specific actions."
+  },
+  {
+   "question": "A cache \"hit\" means:",
+   "options": [
+    "The cache has been attacked by a hacker",
+    "The requested data was found in the cache — no database query needed",
+    "The cache has reached its maximum memory limit",
+    "A database query ran successfully"
+   ],
+   "correct": 1,
+   "explanation": "A cache hit means the data was found in the cache and served directly — fast and without touching the database. A cache miss means the data wasn't there, so the system queries the database instead."
+  },
+  {
+   "question": "What is horizontal scaling?",
+   "options": [
+    "Making an existing server more powerful (more CPU/RAM)",
+    "Distributing data horizontally across database tables",
+    "Adding more servers and distributing load across them",
+    "Caching data at multiple geographic locations"
+   ],
+   "correct": 2,
+   "explanation": "Horizontal scaling (scale out) means adding more servers. Vertical scaling (scale up) means making existing servers more powerful. Horizontal scaling has no theoretical ceiling but requires stateless services and a load balancer."
+  },
+  {
+   "question": "What does a Load Balancer do?",
+   "options": [
+    "Compresses database queries to run faster",
+    "Distributes incoming requests across multiple backend servers",
+    "Balances the size of different files on a CDN",
+    "Manages TLS certificate rotation"
+   ],
+   "correct": 1,
+   "explanation": "A load balancer sits in front of multiple servers and distributes incoming requests among them using algorithms like Round Robin or Least Connections. This prevents any single server from being overwhelmed and enables horizontal scaling."
+  },
+  {
+   "question": "Which is the primary advantage of a monolithic architecture over microservices for a small team?",
+   "options": [
+    "It can handle unlimited traffic without any configuration",
+    "It is simpler to develop, test, and deploy — one codebase, one deployment",
+    "It makes it easier for different teams to work independently",
+    "It automatically provides horizontal scaling"
+   ],
+   "correct": 1,
+   "explanation": "A monolith's biggest advantage for small teams is simplicity: one codebase, no distributed transactions, easy local development, one deployment pipeline. Microservices add significant operational complexity that small teams rarely need."
+  },
+  {
+   "question": "When should you choose a NoSQL database over a SQL database?",
+   "options": [
+    "Always — NoSQL is more modern and replaces SQL",
+    "When you need ACID transactions and complex joins",
+    "When you have a fixed schema with many relationships between entities",
+    "When you need flexible schemas, very high write throughput, or key-based access patterns"
+   ],
+   "correct": 3,
+   "explanation": "NoSQL excels at flexible schemas (document stores), very high throughput (Cassandra), or simple key lookups (Redis). SQL is better for complex relationships, multi-table joins, and ACID transactions. Most systems benefit from SQL as the default choice."
+  },
+  {
+   "question": "What is a JWT (JSON Web Token) used for?",
+   "options": [
+    "Encrypting data stored in a database",
+    "A format for writing database queries",
+    "A signed token that proves a user's identity and is sent with each API request",
+    "A protocol for transferring large files between servers"
+   ],
+   "correct": 2,
+   "explanation": "A JWT is a compact, signed token containing the user's identity and claims. The server issues it on login, the client stores it, and sends it with every subsequent request. The server verifies the signature — no database lookup needed."
+  },
+  {
+   "question": "The CAP Theorem states that a distributed system can only guarantee two of three properties. What are they?",
+   "options": [
+    "Capacity, Accuracy, Performance",
+    "Consistency, Availability, Partition Tolerance",
+    "Concurrency, Atomicity, Persistence",
+    "Caching, Authentication, Proximity"
+   ],
+   "correct": 1,
+   "explanation": "CAP Theorem: Consistency (all nodes see the same data), Availability (every request gets a response), Partition Tolerance (system works despite network splits). Since network partitions are unavoidable, you choose between C and A when a partition occurs."
+  },
+  {
+   "question": "What is Observability in a software system?",
+   "options": [
+    "The ability to monitor user activity and track what users click on",
+    "The practice of writing comments in code so it can be reviewed",
+    "The ability to understand a system's internal state through logs, metrics, and traces",
+    "The process of making code open source"
+   ],
+   "correct": 2,
+   "explanation": "Observability is achieved through three pillars: Logs (event records), Metrics (numeric measurements over time), and Traces (following a request through multiple services). Together they let you understand what's happening inside a running system."
+  },
+  {
+   "question": "What problem does a Message Queue (like Kafka or RabbitMQ) solve?",
+   "options": [
+    "It queues database queries so they don't run at the same time",
+    "It stores messages to temporarily queue UI notifications",
+    "It decouples services so a sender doesn't need to wait for the receiver — enabling async processing",
+    "It manages the order of front-end component rendering"
+   ],
+   "correct": 2,
+   "explanation": "Message queues decouple services: the sender publishes a message and continues immediately without waiting for the receiver to process it. This enables async processing, absorbs traffic spikes, and prevents one slow service from blocking another."
+  },
+  {
+   "question": "What does a Circuit Breaker pattern do?",
+   "options": [
+    "It physically disconnects faulty hardware in data centers",
+    "It prevents cascading failures by stopping requests to a failing service and returning fast error responses instead",
+    "It resets a database connection after a failed transaction",
+    "It breaks the code into smaller modules for better organization"
+   ],
+   "correct": 1,
+   "explanation": "Like an electrical circuit breaker, this pattern stops sending requests to a failing service instead of letting them pile up and time out. After a cooldown period, it tests whether the service has recovered. This prevents one failing service from bringing down others."
+  },
+  {
+   "question": "What is \"cache invalidation\" and why is it considered hard?",
+   "options": [
+    "The process of encrypting cached data — hard because encryption is complex",
+    "Removing expired cache entries — hard because servers run out of memory",
+    "Knowing when to update or remove stale cached data — hard because it's difficult to ensure correctness without losing performance",
+    "Scaling a cache to multiple servers — hard because of network latency"
+   ],
+   "correct": 2,
+   "explanation": "Cache invalidation is deciding when cached data is no longer valid and must be updated or removed. It's famously hard because: invalidate too aggressively = slow (too many cache misses); invalidate too rarely = users see stale data. Finding the right balance for each type of data requires careful design."
+  },
+  {
+   "question": "A senior engineer is designing a system and says \"let's start with a monolith.\" A junior engineer says \"shouldn't we use microservices to be ready for scale?\" What is the senior engineer's most likely reasoning?",
+   "options": [
+    "The senior engineer doesn't know what microservices are",
+    "Microservices are only for companies that can afford Google-sized infrastructure",
+    "The complexity of microservices adds months of overhead with no benefit at current scale — a monolith is simpler and can be split later when there's actual pain",
+    "Monoliths are always faster than microservices"
+   ],
+   "correct": 2,
+   "explanation": "The senior engineer's wisdom: \"You aren't gonna need it\" (YAGNI). Microservices add distributed system complexity — service discovery, network calls, distributed tracing, independent deployments — that only pay off at scale you don't have yet. Start simple, split when you feel the pain of scale."
+  }
+ ],
+ "glossary": [
+  {
+   "term": "API",
+   "def": "Application Programming Interface — a defined contract for how two pieces of software communicate with each other.",
+   "section": "APIs & Communication"
+  },
+  {
+   "term": "REST",
+   "def": "Representational State Transfer — an architectural style for web APIs using HTTP verbs (GET, POST, PUT, DELETE) to perform operations on resources identified by URLs.",
+   "section": "APIs & Communication"
+  },
+  {
+   "term": "HTTP / HTTPS",
+   "def": "HyperText Transfer Protocol — the foundation of data communication on the web. HTTPS adds TLS encryption.",
+   "section": "Request Journey"
+  },
+  {
+   "term": "DNS",
+   "def": "Domain Name System — the \"phone book\" of the internet, translating domain names (google.com) into IP addresses (142.250.80.46).",
+   "section": "Request Journey"
+  },
+  {
+   "term": "CDN",
+   "def": "Content Delivery Network — a distributed network of servers that cache content close to users geographically, reducing latency.",
+   "section": "Caching"
+  },
+  {
+   "term": "Load Balancer",
+   "def": "A system that distributes incoming network requests across multiple backend servers to prevent any one server from being overwhelmed.",
+   "section": "Scaling"
+  },
+  {
+   "term": "Cache",
+   "def": "Fast temporary storage that saves computed results so future requests can be served without re-computation or database queries.",
+   "section": "Caching"
+  },
+  {
+   "term": "Redis",
+   "def": "An in-memory data structure store used as a cache, message broker, and database. Sub-millisecond reads/writes.",
+   "section": "Caching"
+  },
+  {
+   "term": "SQL",
+   "def": "Structured Query Language — used to manage and query relational databases with tables, rows, and columns.",
+   "section": "Data Storage"
+  },
+  {
+   "term": "NoSQL",
+   "def": "Non-relational databases that sacrifice some SQL features for flexible schemas and horizontal scalability. Includes document, key-value, column, and graph types.",
+   "section": "Data Storage"
+  },
+  {
+   "term": "ACID",
+   "def": "Atomicity, Consistency, Isolation, Durability — properties that guarantee database transactions are processed reliably.",
+   "section": "Data Storage"
+  },
+  {
+   "term": "Authentication",
+   "def": "The process of verifying WHO you are — proving identity (login).",
+   "section": "Auth"
+  },
+  {
+   "term": "Authorization",
+   "def": "The process of verifying WHAT you can do — checking permissions after identity is established.",
+   "section": "Auth"
+  },
+  {
+   "term": "JWT",
+   "def": "JSON Web Token — a signed token that contains user identity and claims, stored client-side and sent with each request.",
+   "section": "Auth"
+  },
+  {
+   "term": "OAuth 2.0",
+   "def": "An authorization framework that enables applications to obtain limited access to user accounts on third-party services (e.g., \"Login with Google\").",
+   "section": "Auth"
+  },
+  {
+   "term": "CAP Theorem",
+   "def": "A distributed systems theorem: you can guarantee at most two of — Consistency, Availability, Partition Tolerance.",
+   "section": "Tradeoffs"
+  },
+  {
+   "term": "Microservices",
+   "def": "An architecture style where an application is composed of small, independently deployable services that communicate via APIs.",
+   "section": "Architecture Styles"
+  },
+  {
+   "term": "Monolith",
+   "def": "An architecture where all application functionality is in one codebase deployed as a single unit.",
+   "section": "Architecture Styles"
+  },
+  {
+   "term": "Horizontal Scaling",
+   "def": "Adding more servers to distribute load — the primary way to handle large-scale traffic.",
+   "section": "Scaling"
+  },
+  {
+   "term": "Vertical Scaling",
+   "def": "Making an existing server more powerful (more CPU, RAM) — simpler but has a ceiling.",
+   "section": "Scaling"
+  },
+  {
+   "term": "Replication",
+   "def": "Copying data to multiple locations so it survives hardware failure and can serve reads from multiple nodes.",
+   "section": "Reliability"
+  },
+  {
+   "term": "Circuit Breaker",
+   "def": "A pattern that stops sending requests to a failing service, preventing cascading failures across the system.",
+   "section": "Reliability"
+  },
+  {
+   "term": "Sharding",
+   "def": "Partitioning a large database horizontally across multiple servers — each server handles a subset of the data.",
+   "section": "Data Storage"
+  },
+  {
+   "term": "Message Queue",
+   "def": "A system that stores messages between services so the sender doesn't need to wait for the receiver (async communication). Examples: Kafka, RabbitMQ.",
+   "section": "APIs"
+  },
+  {
+   "term": "Rate Limiting",
+   "def": "Restricting how many requests a client can make in a given time period, preventing abuse and protecting system resources.",
+   "section": "Security"
+  },
+  {
+   "term": "Observability",
+   "def": "The ability to understand the internal state of a system from its external outputs — achieved through logs, metrics, and traces.",
+   "section": "Observability"
+  },
+  {
+   "term": "SLA",
+   "def": "Service Level Agreement — a contract guaranteeing a minimum level of service (e.g., 99.9% availability).",
+   "section": "Reliability"
+  },
+  {
+   "term": "Latency",
+   "def": "The time it takes for a single request to complete, from initiation to response.",
+   "section": "Performance"
+  },
+  {
+   "term": "Throughput",
+   "def": "The number of requests a system can handle per unit of time (e.g., 10,000 requests/second).",
+   "section": "Scaling"
+  },
+  {
+   "term": "Idempotency",
+   "def": "An operation is idempotent if calling it multiple times produces the same result as calling it once. Critical for safe retries.",
+   "section": "APIs"
+  },
+  {
+   "term": "Index (Database)",
+   "def": "A data structure that improves query speed by maintaining a sorted reference to rows. Without indexes, queries scan every row.",
+   "section": "Data Storage"
+  },
+  {
+   "term": "TLS / SSL",
+   "def": "Transport Layer Security — the cryptographic protocol that powers HTTPS, encrypting all data between client and server.",
+   "section": "Security"
+  },
+  {
+   "term": "SQL Injection",
+   "def": "An attack where malicious SQL is embedded in user input and executed by the database. Prevented by parameterized queries.",
+   "section": "Security"
+  },
+  {
+   "term": "Graceful Degradation",
+   "def": "Designing a system so that when components fail, the system continues to function with reduced capability rather than completely failing.",
+   "section": "Reliability"
+  },
+  {
+   "term": "P99 Latency",
+   "def": "The latency value below which 99% of requests fall. A more realistic performance target than average, since it captures the \"worst\" normal case.",
+   "section": "Performance"
+  }
+ ]
+}
