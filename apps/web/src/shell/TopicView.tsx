@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
-import { LoadPanel } from '../board/LoadPanel'
-import { BoardCanvas } from '../board/react'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { failureEffect, responsibility, sameComponent, stepsThrough } from '../diagram/inspect'
@@ -14,7 +12,12 @@ import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
+import { OfflineVideoButton } from './OfflineVideo'
 import { topicIcon } from './topicIcons'
+
+// The 3D city (three.js) and the load test (Rust/WASM simulator) load on first use.
+const BoardCanvas = lazy(() => import('../board/react').then((m) => ({ default: m.BoardCanvas })))
+const LoadPanel = lazy(() => import('../board/LoadPanel').then((m) => ({ default: m.LoadPanel })))
 
 type Tab = 'explain' | 'walk' | 'code' | 'data'
 
@@ -282,7 +285,9 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                 onSelect={setSelected}
               />
             ) : (
-              <BoardCanvas board={board} />
+              <Suspense fallback={<p className="d2-loading">Loading the 3D city…</p>}>
+                <BoardCanvas board={board} />
+              </Suspense>
             )}
             {inspected && (
               <aside className="inspector" aria-label={`Component: ${inspected.label}`}>
@@ -367,14 +372,18 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
         </section>
 
         <aside className="side-col" hidden={!topic.video && !showLoad}>
-          {showLoad && topic.loadTest && <LoadPanel board={board} test={topic.loadTest} onClose={() => setShowLoad(false)} />}
+          {showLoad && topic.loadTest && (
+            <Suspense fallback={<p className="card d2-loading">Loading the simulator…</p>}>
+              <LoadPanel board={board} test={topic.loadTest} onClose={() => setShowLoad(false)} />
+            </Suspense>
+          )}
           {topic.video && (
             <section className="card video-card" aria-label="Video walkthrough">
               <header className="card-head">
                 <h2>
                   <Video size={17} /> Video walkthrough
                 </h2>
-                <span className="badge">Remotion</span>
+                <OfflineVideoButton src={topic.video} />
               </header>
               <video
                 ref={video}

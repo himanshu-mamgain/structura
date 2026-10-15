@@ -1,5 +1,5 @@
-# Netlify hosts the web app only; the API server (apps/server) runs elsewhere.
-# Set VITE_API_URL in Netlify's environment variables to the server's URL.
+# Netlify hosts the whole app: a static PWA with no server and no API keys.
+# Diagrams, the WASM load simulator, quizzes and progress all run in the browser.
 [build]
   base = ""
   command = "npm run build -w @structura/web"
@@ -19,6 +19,12 @@
   [headers.values]
     Cache-Control = "no-cache"
     Content-Type = "application/manifest+json"
+
+# Videos and their thumbnails change only when re-rendered: cache for a day.
+[[headers]]
+  for = "/videos/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
 
 # Hashed build assets never change.
 [[headers]]
