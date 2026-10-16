@@ -6,12 +6,13 @@
   "description": "Explainer videos rendered with Remotion (React to MP4).",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "thumbs": "remotion still src/index.ts UrlShortener ../web/public/videos/url-shortener.jpg --frame=1500 --scale=0.5 --image-format=jpeg && remotion still src/index.ts Rbac ../web/public/videos/rbac.jpg --frame=2300 --scale=0.5 --image-format=jpeg && remotion still src/index.ts UberSurge ../web/public/videos/uber-surge.jpg --frame=450 --scale=0.5 --image-format=jpeg && remotion still src/index.ts DockerVsVm ../web/public/videos/docker-vs-vm.jpg --frame=700 --scale=0.5 --image-format=jpeg",
-    "render": "npm run render:docker && npm run render:uber && npm run render:url && npm run render:rbac",
+    "thumbs": "remotion still src/index.ts UrlShortener ../web/public/videos/url-shortener.jpg --frame=1500 --scale=0.5 --image-format=jpeg && remotion still src/index.ts Rbac ../web/public/videos/rbac.jpg --frame=2300 --scale=0.5 --image-format=jpeg && remotion still src/index.ts UberSurge ../web/public/videos/uber-surge.jpg --frame=450 --scale=0.5 --image-format=jpeg && remotion still src/index.ts DockerVsVm ../web/public/videos/docker-vs-vm.jpg --frame=700 --scale=0.5 --image-format=jpeg && remotion still src/index.ts IdempotentPayments ../web/public/videos/payment-idempotency.jpg --frame=575 --scale=0.5 --image-format=jpeg",
+    "render": "npm run render:docker && npm run render:uber && npm run render:url && npm run render:rbac && npm run render:payments",
     "render:docker": "remotion render src/index.ts DockerVsVm ../web/public/videos/docker-vs-vm.mp4",
     "render:uber": "remotion render src/index.ts UberSurge ../web/public/videos/uber-surge.mp4",
     "render:url": "remotion render src/index.ts UrlShortener ../web/public/videos/url-shortener.mp4",
     "render:rbac": "remotion render src/index.ts Rbac ../web/public/videos/rbac.mp4",
+    "render:payments": "remotion render src/index.ts IdempotentPayments ../web/public/videos/payment-idempotency.mp4",
     "typecheck": "tsc --noEmit",
     "voice": "node scripts/voice.mjs",
     "voices": "node scripts/voices.mjs"
@@ -22,9 +23,13 @@
     "@types/three": "^0.186.0"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "@react-three/fiber": "^9.8.2",
     "@remotion/cli": "^4.0.535",
+    "@remotion/fonts": "^4.0.535",
     "@remotion/three": "^4.0.535",
+    "lucide-react": "^1.57.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "remotion": "^4.0.535",

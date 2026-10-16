@@ -1,5 +1,5 @@
 // Prints each video's chapter start times (from the narration timing), for the
-// app's chapter list:   npx tsx scripts/chapters.ts
+// app's chapter list:   npx tsx scripts/chapters.ts [video …]
 import { readFileSync } from 'node:fs'
 import { sceneFrames, type Narration, type Voice } from '../src/timeline'
 
@@ -19,14 +19,20 @@ const VIDEOS: Record<string, { narration: string; scenes: [string | null, number
     narration: 'uber-surge',
     scenes: [[null, 120, 'Introduction'], ['surge', 570, 'How surge works'], ['gaming', 660, 'Gaming the surge'], ['smooth', 390, 'Fix 1: smooth the signal'], ['fixes', 480, 'Fixes 2–4'], ['pipeline', 480, 'Under the hood'], [null, 150, 'Recap']],
   },
+  'payment-idempotency': {
+    narration: 'payment-idempotency',
+    scenes: [['hook', 60, 'The panic'], ['lost', 60, 'What actually happened'], ['trap', 60, 'The retry trap'], ['key', 60, 'The fix: idempotency keys'], ['cases', 60, 'Edge cases'], ['takeaway', 60, 'The takeaway'], ['cta', 220, 'Try it']],
+  },
   'docker-vs-vm': {
     narration: 'docker-vs-vm',
     scenes: [[null, 120, 'Introduction'], ['problem', 210, 'The classic problem'], ['vm', 570, 'Virtual machines'], ['containers', 540, 'Containers'], ['compare', 420, 'Side by side'], ['when', 360, 'When to use which'], ['workflow', 300, 'Dockerfile to container'], [null, 120, 'Recap']],
   },
 }
 
+const only = process.argv.slice(2)
 const out: Record<string, [number, string][]> = {}
 for (const [video, { narration: file, scenes }] of Object.entries(VIDEOS)) {
+  if (only.length && !only.includes(video)) continue
   const narration = JSON.parse(readFileSync(`src/narration/${file}.json`, 'utf8')) as Narration
   const voice = (JSON.parse(readFileSync(`public/voice/${video}/manifest.json`, 'utf8')) as { lines: Voice }).lines
   let frame = 0
