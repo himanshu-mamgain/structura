@@ -1,5 +1,6 @@
 import { dockerVsVm } from './docker-vs-vm'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
+import { paymentIdempotency } from './payment-idempotency'
 import { rbac } from './rbac'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
@@ -17,4 +18,5 @@ export const STATIC_TOPICS: StaticTopic[] = [
   dockerVsVm,
   twitterTimeline,
   webCrawler,
+  paymentIdempotency,
 ]
