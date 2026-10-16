@@ -5,6 +5,7 @@ import course from '../learn/course.json'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
 import { topicIcon } from './topicIcons'
+import { TodayCard } from './VoiceGuide'
 
 const thumbnail = (topic: StaticTopic) => topic.video?.replace(/\.mp4$/, '.jpg')
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
@@ -76,6 +77,8 @@ export function Home({
           </div>
         </dl>
       </section>
+
+      <TodayCard onOpen={onOpen} />
 
       {recent.length > 0 && (
         <section className="home-section" aria-label="Continue learning">

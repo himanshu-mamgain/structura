@@ -12,7 +12,9 @@
   "dependencies": {
     "@structura/sim": "^0.0.0",
     "elkjs": "^0.12.0",
+    "kokoro-js": "^1.2.1",
     "lucide-react": "^1.57.0",
+    "minisearch": "^7.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "three": "^0.186.1"

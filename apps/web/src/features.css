@@ -788,3 +788,137 @@ html {
     font-size: 13.5px;
   }
 }
+
+/* ─── Voice guide ─── */
+
+.today {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-color: rgba(34, 211, 238, 0.35);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.12), transparent 50%),
+    var(--card);
+}
+
+.today header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.today-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #67e8f9;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.today h2 {
+  margin: 8px 0 4px;
+  font-size: 22px;
+}
+
+.today > p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.today-steps {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+
+.today-steps li {
+  margin: 4px 0;
+}
+
+.today-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.voice-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.voice-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.voice-settings label:first-child {
+  flex: 1 1 220px;
+}
+
+.voice-settings select {
+  min-height: 40px;
+  max-width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 15px;
+}
+
+.voice-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.voice-settings-wrap {
+  position: relative;
+}
+
+.voice-popover {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  z-index: 20;
+  width: min(340px, 86vw);
+  padding: 4px 14px 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.listen-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px !important;
+  height: 32px !important;
+  margin-left: 4px;
+  border: 1px solid var(--line);
+  border-radius: 50% !important;
+  background: var(--card-2) !important;
+  color: #67e8f9 !important;
+  cursor: pointer;
+}
+
+.voice-caption {
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+.voice-caption .walk-count {
+  display: inline-grid;
+  place-items: center;
+  background: #0e7490;
+}
+
+/* Topic actions sit on their own row under the title: room for Listen, voice, bookmark, complete and video. */
+.topic-actions {
+  grid-column: 1 / -1 !important;
+  flex-wrap: wrap !important;
+}

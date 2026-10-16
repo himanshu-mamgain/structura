@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
+import { AlertTriangle, Headphones, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
@@ -7,12 +7,14 @@ import { failureEffect, responsibility, sameComponent, stepsThrough } from '../d
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
+import { speak, speechSupported, stopSpeaking } from '../learn/speech'
 import { erdToDiagram } from '../learn/erd'
 import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
 import { OfflineVideoButton } from './OfflineVideo'
+import { VoiceSettingsButton } from './VoiceGuide'
 import { topicIcon } from './topicIcons'
 
 // The 3D city (three.js) and the load test (Rust/WASM simulator) load on first use.
@@ -55,6 +57,8 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   const [board3d, setBoard3d] = useState(false)
   const [duration, setDuration] = useState<number | null>(null)
   const [videoTime, setVideoTime] = useState(0)
+  // The voice guide: intro (summary), then the walkthrough spoken step by step, then the takeaways.
+  const [tour, setTour] = useState<'off' | 'intro' | 'walk' | 'outro'>('off')
   const [selected, setSelected] = useState<string | null>(null)
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
   const video = useRef<HTMLVideoElement>(null)
@@ -98,18 +102,63 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
       if (built) focusStep(board, built)
     }
     if (walk.index === steps.length - 1) updateTopic(topic.id, { walked: true })
-    if (!walk.playing) return
+    if (!walk.playing) {
+      if (tour === 'walk') stopSpeaking()
+      return
+    }
+    if (tour === 'walk') {
+      let current = true
+      void speak(`Step ${walk.index + 1}. ${step.text}`).then((done) => {
+        if (!done || !current) return
+        if (walk.index < steps.length - 1) setWalk((w) => w && { ...w, index: w.index + 1 })
+        else {
+          setTour('outro')
+          void speak(`That's the whole flow. Key takeaways. ${topic.takeaways.join(' ')}`).then(() => setTour('off'))
+        }
+      })
+      return () => {
+        current = false
+      }
+    }
     const timer = setTimeout(
       () => setWalk((w) => (w && w.index < steps.length - 1 ? { ...w, index: w.index + 1 } : w && { ...w, playing: false })),
       stepDuration(step.text),
     )
     return () => clearTimeout(timer)
-  }, [walk, mode, board3d, board, steps, explanation, trace, topic.id])
+  }, [walk, mode, board3d, board, steps, explanation, trace, topic, tour])
 
   const walking = Boolean(walk)
   useEffect(() => {
     if (!walking && board3d) showWholeDiagram(board)
   }, [walking, board3d, board])
+
+  // Leaving the topic, or stopping the walkthrough mid-tour, ends the voice.
+  useEffect(() => stopSpeaking, [])
+  useEffect(() => {
+    if (!walk && tour === 'walk') {
+      stopSpeaking()
+      setTour('off')
+    }
+  }, [walk, tour])
+
+  async function startTour() {
+    if (tour !== 'off') {
+      stopSpeaking()
+      setTour('off')
+      setWalk(null)
+      return
+    }
+    setWalk(null)
+    setTour('intro')
+    setDiagramView('architecture')
+    const intro = `${topic.title}. ${explanation.summary}${steps.length ? ` Let's follow one request through the design, step by step.` : ''}`
+    const done = await speak(intro)
+    if (!done) return
+    if (steps.length) {
+      setTour('walk')
+      startWalk(0)
+    } else setTour('off')
+  }
 
   function startWalk(from = 0) {
     setTab('walk')
@@ -188,6 +237,14 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
           )}
         </div>
         <div className="topic-actions">
+          {speechSupported && (
+            <>
+              <button type="button" className={`btn${tour !== 'off' ? ' is-on' : ''}`} onClick={() => void startTour()}>
+                {tour !== 'off' ? <Square size={15} /> : <Headphones size={17} />} {tour !== 'off' ? 'Stop guide' : 'Listen'}
+              </button>
+              <VoiceSettingsButton />
+            </>
+          )}
           <button
             type="button"
             className={`icon-btn${progress?.bookmarked ? ' is-on' : ''}`}
@@ -363,7 +420,20 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                 </div>
               </div>
             )}
-            {!walk && steps.length > 0 && (
+            {(tour === 'intro' || tour === 'outro') && (
+              <div className="walk-caption voice-caption" aria-live="polite">
+                <span className="walk-count">
+                  <Headphones size={14} />
+                </span>
+                <p>{tour === 'intro' ? explanation.summary : `Key takeaways: ${topic.takeaways[0]}`}</p>
+                <div className="walk-buttons">
+                  <button type="button" onClick={() => void startTour()} aria-label="Stop the voice guide">
+                    <Square size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+            {!walk && tour === 'off' && steps.length > 0 && (
               <button type="button" className="btn btn-primary walk-start" onClick={() => startWalk()}>
                 <Footprints size={16} /> Walk me through it
               </button>
@@ -458,6 +528,16 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                 <h3 className="section-title">
                   <span>{section + 1}</span>
                   {explanation.sections[section].heading}
+                  {speechSupported && (
+                    <button
+                      type="button"
+                      className="listen-btn"
+                      onClick={() => void speak(`${explanation.sections[section].heading}. ${explanation.sections[section].body}`)}
+                      title="Listen to this section"
+                    >
+                      <Volume2 size={16} />
+                    </button>
+                  )}
                 </h3>
                 <Body text={explanation.sections[section].body} />
                 <div className="pager">
