@@ -1,6 +1,7 @@
 import MiniSearch from 'minisearch'
 import course from './course.json'
 import type { Progress } from './progress'
+import { lessonTopics, LESSONS, next as nextChapter, playTopic, toggle as toggleLesson } from './commute'
 import { planToday } from './today'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 
@@ -14,7 +15,7 @@ export interface AssistantContext {
   topic: StaticTopic | null
   progress: Progress
   open: (topic: StaticTopic | null) => void
-  openPage: (page: 'quiz' | 'glossary') => void
+  openPage: (page: 'quiz' | 'glossary' | 'listen') => void
 }
 
 export interface Reply {
@@ -112,6 +113,26 @@ export function respond(input: string, ctx: AssistantContext): Reply {
     const plan = planToday(STATIC_TOPICS, ctx.progress, course.quiz.length)
     return { say: plan.script, show: `${plan.headline}. ${plan.reason}`, from: "Today's pick", act: plan.topic ? () => ctx.open(plan.topic) : undefined }
   }
+
+  // Commute mode: the audio lessons.
+  if (/\b(commute|podcast|audio lessons?|play (the )?lessons?|listen to (the )?lessons?)\b/.test(said)) {
+    const first = (topic && LESSONS.topics[topic.id] ? topic : lessonTopics()[0]) ?? null
+    return {
+      say: '',
+      show: first ? `Playing the ${first.title} lesson.` : 'Opening Commute mode.',
+      act: () => {
+        ctx.openPage('listen')
+        if (first) playTopic(first.id)
+      },
+    }
+  }
+  const listenTo = said.match(/\b(?:listen to|play)\s+(.+)$/)
+  const lessonTopic = listenTo ? findTopic(listenTo[1]) : null
+  if (lessonTopic && LESSONS.topics[lessonTopic.id]) {
+    return { say: '', show: `Playing the ${lessonTopic.title} lesson.`, act: () => (ctx.openPage('listen'), playTopic(lessonTopic.id)) }
+  }
+  if (/^(pause|resume|play)( the)?( lesson)?$/.test(said)) return { say: '', act: () => toggleLesson() }
+  if (/^next chapter$/.test(said)) return { say: '', act: () => nextChapter() }
 
   if (/\b(quiz|test me|test myself)\b/.test(said)) return { say: 'Opening the quiz. Good luck!', act: () => ctx.openPage('quiz') }
   if (/\bglossary\b/.test(said)) return { say: 'Here is the glossary.', act: () => ctx.openPage('glossary') }

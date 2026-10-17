@@ -45,6 +45,13 @@ export default defineConfig({
         globIgnores: ['screenshots/**', 'videos/*.mp4', '**/ort-wasm*.wasm', '**/kokoro.worker-*.js'],
         runtimeCaching: [
           {
+            // Commute-mode lessons saved for offline (learn/commute.ts) play from the cache, seeking
+            // included, with no connection; unsaved ones stream as usual.
+            urlPattern: ({ url }) => url.pathname.startsWith('/lessons/') && url.pathname.endsWith('.m4a'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'structura-lessons', rangeRequests: true, cacheableResponse: { statuses: [200] } },
+          },
+          {
             // The natural voice's engine: fetched the first time it's switched on, then kept for offline use.
             // (The voice model itself is cached by Transformers.js in its own cache.)
             urlPattern: ({ url }) => /\/assets\/(ort-wasm.*\.wasm|kokoro\.worker-.*\.js)$/.test(url.pathname),

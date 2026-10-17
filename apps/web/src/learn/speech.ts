@@ -210,6 +210,8 @@ export interface SpeakOptions {
  */
 export async function speak(text: string, options: SpeakOptions = {}): Promise<boolean> {
   stopSpeaking()
+  // Commute mode pauses its lesson while the assistant talks (learn/commute.ts listens).
+  window.dispatchEvent(new Event('structura:voice-start'))
   const id = run
   const sentences = splitSentences(text)
   if (!sentences.length) return true
