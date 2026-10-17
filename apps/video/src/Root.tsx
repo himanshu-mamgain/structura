@@ -5,6 +5,8 @@ import * as Rbac from './Rbac'
 import { FPS, HEIGHT, WIDTH } from './theme'
 import * as UberSurge from './UberSurge'
 import * as UrlShortener from './UrlShortener'
+import { TOPIC_VIDEOS } from './data/topics'
+import { topicVideo } from './TopicVideo'
 import type { VideoProps } from './ui'
 
 /**
@@ -65,6 +67,11 @@ export function Root() {
         durationInFrames={Ep01.duration(null)}
         {...common}
       />
+      {/* One automatic video per exported topic (apps/web/scripts/export-videos.ts). */}
+      {(Object.keys(TOPIC_VIDEOS) as (keyof typeof TOPIC_VIDEOS)[]).map((id) => {
+        const v = topicVideo(id)
+        return <Composition key={id} id={`Topic-${id}`} component={v.Component} calculateMetadata={withVoice(v.VIDEO, v.duration)} durationInFrames={v.duration(null)} {...common} />
+      })}
     </>
   )
 }

@@ -1864,6 +1864,936 @@
     }
    ],
    "duration": 631
+  },
+  "twitter-timeline": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/twitter-timeline/01-intro.m4a",
+     "duration": 40.57,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Twitter Timeline & Search."
+      },
+      {
+       "t": 3.455,
+       "text": "Users post tweets, read a home timeline built from everyone they follow, and search."
+      },
+      {
+       "t": 9.885,
+       "text": "Reads dwarf writes, so the home timeline is precomputed: each new tweet is pushed into followers' timelines in memory (fan-out on write), except for celebrities, whose tweets are merged in when a timeline is read."
+      },
+      {
+       "t": 26.34,
+       "text": "In this lesson: overview, requirements, capacity estimates, components, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/twitter-timeline/02-section-0.m4a",
+     "duration": 42.81,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Two timelines matter:"
+      },
+      {
+       "t": 4.985,
+       "text": "The user timeline: one person's own tweets."
+      },
+      {
+       "t": 9.24,
+       "text": "Easy: a query on tweets by userid."
+      },
+      {
+       "t": 13.095,
+       "text": "The home timeline: tweets from everyone you follow, newest first."
+      },
+      {
+       "t": 18.225,
+       "text": "Hard: it combines hundreds of people, and it is the most-read page in the product."
+      },
+      {
+       "t": 24.58,
+       "text": "Computing the home timeline on every read (fan-out on read) means querying everyone you follow each time."
+      },
+      {
+       "t": 32.91,
+       "text": "Instead, this design does the work once per tweet (fan-out on write) and keeps every active user's home timeline ready in memory."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Requirements",
+     "file": "/lessons/twitter-timeline/03-section-1.m4a",
+     "duration": 29.39,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Requirements."
+      },
+      {
+       "t": 2.58,
+       "text": "In scope:"
+      },
+      {
+       "t": 4.435,
+       "text": "A user posts a tweet; followers get push notifications and emails."
+      },
+      {
+       "t": 10.365,
+       "text": "A user views their user timeline and their home timeline."
+      },
+      {
+       "t": 15.445,
+       "text": "A user searches by keyword."
+      },
+      {
+       "t": 18.45,
+       "text": "High availability."
+      },
+      {
+       "t": 20.855,
+       "text": "Out of scope: the firehose and other streams, visibility rules (hidden replies and retweets), analytics."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Capacity estimates",
+     "file": "/lessons/twitter-timeline/04-section-2.m4a",
+     "duration": 60,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Capacity estimates."
+      },
+      {
+       "t": 3.08,
+       "text": "Assumptions from the System Design Primer:"
+      },
+      {
+       "t": 7.01,
+       "text": "100 million active users; 500 million tweets a day (15 billion a month)."
+      },
+      {
+       "t": 14.665,
+       "text": "Each tweet fans out to 10 followers on average: 5 billion deliveries a day."
+      },
+      {
+       "t": 21.295,
+       "text": "250 billion timeline reads and 10 billion searches a month."
+      },
+      {
+       "t": 27.5,
+       "text": "Which works out to:"
+      },
+      {
+       "t": 29.755,
+       "text": "About 6,000 tweets per second written, 60,000 fan-out deliveries per second."
+      },
+      {
+       "t": 36.735,
+       "text": "About 100,000 timeline reads per second and 4,000 searches per second."
+      },
+      {
+       "t": 43.615,
+       "text": "About 10 KB per tweet with media: 150 TB of new content a month, 5.4 PB in three years."
+      },
+      {
+       "t": 53.345,
+       "text": "Handy rule: 400 requests per second  about  1 billion requests per month."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/twitter-timeline/05-section-3.m4a",
+     "duration": 65.86,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "Web Server: a reverse proxy in front of the API servers (TLS, routing, compression)."
+      },
+      {
+       "t": 10.11,
+       "text": "Write API, Read API, Search API: stateless servers for the three paths, scaled separately."
+      },
+      {
+       "t": 18.265,
+       "text": "Fan Out Service: turns one tweet into N home-timeline writes, in the background."
+      },
+      {
+       "t": 24.745,
+       "text": "User Graph Service: who follows whom, cached in memory."
+      },
+      {
+       "t": 29.7,
+       "text": "Timeline Service: builds the response from cached ids plus multigets."
+      },
+      {
+       "t": 35.555,
+       "text": "Memory Cache (Redis): each home timeline is a list of (tweetid, userid, meta), 8 + 8 + 1 bytes per entry."
+      },
+      {
+       "t": 45.11,
+       "text": "SQL Database: the source of truth for tweets and users."
+      },
+      {
+       "t": 50.14,
+       "text": "Object Store: photos and video."
+      },
+      {
+       "t": 53.67,
+       "text": "Search Cluster: an inverted index (Lucene-style), kept in memory for low latency."
+      },
+      {
+       "t": 60.5,
+       "text": "Notification Service: sends pushes and emails off a queue."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/twitter-timeline/06-section-4.m4a",
+     "duration": 67.64,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Fan-out on write versus on read."
+      },
+      {
+       "t": 6.085,
+       "text": "On write: reads are one cache lookup, but each tweet costs O(followers) writes."
+      },
+      {
+       "t": 12.165,
+       "text": "On read: tweets are cheap, every timeline read is expensive."
+      },
+      {
+       "t": 17.62,
+       "text": "Twitter-scale read traffic favours writing."
+      },
+      {
+       "t": 21.225,
+       "text": "The celebrity problem."
+      },
+      {
+       "t": 23.78,
+       "text": "Fanning out a tweet to tens of millions of followers takes minutes and floods the cache."
+      },
+      {
+       "t": 29.96,
+       "text": "Skip fan-out above a threshold and merge those accounts' recent tweets in at read time: a hybrid."
+      },
+      {
+       "t": 37.34,
+       "text": "What to keep in memory."
+      },
+      {
+       "t": 39.845,
+       "text": "Only the newest few hundred entries per timeline, and only for users active in the last 30 days."
+      },
+      {
+       "t": 47.7,
+       "text": "An inactive user's timeline is rebuilt from SQL when they come back."
+      },
+      {
+       "t": 53.305,
+       "text": "Ids, not tweets, in the timeline lists: tiny entries, and edits or deletes only touch the Tweet Info Service."
+      },
+      {
+       "t": 61.885,
+       "text": "REST for public APIs, RPC between internal services."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/twitter-timeline/07-section-5.m4a",
+     "duration": 53.63,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "The Fan Out Service is the obvious bottleneck."
+      },
+      {
+       "t": 7.16,
+       "text": "Slow fan-out can also make a reply appear before the tweet it answers; re-ordering by timestamp at serve time hides that."
+      },
+      {
+       "t": 16.39,
+       "text": "The SQL Database will not keep up with 6,000 writes per second plus cache misses on one primary: add read replicas, then federation (split by function), sharding (split by user), and denormalization."
+      },
+      {
+       "t": 32.295,
+       "text": "Some data fits NoSQL better, for example timelines and the social graph."
+      },
+      {
+       "t": 38.45,
+       "text": "Keep the Search Cluster's index in memory; queries scatter to every shard, so one slow shard slows every search."
+      },
+      {
+       "t": 47.355,
+       "text": "Benchmark, profile, fix the worst bottleneck, repeat: scaling is iterative."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/twitter-timeline/08-walkthrough.m4a",
+     "duration": 120.93,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: @devnews (12,000 followers) posts a tweet."
+      },
+      {
+       "t": 8.33,
+       "text": "Step 1."
+      },
+      {
+       "t": 10.235,
+       "text": "@devnews posts a tweet."
+      },
+      {
+       "t": 13.04,
+       "text": "The Client sends it to the Web Server (a reverse proxy), which forwards it to the Write API."
+      },
+      {
+       "t": 21.07,
+       "text": "Step 2."
+      },
+      {
+       "t": 22.95,
+       "text": "The Write API saves the tweet to the author's own timeline in the SQL Database."
+      },
+      {
+       "t": 29.505,
+       "text": "That is the user timeline: the author's own tweets, in order."
+      },
+      {
+       "t": 35.41,
+       "text": "Step 3."
+      },
+      {
+       "t": 37.365,
+       "text": "Media goes to the Object Store, not the database: a tweet row stays small, and photos and videos are served from cheap blob storage (usually behind a CDN)."
+      },
+      {
+       "t": 50.745,
+       "text": "Step 4."
+      },
+      {
+       "t": 52.675,
+       "text": "The Write API hands the tweet to the Fan Out Service, which asks the User Graph Service who follows the author."
+      },
+      {
+       "t": 61.23,
+       "text": "The follower lists live in the Memory Cache."
+      },
+      {
+       "t": 65.635,
+       "text": "Step 5."
+      },
+      {
+       "t": 67.64,
+       "text": "Fan-out on write: the tweet id is pushed onto the home timeline of each of the 12,000 followers in the Memory Cache."
+      },
+      {
+       "t": 76.62,
+       "text": "It is O(n): 12,000 followers means 12,000 inserts, and each list is trimmed to its newest 800."
+      },
+      {
+       "t": 86.7,
+       "text": "Step 6."
+      },
+      {
+       "t": 88.63,
+       "text": "The tweet is added to the Search Cluster so keyword searches can find it within seconds."
+      },
+      {
+       "t": 95.96,
+       "text": "Step 7."
+      },
+      {
+       "t": 97.965,
+       "text": "Notifications go out through the Notification Service, which works off a queue so a slow push or email provider never delays the post."
+      },
+      {
+       "t": 109.17,
+       "text": "Step 8."
+      },
+      {
+       "t": 111,
+       "text": "The author gets a response as soon as the tweet is saved; fan-out, indexing and notifications carry on in the background."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/twitter-timeline/09-takeaways.m4a",
+     "duration": 49.71,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: The home timeline is read far more than tweets are written, so build it ahead of time: fan out on write."
+      },
+      {
+       "t": 11.66,
+       "text": "2: Fan-out is O(followers): fine for most users, far too slow for celebrities."
+      },
+      {
+       "t": 19.215,
+       "text": "3: Skip fan-out for accounts with millions of followers and merge their tweets in at read time."
+      },
+      {
+       "t": 27.195,
+       "text": "4: Keep timelines in memory, only the newest few hundred tweets, and only for active users."
+      },
+      {
+       "t": 35.475,
+       "text": "5: Store tweets in SQL for the user timeline; serve home timelines from the cache."
+      },
+      {
+       "t": 42.98,
+       "text": "6: Push notifications and indexing through queues so posting stays fast."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/twitter-timeline/10-practice.m4a",
+     "duration": 95.7,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "Where exactly would you put the celebrity threshold, and how would you measure it?"
+      },
+      {
+       "t": 27.17,
+       "text": "Question 2."
+      },
+      {
+       "t": 29.2,
+       "text": "A user unfollows someone."
+      },
+      {
+       "t": 32.28,
+       "text": "How do their tweets leave the home timeline?"
+      },
+      {
+       "t": 43.86,
+       "text": "Question 3."
+      },
+      {
+       "t": 46.015,
+       "text": "How do you rebuild the timeline of a user who has been away for a year?"
+      },
+      {
+       "t": 59.47,
+       "text": "Question 4."
+      },
+      {
+       "t": 61.575,
+       "text": "How would you rank the timeline instead of sorting it by time?"
+      },
+      {
+       "t": 74.28,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.46,
+       "text": "How would you make a tweet searchable within a few seconds of posting?"
+      },
+      {
+       "t": 89.415,
+       "text": "That's Twitter Timeline & Search."
+      },
+      {
+       "t": 92.545,
+       "text": "Next up: Web Crawler & Search."
+      }
+     ]
+    }
+   ],
+   "duration": 626
+  },
+  "web-crawler": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/web-crawler/01-intro.m4a",
+     "duration": 37.7,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Web Crawler & Search."
+      },
+      {
+       "t": 3.155,
+       "text": "A crawler keeps a priority queue of links, fetches the most important page, skips it if a near-identical page was already crawled, and otherwise queues it for indexing."
+      },
+      {
+       "t": 15.885,
+       "text": "Search reads only the reverse index (word  to  pages) and the stored titles and snippets."
+      },
+      {
+       "t": 23.465,
+       "text": "In this lesson: overview, requirements, capacity estimates, components, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/web-crawler/02-section-0.m4a",
+     "duration": 34.51,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Two systems share the data:"
+      },
+      {
+       "t": 5.235,
+       "text": "The crawler: runs all the time, turning links into indexed pages."
+      },
+      {
+       "t": 10.79,
+       "text": "It is write-heavy and must never get stuck in a loop."
+      },
+      {
+       "t": 15.12,
+       "text": "Search: answers user queries from the index."
+      },
+      {
+       "t": 18.95,
+       "text": "It is read-heavy and must be fast."
+      },
+      {
+       "t": 22.305,
+       "text": "The web is a graph full of cycles and copies (mirrors, URL parameters, printer-friendly pages), so most of the design is about deciding what not to crawl."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Requirements",
+     "file": "/lessons/web-crawler/03-section-1.m4a",
+     "duration": 26.91,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Requirements."
+      },
+      {
+       "t": 2.58,
+       "text": "In scope:"
+      },
+      {
+       "t": 4.435,
+       "text": "Crawl a list of URLs, building a reverse index of words to pages and a static title and snippet per page."
+      },
+      {
+       "t": 13.34,
+       "text": "A user searches and sees relevant pages with titles and snippets."
+      },
+      {
+       "t": 19.07,
+       "text": "High availability."
+      },
+      {
+       "t": 21.475,
+       "text": "Out of scope: search analytics, personalized results, PageRank."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Capacity estimates",
+     "file": "/lessons/web-crawler/04-section-2.m4a",
+     "duration": 35.06,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Capacity estimates."
+      },
+      {
+       "t": 3.08,
+       "text": "Assumptions from the System Design Primer:"
+      },
+      {
+       "t": 7.01,
+       "text": "1 billion links, refreshed about weekly: 4 billion crawls a month."
+      },
+      {
+       "t": 12.74,
+       "text": "500 KB stored per page; 100 billion searches a month."
+      },
+      {
+       "t": 18.87,
+       "text": "Which works out to:"
+      },
+      {
+       "t": 21.125,
+       "text": "2 PB of page content a month, 72 PB in three years."
+      },
+      {
+       "t": 27.055,
+       "text": "About 1,600 page writes per second."
+      },
+      {
+       "t": 31.385,
+       "text": "About 40,000 searches per second."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/web-crawler/05-section-3.m4a",
+     "duration": 53.84,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "linkstocrawl: the frontier, a priority queue of URLs (NoSQL, or a sorted set in Redis)."
+      },
+      {
+       "t": 10.585,
+       "text": "crawledlinks: every crawled URL with its signature and last-crawl time."
+      },
+      {
+       "t": 16.615,
+       "text": "Crawler Service: many workers pulling from the frontier, polite per site."
+      },
+      {
+       "t": 22.345,
+       "text": "Reverse Index Queue and Document Queue: decouple crawling from indexing."
+      },
+      {
+       "t": 28.55,
+       "text": "Reverse Index Service: maintains word  to  list of pages (posting lists), sharded by word."
+      },
+      {
+       "t": 36.205,
+       "text": "Document Service: generates static titles and snippets."
+      },
+      {
+       "t": 41.085,
+       "text": "Query API: parses the query (strip markup, split terms, fix typos, normalize case, build a boolean query), looks up the index, ranks, and adds snippets."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/web-crawler/06-section-4.m4a",
+     "duration": 55.94,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Duplicate URLs: with a billion links, deduplicate with MapReduce (keep URLs whose count is 1) or a Bloom filter in front of the frontier."
+      },
+      {
+       "t": 14.135,
+       "text": "Duplicate content: compare page signatures (simhash, or Jaccard and cosine similarity over word sets)."
+      },
+      {
+       "t": 22.59,
+       "text": "Near-duplicates, not just exact copies, must match."
+      },
+      {
+       "t": 27.17,
+       "text": "Freshness: store a last-crawled timestamp; refresh about weekly, more often for popular or frequently changing pages."
+      },
+      {
+       "t": 36.5,
+       "text": "Learn each page's change rate over time."
+      },
+      {
+       "t": 40.13,
+       "text": "Politeness: obey robots.txt and limit requests per site, or you will be blocked (and you will hurt small sites)."
+      },
+      {
+       "t": 48.86,
+       "text": "Static snippets: generated once at crawl time, so search never touches page content."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/web-crawler/07-section-5.m4a",
+     "duration": 37.45,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "Shard the frontier and assign each site to one worker group, which makes per-site rate limits easy."
+      },
+      {
+       "t": 10.185,
+       "text": "DNS lookups add up at this scale: cache them in the crawler."
+      },
+      {
+       "t": 15.215,
+       "text": "Popular queries repeat a lot: cache their results in front of the Query API."
+      },
+      {
+       "t": 21.62,
+       "text": "Shard the Reverse Index by word or by document; a query fans out to shards and merges the results."
+      },
+      {
+       "t": 29.7,
+       "text": "A crawler worker crashing mid-page just leaves the link in linkstocrawl; jobs on the queues retry."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/web-crawler/08-walkthrough.m4a",
+     "duration": 106.94,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: https://blog.example.org/raft-explained."
+      },
+      {
+       "t": 10.08,
+       "text": "Step 1."
+      },
+      {
+       "t": 11.985,
+       "text": "The Crawler Service takes the highest-priority link from linkstocrawl."
+      },
+      {
+       "t": 17.14,
+       "text": "Priorities start from site popularity, so important pages are crawled first."
+      },
+      {
+       "t": 23.97,
+       "text": "Step 2."
+      },
+      {
+       "t": 25.85,
+       "text": "It fetches the page from The Web (respecting robots.txt and a per-site rate limit), then computes a signature from its content."
+      },
+      {
+       "t": 36.555,
+       "text": "Step 3."
+      },
+      {
+       "t": 38.51,
+       "text": "Similar page crawled?"
+      },
+      {
+       "t": 41.115,
+       "text": "No signature in crawledlinks is close, so this is new content."
+      },
+      {
+       "t": 47.37,
+       "text": "Step 4."
+      },
+      {
+       "t": 49.3,
+       "text": "Two jobs are queued: one for the Reverse Index Service (which words appear on which pages) and one for the Document Service (a static title and snippet)."
+      },
+      {
+       "t": 61.105,
+       "text": "Queues let crawling run at its own pace."
+      },
+      {
+       "t": 65.36,
+       "text": "Step 5."
+      },
+      {
+       "t": 67.365,
+       "text": "The link moves from linkstocrawl to crawledlinks with its signature, and the page's own links are added to linkstocrawl for later."
+      },
+      {
+       "t": 77.22,
+       "text": "Step 6."
+      },
+      {
+       "t": 79.15,
+       "text": "The Reverse Index Service adds the page to each word's posting list in the Reverse Index; the Document Service stores its title and snippet."
+      },
+      {
+       "t": 90.33,
+       "text": "Step 7."
+      },
+      {
+       "t": 92.335,
+       "text": "Later, someone searches for \"raft consensus\"."
+      },
+      {
+       "t": 96.39,
+       "text": "The Query API parses the query, finds matching pages in the Reverse Index, ranks them, and fetches titles and snippets."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/web-crawler/09-takeaways.m4a",
+     "duration": 46.06,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: Crawl from a priority queue (the frontier), seeded by site popularity."
+      },
+      {
+       "t": 9.785,
+       "text": "2: Detect duplicate content with page signatures, or the crawler loops and wastes work."
+      },
+      {
+       "t": 17.365,
+       "text": "3: Lower a duplicate's priority instead of crawling it again."
+      },
+      {
+       "t": 23.145,
+       "text": "4: Hand indexing and snippet generation to queues so crawling never waits on them."
+      },
+      {
+       "t": 30.95,
+       "text": "5: A reverse index maps each word to the pages containing it; search reads only that."
+      },
+      {
+       "t": 38.73,
+       "text": "6: Re-crawl on a schedule (about weekly), more often for pages that change often."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/web-crawler/10-practice.m4a",
+     "duration": 92.22,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "How would you detect that two pages are the same article with different ads around it?"
+      },
+      {
+       "t": 27.62,
+       "text": "Question 2."
+      },
+      {
+       "t": 29.65,
+       "text": "How do you avoid crawler traps, such as infinite calendar pages?"
+      },
+      {
+       "t": 43.08,
+       "text": "Question 3."
+      },
+      {
+       "t": 45.235,
+       "text": "How would you decide which pages to re-crawl every hour?"
+      },
+      {
+       "t": 57.69,
+       "text": "Question 4."
+      },
+      {
+       "t": 59.795,
+       "text": "How would you shard the reverse index, and what does a query cost in each case?"
+      },
+      {
+       "t": 73.9,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.08,
+       "text": "How would you add PageRank to the ranking?"
+      },
+      {
+       "t": 87.46,
+       "text": "That's Web Crawler & Search."
+      },
+      {
+       "t": 90.265,
+       "text": "Well done."
+      }
+     ]
+    }
+   ],
+   "duration": 527
   }
  },
  "speed": 0.96

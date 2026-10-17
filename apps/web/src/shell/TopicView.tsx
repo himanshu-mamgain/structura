@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Headphones, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { AlertTriangle, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
-import { failureEffect, responsibility, sameComponent, stepsThrough } from '../diagram/inspect'
+import { failureEffect, responsibilitiesOf, responsibility, sameComponent, stepsThrough, subtitleOf, technologiesOf } from '../diagram/inspect'
+import { iconFor } from '../diagram/icons'
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
@@ -28,6 +30,13 @@ type Tab = 'explain' | 'walk' | 'code' | 'data'
 /** Seconds a walkthrough step stays on screen: long enough to read it. */
 const stepDuration = (text: string) => Math.max(3500, text.length * 60)
 const isCache = (label: string) => /cache|redis|cdn/i.test(label)
+/** A short title for a step: the text before a colon ("Issue JWT: …"), or the boxes it involves. */
+const stepTitle = (step: { text: string; nodes: string[] }) => {
+  const colon = step.text.indexOf(':')
+  if (colon > 0 && colon < 42) return step.text.slice(0, colon)
+  return step.nodes.slice(0, 2).join(' → ') || `${step.text.split(' ').slice(0, 5).join(' ')}…`
+}
+const SPEEDS = [1, 1.5, 2]
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 function useNarrow() {
@@ -61,6 +70,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   const [videoTime, setVideoTime] = useState(0)
   // The voice guide: intro (summary), then the walkthrough spoken step by step, then the takeaways.
   const [tour, setTour] = useState<'off' | 'intro' | 'walk' | 'outro'>('off')
+  const [walkSpeed, setWalkSpeed] = useState(1)
   const [selected, setSelected] = useState<string | null>(null)
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
   const video = useRef<HTMLVideoElement>(null)
@@ -86,6 +96,11 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   const steps = trace?.steps ?? []
   const architecture = useMemo(() => (narrow ? { ...topic.architecture, direction: 'down' as const } : topic.architecture), [topic, narrow])
   const dataModel = useMemo(() => (topic.database ? { ...erdToDiagram(topic.database), direction: narrow ? ('down' as const) : ('right' as const) } : null), [topic, narrow])
+  // One line under each component's name: the start of its description in "Components".
+  const subtitles = useMemo(
+    () => Object.fromEntries(topic.architecture.nodes.map((n) => [n.id, subtitleOf(responsibility(topic, n.label))]).filter(([, v]) => v)) as Record<string, string>,
+    [topic],
+  )
   const sql = useMemo(() => (topic.database ? erdToSql(topic.database) : null), [topic])
 
   // The 3D city is drawn on first use: it needs the topic on the board.
@@ -124,10 +139,10 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     }
     const timer = setTimeout(
       () => setWalk((w) => (w && w.index < steps.length - 1 ? { ...w, index: w.index + 1 } : w && { ...w, playing: false })),
-      stepDuration(step.text),
+      stepDuration(step.text) / walkSpeed,
     )
     return () => clearTimeout(timer)
-  }, [walk, mode, board3d, board, steps, explanation, trace, topic, tour])
+  }, [walk, mode, board3d, board, steps, explanation, trace, topic, tour, walkSpeed])
 
   const walking = Boolean(walk)
   useEffect(() => {
@@ -366,118 +381,237 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
               )}
             </div>
           </header>
-          <div className="diagram-body">
-            {mode === '2d' ? (
-              <Diagram2D
-                diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
-                focus={focus}
-                selected={selected}
-                failed={failed}
-                onSelect={setSelected}
-              />
-            ) : (
-              <Suspense fallback={<p className="d2-loading">Loading the 3D city…</p>}>
-                <BoardCanvas board={board} />
-              </Suspense>
-            )}
-            {inspected && (
-              <aside className="inspector" aria-label={`Component: ${inspected.label}`}>
-                <header>
-                  <strong>{inspected.label}</strong>
-                  <button type="button" className="icon-btn" onClick={() => setSelected(null)} aria-label="Close inspector">
-                    <X size={16} />
-                  </button>
-                </header>
-                <p>{responsibility(topic, inspected.label) ?? 'One of the building blocks of this design; its connections are below.'}</p>
-                {inspectedIn.length > 0 && (
-                  <dl>
-                    <dt>Called by</dt>
-                    <dd>{inspectedIn.map((e) => `${labelOf(e.from)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
-                  </dl>
-                )}
-                {inspectedOut.length > 0 && (
-                  <dl>
-                    <dt>Calls</dt>
-                    <dd>{inspectedOut.map((e) => `${labelOf(e.to)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
-                  </dl>
-                )}
-                {inspectedSteps.length > 0 && (
-                  <div className="inspector-steps">
-                    <span>In the walkthrough:</span>
-                    {inspectedSteps.map((i) => (
-                      <button key={i} type="button" onClick={() => (setTab('walk'), setWalk({ index: i, playing: false }))}>
-                        step {i + 1}
+          <div className={`diagram-stage${inspected ? ' has-inspector' : ''}`}>
+            <div className="diagram-body">
+              {mode === '2d' ? (
+                <Diagram2D
+                  diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
+                  focus={focus}
+                  selected={selected}
+                  failed={failed}
+                  onSelect={setSelected}
+                  subtitles={diagramView === 'architecture' ? subtitles : undefined}
+                />
+              ) : (
+                <Suspense fallback={<p className="d2-loading">Loading the 3D city…</p>}>
+                  <BoardCanvas board={board} />
+                </Suspense>
+              )}
+              <AnimatePresence>
+                {(tour === 'intro' || tour === 'outro') && (
+                  <motion.div
+                    className="walk-caption voice-caption"
+                    aria-live="polite"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 16 }}
+                  >
+                    <span className="walk-count">
+                      <Headphones size={14} />
+                    </span>
+                    <p>
+                      {now.speaking && now.sentences[now.sentence] ? (
+                        <Karaoke sentence={now.sentences[now.sentence]} word={now.word} />
+                      ) : tour === 'intro' ? (
+                        explanation.summary
+                      ) : (
+                        `Key takeaways: ${topic.takeaways[0]}`
+                      )}
+                    </p>
+                    <div className="walk-buttons">
+                      <button type="button" onClick={() => void startTour()} aria-label="Stop the voice guide">
+                        <Square size={14} />
                       </button>
-                    ))}
-                  </div>
+                    </div>
+                  </motion.div>
                 )}
-                {diagramView === 'architecture' && (
-                  <>
-                    <button type="button" className={`btn ${failed.has(inspected.id) ? 'btn-ghost is-on' : 'btn-danger'}`} onClick={() => toggleFailure(inspected.id)}>
-                      <Power size={15} /> {failed.has(inspected.id) ? 'Bring it back' : isCache(inspected.label) ? 'Turn the cache off' : 'Simulate failure'}
-                    </button>
-                    {failed.has(inspected.id) && <p className="inspector-impact">{failureEffect(inspected.label, inspectedSteps.length, steps.length)}</p>}
-                  </>
+              </AnimatePresence>
+            </div>
+
+            <AnimatePresence>
+              {inspected && (
+                <motion.aside
+                  key={inspected.id}
+                  className="inspector-panel"
+                  aria-label={`Component: ${inspected.label}`}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                >
+                  {(() => {
+                    const Icon = iconFor(inspected.label)
+                    const description = responsibility(topic, inspected.label)
+                    const duties = responsibilitiesOf(description)
+                    const tech = technologiesOf(inspected.label, description)
+                    return (
+                      <>
+                        <header>
+                          <span className="ip-icon">
+                            <Icon size={22} />
+                          </span>
+                          <strong>{inspected.label}</strong>
+                          <button type="button" className="icon-btn" onClick={() => setSelected(null)} aria-label="Close inspector">
+                            <X size={16} />
+                          </button>
+                        </header>
+                        <p className="ip-text">{description ?? 'One of the building blocks of this design; its connections are below.'}</p>
+                        {duties.length > 1 && (
+                          <>
+                            <h4>Key responsibilities</h4>
+                            <ul className="ip-checks">
+                              {duties.map((d, i) => (
+                                <motion.li key={d} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 + i * 0.05 }}>
+                                  <Check size={14} /> {d}
+                                </motion.li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                        {tech.length > 0 && (
+                          <>
+                            <h4>Technologies</h4>
+                            <div className="ip-chips">
+                              {tech.map((t) => (
+                                <span key={t}>{t}</span>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                        {inspectedIn.length > 0 && (
+                          <dl>
+                            <dt>Called by</dt>
+                            <dd>{inspectedIn.map((e) => `${labelOf(e.from)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
+                          </dl>
+                        )}
+                        {inspectedOut.length > 0 && (
+                          <dl>
+                            <dt>Calls</dt>
+                            <dd>{inspectedOut.map((e) => `${labelOf(e.to)}${e.label ? ` (${e.label})` : ''}`).join(', ')}</dd>
+                          </dl>
+                        )}
+                        {inspectedSteps.length > 0 && (
+                          <div className="inspector-steps">
+                            <span>In the walkthrough:</span>
+                            {inspectedSteps.map((i) => (
+                              <button key={i} type="button" onClick={() => (setTab('walk'), setWalk({ index: i, playing: false }))}>
+                                step {i + 1}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {diagramView === 'architecture' && (
+                          <>
+                            <button type="button" className={`btn ${failed.has(inspected.id) ? 'btn-ghost is-on' : 'btn-danger'}`} onClick={() => toggleFailure(inspected.id)}>
+                              <Power size={15} /> {failed.has(inspected.id) ? 'Bring it back' : isCache(inspected.label) ? 'Turn the cache off' : 'Simulate failure'}
+                            </button>
+                            {failed.has(inspected.id) && <p className="inspector-impact">{failureEffect(inspected.label, inspectedSteps.length, steps.length)}</p>}
+                          </>
+                        )}
+                      </>
+                    )
+                  })()}
+                </motion.aside>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {steps.length > 0 && (
+            <footer className="step-player" aria-live="polite">
+              <motion.button
+                type="button"
+                className="sp-play"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => (walk ? setWalk({ ...walk, playing: !walk.playing }) : startWalk())}
+                aria-label={walk?.playing ? 'Pause' : 'Play the walkthrough'}
+              >
+                {walk?.playing ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
+              </motion.button>
+              <div className="sp-info">
+                <div className="sp-head">
+                  <span>
+                    Step {(walk?.index ?? 0) + 1}/{steps.length}
+                  </span>
+                  <AnimatePresence mode="wait">
+                    <motion.strong key={walk?.index ?? -1} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+                      {stepTitle(steps[walk?.index ?? 0])}
+                    </motion.strong>
+                  </AnimatePresence>
+                </div>
+                <div className="sp-progress">
+                  <motion.span animate={{ width: `${(((walk?.index ?? -1) + 1) / steps.length) * 100}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
+                </div>
+              </div>
+              <p className="sp-text">
+                {walk && now.speaking && now.source === `step:${topic.id}:${walk.index}` && now.sentences[now.sentence] ? (
+                  <Karaoke sentence={now.sentences[now.sentence]} word={now.word} />
+                ) : walk ? (
+                  steps[walk.index].text
+                ) : (
+                  `Follow one real request through ${topic.title}, step by step: ${trace?.input}.`
                 )}
-              </aside>
-            )}
-            {step && walk && (
-              <div className="walk-caption" aria-live="polite">
-                <span className="walk-count">
-                  {walk.index + 1}/{steps.length}
-                </span>
-                <p>
-                  {now.speaking && now.source === `step:${topic.id}:${walk.index}` && now.sentences[now.sentence] ? (
-                    <Karaoke sentence={now.sentences[now.sentence]} word={now.word} />
-                  ) : (
-                    step.text
-                  )}
-                </p>
                 {downInStep.length > 0 && (
-                  <p className="walk-broken">
+                  <span className="walk-broken">
                     <AlertTriangle size={15} /> {downInStep.join(', ')} {downInStep.length > 1 ? 'are' : 'is'} down: this step{' '}
                     {downInStep.every(isCache) ? 'falls back to the slower path' : 'fails'}.
-                  </p>
+                  </span>
                 )}
-                <div className="walk-buttons">
-                  <button type="button" onClick={() => setWalk({ index: Math.max(0, walk.index - 1), playing: false })} disabled={walk.index === 0} aria-label="Previous step">
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button type="button" onClick={() => setWalk({ ...walk, playing: !walk.playing })} aria-label={walk.playing ? 'Pause' : 'Play'}>
-                    {walk.playing ? <Pause size={16} /> : <Play size={16} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setWalk({ index: Math.min(steps.length - 1, walk.index + 1), playing: false })}
-                    disabled={walk.index === steps.length - 1}
-                    aria-label="Next step"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                  <button type="button" onClick={() => setWalk(null)} aria-label="Stop walkthrough">
+              </p>
+              <div className="sp-nav">
+                <button
+                  type="button"
+                  className="icon-btn"
+                  onClick={() => walk && setWalk({ index: Math.max(0, walk.index - 1), playing: false })}
+                  disabled={!walk || walk.index === 0}
+                  aria-label="Previous step"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => (walk ? setWalk({ index: Math.min(steps.length - 1, walk.index + 1), playing: false }) : setWalk({ index: 0, playing: false }))}
+                  disabled={Boolean(walk) && walk!.index === steps.length - 1}
+                >
+                  {walk ? 'Next step' : 'Step through'} <ChevronRight size={16} />
+                </button>
+                <select className="sp-speed" value={walkSpeed} onChange={(e) => setWalkSpeed(Number(e.target.value))} aria-label="Walkthrough speed">
+                  {SPEEDS.map((x) => (
+                    <option key={x} value={x}>
+                      {x}×
+                    </option>
+                  ))}
+                </select>
+                {walk && (
+                  <button type="button" className="icon-btn" onClick={() => setWalk(null)} aria-label="Stop walkthrough">
                     <Square size={14} />
                   </button>
-                </div>
+                )}
               </div>
-            )}
-            {(tour === 'intro' || tour === 'outro') && (
-              <div className="walk-caption voice-caption" aria-live="polite">
-                <span className="walk-count">
-                  <Headphones size={14} />
+            </footer>
+          )}
+
+          <div className="facts">
+            {[
+              { icon: Cpu, title: 'Components', text: `${topic.architecture.nodes.length} parts, tap one to inspect it` },
+              { icon: Route, title: 'Data flow', text: steps.length ? `${steps.length}-step animated request` : 'Follow the arrows' },
+              { icon: MousePointerClick, title: 'Interactive', text: 'Switch parts off and see what breaks' },
+              {
+                icon: Footprints,
+                title: topic.adaptedFrom ? 'Real world' : 'Go deeper',
+                text: topic.adaptedFrom ? `Based on ${topic.adaptedFrom.author.split(',').pop()?.trim()}` : `${topic.guides?.length ?? 0} further readings`,
+              },
+            ].map((f, i) => (
+              <motion.div key={f.title} className="fact" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.07 }}>
+                <span className="fact-icon">
+                  <f.icon size={20} />
                 </span>
-                <p>{tour === 'intro' ? explanation.summary : `Key takeaways: ${topic.takeaways[0]}`}</p>
-                <div className="walk-buttons">
-                  <button type="button" onClick={() => void startTour()} aria-label="Stop the voice guide">
-                    <Square size={14} />
-                  </button>
-                </div>
-              </div>
-            )}
-            {!walk && tour === 'off' && steps.length > 0 && (
-              <button type="button" className="btn btn-primary walk-start" onClick={() => startWalk()}>
-                <Footprints size={16} /> Walk me through it
-              </button>
-            )}
+                <span>
+                  <strong>{f.title}</strong>
+                  <small>{f.text}</small>
+                </span>
+              </motion.div>
+            ))}
           </div>
         </section>
 

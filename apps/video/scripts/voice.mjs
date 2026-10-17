@@ -5,7 +5,7 @@
 //   npm run voice -w @structura/video                  (every video)
 //   npm run voice -w @structura/video -- uber-surge    (one video)
 //   npm run voice -w @structura/video -- --voice=Ravi  (another installed voice)
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -37,6 +37,24 @@ function voiceVideo(video) {
   mkdirSync(outDir, { recursive: true })
 
   const manifest = { voice, lines: {} }
+
+  // Kokoro (open-weight, runs anywhere Python does): every line in one model load.
+  if (narration.engine === 'kokoro') {
+    const lines = Object.values(narration.scenes).flat().map((l) => ({ id: l.id, text: l.say ?? l.text }))
+    const python = join(root, process.platform === 'win32' ? '.venv/Scripts/python.exe' : '.venv/bin/python')
+    const run = spawnSync(python, [join(root, 'scripts/kokoro_speak.py'), '--voice', voice, '--speed', String(narration.speed ?? 1), '--out-dir', outDir], {
+      input: JSON.stringify(lines),
+      encoding: 'utf8',
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+      stdio: ['pipe', 'pipe', 'inherit'],
+    })
+    if (run.status !== 0) throw new Error(`Kokoro failed for ${video}`)
+    manifest.lines = JSON.parse(run.stdout.trim().split('\n').at(-1))
+    writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
+    console.log(`\n${video}: ${lines.length} lines voiced by Kokoro ${voice} → public/voice/${video}/\n`)
+    return
+  }
+
   const textFile = join(outDir, '.line.txt')
   for (const lines of Object.values(narration.scenes)) {
     for (const line of lines) {

@@ -1,4 +1,4 @@
-// Builds src/topics/library.json, Structura's syllabus, from two sources:
+// Builds src/topics/library.json, Structura's syllabus, from several sources:
 //
 // - ByteByteGo's System Design 101 (github.com/ByteByteGoHq/system-design-101),
 //   CC BY-NC-ND 4.0 (no derivatives): only each guide's title, categories, tags
@@ -128,6 +128,54 @@ const diagrams = diagramFolders.map((folder) => ({
   url: `${DIAGRAMS}/tree/HEAD/${encodeURIComponent(folder)}`,
 }))
 
+// ─── awesome-scalability (MIT): its curated reading list, by section ───
+
+const SCALABILITY = 'https://github.com/binhnguyennus/awesome-scalability'
+const scalabilityReadme = await text('https://raw.githubusercontent.com/binhnguyennus/awesome-scalability/master/README.md')
+const scalabilitySections = []
+const scalabilityLinks = []
+let section = null
+let subsection = null
+for (const line of scalabilityReadme.split(/\r?\n/)) {
+  const heading = line.match(/^## (.+)$/)
+  if (heading) {
+    section = /^(Content|A Piece of Cake)$/.test(heading[1]) ? null : heading[1].trim()
+    subsection = null
+    if (section) scalabilitySections.push(section)
+    continue
+  }
+  if (!section) continue
+  const link = line.match(/^\s*\* \[([^\]]+)\]\((https?:[^)\s]+)\)/)
+  if (link) {
+    const id = `scalability-${anchor(section)}`
+    // Slugs come from the title (not the position) so links to them survive list changes.
+    let slug = `scale-${anchor(link[1]).slice(0, 70).replace(/-+$/, '')}`
+    while (scalabilityLinks.some((l) => l.slug === slug)) slug += '-2'
+    scalabilityLinks.push({
+      slug,
+      title: link[1].trim(),
+      categories: [id],
+      tags: subsection ? [subsection] : [],
+      url: link[2],
+    })
+  } else {
+    // A bullet without a link names a group of links under it ("* Load Balancing").
+    const group = line.match(/^\s*\* ([^[].*)$/)
+    if (group) subsection = group[1].trim()
+  }
+}
+
+// ─── Projects and tutorials worth knowing (linked; licences noted) ───
+
+const references = [
+  { slug: 'ref-apache-kafka-docs', title: 'Apache Kafka documentation: design and implementation', url: 'https://kafka.apache.org/documentation/#design', tags: ['Kafka', 'Apache 2.0'] },
+  { slug: 'ref-apache-kafka', title: 'Apache Kafka source code', url: 'https://github.com/apache/kafka', tags: ['Kafka', 'Apache 2.0'] },
+  { slug: 'ref-kafka-nodejs-tutorial', title: 'Kafka with Node.js and Docker: a sample application', url: 'https://github.com/billonline33/kafka-nodejs-tutorial', tags: ['Kafka', 'Node.js'] },
+  { slug: 'ref-docker-curriculum', title: 'Docker for beginners: a comprehensive tutorial', url: 'https://docker-curriculum.com/', tags: ['Docker', 'MIT'] },
+  { slug: 'ref-awesome-system-design-resources', title: 'Awesome system design resources (free interview prep)', url: 'https://github.com/ashishps1/awesome-system-design-resources', tags: ['Interviews', 'GPL-3.0'] },
+  { slug: 'ref-awesome-scalability', title: 'Awesome Scalability: patterns of large-scale systems', url: SCALABILITY, tags: ['Scalability', 'MIT'] },
+].map((r) => ({ ...r, categories: ['references'], source: 'references' }))
+
 writeFileSync(
   out,
   `${JSON.stringify(
@@ -137,17 +185,23 @@ writeFileSync(
         primer: { name: 'System Design Primer (Donne Martin)', repo: PRIMER_URL, license: 'CC BY 4.0: topics adapted from it credit it.' },
         course: { name: 'System Design 101 course (Mominur Rahman)', repo: 'https://github.com/mominurr/system-design-101', license: 'MIT: quiz and glossary reused with its notice.' },
         diagrams: { name: 'System design diagrams (Chaki34)', repo: DIAGRAMS, license: 'No licence given: linked only.' },
+        scalability: { name: 'Awesome Scalability (Binh Nguyen)', repo: SCALABILITY, license: 'MIT: the curated list of titles and links; each article belongs to its author.' },
+        references: { name: 'Projects and tutorials', repo: 'https://kafka.apache.org/', license: 'Linked; each keeps its own licence (Kafka Apache 2.0, docker-curriculum MIT, awesome-system-design-resources GPL-3.0, link only).' },
       },
       categories: [
         { id: 'primer-concepts', title: 'Core concepts (Primer)', sort: 0, source: 'primer' },
         { id: 'primer-solutions', title: 'Worked designs (Primer)', sort: 1, source: 'primer' },
         ...categories.map((c) => ({ ...c, source: 'bytebytego' })),
+        ...scalabilitySections.map((title, i) => ({ id: `scalability-${anchor(title)}`, title: `Scalability reading: ${title}`, sort: 5000 + i, source: 'scalability' })),
+        { id: 'references', title: 'Projects and tutorials', sort: 9000, source: 'references' },
         { id: 'community-diagrams', title: 'Community diagrams', sort: 9999, source: 'diagrams' },
       ],
       guides: [
         ...concepts.map((g) => ({ ...g, source: 'primer' })),
         ...solutions.map((g) => ({ ...g, source: 'primer' })),
         ...guides.map((g) => ({ ...g, source: 'bytebytego', url: `https://bytebytego.com/guides/${encodeURIComponent(g.slug)}/` })),
+        ...references,
+        ...scalabilityLinks.map((g) => ({ ...g, source: 'scalability' })),
         ...diagrams.map((g) => ({ ...g, source: 'diagrams' })),
       ],
     },
@@ -155,4 +209,4 @@ writeFileSync(
     1,
   )}\n`,
 )
-console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${diagrams.length} diagram sets → src/topics/library.json`)
+console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${references.length} references, ${diagrams.length} diagram sets → src/topics/library.json`)

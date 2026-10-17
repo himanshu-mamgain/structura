@@ -1,0 +1,394 @@
+{
+ "id": "twitter-timeline",
+ "title": "Twitter Timeline & Search",
+ "blurb": "Fan-out on write, celebrity merge at read time, caching and search",
+ "difficulty": "Intermediate",
+ "summary": "Users post tweets, read a home timeline built from everyone they follow, and search. Reads dwarf writes, so the home timeline is precomputed: each new tweet is pushed into followers' timelines in memory (fan-out on write), except for celebrities, whose tweets are merged in when a timeline is read.",
+ "width": 2050.5,
+ "height": 2063,
+ "groups": [
+  {
+   "id": "api",
+   "label": "API servers",
+   "x": 50,
+   "y": 667,
+   "w": 794,
+   "h": 192
+  },
+  {
+   "id": "services",
+   "label": "Services",
+   "x": 254,
+   "y": 1117,
+   "w": 1369.5,
+   "h": 504
+  },
+  {
+   "id": "data",
+   "label": "Storage",
+   "x": 71.5,
+   "y": 1879,
+   "w": 1104,
+   "h": 172
+  }
+ ],
+ "nodes": [
+  {
+   "id": "client",
+   "label": "Client",
+   "color": "blue",
+   "shape": "ellipse",
+   "subtitle": null,
+   "x": 228,
+   "y": 12,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "web",
+   "label": "Web Server",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "A reverse proxy in front of…",
+   "x": 228,
+   "y": 330,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "write",
+   "label": "Write API",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "Stateless servers for the…",
+   "x": 332,
+   "y": 723,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "read",
+   "label": "Read API",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 582,
+   "y": 732.3333333333334,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "searchapi",
+   "label": "Search API",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 82,
+   "y": 730,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "fanout",
+   "label": "Fan Out Service",
+   "color": "orange",
+   "shape": "rectangle",
+   "subtitle": "Turns one tweet into N…",
+   "x": 630.1666666666666,
+   "y": 1173,
+   "w": 241,
+   "h": 84
+  },
+  {
+   "id": "graph",
+   "label": "User Graph Service",
+   "color": "light-violet",
+   "shape": "rectangle",
+   "subtitle": "Who follows whom",
+   "x": 696.5,
+   "y": 1505,
+   "w": 269,
+   "h": 84
+  },
+  {
+   "id": "timeline",
+   "label": "Timeline Service",
+   "color": "light-violet",
+   "shape": "rectangle",
+   "subtitle": "Builds the response from…",
+   "x": 1274,
+   "y": 1173,
+   "w": 250,
+   "h": 84
+  },
+  {
+   "id": "tweetinfo",
+   "label": "Tweet Info Service",
+   "color": "light-violet",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 1042.5,
+   "y": 1505,
+   "w": 269,
+   "h": 70
+  },
+  {
+   "id": "userinfo",
+   "label": "User Info Service",
+   "color": "light-violet",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 1331.5,
+   "y": 1505,
+   "w": 260,
+   "h": 70
+  },
+  {
+   "id": "notify",
+   "label": "Notification Service",
+   "color": "yellow",
+   "shape": "rectangle",
+   "subtitle": "Sends pushes and emails off…",
+   "x": 366,
+   "y": 1505,
+   "w": 288,
+   "h": 84
+  },
+  {
+   "id": "cache",
+   "label": "Memory Cache (Redis)",
+   "color": "red",
+   "shape": "rectangle",
+   "subtitle": "Each home timeline is a list…",
+   "x": 605.5,
+   "y": 1935,
+   "w": 288,
+   "h": 84
+  },
+  {
+   "id": "sql",
+   "label": "SQL Database",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "The source of truth for…",
+   "x": 913.5,
+   "y": 1935,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "objects",
+   "label": "Object Store",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Photos and video",
+   "x": 355.5,
+   "y": 1935,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "search",
+   "label": "Search Cluster",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "An inverted index",
+   "x": 103.5,
+   "y": 1935,
+   "w": 232,
+   "h": 84
+  }
+ ],
+ "edges": [
+  {
+   "from": "client",
+   "to": "web",
+   "label": "HTTPS",
+   "dashed": false
+  },
+  {
+   "from": "web",
+   "to": "write",
+   "label": "POST /tweet",
+   "dashed": false
+  },
+  {
+   "from": "web",
+   "to": "read",
+   "label": "GET /home_timeline",
+   "dashed": false
+  },
+  {
+   "from": "web",
+   "to": "searchapi",
+   "label": "GET /search",
+   "dashed": false
+  },
+  {
+   "from": "write",
+   "to": "sql",
+   "label": "user timeline",
+   "dashed": false
+  },
+  {
+   "from": "write",
+   "to": "fanout",
+   "label": "fan out",
+   "dashed": false
+  },
+  {
+   "from": "fanout",
+   "to": "graph",
+   "label": "who follows?",
+   "dashed": false
+  },
+  {
+   "from": "graph",
+   "to": "cache",
+   "label": "follower lists",
+   "dashed": true
+  },
+  {
+   "from": "fanout",
+   "to": "cache",
+   "label": "push to home timelines",
+   "dashed": false
+  },
+  {
+   "from": "fanout",
+   "to": "search",
+   "label": "index tweet",
+   "dashed": false
+  },
+  {
+   "from": "fanout",
+   "to": "objects",
+   "label": "media",
+   "dashed": true
+  },
+  {
+   "from": "fanout",
+   "to": "notify",
+   "label": "notify followers",
+   "dashed": true
+  },
+  {
+   "from": "read",
+   "to": "timeline",
+   "label": "home timeline",
+   "dashed": false
+  },
+  {
+   "from": "timeline",
+   "to": "cache",
+   "label": "tweet + user ids",
+   "dashed": false
+  },
+  {
+   "from": "timeline",
+   "to": "tweetinfo",
+   "label": "multiget tweets",
+   "dashed": false
+  },
+  {
+   "from": "timeline",
+   "to": "userinfo",
+   "label": "multiget users",
+   "dashed": false
+  },
+  {
+   "from": "read",
+   "to": "sql",
+   "label": "user timeline",
+   "dashed": true
+  },
+  {
+   "from": "searchapi",
+   "to": "search",
+   "label": "scatter-gather",
+   "dashed": false
+  }
+ ],
+ "steps": [
+  {
+   "title": "Client → Web Server",
+   "text": "@devnews posts a tweet. The Client sends it to the Web Server (a reverse proxy), which forwards it to the Write API.",
+   "nodes": [
+    "Client",
+    "Web Server",
+    "Write API"
+   ],
+   "data": "POST /api/v1/tweet\n{\n  \"user_id\": \"204\",\n  \"status\": \"hello world!\",\n  \"media_ids\": \"ABC987\"\n}"
+  },
+  {
+   "title": "Write API → SQL Database",
+   "text": "The Write API saves the tweet to the author's own timeline in the SQL Database. That is the user timeline: the author's own tweets, in order.",
+   "nodes": [
+    "Write API",
+    "SQL Database"
+   ],
+   "data": "INSERT INTO tweets (tweet_id, user_id, text, created_at)\nVALUES (1849302284, 204, 'hello world!', now());"
+  },
+  {
+   "title": "Object Store",
+   "text": "Media goes to the Object Store, not the database: a tweet row stays small, and photos and videos are served from cheap blob storage (usually behind a CDN).",
+   "nodes": [
+    "Object Store"
+   ],
+   "data": "PUT s3://tweet-media/ABC987.jpg  (≈ 10 KB average per tweet incl. media)"
+  },
+  {
+   "title": "Write API → Fan Out Service",
+   "text": "The Write API hands the tweet to the Fan Out Service, which asks the User Graph Service who follows the author. The follower lists live in the Memory Cache.",
+   "nodes": [
+    "Write API",
+    "Fan Out Service",
+    "User Graph Service"
+   ],
+   "data": "followers(204) → 12,000 user ids"
+  },
+  {
+   "title": "Fan-out on write",
+   "text": "Fan-out on write: the tweet id is pushed onto the home timeline of each of the 12,000 followers in the Memory Cache. It is O(n): 12,000 followers means 12,000 inserts, and each list is trimmed to its newest 800.",
+   "nodes": [
+    "Fan Out Service",
+    "Memory Cache (Redis)"
+   ],
+   "data": "# for each follower f (pipelined, batched)\nLPUSH home:<f> \"1849302284:204:0\"\nLTRIM home:<f> 0 799\n\n→ 12,000 list writes"
+  },
+  {
+   "title": "Fan Out Service → Search Cluster",
+   "text": "The tweet is added to the Search Cluster so keyword searches can find it within seconds.",
+   "nodes": [
+    "Fan Out Service",
+    "Search Cluster"
+   ],
+   "data": "index tweets/1849302284 { \"text\": \"hello world!\", \"user_id\": 204 }"
+  },
+  {
+   "title": "Fan Out Service → Notification Service",
+   "text": "Notifications go out through the Notification Service, which works off a queue so a slow push or email provider never delays the post.",
+   "nodes": [
+    "Fan Out Service",
+    "Notification Service"
+   ],
+   "data": "{\n  \"type\": \"new_tweet\",\n  \"tweet_id\": \"1849302284\",\n  \"to\": \"followers with notifications on\"\n}"
+  },
+  {
+   "title": "Write API → Client",
+   "text": "The author gets a response as soon as the tweet is saved; fan-out, indexing and notifications carry on in the background.",
+   "nodes": [
+    "Write API",
+    "Client"
+   ],
+   "data": "HTTP/1.1 201 Created\n{\n  \"tweet_id\": \"1849302284\",\n  \"user_id\": \"204\",\n  \"status\": \"hello world!\"\n}"
+  }
+ ],
+ "takeaways": [
+  "The home timeline is read far more than tweets are written, so build it ahead of time: fan out on write.",
+  "Fan-out is O(followers): fine for most users, far too slow for celebrities.",
+  "Skip fan-out for accounts with millions of followers and merge their tweets in at read time.",
+  "Keep timelines in memory, only the newest few hundred tweets, and only for active users."
+ ],
+ "credit": "Adapted from Design the Twitter timeline and search, Donne Martin, System Design Primer (CC BY 4.0)"
+}

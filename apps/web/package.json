@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "export:videos": "tsx scripts/export-videos.ts",
+    "lessons": "tsx scripts/lessons.ts",
+    "library": "node scripts/kb-sync.mjs"
   },
   "dependencies": {
     "@structura/sim": "^0.0.0",

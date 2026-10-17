@@ -8,8 +8,9 @@ static site from `main`: https://structura-web.netlify.app
 
 ## Hard rules
 
-- **No AI and no backend at runtime.** Everything runs in the browser. Don't add
-  API calls, servers, API keys or LLM features to the app. (`apps/server` was
+- **No LLMs and no backend at runtime.** Everything runs in the browser. Don't add
+  API calls, servers, API keys or LLM features to the app. On-device speech is fine
+  (the voice assistant runs Kokoro in a Web Worker; its "brain" is search, not AI). (`apps/server` was
   deleted on purpose; a Render build failing on `@structura/server` is expected.)
 - **Work on a branch and open a pull request. Never push to `main`.** Netlify
   makes a deploy preview for each PR; the owner reviews it on their phone and merges.
@@ -43,7 +44,7 @@ npm install
 npm run typecheck                  # all workspaces; must pass
 npm run build -w @structura/web    # production build; must pass before a PR
 npm run dev                        # local dev server (port 5173)
-node apps/web/scripts/kb-sync.mjs  # refresh library.json from the sources
+npm run library -w @structura/web  # refresh library.json from the sources
 ```
 
 ## Adding a topic (the common request)
@@ -80,7 +81,8 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
 2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`).
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
-5. **Open a PR** titled `feat: add <title> topic`, saying what the walkthrough and
+5. **Make its video and audio lesson** (see below) if the Kokoro setup is available.
+6. **Open a PR** titled `feat: add <title> topic`, saying what the walkthrough and
    simulator show and which source it is based on (with licence).
 
 Numbers in examples must be correct: compute them (base62 codes, capacity
@@ -94,22 +96,39 @@ estimates, hashes) rather than guessing. Use realistic example data.
 | [ByteByteGo System Design 101](https://github.com/ByteByteGoHq/system-design-101) | CC BY-NC-ND 4.0 | Titles and links only. No text, diagrams or descriptions |
 | [mominurr/system-design-101](https://github.com/mominurr/system-design-101) | MIT | Quiz and glossary reused with the notice in `public/licenses/` |
 | [Chaki34/system-design-diagrams](https://github.com/Chaki34/system-design-diagrams) | none | Links only |
+| [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) | MIT | Its reading list (titles and links) is in the library; the articles belong to their authors |
+| [Apache Kafka](https://github.com/apache/kafka) docs | Apache 2.0 | May be adapted, with credit |
+| [docker-curriculum](https://github.com/prakhar1989/docker-curriculum) | MIT | May be adapted, with credit |
+| [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) | GPL-3.0 | **Link only**: copying would make Structura's code GPL |
+| [kafka-nodejs-tutorial](https://github.com/billonline33/kafka-nodejs-tutorial) | none | Link only |
 
 Otherwise, write topics from your own knowledge. The library (`library.json`)
 is the syllabus: topics not yet built are good candidates.
 
-## Videos
+## Videos and audio lessons
 
-Narration is generated with Windows' built-in voices (`apps/video/scripts/voice.mjs`
-uses PowerShell), so **videos can't be made in a cloud session**. Add topics
-without `video`/`chapters`; the owner renders videos locally:
+Narration uses **Kokoro** (open-weight TTS, Apache 2.0) from `apps/video/.venv`, so it
+works on Linux cloud sessions too. One-time setup (Python 3.10 to 3.12):
 
 ```bash
-npm run voice -w @structura/video -- <video-id>   # Windows only
-npm run render:<name> -w @structura/video          # writes apps/web/public/videos/<id>.mp4
-npm run thumbs -w @structura/video                 # poster images
-cd apps/video && npx tsx scripts/chapters.ts       # chapter start times (add the video to its list first)
+cd apps/video
+uv venv .venv --python 3.12        # or: python3.12 -m venv .venv
+uv pip install --python .venv torch --index-url https://download.pytorch.org/whl/cpu
+uv pip install --python .venv "kokoro>=0.9.4" soundfile pip
 ```
+
+The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
+`apps/video/scripts/measure_voices.py`), loudness -14 LUFS.
+
+- **Topic videos (automatic):** every topic without a hand-made video gets one.
+  After adding a topic: `npm run export:videos -w @structura/web`, then
+  `npm run topics -w @structura/video` (voices, renders `public/videos/<id>.mp4`,
+  makes the thumbnail and chapters, and registers it in `src/topics/videos.json`).
+  Rendering takes a few minutes per video; videos are committed.
+- **Commute-mode audio lessons:** `npm run lessons -w @structura/web -- <topic-id>`
+  writes `public/lessons/<id>/*.m4a` and `src/learn/lessons.json`.
+- **Hand-made videos** (URL shortener, RBAC, Uber, Docker) live in `apps/video/src/*.tsx`;
+  their narration still uses Windows voices (`npm run voice`), Windows only.
 
 ## Style
 

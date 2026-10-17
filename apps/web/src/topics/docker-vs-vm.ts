@@ -18,6 +18,7 @@ export const dockerVsVm: StaticTopic = {
     [89, "Recap"],
   ],
   guides: [
+    "ref-docker-curriculum",
     "primer-application-layer",
     "how-does-docker-work",
     "top-8-must-know-docker-concepts",

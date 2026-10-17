@@ -1,0 +1,343 @@
+{
+ "id": "kafka",
+ "title": "Kafka: Event Streaming",
+ "blurb": "Topics, partitions, consumer groups, replication and delivery guarantees",
+ "difficulty": "Intermediate",
+ "summary": "Kafka is a distributed, durable log. Producers append events to topics, which are split into partitions spread across brokers; consumers read them at their own pace and remember where they are with offsets. It decouples services, absorbs traffic spikes, and lets many systems react to the same events.",
+ "width": 1063.6666666666667,
+ "height": 2296,
+ "groups": [
+  {
+   "id": "cluster",
+   "label": "Kafka cluster",
+   "x": 12,
+   "y": 681,
+   "w": 789.5,
+   "h": 836
+  },
+  {
+   "id": "billing",
+   "label": "Group: billing",
+   "x": 40.666666666666686,
+   "y": 1775,
+   "w": 622,
+   "h": 172
+  },
+  {
+   "id": "analytics",
+   "label": "Group: analytics",
+   "x": 718.6666666666667,
+   "y": 1775,
+   "w": 333,
+   "h": 172
+  }
+ ],
+ "nodes": [
+  {
+   "id": "producer",
+   "label": "Producer (Order Service)",
+   "color": "blue",
+   "shape": "ellipse",
+   "subtitle": "Publishes events",
+   "x": 133.5,
+   "y": 12,
+   "w": 326,
+   "h": 84
+  },
+  {
+   "id": "partitioner",
+   "label": "Partitioner (hash of key)",
+   "color": "violet",
+   "shape": "diamond",
+   "subtitle": "Murmur2",
+   "x": 129,
+   "y": 344,
+   "w": 335,
+   "h": 84
+  },
+  {
+   "id": "b1",
+   "label": "Broker 1 · P0 leader",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Stores partitions and serves…",
+   "x": 357,
+   "y": 737,
+   "w": 288,
+   "h": 84
+  },
+  {
+   "id": "b2",
+   "label": "Broker 2 · P1 leader",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Also holds replicas of other…",
+   "x": 200.5,
+   "y": 1069,
+   "w": 288,
+   "h": 84
+  },
+  {
+   "id": "b3",
+   "label": "Broker 3 · P2 leader",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "The third broker",
+   "x": 44,
+   "y": 1401,
+   "w": 288,
+   "h": 84
+  },
+  {
+   "id": "controller",
+   "label": "KRaft Controller",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "Tracks brokers and elects a…",
+   "x": 508.5,
+   "y": 1069,
+   "w": 250,
+   "h": 84
+  },
+  {
+   "id": "offsets",
+   "label": "__consumer_offsets",
+   "color": "yellow",
+   "shape": "rectangle",
+   "subtitle": "An internal topic where each…",
+   "x": 352,
+   "y": 1401,
+   "w": 269,
+   "h": 84
+  },
+  {
+   "id": "c1",
+   "label": "Billing Consumer 1",
+   "color": "orange",
+   "shape": "rectangle",
+   "subtitle": "In the billing group",
+   "x": 361.6666666666667,
+   "y": 1831,
+   "w": 269,
+   "h": 84
+  },
+  {
+   "id": "c2",
+   "label": "Billing Consumer 2",
+   "color": "orange",
+   "shape": "rectangle",
+   "subtitle": "Owns partition 2",
+   "x": 72.66666666666669,
+   "y": 1831,
+   "w": 269,
+   "h": 84
+  },
+  {
+   "id": "analytics",
+   "label": "Analytics Consumer",
+   "color": "orange",
+   "shape": "rectangle",
+   "subtitle": "A separate group",
+   "x": 750.6666666666667,
+   "y": 1831,
+   "w": 269,
+   "h": 84
+  },
+  {
+   "id": "db",
+   "label": "Billing DB",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Where invoices are written",
+   "x": 298.00000000000006,
+   "y": 2200,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "dlq",
+   "label": "orders.DLQ (dead letters)",
+   "color": "red",
+   "shape": "rectangle",
+   "subtitle": "A topic for events that keep…",
+   "x": 687.8333333333334,
+   "y": 2200,
+   "w": 335,
+   "h": 84
+  }
+ ],
+ "edges": [
+  {
+   "from": "producer",
+   "to": "partitioner",
+   "label": "send(key, event)",
+   "dashed": false
+  },
+  {
+   "from": "partitioner",
+   "to": "b1",
+   "label": "P0",
+   "dashed": false
+  },
+  {
+   "from": "partitioner",
+   "to": "b2",
+   "label": "P1",
+   "dashed": false
+  },
+  {
+   "from": "partitioner",
+   "to": "b3",
+   "label": "P2",
+   "dashed": false
+  },
+  {
+   "from": "b1",
+   "to": "b2",
+   "label": "replicate",
+   "dashed": true
+  },
+  {
+   "from": "b2",
+   "to": "b3",
+   "label": "replicate",
+   "dashed": true
+  },
+  {
+   "from": "controller",
+   "to": "b1",
+   "label": "leader election",
+   "dashed": true
+  },
+  {
+   "from": "b1",
+   "to": "c1",
+   "label": "P0",
+   "dashed": false
+  },
+  {
+   "from": "b2",
+   "to": "c1",
+   "label": "P1",
+   "dashed": false
+  },
+  {
+   "from": "b3",
+   "to": "c2",
+   "label": "P2",
+   "dashed": false
+  },
+  {
+   "from": "b2",
+   "to": "analytics",
+   "label": "P0–P2",
+   "dashed": false
+  },
+  {
+   "from": "c1",
+   "to": "db",
+   "label": "idempotent write",
+   "dashed": false
+  },
+  {
+   "from": "c2",
+   "to": "db",
+   "label": "idempotent write",
+   "dashed": false
+  },
+  {
+   "from": "c1",
+   "to": "offsets",
+   "label": "commit offset",
+   "dashed": true
+  },
+  {
+   "from": "c2",
+   "to": "offsets",
+   "label": "commit offset",
+   "dashed": true
+  },
+  {
+   "from": "c1",
+   "to": "dlq",
+   "label": "poison message",
+   "dashed": true
+  }
+ ],
+ "steps": [
+  {
+   "title": "Producer (Order Service)",
+   "text": "The Order Service produces an \"order paid\" event to the orders topic, keyed by the order id, with acks=all.",
+   "nodes": [
+    "Producer (Order Service)"
+   ],
+   "data": "producer.send({ topic: 'orders', acks: -1 })\n{\n  \"key\": \"order-1001\",\n  \"value\": {\n    \"order_id\": \"order-1001\",\n    \"amount_inr\": 1499,\n    \"status\": \"PAID\"\n  }\n}"
+  },
+  {
+   "title": "Partitioner (hash of key)",
+   "text": "The partitioner hashes the key with murmur2 and takes it modulo 3: every event for order-1001 lands on partition 0, so they stay in order.",
+   "nodes": [
+    "Partitioner (hash of key)"
+   ],
+   "data": "murmur2(\"order-1001\") = 297523878\n(297523878 & 0x7fffffff) % 3 = 0\n→ partition 0, leader: Broker 1 · P0 leader"
+  },
+  {
+   "title": "Broker 1 · P0 leader",
+   "text": "Broker 1 · P0 leader appends the event to the end of partition 0's log at offset 48210. A partition is just an append-only file: writes are sequential, which is why Kafka is fast.",
+   "nodes": [
+    "Broker 1 · P0 leader"
+   ],
+   "data": "orders-0/00000000000000048000.log\n… 48209: { key: \"order-…\", … }\n  48210: {\"key\":\"order-1001\",\"value\":{\"order_id\":\"order-1001\",\"amount_inr\":1499,\"status\":\"PAID\"}}   ← new"
+  },
+  {
+   "title": "Broker 1 · P0 leader → Broker 2 · P1 leader",
+   "text": "With acks=all, the leader waits until the in-sync replicas (here Broker 2) have copied it, then confirms. min.insync.replicas=2 means two copies exist before the producer hears \"done\".",
+   "nodes": [
+    "Broker 1 · P0 leader",
+    "Broker 2 · P1 leader"
+   ],
+   "data": "replication.factor=3, min.insync.replicas=2\nISR(orders-0) = [1, 2, 3]\nack → producer after 2 of 3 replicas have offset 48210"
+  },
+  {
+   "title": "Billing Consumer 1",
+   "text": "In the billing group, partition 0 belongs to Billing Consumer 1. Each partition has exactly one consumer per group, so the order's events are handled in order, by one consumer.",
+   "nodes": [
+    "Billing Consumer 1"
+   ],
+   "data": "group billing: P0, P1 → Billing Consumer 1; P2 → Billing Consumer 2\npoll() → [offset 48210] order-1001"
+  },
+  {
+   "title": "Billing Consumer 1 → Billing DB",
+   "text": "Billing Consumer 1 creates the invoice in the Billing DB, idempotently, so a retry could never charge twice.",
+   "nodes": [
+    "Billing Consumer 1",
+    "Billing DB"
+   ],
+   "data": "INSERT INTO invoices (order_id, amount_inr) VALUES ('order-1001', 1499)\nON CONFLICT (order_id) DO NOTHING;"
+  },
+  {
+   "title": "Billing Consumer 1 → __consumer_offsets",
+   "text": "Then it commits offset 48211 to __consumer_offsets: \"next time, start after this event\".",
+   "nodes": [
+    "Billing Consumer 1",
+    "__consumer_offsets"
+   ],
+   "data": "{\n  \"group\": \"billing\",\n  \"topic\": \"orders\",\n  \"partition\": 0,\n  \"committed_offset\": 48211\n}"
+  },
+  {
+   "title": "Analytics Consumer",
+   "text": "Separately, the Analytics Consumer reads the same event at its own pace. Consumer groups don't take events away from each other: each group has its own offsets.",
+   "nodes": [
+    "Analytics Consumer"
+   ],
+   "data": "group analytics, orders-0: committed offset 45779 (it's behind, and that's fine)"
+  }
+ ],
+ "takeaways": [
+  "A topic is split into partitions: append-only logs spread across brokers.",
+  "The key decides the partition, and order is only guaranteed within a partition.",
+  "Each partition goes to one consumer per group; more partitions means more parallel consumers.",
+  "acks=all with min.insync.replicas=2 is what keeps a broker crash from losing events."
+ ],
+ "credit": null
+}

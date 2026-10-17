@@ -7,6 +7,7 @@ export function speakable(text: string): string {
   return text
     .replace(/^\s*[-•*]\s+/gm, '')
     .replace(/^\s*(\d+)\.\s+/gm, '$1: ')
+    .replace(/\s·\s/g, ', ')
     .replace(/→/g, ' to ')
     .replace(/≈/g, ' about ')
     .replace(/≥/g, ' at least ')
