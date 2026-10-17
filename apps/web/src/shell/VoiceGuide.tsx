@@ -1,27 +1,83 @@
 import { useState } from 'react'
-import { CalendarCheck, Headphones, Play, Settings2, Square } from 'lucide-react'
+import { CalendarCheck, Download, Headphones, Play, Settings2, Square } from 'lucide-react'
 import { useProgress } from '../learn/progress'
-import { setSpeechSettings, speak, speechSupported, stopSpeaking, useSpeechSettings, useVoices } from '../learn/speech'
+import { NATURAL_VOICES, prepareNaturalVoice, setSpeechSettings, speak, type SpeechSettings, speechSupported, stopSpeaking, useNaturalVoice, useSpeechSettings, useVoices } from '../learn/speech'
 import { planToday } from '../learn/today'
 import course from '../learn/course.json'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 
-/** Voice and speed for the voice guide, from the voices installed on this device. */
+/**
+ * Voice settings: the natural voice (Kokoro, downloaded once and kept on the
+ * device) or the device's own voices, plus speed and the listening language.
+ */
 export function VoiceSettings() {
   const voices = useVoices()
   const settings = useSpeechSettings()
+  const natural = useNaturalVoice()
   if (!speechSupported) return <p className="voice-note">This browser can't speak. Try Chrome, Edge or Safari.</p>
+  const useNatural = settings.engine === 'natural'
   return (
     <div className="voice-settings">
+      <div className="seg" role="group" aria-label="Voice type">
+        <button type="button" aria-pressed={useNatural} onClick={() => setSpeechSettings({ engine: 'natural' })}>
+          Natural voice
+        </button>
+        <button type="button" aria-pressed={!useNatural} onClick={() => setSpeechSettings({ engine: 'device' })}>
+          Device voice
+        </button>
+      </div>
+      {useNatural && natural.status !== 'ready' && (
+        <div className="natural-download">
+          {natural.status === 'downloading' ? (
+            <>
+              <span className="progress-bar">
+                <span style={{ width: `${natural.progress}%` }} />
+              </span>
+              <span>Downloading the natural voice… {Math.round(natural.progress)}%</span>
+            </>
+          ) : (
+            <>
+              <span>
+                {natural.status === 'error' ? 'The download failed. ' : ''}A human-sounding voice (Kokoro) that runs on your device and keeps playing in the
+                background. One-time download, about 90 MB.
+              </span>
+              <button type="button" className="btn btn-primary" onClick={prepareNaturalVoice}>
+                <Download size={15} /> {natural.status === 'error' ? 'Try again' : 'Download voice'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      {useNatural ? (
+        <label>
+          <span>Voice</span>
+          <select value={settings.naturalVoice} onChange={(e) => setSpeechSettings({ naturalVoice: e.target.value })}>
+            {NATURAL_VOICES.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <label>
+          <span>Voice</span>
+          <select value={settings.voiceURI ?? ''} onChange={(e) => setSpeechSettings({ voiceURI: e.target.value || null })}>
+            <option value="">Automatic (Indian English if available)</option>
+            {voices.map((v) => (
+              <option key={v.voiceURI} value={v.voiceURI}>
+                {v.name} · {v.lang}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label>
-        <span>Voice</span>
-        <select value={settings.voiceURI ?? ''} onChange={(e) => setSpeechSettings({ voiceURI: e.target.value || null })}>
-          <option value="">Automatic (Indian English if available)</option>
-          {voices.map((v) => (
-            <option key={v.voiceURI} value={v.voiceURI}>
-              {v.name} · {v.lang}
-            </option>
-          ))}
+        <span>I speak</span>
+        <select value={settings.listenLang} onChange={(e) => setSpeechSettings({ listenLang: e.target.value as SpeechSettings['listenLang'] })}>
+          <option value="en-IN">English (India)</option>
+          <option value="hi-IN">Hindi / Hinglish</option>
+          <option value="en-US">English (US)</option>
         </select>
       </label>
       <label>
@@ -34,7 +90,7 @@ export function VoiceSettings() {
           ))}
         </select>
       </label>
-      <button type="button" className="btn btn-ghost" onClick={() => void speak('Hi! This is how I sound. Let’s learn some system design.')}>
+      <button type="button" className="btn btn-ghost" onClick={() => void speak('Hi! This is how I sound. Let’s learn some system design.', { title: 'Voice test' })}>
         <Play size={14} /> Test
       </button>
     </div>
@@ -72,7 +128,7 @@ export function TodayCard({ onOpen }: { onOpen: (topic: StaticTopic) => void }) 
       return
     }
     setSpeaking(true)
-    await speak(plan.script)
+    await speak(plan.script, { source: 'today', title: "Today's pick" })
     setSpeaking(false)
   }
 

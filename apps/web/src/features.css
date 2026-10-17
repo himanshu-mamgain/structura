@@ -922,3 +922,425 @@ html {
   grid-column: 1 / -1 !important;
   flex-wrap: wrap !important;
 }
+
+/* ─── Voice assistant: orb, panel, caption, highlighting ─── */
+
+.orb {
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #a5b4fc, #6d6af8 45%, #0891b2);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(109, 106, 248, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  animation: orb-breathe 4s ease-in-out infinite;
+}
+
+.orb > svg,
+.orb-wave {
+  position: relative;
+  z-index: 1;
+}
+
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(165, 180, 252, 0.7);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.orb.is-speaking .orb-ring {
+  animation: orb-ripple 1.8s ease-out infinite;
+}
+
+.orb.is-speaking .orb-ring.is-2 {
+  animation-delay: 0.9s;
+}
+
+.orb.is-listening {
+  background: radial-gradient(circle at 30% 25%, #fecaca, #f43f5e 50%, #be123c);
+  box-shadow: 0 10px 30px rgba(244, 63, 94, 0.55);
+}
+
+.orb.is-listening .orb-ring {
+  border-color: rgba(254, 202, 202, 0.8);
+  animation: orb-ripple 1.2s ease-out infinite;
+}
+
+.orb-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+}
+
+.orb-wave span {
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: #fff;
+  transform-origin: center;
+  animation: orb-bar 0.9s ease-in-out infinite;
+}
+
+@keyframes orb-breathe {
+  50% {
+    box-shadow: 0 12px 38px rgba(34, 211, 238, 0.5), inset 0 0 22px rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes orb-ripple {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+@keyframes orb-bar {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Panel */
+
+.assistant-panel {
+  position: fixed;
+  right: 12px;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  left: 12px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  max-height: min(70dvh, 620px);
+  overflow: hidden;
+  border: 1px solid rgba(109, 106, 248, 0.45);
+  border-radius: 20px;
+  background: rgba(13, 18, 34, 0.97);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  animation: panel-in 0.22s ease-out;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+.assistant-panel > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.assistant-panel > header strong {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+}
+
+.assistant-panel > header .icon-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.assistant-panel .voice-settings {
+  margin: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.assistant-log {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 120px;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  animation: bubble-in 0.25s ease-out;
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.bubble.is-guide {
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  background: var(--card-2);
+}
+
+.bubble.is-you {
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+}
+
+.bubble.is-live {
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.bubble-from {
+  display: block;
+  margin-top: 6px;
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.assistant-suggestions {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.assistant-suggestions button {
+  flex: none;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.assistant-input {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.assistant-input input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.assistant-input .mic,
+.assistant-input .send {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.assistant-input .send:disabled {
+  opacity: 0.4;
+}
+
+.assistant-input .mic.is-on {
+  background: #f43f5e;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  50% {
+    box-shadow: 0 0 0 8px rgba(244, 63, 94, 0.25);
+  }
+}
+
+.natural-download {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed rgba(109, 106, 248, 0.5);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.natural-download .btn {
+  align-self: flex-start;
+}
+
+/* Karaoke: words light up as they're said */
+
+.karaoke span {
+  color: rgba(230, 233, 242, 0.42);
+  transition: color 0.18s;
+}
+
+.karaoke .is-said {
+  color: var(--text);
+}
+
+.karaoke .is-now {
+  display: inline-block;
+  color: #fff;
+  text-shadow: 0 0 18px rgba(103, 232, 249, 0.85);
+  background: linear-gradient(90deg, rgba(109, 106, 248, 0.55), rgba(34, 211, 238, 0.55));
+  border-radius: 6px;
+  animation: word-pop 0.28s ease-out;
+}
+
+@keyframes word-pop {
+  from {
+    transform: scale(1.18);
+  }
+}
+
+/* Floating caption: what's being said, on any page */
+
+.voice-caption-float {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 55;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  width: min(680px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 16px;
+  background: rgba(10, 14, 26, 0.94);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.45;
+  transform: translateX(-50%);
+  animation: caption-in 0.3s ease-out;
+}
+
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+}
+
+.voice-caption-title {
+  width: 100%;
+  color: #67e8f9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.voice-caption-float .karaoke {
+  flex: 1;
+  min-width: 0;
+}
+
+.voice-caption-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.voice-caption-controls button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--card-2);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Reading view: the section being read, sentence by sentence */
+
+.reading {
+  font-size: 16.5px;
+  line-height: 1.75;
+}
+
+.reading-done {
+  color: rgba(230, 233, 242, 0.55);
+  transition: color 0.4s;
+}
+
+.reading-next {
+  color: rgba(230, 233, 242, 0.35);
+}
+
+.reading-now {
+  padding: 2px 4px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(109, 106, 248, 0.22), rgba(34, 211, 238, 0.12)) no-repeat;
+  background-size: 100% 100%;
+  box-shadow: inset 3px 0 0 #67e8f9;
+  animation: sweep-in 0.5s ease-out;
+}
+
+@keyframes sweep-in {
+  from {
+    background-size: 0% 100%;
+  }
+}
+
+@media (min-width: 640px) {
+  .assistant-panel {
+    left: auto;
+    width: 400px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb,
+  .orb-ring,
+  .orb-wave span,
+  .karaoke .is-now,
+  .reading-now {
+    animation: none !important;
+  }
+}

@@ -6,6 +6,7 @@ import { InstallButton } from './pwa/InstallButton'
 import { Home } from './shell/Home'
 import { Glossary, Quiz } from './shell/Practice'
 import { TopicView } from './shell/TopicView'
+import { VoiceAssistant } from './shell/VoiceAssistant'
 import { topicIcon } from './shell/topicIcons'
 import { STATIC_TOPICS, type StaticTopic } from './topics'
 import { categoryTitle, LIBRARY } from './topics/library'
@@ -166,6 +167,7 @@ export default function App() {
           )}
         </main>
       </div>
+      <VoiceAssistant topic={topic} open={open} openPage={openPage} />
     </div>
   )
 }

@@ -7,7 +7,8 @@ import { failureEffect, responsibility, sameComponent, stepsThrough } from '../d
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
-import { speak, speechSupported, stopSpeaking } from '../learn/speech'
+import { speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/speech'
+import type { WalkCommand } from '../learn/assistant'
 import { erdToDiagram } from '../learn/erd'
 import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
@@ -15,6 +16,7 @@ import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
+import { Karaoke } from './VoiceAssistant'
 import { topicIcon } from './topicIcons'
 
 // The 3D city (three.js) and the load test (Rust/WASM simulator) load on first use.
@@ -108,12 +110,12 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     }
     if (tour === 'walk') {
       let current = true
-      void speak(`Step ${walk.index + 1}. ${step.text}`).then((done) => {
+      void speak(`Step ${walk.index + 1}. ${step.text}`, { source: `step:${topic.id}:${walk.index}`, title: topic.title }).then((done) => {
         if (!done || !current) return
         if (walk.index < steps.length - 1) setWalk((w) => w && { ...w, index: w.index + 1 })
         else {
           setTour('outro')
-          void speak(`That's the whole flow. Key takeaways. ${topic.takeaways.join(' ')}`).then(() => setTour('off'))
+          void speak(`That's the whole flow. Key takeaways. ${topic.takeaways.join(' ')}`, { source: `takeaways:${topic.id}`, title: topic.title }).then(() => setTour('off'))
         }
       })
       return () => {
@@ -133,7 +135,34 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   }, [walking, board3d, board])
 
   // Leaving the topic, or stopping the walkthrough mid-tour, ends the voice.
-  useEffect(() => stopSpeaking, [])
+  const tourRef = useRef(tour)
+  tourRef.current = tour
+  useEffect(
+    () => () => {
+      if (tourRef.current !== 'off') stopSpeaking()
+    },
+    [],
+  )
+
+  // The voice assistant drives the walkthrough with commands (see learn/assistant.ts).
+  useEffect(() => {
+    const onCommand = (e: Event) => {
+      const c = (e as CustomEvent<WalkCommand>).detail
+      if (c.cmd === 'tour') void startTourRef.current()
+      else if (c.cmd === 'start') startWalkRef.current(0)
+      else if (c.cmd === 'stop') {
+        stopSpeaking()
+        setTour('off')
+        setWalk(null)
+      } else if (c.cmd === 'step') setWalk({ index: Math.max(0, Math.min(steps.length - 1, c.index)), playing: tourRef.current === 'walk' })
+      else if (c.cmd === 'next') setWalk((w) => (w ? { ...w, index: Math.min(steps.length - 1, w.index + 1) } : { index: 0, playing: false }))
+      else if (c.cmd === 'back') setWalk((w) => (w ? { ...w, index: Math.max(0, w.index - 1) } : w))
+      else if (c.cmd === 'pause') setWalk((w) => w && { ...w, playing: false })
+      else if (c.cmd === 'resume') setWalk((w) => w && { ...w, playing: true })
+    }
+    window.addEventListener('structura:walk', onCommand)
+    return () => window.removeEventListener('structura:walk', onCommand)
+  }, [steps.length])
   useEffect(() => {
     if (!walk && tour === 'walk') {
       stopSpeaking()
@@ -141,6 +170,8 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     }
   }, [walk, tour])
 
+  const startTourRef = useRef<() => Promise<void>>(async () => {})
+  const startWalkRef = useRef<(from?: number) => void>(() => {})
   async function startTour() {
     if (tour !== 'off') {
       stopSpeaking()
@@ -152,7 +183,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     setTour('intro')
     setDiagramView('architecture')
     const intro = `${topic.title}. ${explanation.summary}${steps.length ? ` Let's follow one request through the design, step by step.` : ''}`
-    const done = await speak(intro)
+    const done = await speak(intro, { source: `topic:${topic.id}`, title: topic.title })
     if (!done) return
     if (steps.length) {
       setTour('walk')
@@ -199,6 +230,9 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
     })
   }
 
+  startTourRef.current = startTour
+  startWalkRef.current = startWalk
+  const now = useNowSpeaking()
   const step = walk ? steps[walk.index] : null
   const downInStep = step ? failedLabels.filter((l) => step.nodes.some((n) => sameComponent(n, l))) : []
   const focus = step && diagramView === 'architecture' ? step.nodes : null
@@ -392,7 +426,13 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                 <span className="walk-count">
                   {walk.index + 1}/{steps.length}
                 </span>
-                <p>{step.text}</p>
+                <p>
+                  {now.speaking && now.source === `step:${topic.id}:${walk.index}` && now.sentences[now.sentence] ? (
+                    <Karaoke sentence={now.sentences[now.sentence]} word={now.word} />
+                  ) : (
+                    step.text
+                  )}
+                </p>
                 {downInStep.length > 0 && (
                   <p className="walk-broken">
                     <AlertTriangle size={15} /> {downInStep.join(', ')} {downInStep.length > 1 ? 'are' : 'is'} down: this step{' '}
@@ -532,14 +572,18 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
                     <button
                       type="button"
                       className="listen-btn"
-                      onClick={() => void speak(`${explanation.sections[section].heading}. ${explanation.sections[section].body}`)}
+                      onClick={() => void speak(explanation.sections[section].body, { source: `section:${topic.id}:${section}`, title: `${topic.title}: ${explanation.sections[section].heading}` })}
                       title="Listen to this section"
                     >
                       <Volume2 size={16} />
                     </button>
                   )}
                 </h3>
-                <Body text={explanation.sections[section].body} />
+                {now.speaking && now.source === `section:${topic.id}:${section}` ? (
+                  <ReadingView sentences={now.sentences} current={now.sentence} word={now.word} />
+                ) : (
+                  <Body text={explanation.sections[section].body} />
+                )}
                 <div className="pager">
                   <button type="button" className="btn btn-ghost" disabled={section === 0} onClick={() => setSection(section - 1)}>
                     <ChevronLeft size={16} /> {section > 0 ? explanation.sections[section - 1].heading : 'Previous'}
@@ -619,5 +663,28 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
         </aside>
       </div>
     </div>
+  )
+}
+
+/** A section being read aloud: past sentences dim, the current one lit (word by word), the view following along. */
+function ReadingView({ sentences, current, word }: { sentences: string[]; current: number; word: number }) {
+  const active = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    active.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [current])
+  return (
+    <p className="reading">
+      {sentences.map((s, i) =>
+        i === current ? (
+          <span key={i} ref={active} className="reading-now">
+            <Karaoke sentence={s} word={word} />
+          </span>
+        ) : (
+          <span key={i} className={i < current ? 'reading-done' : 'reading-next'}>
+            {s}{' '}
+          </span>
+        ),
+      )}
+    </p>
   )
 }

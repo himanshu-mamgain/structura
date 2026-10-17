@@ -41,8 +41,16 @@ export default defineConfig({
         // wasm: the load simulator, so load tests work offline too.
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,ico,woff2,wasm,txt}'],
         // Store screenshots are for the install sheet, not the app; videos are saved on request.
-        globIgnores: ['screenshots/**', 'videos/*.mp4'],
+        // Store screenshots, videos and the natural voice's 21 MB speech runtime download on demand.
+        globIgnores: ['screenshots/**', 'videos/*.mp4', '**/ort-wasm*.wasm', '**/kokoro.worker-*.js'],
         runtimeCaching: [
+          {
+            // The natural voice's engine: fetched the first time it's switched on, then kept for offline use.
+            // (The voice model itself is cached by Transformers.js in its own cache.)
+            urlPattern: ({ url }) => /\/assets\/(ort-wasm.*\.wasm|kokoro\.worker-.*\.js)$/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: { cacheName: 'structura-voice-engine', cacheableResponse: { statuses: [200] } },
+          },
           {
             // Videos the learner saved for offline (see OfflineVideo.tsx) play from the
             // cache, seeking included; others stream from the network as usual.
@@ -60,6 +68,10 @@ export default defineConfig({
       },
     }),
   ],
+  // Workers are ES modules: the voice engine (Kokoro) uses import.meta.
+  worker: {
+    format: 'es',
+  },
   // host: true also listens on the local network, so phones and laptops on the same
   // Wi-Fi can open http://<this-PC's-IP>:5173.
   server: {
