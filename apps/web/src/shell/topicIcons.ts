@@ -1,4 +1,4 @@
-import { Bug, Car, Container, IndianRupee, Link2, type LucideIcon, MessageSquareText, PiggyBank, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
+import { Bug, Car, ClipboardPaste, Container, IndianRupee, Link2, type LucideIcon, MessageSquareText, PiggyBank, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -10,6 +10,7 @@ const ICONS: Record<string, LucideIcon> = {
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
   mint: PiggyBank,
+  pastebin: ClipboardPaste,
 }
 
 /** The icon shown for a topic in the sidebar, cards and header. */
