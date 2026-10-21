@@ -1,4 +1,4 @@
-import { Bug, Car, ClipboardPaste, Container, IndianRupee, Link2, type LucideIcon, MessageSquareText, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
+import { Bug, Car, ClipboardPaste, Container, IndianRupee, Link2, type LucideIcon, MessageSquareText, PiggyBank, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -9,6 +9,7 @@ const ICONS: Record<string, LucideIcon> = {
   'web-crawler': Bug,
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
+  mint: PiggyBank,
   pastebin: ClipboardPaste,
 }
 

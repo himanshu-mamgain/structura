@@ -1,6 +1,7 @@
 import { type CalculateMetadataFunction, Composition, staticFile } from 'remotion'
 import * as DockerVsVm from './DockerVsVm'
 import * as Ep01 from './episodes/Ep01UrlShortener'
+import * as IdempotentPayments from './IdempotentPayments'
 import * as Rbac from './Rbac'
 import { FPS, HEIGHT, WIDTH } from './theme'
 import * as UberSurge from './UberSurge'
@@ -16,17 +17,22 @@ import type { VideoProps } from './ui'
 function withVoice(video: string, duration: (voice: VideoProps['voice']) => number): CalculateMetadataFunction<VideoProps> {
   return async ({ props }) => {
     let voice: VideoProps['voice'] = null
+    let words: VideoProps['words'] = null
     try {
       const response = await fetch(staticFile(`voice/${video}/manifest.json`))
-      if (response.ok) voice = ((await response.json()) as { lines: Record<string, number> }).lines
+      if (response.ok) {
+        const manifest = (await response.json()) as { lines: NonNullable<VideoProps['voice']>; words?: VideoProps['words'] }
+        voice = manifest.lines
+        words = manifest.words ?? null
+      }
     } catch {
       // No narration generated yet.
     }
-    return { props: { ...props, voice }, durationInFrames: duration(voice) }
+    return { props: { ...props, voice, words }, durationInFrames: duration(voice) }
   }
 }
 
-const common = { fps: FPS, width: WIDTH, height: HEIGHT, defaultProps: { voice: null } }
+const common = { fps: FPS, width: WIDTH, height: HEIGHT, defaultProps: { voice: null, words: null } }
 
 /** Every video this workspace can render. */
 export function Root() {
@@ -58,6 +64,13 @@ export function Root() {
         component={Rbac.Rbac}
         calculateMetadata={withVoice(Rbac.VIDEO, Rbac.duration)}
         durationInFrames={Rbac.duration(null)}
+        {...common}
+      />
+      <Composition
+        id="IdempotentPayments"
+        component={IdempotentPayments.IdempotentPayments}
+        calculateMetadata={withVoice(IdempotentPayments.VIDEO, IdempotentPayments.duration)}
+        durationInFrames={IdempotentPayments.duration(null)}
         {...common}
       />
       <Composition
