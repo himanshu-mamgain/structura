@@ -330,6 +330,16 @@ export const paymentIdempotency: StaticTopic = {
   id: 'payment-idempotency',
   title: 'Idempotent Payments',
   blurb: '"Payment failed" but money debited: lost responses, retries and idempotency keys',
+  video: '/videos/payment-idempotency.mp4',
+  chapters: [
+    [0, 'The panic'],
+    [10, 'What actually happened'],
+    [20, 'The retry trap'],
+    [28, 'The fix: idempotency keys'],
+    [44, 'Edge cases'],
+    [57, 'The takeaway'],
+    [63, 'Try it'],
+  ],
   guides: [
     'how-to-avoid-double-payment',
     'top-6-cases-to-apply-idempotency',
