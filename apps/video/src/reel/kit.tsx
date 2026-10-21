@@ -210,7 +210,7 @@ export function Tag({ children, color = reel.lime, solid = false, style }: { chi
  * words are white, the current word glows, the rest wait dimmed. Words in the
  * line's highlight phrase glow in the accent colour.
  */
-export function KineticCaptions({ lines, bottom = 300 }: { lines: TimedLine[]; bottom?: number }) {
+export function KineticCaptions({ lines, bottom = 300, size = 74 }: { lines: TimedLine[]; bottom?: number; size?: number }) {
   const frame = useCurrentFrame()
   const line = lines.find((l) => frame >= l.from && frame < l.to)
   if (!line) return null
@@ -238,7 +238,7 @@ export function KineticCaptions({ lines, bottom = 300 }: { lines: TimedLine[]; b
         bottom,
         textAlign: 'center',
         fontFamily: reel.sans,
-        fontSize: 74,
+        fontSize: size,
         fontWeight: 900,
         lineHeight: 1.15,
         letterSpacing: '-0.01em',
@@ -270,10 +270,10 @@ export function KineticCaptions({ lines, bottom = 300 }: { lines: TimedLine[]; b
 }
 
 /** Kinetic captions plus the voice clips for a scene's lines. */
-export function Voiced({ lines, bottom }: SceneProps & { bottom?: number }) {
+export function Voiced({ lines, bottom, size }: SceneProps & { bottom?: number; size?: number }) {
   return (
     <>
-      <KineticCaptions lines={lines} bottom={bottom} />
+      <KineticCaptions lines={lines} bottom={bottom} size={size} />
       <VoiceClips lines={lines} />
     </>
   )

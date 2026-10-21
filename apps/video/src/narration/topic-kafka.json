@@ -1,0 +1,251 @@
+{
+ "voice": "am_michael",
+ "engine": "kokoro",
+ "speed": 0.96,
+ "scenes": {
+  "intro": [
+   {
+    "id": "title",
+    "text": "Kafka: Event Streaming.",
+    "highlight": "Kafka",
+    "frames": 75
+   },
+   {
+    "id": "intro-0",
+    "text": "Kafka is a distributed, durable log.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-1",
+    "text": "Producers append events to topics, which are split into partitions spread",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-2",
+    "text": "across brokers; consumers read them at their own pace and remember",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-3",
+    "text": "where they are with offsets.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-4",
+    "text": "It decouples services, absorbs traffic spikes,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-5",
+    "text": "and lets many systems react to the same events.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "walk": [
+   {
+    "id": "step0-0",
+    "text": "The Order Service produces an \"order paid\" event to the orders",
+    "highlight": "Producer (Order Service)",
+    "frames": 75,
+    "say": "Step 1. The Order Service produces an \"order paid\" event to the orders"
+   },
+   {
+    "id": "step0-1",
+    "text": "topic, keyed by the order id, with acks=all.",
+    "highlight": "Producer (Order Service)",
+    "frames": 75
+   },
+   {
+    "id": "step1-0",
+    "text": "The partitioner hashes the key with murmur2 and takes it modulo",
+    "highlight": "Partitioner (hash of key)",
+    "frames": 75,
+    "say": "Step 2. The partitioner hashes the key with murmur2 and takes it modulo"
+   },
+   {
+    "id": "step1-1",
+    "text": "3: every event for order-1001 lands on partition 0,",
+    "highlight": "Partitioner (hash of key)",
+    "frames": 75
+   },
+   {
+    "id": "step1-2",
+    "text": "so they stay in order.",
+    "highlight": "Partitioner (hash of key)",
+    "frames": 75
+   },
+   {
+    "id": "step2-0",
+    "text": "Broker 1, P0 leader appends the event to the end of",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75,
+    "say": "Step 3. Broker 1, P0 leader appends the event to the end of"
+   },
+   {
+    "id": "step2-1",
+    "text": "partition 0's log at offset 48210.",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75
+   },
+   {
+    "id": "step2-2",
+    "text": "A partition is just an append-only file:",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75
+   },
+   {
+    "id": "step2-3",
+    "text": "writes are sequential, which is why Kafka is fast.",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75
+   },
+   {
+    "id": "step3-0",
+    "text": "With acks=all, the leader waits until the in-sync replicas (here Broker",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75,
+    "say": "Step 4. With acks=all, the leader waits until the in-sync replicas (here Broker"
+   },
+   {
+    "id": "step3-1",
+    "text": "2) have copied it, then confirms.",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75
+   },
+   {
+    "id": "step3-2",
+    "text": "min.insync.replicas=2 means two copies exist before the producer hears \"done\".",
+    "highlight": "Broker 1 · P0 leader",
+    "frames": 75
+   },
+   {
+    "id": "step4-0",
+    "text": "In the billing group, partition 0 belongs to Billing Consumer 1.",
+    "highlight": "Billing Consumer 1",
+    "frames": 75,
+    "say": "Step 5. In the billing group, partition 0 belongs to Billing Consumer 1."
+   },
+   {
+    "id": "step4-1",
+    "text": "Each partition has exactly one consumer per group,",
+    "highlight": "Billing Consumer 1",
+    "frames": 75
+   },
+   {
+    "id": "step4-2",
+    "text": "so the order's events are handled in order,",
+    "highlight": "Billing Consumer 1",
+    "frames": 75
+   },
+   {
+    "id": "step4-3",
+    "text": "by one consumer.",
+    "highlight": "Billing Consumer 1",
+    "frames": 75
+   },
+   {
+    "id": "step5-0",
+    "text": "Billing Consumer 1 creates the invoice in the Billing DB,",
+    "highlight": "Billing Consumer 1",
+    "frames": 75,
+    "say": "Step 6. Billing Consumer 1 creates the invoice in the Billing DB,"
+   },
+   {
+    "id": "step5-1",
+    "text": "idempotently, so a retry could never charge twice.",
+    "highlight": "Billing Consumer 1",
+    "frames": 75
+   },
+   {
+    "id": "step6-0",
+    "text": "Then it commits offset 48211 to consumeroffsets:",
+    "highlight": "Billing Consumer 1",
+    "frames": 75,
+    "say": "Step 7. Then it commits offset 48211 to consumeroffsets:"
+   },
+   {
+    "id": "step6-1",
+    "text": "\"next time, start after this event\".",
+    "highlight": "Billing Consumer 1",
+    "frames": 75
+   },
+   {
+    "id": "step7-0",
+    "text": "Separately, the Analytics Consumer reads the same event at its own pace.",
+    "highlight": "Analytics Consumer",
+    "frames": 75,
+    "say": "Step 8. Separately, the Analytics Consumer reads the same event at its own pace."
+   },
+   {
+    "id": "step7-1",
+    "text": "Consumer groups don't take events away from each other:",
+    "highlight": "Analytics Consumer",
+    "frames": 75
+   },
+   {
+    "id": "step7-2",
+    "text": "each group has its own offsets.",
+    "highlight": "Analytics Consumer",
+    "frames": 75
+   }
+  ],
+  "takeaways": [
+   {
+    "id": "take-intro",
+    "text": "Key takeaways.",
+    "highlight": "takeaways",
+    "frames": 45
+   },
+   {
+    "id": "take-0-0",
+    "text": "A topic is split into partitions:",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-0-1",
+    "text": "append-only logs spread across brokers.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-1-0",
+    "text": "The key decides the partition, and order is only guaranteed within a partition.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-2-0",
+    "text": "Each partition goes to one consumer per group;",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-2-1",
+    "text": "more partitions means more parallel consumers.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-3-0",
+    "text": "acks=all with min.insync.replicas=2 is what keeps a broker crash from losing events.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "outro": [
+   {
+    "id": "outro-0",
+    "text": "Now explore it yourself in Structura: tap any component, and switch parts off to see what breaks.",
+    "highlight": "Structura",
+    "frames": 90
+   }
+  ]
+ }
+}

@@ -15,7 +15,8 @@
     "render:payments": "remotion render src/index.ts IdempotentPayments ../web/public/videos/payment-idempotency.mp4",
     "typecheck": "tsc --noEmit",
     "voice": "node scripts/voice.mjs",
-    "voices": "node scripts/voices.mjs"
+    "voices": "node scripts/voices.mjs",
+    "topics": "tsx scripts/render-topics.ts"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react'
-import { BookA, BookMarked, Bookmark, Boxes, CheckCircle2, ExternalLink, GraduationCap, House, Menu, Search, X } from 'lucide-react'
+import { BookA, BookMarked, Bookmark, Boxes, CheckCircle2, ExternalLink, GraduationCap, Headphones, House, Menu, Search, X } from 'lucide-react'
 import { board } from './board/store'
 import { useProgress } from './learn/progress'
 import { InstallButton } from './pwa/InstallButton'
 import { Home } from './shell/Home'
 import { Glossary, Quiz } from './shell/Practice'
+import { Commute, MiniPlayer } from './shell/Commute'
 import { TopicView } from './shell/TopicView'
+import { VoiceAssistant } from './shell/VoiceAssistant'
 import { topicIcon } from './shell/topicIcons'
 import { STATIC_TOPICS, type StaticTopic } from './topics'
 import { categoryTitle, LIBRARY } from './topics/library'
 
-type Page = 'quiz' | 'glossary'
+type Page = 'quiz' | 'glossary' | 'listen'
 
 /** Where the learner is lives in the URL (?topic=…, ?page=quiz, ?library=…), so links can be shared. */
 function readRoute() {
   const query = new URLSearchParams(window.location.search)
   const page = query.get('page')
-  return { topicId: query.get('topic'), category: query.get('library'), page: page === 'quiz' || page === 'glossary' ? (page as Page) : null }
+  return { topicId: query.get('topic'), category: query.get('library'), page: page === 'quiz' || page === 'glossary' || page === 'listen' ? (page as Page) : null }
 }
 
 export default function App() {
@@ -94,6 +96,9 @@ export default function App() {
             )
           })}
           <p className="nav-group">Practice</p>
+          <button type="button" className={`nav-item${route.page === 'listen' ? ' is-active' : ''}`} onClick={() => openPage('listen')}>
+            <Headphones size={18} /> Commute mode
+          </button>
           <button type="button" className={`nav-item${route.page === 'quiz' ? ' is-active' : ''}`} onClick={() => openPage('quiz')}>
             <GraduationCap size={18} /> Quiz
           </button>
@@ -161,11 +166,15 @@ export default function App() {
             <Quiz />
           ) : route.page === 'glossary' ? (
             <Glossary />
+          ) : route.page === 'listen' ? (
+            <Commute />
           ) : (
             <Home onOpen={open} onPage={openPage} category={route.category} onCategory={openCategory} />
           )}
         </main>
       </div>
+      {route.page !== 'listen' && <MiniPlayer onOpen={() => openPage('listen')} />}
+      <VoiceAssistant topic={topic} open={open} openPage={openPage} />
     </div>
   )
 }

@@ -2,14 +2,17 @@
 // plus a manifest of their lengths (and, for Kokoro voices, when each word is
 // spoken) that the video uses to time captions and scenes. Offline, no AI service.
 //
-// The narration's "voice" picks the engine:
-//   - a Kokoro voice id like "am_michael": open-source neural voice, any OS (tts/kokoro.mjs)
+// The engine depends on the narration file:
+//   - "engine": "kokoro": Kokoro in Python (apps/video/.venv, scripts/kokoro_speak.py),
+//     every line in one model load (the generated topic videos use this)
+//   - otherwise a Kokoro voice id like "am_michael": Kokoro in Node (tts/kokoro.mjs),
+//     mastered, with word timings for karaoke captions (the card reels use this)
 //   - anything else, like "Heera": a built-in Windows voice (Windows only)
 //
 //   npm run voice -w @structura/video                        (every video)
 //   npm run voice -w @structura/video -- payment-idempotency (one video)
 //   npm run voice -w @structura/video -- --voice=am_fenrir   (another voice)
-import { execFileSync, execSync } from 'node:child_process'
+import { execFileSync, execSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
@@ -56,6 +59,22 @@ function wavFile(samples, sampleRate) {
   return Buffer.concat([header, pcm])
 }
 
+// ─── Kokoro in Python ────────────────────────────────────────────────────────
+
+/** Kokoro (open-weight, runs anywhere Python does): every line in one model load. */
+function voiceWithPython(narration, voice, outDir, manifest, video) {
+  const lines = Object.values(narration.scenes).flat().map((l) => ({ id: l.id, text: l.say ?? l.text }))
+  const python = join(root, process.platform === 'win32' ? '.venv/Scripts/python.exe' : '.venv/bin/python')
+  const run = spawnSync(python, [join(root, 'scripts/kokoro_speak.py'), '--voice', voice, '--speed', String(narration.speed ?? 1), '--out-dir', outDir], {
+    input: JSON.stringify(lines),
+    encoding: 'utf8',
+    env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+    stdio: ['pipe', 'pipe', 'inherit'],
+  })
+  if (run.status !== 0) throw new Error(`Kokoro failed for ${video}`)
+  manifest.lines = JSON.parse(run.stdout.trim().split('\n').at(-1))
+}
+
 // ─── Windows voices ──────────────────────────────────────────────────────────
 
 function voiceWithWindows(narration, voice, outDir, manifest) {
@@ -78,7 +97,7 @@ function voiceWithWindows(narration, voice, outDir, manifest) {
   rmSync(textFile, { force: true })
 }
 
-// ─── Kokoro voices ───────────────────────────────────────────────────────────
+// ─── Kokoro in Node ──────────────────────────────────────────────────────────
 
 /** Speech level (RMS of the voiced parts) the narration is mastered to: the video lands at about −14.5 LUFS, as loud as reels. */
 const TARGET_DB = -11.4
@@ -275,7 +294,8 @@ async function voiceVideo(video) {
   mkdirSync(outDir, { recursive: true })
 
   const manifest = { voice, lines: {} }
-  if (isKokoroVoice(voice)) await voiceWithKokoro(narration, voice, outDir, manifest)
+  if (narration.engine === 'kokoro') voiceWithPython(narration, voice, outDir, manifest, video)
+  else if (isKokoroVoice(voice)) await voiceWithKokoro(narration, voice, outDir, manifest)
   else voiceWithWindows(narration, voice, outDir, manifest)
   writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
   console.log(`

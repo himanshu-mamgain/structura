@@ -1,0 +1,367 @@
+{
+ "id": "web-crawler",
+ "title": "Web Crawler & Search",
+ "blurb": "Priority frontier, duplicate detection, reverse index, freshness",
+ "difficulty": "Intermediate",
+ "summary": "A crawler keeps a priority queue of links, fetches the most important page, skips it if a near-identical page was already crawled, and otherwise queues it for indexing. Search reads only the reverse index (word → pages) and the stored titles and snippets.",
+ "width": 1313.5,
+ "height": 2744,
+ "groups": [
+  {
+   "id": "crawl",
+   "label": "Crawling",
+   "x": 509.4,
+   "y": 12,
+   "w": 748.1333333333333,
+   "h": 1154
+  },
+  {
+   "id": "index",
+   "label": "Indexing",
+   "x": 608,
+   "y": 1424,
+   "w": 693.5,
+   "h": 698
+  },
+  {
+   "id": "serve",
+   "label": "Search",
+   "x": 547,
+   "y": 2380,
+   "w": 351.5,
+   "h": 352
+  }
+ ],
+ "nodes": [
+  {
+   "id": "frontier",
+   "label": "links_to_crawl",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "The frontier",
+   "x": 719.9,
+   "y": 68,
+   "w": 232,
+   "h": 84
+  },
+  {
+   "id": "crawler",
+   "label": "Crawler Service",
+   "color": "orange",
+   "shape": "rectangle",
+   "subtitle": "Many workers pulling from…",
+   "x": 919.7,
+   "y": 400,
+   "w": 241,
+   "h": 84
+  },
+  {
+   "id": "web",
+   "label": "The Web",
+   "color": "light-blue",
+   "shape": "cloud",
+   "subtitle": null,
+   "x": 36,
+   "y": 1424,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "similar",
+   "label": "Similar page crawled?",
+   "color": "violet",
+   "shape": "diamond",
+   "subtitle": null,
+   "x": 678.9,
+   "y": 732,
+   "w": 297,
+   "h": 70
+  },
+  {
+   "id": "crawled",
+   "label": "crawled_links",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Every crawled URL with its…",
+   "x": 712.4,
+   "y": 1050,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "riq",
+   "label": "Reverse Index Queue",
+   "color": "yellow",
+   "shape": "rectangle",
+   "subtitle": "Decouple crawling from…",
+   "x": 973,
+   "y": 1480,
+   "w": 279,
+   "h": 84
+  },
+  {
+   "id": "dq",
+   "label": "Document Queue",
+   "color": "yellow",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 703,
+   "y": 1487,
+   "w": 232,
+   "h": 70
+  },
+  {
+   "id": "ris",
+   "label": "Reverse Index Service",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "Maintains word → list of pages",
+   "x": 964,
+   "y": 1674,
+   "w": 297,
+   "h": 84
+  },
+  {
+   "id": "ds",
+   "label": "Document Service",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "Generates static titles and…",
+   "x": 694,
+   "y": 1674,
+   "w": 250,
+   "h": 84
+  },
+  {
+   "id": "index",
+   "label": "Reverse Index",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": "Decouple crawling from…",
+   "x": 997.5,
+   "y": 2006,
+   "w": 230,
+   "h": 84
+  },
+  {
+   "id": "docs",
+   "label": "Titles & Snippets",
+   "color": "green",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 689,
+   "y": 2013,
+   "w": 260,
+   "h": 70
+  },
+  {
+   "id": "user",
+   "label": "User",
+   "color": "blue",
+   "shape": "ellipse",
+   "subtitle": null,
+   "x": 322,
+   "y": 2052,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "server",
+   "label": "Web Server",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": null,
+   "x": 579,
+   "y": 2436,
+   "w": 230,
+   "h": 70
+  },
+  {
+   "id": "query",
+   "label": "Query API",
+   "color": "violet",
+   "shape": "rectangle",
+   "subtitle": "Parses the query",
+   "x": 636.5,
+   "y": 2616,
+   "w": 230,
+   "h": 84
+  }
+ ],
+ "edges": [
+  {
+   "from": "frontier",
+   "to": "crawler",
+   "label": "top-priority link",
+   "dashed": false
+  },
+  {
+   "from": "crawler",
+   "to": "web",
+   "label": "fetch page",
+   "dashed": false
+  },
+  {
+   "from": "crawler",
+   "to": "similar",
+   "label": "page signature",
+   "dashed": false
+  },
+  {
+   "from": "similar",
+   "to": "crawled",
+   "label": "compare",
+   "dashed": false
+  },
+  {
+   "from": "similar",
+   "to": "frontier",
+   "label": "yes: lower priority",
+   "dashed": true
+  },
+  {
+   "from": "crawler",
+   "to": "riq",
+   "label": "index job",
+   "dashed": false
+  },
+  {
+   "from": "crawler",
+   "to": "dq",
+   "label": "snippet job",
+   "dashed": false
+  },
+  {
+   "from": "crawler",
+   "to": "frontier",
+   "label": "add child links",
+   "dashed": true
+  },
+  {
+   "from": "riq",
+   "to": "ris",
+   "label": null,
+   "dashed": false
+  },
+  {
+   "from": "dq",
+   "to": "ds",
+   "label": null,
+   "dashed": false
+  },
+  {
+   "from": "ris",
+   "to": "index",
+   "label": "word → pages",
+   "dashed": false
+  },
+  {
+   "from": "ds",
+   "to": "docs",
+   "label": "title, snippet",
+   "dashed": false
+  },
+  {
+   "from": "user",
+   "to": "server",
+   "label": "search",
+   "dashed": false
+  },
+  {
+   "from": "server",
+   "to": "query",
+   "label": null,
+   "dashed": false
+  },
+  {
+   "from": "query",
+   "to": "index",
+   "label": "match terms",
+   "dashed": false
+  },
+  {
+   "from": "query",
+   "to": "docs",
+   "label": "fetch snippets",
+   "dashed": false
+  }
+ ],
+ "steps": [
+  {
+   "title": "Crawler Service → links_to_crawl",
+   "text": "The Crawler Service takes the highest-priority link from links_to_crawl. Priorities start from site popularity, so important pages are crawled first.",
+   "nodes": [
+    "Crawler Service",
+    "links_to_crawl"
+   ],
+   "data": "extract_max_priority_page()\n→ {\n  \"url\": \"https://blog.example.org/raft-explained\",\n  \"priority\": 0.82\n}"
+  },
+  {
+   "title": "Crawler Service → The Web",
+   "text": "It fetches the page from The Web (respecting robots.txt and a per-site rate limit), then computes a signature from its content.",
+   "nodes": [
+    "Crawler Service",
+    "The Web"
+   ],
+   "data": "GET https://blog.example.org/raft-explained\n→ 200 OK, 512 KB\nsignature = simhash(words) = b8808b33"
+  },
+  {
+   "title": "Similar page crawled? → crawled_links",
+   "text": "Similar page crawled? No signature in crawled_links is close, so this is new content.",
+   "nodes": [
+    "Similar page crawled?",
+    "crawled_links"
+   ],
+   "data": "crawled_similar(b8808b33) → none"
+  },
+  {
+   "title": "Two jobs are queued",
+   "text": "Two jobs are queued: one for the Reverse Index Service (which words appear on which pages) and one for the Document Service (a static title and snippet). Queues let crawling run at its own pace.",
+   "nodes": [
+    "Crawler Service",
+    "Reverse Index Queue",
+    "Document Queue"
+   ],
+   "data": "reverse_index_queue.put({\n  \"url\": \"https://blog.example.org/raft-explained\",\n  \"words\": [\n    \"raft\",\n    \"consensus\",\n    \"leader\",\n    \"election\",\n    \"log\"\n  ]\n})\ndoc_queue.put({\n  \"url\": \"https://blog.example.org/raft-explained\",\n  \"title\": \"Raft, explained\"\n})"
+  },
+  {
+   "title": "links_to_crawl → crawled_links",
+   "text": "The link moves from links_to_crawl to crawled_links with its signature, and the page's own links are added to links_to_crawl for later.",
+   "nodes": [
+    "links_to_crawl",
+    "crawled_links"
+   ],
+   "data": "remove_link_to_crawl(\"https://blog.example.org/raft-explained\")\ninsert_crawled_link(\"https://blog.example.org/raft-explained\", \"b8808b33\")\nadd_link_to_crawl(…14 child links)"
+  },
+  {
+   "title": "Reverse Index Service → Reverse Index",
+   "text": "The Reverse Index Service adds the page to each word's posting list in the Reverse Index; the Document Service stores its title and snippet.",
+   "nodes": [
+    "Reverse Index Service",
+    "Reverse Index",
+    "Document Service",
+    "Titles & Snippets"
+   ],
+   "data": "raft       → [..., \"https://blog.example.org/raft-explained\"]\nconsensus  → [..., \"https://blog.example.org/raft-explained\"]\nleader     → [..., \"https://blog.example.org/raft-explained\"]\nelection   → [..., \"https://blog.example.org/raft-explained\"]\nlog        → [..., \"https://blog.example.org/raft-explained\"]"
+  },
+  {
+   "title": "User → Web Server",
+   "text": "Later, someone searches for \"raft consensus\". The Query API parses the query, finds matching pages in the Reverse Index, ranks them, and fetches titles and snippets.",
+   "nodes": [
+    "User",
+    "Web Server",
+    "Query API",
+    "Reverse Index",
+    "Titles & Snippets"
+   ],
+   "data": "GET /api/v1/search?query=raft+consensus\n→ [\n  {\n    \"title\": \"Raft, explained\",\n    \"snippet\": \"…raft consensus leader election log…\",\n    \"link\": \"https://blog.example.org/raft-explained\"\n  }\n]"
+  }
+ ],
+ "takeaways": [
+  "Crawl from a priority queue (the frontier), seeded by site popularity.",
+  "Detect duplicate content with page signatures, or the crawler loops and wastes work.",
+  "Lower a duplicate's priority instead of crawling it again.",
+  "Hand indexing and snippet generation to queues so crawling never waits on them."
+ ],
+ "credit": "Adapted from Design a web crawler, Donne Martin, System Design Primer (CC BY 4.0)"
+}

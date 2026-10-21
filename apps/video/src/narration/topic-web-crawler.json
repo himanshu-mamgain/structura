@@ -1,0 +1,220 @@
+{
+ "voice": "am_michael",
+ "engine": "kokoro",
+ "speed": 0.96,
+ "scenes": {
+  "intro": [
+   {
+    "id": "title",
+    "text": "Web Crawler & Search.",
+    "highlight": "Web Crawler ",
+    "frames": 75
+   },
+   {
+    "id": "intro-0",
+    "text": "A crawler keeps a priority queue of links,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-1",
+    "text": "fetches the most important page, skips it if a near-identical page",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-2",
+    "text": "was already crawled, and otherwise queues it for indexing.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-3",
+    "text": "Search reads only the reverse index (word to pages) and the",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-4",
+    "text": "stored titles and snippets.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "walk": [
+   {
+    "id": "step0-0",
+    "text": "The Crawler Service takes the highest-priority link from linkstocrawl.",
+    "highlight": "Crawler Service",
+    "frames": 75,
+    "say": "Step 1. The Crawler Service takes the highest-priority link from linkstocrawl."
+   },
+   {
+    "id": "step0-1",
+    "text": "Priorities start from site popularity, so important pages are crawled first.",
+    "highlight": "Crawler Service",
+    "frames": 75
+   },
+   {
+    "id": "step1-0",
+    "text": "It fetches the page from The Web (respecting robots.txt and a",
+    "highlight": "Crawler Service",
+    "frames": 75,
+    "say": "Step 2. It fetches the page from The Web (respecting robots.txt and a"
+   },
+   {
+    "id": "step1-1",
+    "text": "per-site rate limit), then computes a signature from its content.",
+    "highlight": "Crawler Service",
+    "frames": 75
+   },
+   {
+    "id": "step2-0",
+    "text": "Similar page crawled?",
+    "highlight": "Similar page crawled?",
+    "frames": 75,
+    "say": "Step 3. Similar page crawled?"
+   },
+   {
+    "id": "step2-1",
+    "text": "No signature in crawledlinks is close,",
+    "highlight": "Similar page crawled?",
+    "frames": 75
+   },
+   {
+    "id": "step2-2",
+    "text": "so this is new content.",
+    "highlight": "Similar page crawled?",
+    "frames": 75
+   },
+   {
+    "id": "step3-0",
+    "text": "Two jobs are queued: one for the Reverse Index Service (which",
+    "highlight": "Crawler Service",
+    "frames": 75,
+    "say": "Step 4. Two jobs are queued: one for the Reverse Index Service (which"
+   },
+   {
+    "id": "step3-1",
+    "text": "words appear on which pages) and one for the Document Service",
+    "highlight": "Crawler Service",
+    "frames": 75
+   },
+   {
+    "id": "step3-2",
+    "text": "(a static title and snippet).",
+    "highlight": "Crawler Service",
+    "frames": 75
+   },
+   {
+    "id": "step3-3",
+    "text": "Queues let crawling run at its own pace.",
+    "highlight": "Crawler Service",
+    "frames": 75
+   },
+   {
+    "id": "step4-0",
+    "text": "The link moves from linkstocrawl to crawledlinks with its signature,",
+    "highlight": "links_to_crawl",
+    "frames": 75,
+    "say": "Step 5. The link moves from linkstocrawl to crawledlinks with its signature,"
+   },
+   {
+    "id": "step4-1",
+    "text": "and the page's own links are added to linkstocrawl for later.",
+    "highlight": "links_to_crawl",
+    "frames": 75
+   },
+   {
+    "id": "step5-0",
+    "text": "The Reverse Index Service adds the page to each word's posting",
+    "highlight": "Reverse Index Service",
+    "frames": 75,
+    "say": "Step 6. The Reverse Index Service adds the page to each word's posting"
+   },
+   {
+    "id": "step5-1",
+    "text": "list in the Reverse Index; the Document Service stores its title and snippet.",
+    "highlight": "Reverse Index Service",
+    "frames": 75
+   },
+   {
+    "id": "step6-0",
+    "text": "Later, someone searches for \"raft consensus\".",
+    "highlight": "User",
+    "frames": 75,
+    "say": "Step 7. Later, someone searches for \"raft consensus\"."
+   },
+   {
+    "id": "step6-1",
+    "text": "The Query API parses the query,",
+    "highlight": "User",
+    "frames": 75
+   },
+   {
+    "id": "step6-2",
+    "text": "finds matching pages in the Reverse Index,",
+    "highlight": "User",
+    "frames": 75
+   },
+   {
+    "id": "step6-3",
+    "text": "ranks them, and fetches titles and snippets.",
+    "highlight": "User",
+    "frames": 75
+   }
+  ],
+  "takeaways": [
+   {
+    "id": "take-intro",
+    "text": "Key takeaways.",
+    "highlight": "takeaways",
+    "frames": 45
+   },
+   {
+    "id": "take-0-0",
+    "text": "Crawl from a priority queue (the frontier),",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-0-1",
+    "text": "seeded by site popularity.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-1-0",
+    "text": "Detect duplicate content with page signatures,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-1-1",
+    "text": "or the crawler loops and wastes work.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-2-0",
+    "text": "Lower a duplicate's priority instead of crawling it again.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-3-0",
+    "text": "Hand indexing and snippet generation to queues so crawling never waits on them.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "outro": [
+   {
+    "id": "outro-0",
+    "text": "Now explore it yourself in Structura: tap any component, and switch parts off to see what breaks.",
+    "highlight": "Structura",
+    "frames": 90
+   }
+  ]
+ }
+}

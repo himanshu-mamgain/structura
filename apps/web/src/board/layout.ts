@@ -50,6 +50,8 @@ export interface LayoutOptions {
   fitRatio?: number
   /** Caps the gap between layers (normally sized to fit the longest arrow label). */
   maxLayerGap?: number
+  /** Box size override, e.g. the 2D view's cards with a subtitle line. Tables keep their own size. */
+  nodeSize?: (node: DiagramNode) => { width: number; height: number } | null
 }
 
 /** Positions the graph, choosing the flow direction that best fits the space when asked to. */
@@ -87,7 +89,7 @@ async function layoutOnce(diagram: LayoutDiagram, options: LayoutOptions): Promi
   const layerGap =
     diagram.direction === 'down' ? '110' : String(Math.min(options.maxLayerGap ?? 360, Math.max(96, Math.ceil(widestLabel + 64))))
 
-  const toElkNode = (node: DiagramNode): ElkNode => ({ id: node.id, ...nodeSize(node) })
+  const toElkNode = (node: DiagramNode): ElkNode => ({ id: node.id, ...((!node.table && options.nodeSize?.(node)) || nodeSize(node)) })
   const groups: ElkNode[] = diagram.groups.map((group) => ({
     id: `group:${group.id}`,
     layoutOptions: {

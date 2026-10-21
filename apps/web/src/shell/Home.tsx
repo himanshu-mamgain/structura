@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Bookmark, CheckCircle2, ExternalLink, Footprints, GraduationCap, Library, Play, Sparkles, Video, Zap } from 'lucide-react'
+import { Bookmark, CheckCircle2, ExternalLink, Footprints, GraduationCap, Headphones, Library, Play, Sparkles, Video, WifiOff, Zap } from 'lucide-react'
 import { ago, readiness, type TopicProgress, useProgress, videoFraction } from '../learn/progress'
 import course from '../learn/course.json'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
 import { topicIcon } from './topicIcons'
+import { TodayCard } from './VoiceGuide'
+import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
 
 const thumbnail = (topic: StaticTopic) => topic.video?.replace(/\.mp4$/, '.jpg')
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
@@ -19,7 +21,7 @@ export function Home({
   onCategory,
 }: {
   onOpen: (topic: StaticTopic) => void
-  onPage: (page: 'quiz' | 'glossary') => void
+  onPage: (page: 'quiz' | 'glossary' | 'listen') => void
   category: string | null
   onCategory: (id: string | null) => void
 }) {
@@ -76,6 +78,9 @@ export function Home({
           </div>
         </dl>
       </section>
+
+      <TodayCard onOpen={onOpen} />
+      <CommuteCard onPage={onPage} />
 
       {recent.length > 0 && (
         <section className="home-section" aria-label="Continue learning">
@@ -265,5 +270,29 @@ function LibraryList({ category, onCategory, onOpen }: { category: string | null
         ))}
       </ul>
     </section>
+  )
+}
+
+/** Home's way into Commute mode: the audio course, its length, and where you left off. */
+function CommuteCard({ onPage }: { onPage: (page: 'listen') => void }) {
+  const commute = useCommute()
+  const topics = lessonTopics()
+  if (!topics.length) return null
+  const total = Object.values(LESSONS.topics).reduce((n, t) => n + t.duration, 0)
+  const current = STATIC_TOPICS.find((t) => t.id === commute.topicId)
+  return (
+    <button type="button" className="card commute-card" onClick={() => onPage('listen')}>
+      <span className="commute-card-icon">
+        <Headphones size={26} />
+      </span>
+      <span className="commute-card-text">
+        <strong>Commute mode</strong>
+        <span>
+          {topics.length} audio lessons · {Math.round(total / 60)} min · <WifiOff size={13} /> works offline, screen off
+        </span>
+        {current && <span className="commute-card-resume">Resume: {current.title}</span>}
+      </span>
+      <Play size={20} fill="currentColor" />
+    </button>
   )
 }

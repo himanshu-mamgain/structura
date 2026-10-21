@@ -1,0 +1,275 @@
+{
+ "voice": "am_michael",
+ "engine": "kokoro",
+ "speed": 0.96,
+ "scenes": {
+  "intro": [
+   {
+    "id": "title",
+    "text": "Twitter Timeline & Search.",
+    "highlight": "Twitter Timeline ",
+    "frames": 75
+   },
+   {
+    "id": "intro-0",
+    "text": "Users post tweets, read a home timeline built from everyone they",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-1",
+    "text": "follow, and search.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-2",
+    "text": "Reads dwarf writes, so the home timeline is precomputed:",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-3",
+    "text": "each new tweet is pushed into followers' timelines in memory (fan-out",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-4",
+    "text": "on write), except for celebrities, whose tweets are merged in when",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "intro-5",
+    "text": "a timeline is read.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "walk": [
+   {
+    "id": "step0-0",
+    "text": "@devnews posts a tweet.",
+    "highlight": "Client",
+    "frames": 75,
+    "say": "Step 1. @devnews posts a tweet."
+   },
+   {
+    "id": "step0-1",
+    "text": "The Client sends it to the Web Server (a reverse proxy),",
+    "highlight": "Client",
+    "frames": 75
+   },
+   {
+    "id": "step0-2",
+    "text": "which forwards it to the Write API.",
+    "highlight": "Client",
+    "frames": 75
+   },
+   {
+    "id": "step1-0",
+    "text": "The Write API saves the tweet to the author's own timeline",
+    "highlight": "Write API",
+    "frames": 75,
+    "say": "Step 2. The Write API saves the tweet to the author's own timeline"
+   },
+   {
+    "id": "step1-1",
+    "text": "in the SQL Database.",
+    "highlight": "Write API",
+    "frames": 75
+   },
+   {
+    "id": "step1-2",
+    "text": "That is the user timeline: the author's own tweets, in order.",
+    "highlight": "Write API",
+    "frames": 75
+   },
+   {
+    "id": "step2-0",
+    "text": "Media goes to the Object Store,",
+    "highlight": "Object Store",
+    "frames": 75,
+    "say": "Step 3. Media goes to the Object Store,"
+   },
+   {
+    "id": "step2-1",
+    "text": "not the database: a tweet row stays small,",
+    "highlight": "Object Store",
+    "frames": 75
+   },
+   {
+    "id": "step2-2",
+    "text": "and photos and videos are served from cheap blob storage (usually",
+    "highlight": "Object Store",
+    "frames": 75
+   },
+   {
+    "id": "step2-3",
+    "text": "behind a CDN).",
+    "highlight": "Object Store",
+    "frames": 75
+   },
+   {
+    "id": "step3-0",
+    "text": "The Write API hands the tweet to the Fan Out Service,",
+    "highlight": "Write API",
+    "frames": 75,
+    "say": "Step 4. The Write API hands the tweet to the Fan Out Service,"
+   },
+   {
+    "id": "step3-1",
+    "text": "which asks the User Graph Service who follows the author.",
+    "highlight": "Write API",
+    "frames": 75
+   },
+   {
+    "id": "step3-2",
+    "text": "The follower lists live in the Memory Cache.",
+    "highlight": "Write API",
+    "frames": 75
+   },
+   {
+    "id": "step4-0",
+    "text": "Fan-out on write: the tweet id is pushed onto the home",
+    "highlight": "Fan Out Service",
+    "frames": 75,
+    "say": "Step 5. Fan-out on write: the tweet id is pushed onto the home"
+   },
+   {
+    "id": "step4-1",
+    "text": "timeline of each of the 12,000 followers in the Memory Cache.",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step4-2",
+    "text": "It is O(n): 12,000 followers means 12,000 inserts,",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step4-3",
+    "text": "and each list is trimmed to its newest 800.",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step5-0",
+    "text": "The tweet is added to the Search Cluster so keyword searches",
+    "highlight": "Fan Out Service",
+    "frames": 75,
+    "say": "Step 6. The tweet is added to the Search Cluster so keyword searches"
+   },
+   {
+    "id": "step5-1",
+    "text": "can find it within seconds.",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step6-0",
+    "text": "Notifications go out through the Notification Service,",
+    "highlight": "Fan Out Service",
+    "frames": 75,
+    "say": "Step 7. Notifications go out through the Notification Service,"
+   },
+   {
+    "id": "step6-1",
+    "text": "which works off a queue so a slow push or email",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step6-2",
+    "text": "provider never delays the post.",
+    "highlight": "Fan Out Service",
+    "frames": 75
+   },
+   {
+    "id": "step7-0",
+    "text": "The author gets a response as soon as the tweet is",
+    "highlight": "Write API",
+    "frames": 75,
+    "say": "Step 8. The author gets a response as soon as the tweet is"
+   },
+   {
+    "id": "step7-1",
+    "text": "saved; fan-out, indexing and notifications carry on in the background.",
+    "highlight": "Write API",
+    "frames": 75
+   }
+  ],
+  "takeaways": [
+   {
+    "id": "take-intro",
+    "text": "Key takeaways.",
+    "highlight": "takeaways",
+    "frames": 45
+   },
+   {
+    "id": "take-0-0",
+    "text": "The home timeline is read far more than tweets are written,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-0-1",
+    "text": "so build it ahead of time:",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-0-2",
+    "text": "fan out on write.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-1-0",
+    "text": "Fan-out is O(followers): fine for most users,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-1-1",
+    "text": "far too slow for celebrities.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-2-0",
+    "text": "Skip fan-out for accounts with millions of followers and merge their",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-2-1",
+    "text": "tweets in at read time.",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-3-0",
+    "text": "Keep timelines in memory, only the newest few hundred tweets,",
+    "highlight": "",
+    "frames": 75
+   },
+   {
+    "id": "take-3-1",
+    "text": "and only for active users.",
+    "highlight": "",
+    "frames": 75
+   }
+  ],
+  "outro": [
+   {
+    "id": "outro-0",
+    "text": "Now explore it yourself in Structura: tap any component, and switch parts off to see what breaks.",
+    "highlight": "Structura",
+    "frames": 90
+   }
+  ]
+ }
+}

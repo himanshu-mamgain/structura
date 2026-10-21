@@ -1,0 +1,2800 @@
+{
+ "voice": "am_michael",
+ "topics": {
+  "docker-vs-vm": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/docker-vs-vm/01-intro.m4a",
+     "duration": 36.23,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Docker versus Virtual Machines."
+      },
+      {
+       "t": 3.93,
+       "text": "A virtual machine emulates a whole computer and boots its own operating system."
+      },
+      {
+       "t": 10.56,
+       "text": "A container is an isolated process that shares the host's kernel."
+      },
+      {
+       "t": 15.965,
+       "text": "VMs give stronger isolation; containers are far lighter and start in about a second."
+      },
+      {
+       "t": 23.795,
+       "text": "In this lesson: overview, how containers isolate, side by side, when to use which, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/docker-vs-vm/02-section-0.m4a",
+     "duration": 39.69,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Both solve \"it works on my machine\": they package an app with everything it needs so it runs the same everywhere."
+      },
+      {
+       "t": 11.035,
+       "text": "They differ in where the line between app and machine is drawn."
+      },
+      {
+       "t": 15.69,
+       "text": "A VM virtualizes hardware."
+      },
+      {
+       "t": 19.07,
+       "text": "A hypervisor splits one physical server into several virtual ones, and each runs a complete guest OS."
+      },
+      {
+       "t": 27.6,
+       "text": "A container virtualizes the operating system."
+      },
+      {
+       "t": 32.005,
+       "text": "All containers share the host's Linux kernel; the kernel just gives each one its own view of the system."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "How containers isolate",
+     "file": "/lessons/docker-vs-vm/03-section-1.m4a",
+     "duration": 44.05,
+     "cues": [
+      {
+       "t": 0,
+       "text": "How containers isolate."
+      },
+      {
+       "t": 3.205,
+       "text": "Namespaces give a process its own view: its own process list (pid), network interfaces (net), filesystem mounts (mnt), hostname (uts), and users (user)."
+      },
+      {
+       "t": 15.735,
+       "text": "cgroups limit what it can use: CPU, memory, disk I/O, number of processes."
+      },
+      {
+       "t": 22.89,
+       "text": "The image's layers are stacked with a union filesystem (overlayfs), plus a thin writable layer per container."
+      },
+      {
+       "t": 31.47,
+       "text": "There is no second kernel: a container is a normal Linux process with restrictions."
+      },
+      {
+       "t": 38.175,
+       "text": "That is why it starts in about a second and why one server can run hundreds."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Side by side",
+     "file": "/lessons/docker-vs-vm/04-section-2.m4a",
+     "duration": 55.23,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Side by side."
+      },
+      {
+       "t": 2.78,
+       "text": "Size: a VM image carries a full OS, typically gigabytes."
+      },
+      {
+       "t": 8.285,
+       "text": "A container image carries only the app and its libraries, typically tens to hundreds of megabytes."
+      },
+      {
+       "t": 15.965,
+       "text": "Start time: a VM boots an OS, often tens of seconds to minutes."
+      },
+      {
+       "t": 22.145,
+       "text": "A container starts a process, usually under a second."
+      },
+      {
+       "t": 26.9,
+       "text": "Density: tens of VMs per server versus hundreds of containers."
+      },
+      {
+       "t": 32.63,
+       "text": "Isolation: a VM has its own kernel, so a kernel exploit in one guest does not reach the others."
+      },
+      {
+       "t": 40.835,
+       "text": "Containers share one kernel, so a kernel bug can affect all of them."
+      },
+      {
+       "t": 46.465,
+       "text": "OS choice: a VM can run Windows on a Linux host."
+      },
+      {
+       "t": 51.52,
+       "text": "A Linux container needs a Linux kernel."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "When to use which",
+     "file": "/lessons/docker-vs-vm/05-section-3.m4a",
+     "duration": 44.08,
+     "cues": [
+      {
+       "t": 0,
+       "text": "When to use which."
+      },
+      {
+       "t": 2.955,
+       "text": "VMs: a different OS, strong isolation between untrusted tenants, legacy apps that expect a full machine."
+      },
+      {
+       "t": 12.41,
+       "text": "Containers: microservices, the same image from laptop to CI to production, fast scaling."
+      },
+      {
+       "t": 20.29,
+       "text": "Both, very often: cloud containers usually run inside VMs, and Docker Desktop on Windows and macOS runs a small Linux VM to provide the kernel."
+      },
+      {
+       "t": 33.42,
+       "text": "Lightweight VMs like Firecracker (AWS Lambda, Fargate) combine VM-level isolation with near-container start times."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/docker-vs-vm/06-walkthrough.m4a",
+     "duration": 101.22,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: Shipping a Python web app with Docker."
+      },
+      {
+       "t": 7.08,
+       "text": "Step 1."
+      },
+      {
+       "t": 8.985,
+       "text": "The Dockerfile is the recipe: start from a small Python image, install dependencies, copy the code, set the start command."
+      },
+      {
+       "t": 19.715,
+       "text": "Step 2."
+      },
+      {
+       "t": 21.595,
+       "text": "docker build runs each instruction and saves the result as a layer."
+      },
+      {
+       "t": 27.325,
+       "text": "Layers are cached, so changing only your code rebuilds only the last layers."
+      },
+      {
+       "t": 34.205,
+       "text": "Step 3."
+      },
+      {
+       "t": 36.16,
+       "text": "docker push uploads only the layers the Registry does not have yet."
+      },
+      {
+       "t": 42.49,
+       "text": "Step 4."
+      },
+      {
+       "t": 44.42,
+       "text": "On the server, the Docker Engine pulls the image, again skipping layers it already has."
+      },
+      {
+       "t": 51.95,
+       "text": "Step 5."
+      },
+      {
+       "t": 53.955,
+       "text": "docker run asks the kernel for new namespaces and a cgroup with limits, then starts the process inside them."
+      },
+      {
+       "t": 63.36,
+       "text": "Step 6."
+      },
+      {
+       "t": 65.29,
+       "text": "The container is just a Linux process on the shared kernel."
+      },
+      {
+       "t": 70.12,
+       "text": "It starts in about a second, and inside it sees only itself."
+      },
+      {
+       "t": 75.85,
+       "text": "Step 7."
+      },
+      {
+       "t": 77.855,
+       "text": "The same app in a VM: the Hypervisor (KVM, ESXi) gives it virtual hardware, and a full Guest OS per VM has to boot before the app can start."
+      },
+      {
+       "t": 90.71,
+       "text": "Step 8."
+      },
+      {
+       "t": 92.54,
+       "text": "Each VM carries its own kernel: heavier, but a kernel bug in one guest does not reach the others."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/docker-vs-vm/07-takeaways.m4a",
+     "duration": 48.31,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: A VM virtualizes hardware and boots its own OS; a container is an isolated process on a shared kernel."
+      },
+      {
+       "t": 13.035,
+       "text": "2: Namespaces give a container its own view; cgroups limit what it can use."
+      },
+      {
+       "t": 20.115,
+       "text": "3: Containers are megabytes and start in about a second; VMs are gigabytes and take far longer."
+      },
+      {
+       "t": 28.62,
+       "text": "4: VMs isolate better: every guest has its own kernel."
+      },
+      {
+       "t": 34.65,
+       "text": "5: Images are layered and cached: order a Dockerfile from least to most often changed."
+      },
+      {
+       "t": 42.305,
+       "text": "6: In the cloud, containers usually run inside VMs."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/docker-vs-vm/08-practice.m4a",
+     "duration": 96.64,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "Why can't a Linux container run a Windows app natively?"
+      },
+      {
+       "t": 26.045,
+       "text": "Question 2."
+      },
+      {
+       "t": 28.075,
+       "text": "What do layers buy you when 50 images share the same base?"
+      },
+      {
+       "t": 40.93,
+       "text": "Question 3."
+      },
+      {
+       "t": 43.085,
+       "text": "How would you run untrusted user code safely: containers, gVisor, or microVMs?"
+      },
+      {
+       "t": 58.315,
+       "text": "Question 4."
+      },
+      {
+       "t": 60.42,
+       "text": "What happens to a container's files when it is deleted, and how do volumes help?"
+      },
+      {
+       "t": 74.7,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.88,
+       "text": "Why do Kubernetes nodes run in VMs in most clouds?"
+      },
+      {
+       "t": 89.635,
+       "text": "That's Docker versus Virtual Machines."
+      },
+      {
+       "t": 93.19,
+       "text": "Next up: Twitter Timeline & Search."
+      }
+     ]
+    }
+   ],
+   "duration": 465
+  },
+  "url-shortener": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/url-shortener/01-intro.m4a",
+     "duration": 35.59,
+     "cues": [
+      {
+       "t": 0,
+       "text": "URL Shortener."
+      },
+      {
+       "t": 2.905,
+       "text": "Turns a long URL into a short code and redirects anyone who opens the code."
+      },
+      {
+       "t": 9.61,
+       "text": "It is a classic read-heavy system: one link is created once and opened many times, so the design is mostly about fast lookups."
+      },
+      {
+       "t": 20.49,
+       "text": "In this lesson: overview, requirements, capacity estimates, components, data model, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/url-shortener/02-section-0.m4a",
+     "duration": 35.28,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Users submit a long URL and get back a short link like sho.rt/aZ3k9Qx."
+      },
+      {
+       "t": 11.085,
+       "text": "Opening that link sends them to the original URL."
+      },
+      {
+       "t": 15.565,
+       "text": "Optional extras: custom aliases, expiry dates and click analytics."
+      },
+      {
+       "t": 21.595,
+       "text": "The defining property is the read/write ratio."
+      },
+      {
+       "t": 25.9,
+       "text": "A link is written once and read many times, often 100 reads per write, so the redirect path is what you optimize."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Requirements",
+     "file": "/lessons/url-shortener/03-section-1.m4a",
+     "duration": 36.24,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Requirements."
+      },
+      {
+       "t": 2.58,
+       "text": "Functional:"
+      },
+      {
+       "t": 4.435,
+       "text": "Create a short code for a long URL (optionally a custom alias and an expiry)."
+      },
+      {
+       "t": 11.14,
+       "text": "Redirect a short code to its URL."
+      },
+      {
+       "t": 14.77,
+       "text": "Count clicks per link."
+      },
+      {
+       "t": 17.1,
+       "text": "Non-functional:"
+      },
+      {
+       "t": 19.255,
+       "text": "Redirects must be fast: a few milliseconds inside the service."
+      },
+      {
+       "t": 24.76,
+       "text": "Highly available: a broken redirect is a broken link on someone else's page."
+      },
+      {
+       "t": 31.29,
+       "text": "Codes must be unique and hard to guess if links are private."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Capacity estimates",
+     "file": "/lessons/url-shortener/04-section-2.m4a",
+     "duration": 47.58,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Capacity estimates."
+      },
+      {
+       "t": 3.08,
+       "text": "Illustrative numbers, typical for an interview:"
+      },
+      {
+       "t": 7.16,
+       "text": "100 million new links a month is about 40 writes per second on average."
+      },
+      {
+       "t": 13.665,
+       "text": "At 100 reads per write, that is about 4,000 redirects per second, with peaks of maybe 10 times that."
+      },
+      {
+       "t": 22.52,
+       "text": "At roughly 500 bytes per row, five years of links (6 billion rows) is about 3 TB, which suits a sharded relational store or a key-value store."
+      },
+      {
+       "t": 34.925,
+       "text": "Code length: 62^7 is about 3.5 trillion codes, so 7 base62 characters (a–z, A–Z, 0–9) last a very long time."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/url-shortener/05-section-3.m4a",
+     "duration": 64.86,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "Load Balancer: spreads traffic across stateless API servers, so you scale by adding servers."
+      },
+      {
+       "t": 10.46,
+       "text": "Shorten API: validates the URL (format, blocklist), gets an ID, stores the mapping."
+      },
+      {
+       "t": 18.165,
+       "text": "Key Generator (base62): hands out unique IDs; base62 encoding turns a number into a short, URL-safe code."
+      },
+      {
+       "t": 28.67,
+       "text": "Redirect API: the hot path."
+      },
+      {
+       "t": 32.175,
+       "text": "Look up, redirect, emit an event, nothing else."
+      },
+      {
+       "t": 36.13,
+       "text": "Redis Cache: holds popular codes."
+      },
+      {
+       "t": 39.66,
+       "text": "Link traffic is very skewed, so a small hot set serves most redirects."
+      },
+      {
+       "t": 45.79,
+       "text": "URL Database: the source of truth, keyed by short code."
+      },
+      {
+       "t": 50.995,
+       "text": "Click Event Queue and Analytics Worker: keep analytics off the redirect path so slow counting never delays a redirect."
+      },
+      {
+       "t": 60.6,
+       "text": "Stats Store: aggregated counts for dashboards."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Data model",
+     "file": "/lessons/url-shortener/06-section-4.m4a",
+     "duration": 34.48,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Data model."
+      },
+      {
+       "t": 2.555,
+       "text": "urls: one row per short link."
+      },
+      {
+       "t": 5.635,
+       "text": "shortcode is UNIQUE, which also creates the index every redirect uses."
+      },
+      {
+       "t": 11.765,
+       "text": "userid is nullable so anonymous links work."
+      },
+      {
+       "t": 15.945,
+       "text": "users: the people who create links."
+      },
+      {
+       "t": 19.325,
+       "text": "urldailystats: one row per link per day, primary key (urlid, day)."
+      },
+      {
+       "t": 24.93,
+       "text": "Counting per day keeps the table small; raw click events stay in the queue or a log store, not in the OLTP database."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Key decisions",
+     "file": "/lessons/url-shortener/07-section-5.m4a",
+     "duration": 72.51,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "How to generate codes."
+      },
+      {
+       "t": 5.385,
+       "text": "A counter encoded in base62 never collides, but is guessable and needs coordination."
+      },
+      {
+       "t": 12.965,
+       "text": "Hashing the URL (and truncating) needs collision checks."
+      },
+      {
+       "t": 17.595,
+       "text": "Random codes need a uniqueness check on insert."
+      },
+      {
+       "t": 21.8,
+       "text": "A common answer: each server reserves a block of IDs (say 1,000 at a time) from a central counter, so there is no per-request coordination."
+      },
+      {
+       "t": 33.23,
+       "text": "301 or 302."
+      },
+      {
+       "t": 36.81,
+       "text": "A 301 (permanent) is cached by browsers, which saves traffic but means later clicks never reach you: no analytics, and you cannot change the target."
+      },
+      {
+       "t": 48.44,
+       "text": "A 302 (temporary) sends every click through the service."
+      },
+      {
+       "t": 53.695,
+       "text": "Cache-aside with a TTL: read the cache, fall back to the database, then populate the cache."
+      },
+      {
+       "t": 61.275,
+       "text": "Links rarely change, so stale entries are rarely a problem."
+      },
+      {
+       "t": 66.655,
+       "text": "Async analytics: never count clicks synchronously on the redirect path."
+      }
+     ]
+    },
+    {
+     "id": "section-6",
+     "title": "Scaling and failure",
+     "file": "/lessons/url-shortener/08-section-6.m4a",
+     "duration": 56.77,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "Reads: add Redirect API servers and cache capacity first, then database read replicas."
+      },
+      {
+       "t": 11.085,
+       "text": "Storage: shard the URL Database by short code (hash-based) once a single node is not enough."
+      },
+      {
+       "t": 18.94,
+       "text": "Hot links: a viral link can overload one cache node."
+      },
+      {
+       "t": 23.845,
+       "text": "Replicate hot keys or add a small in-process cache on each server."
+      },
+      {
+       "t": 29.475,
+       "text": "Cache stampede: when a popular entry expires, many requests hit the database at once."
+      },
+      {
+       "t": 36.855,
+       "text": "Use request coalescing or refresh entries early."
+      },
+      {
+       "t": 41.21,
+       "text": "Key Generator as a single point of failure: block reservation means servers keep working through short outages."
+      },
+      {
+       "t": 49.69,
+       "text": "Abuse: rate-limit link creation, and scan target URLs for phishing and malware."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/url-shortener/09-walkthrough.m4a",
+     "duration": 151.28,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: https://www.example.com/blog/2026/how-we-scaled-our-database-to-a-billion-rows."
+      },
+      {
+       "t": 16.255,
+       "text": "Step 1."
+      },
+      {
+       "t": 18.16,
+       "text": "User / Browser asks to shorten the URL."
+      },
+      {
+       "t": 22.415,
+       "text": "The Load Balancer forwards it to one of the Shorten API servers."
+      },
+      {
+       "t": 28.27,
+       "text": "Step 2."
+      },
+      {
+       "t": 30.15,
+       "text": "Shorten API validates it: scheme https, host www.example.com, 78 characters."
+      },
+      {
+       "t": 39.905,
+       "text": "It would also check the host against a malware blocklist."
+      },
+      {
+       "t": 45.21,
+       "text": "Step 3."
+      },
+      {
+       "t": 47.165,
+       "text": "Key Generator hands out the next unique ID, and base62 turns it into a 7-character code."
+      },
+      {
+       "t": 56.17,
+       "text": "Step 4."
+      },
+      {
+       "t": 58.1,
+       "text": "The mapping is stored."
+      },
+      {
+       "t": 60.505,
+       "text": "shortcode is UNIQUE, so a duplicate could never be inserted."
+      },
+      {
+       "t": 66.31,
+       "text": "Step 5."
+      },
+      {
+       "t": 68.315,
+       "text": "The short link goes back to the user."
+      },
+      {
+       "t": 72.345,
+       "text": "Step 6."
+      },
+      {
+       "t": 74.275,
+       "text": "Later, someone opens https://sho.rt/2cVydGc."
+      },
+      {
+       "t": 81.28,
+       "text": "The Load Balancer sends it to a Redirect API server."
+      },
+      {
+       "t": 86.66,
+       "text": "Step 7."
+      },
+      {
+       "t": 88.665,
+       "text": "In cache?"
+      },
+      {
+       "t": 90.57,
+       "text": "First the Redis Cache is checked."
+      },
+      {
+       "t": 93.575,
+       "text": "This link is new, so it is a miss."
+      },
+      {
+       "t": 97.68,
+       "text": "Step 8."
+      },
+      {
+       "t": 99.51,
+       "text": "On a miss, the URL Database is read using the unique index on shortcode (a few milliseconds)."
+      },
+      {
+       "t": 108.365,
+       "text": "Step 9."
+      },
+      {
+       "t": 110.345,
+       "text": "The answer is put in Redis Cache with a TTL, so the next visits skip the database."
+      },
+      {
+       "t": 117.875,
+       "text": "Step 10."
+      },
+      {
+       "t": 119.855,
+       "text": "Redirect API answers with 302 and the browser follows the Location header to the original page."
+      },
+      {
+       "t": 129.035,
+       "text": "Step 11."
+      },
+      {
+       "t": 131.09,
+       "text": "Without slowing the redirect, a click event goes to the Click Event Queue; the Analytics Worker adds it to the daily count."
+      },
+      {
+       "t": 140.82,
+       "text": "Step 12."
+      },
+      {
+       "t": 142.875,
+       "text": "The next visitor gets a cache hit: Redis answers in under a millisecond and the database is not touched."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/url-shortener/10-takeaways.m4a",
+     "duration": 47.56,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: Give each link a unique ID from a counter and write it in base62: 7 characters cover 3.5 trillion links."
+      },
+      {
+       "t": 13.685,
+       "text": "2: Reads outnumber writes about 100 to 1, so optimise the redirect path."
+      },
+      {
+       "t": 21.29,
+       "text": "3: Cache hot codes in Redis; the database only sees cache misses."
+      },
+      {
+       "t": 28.02,
+       "text": "4: Keep API servers stateless so you can add more behind the load balancer."
+      },
+      {
+       "t": 35.3,
+       "text": "5: Count clicks through a queue, never inside the redirect."
+      },
+      {
+       "t": 40.78,
+       "text": "6: Hand each server a block of IDs so the counter is not a bottleneck."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/url-shortener/11-practice.m4a",
+     "duration": 93.05,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "How would you support custom aliases without collisions?"
+      },
+      {
+       "t": 25.645,
+       "text": "Question 2."
+      },
+      {
+       "t": 27.675,
+       "text": "How do you make codes unguessable for private links?"
+      },
+      {
+       "t": 39.63,
+       "text": "Question 3."
+      },
+      {
+       "t": 41.785,
+       "text": "What changes if each link must redirect differently by country or device?"
+      },
+      {
+       "t": 55.415,
+       "text": "Question 4."
+      },
+      {
+       "t": 57.52,
+       "text": "How do you delete expired links without slowing down the database?"
+      },
+      {
+       "t": 70.275,
+       "text": "Question 5."
+      },
+      {
+       "t": 72.455,
+       "text": "How would you guarantee a link keeps working if a whole region goes down?"
+      },
+      {
+       "t": 85.735,
+       "text": "That's URL Shortener."
+      },
+      {
+       "t": 88.365,
+       "text": "Next up: Role-Based Access Control (RBAC)."
+      }
+     ]
+    }
+   ],
+   "duration": 675
+  },
+  "rbac": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/rbac/01-intro.m4a",
+     "duration": 33.95,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Role-Based Access Control (RBAC)."
+      },
+      {
+       "t": 4.705,
+       "text": "Instead of granting permissions to each user, you grant them to roles (admin, editor, viewer) and give users roles."
+      },
+      {
+       "t": 13.51,
+       "text": "Access checks become \"does any of this user's roles include this permission?\"."
+      },
+      {
+       "t": 20.19,
+       "text": "In this lesson: overview, core model, components, where to enforce, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/rbac/02-section-0.m4a",
+     "duration": 41.8,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Two different questions are involved, and mixing them up is the most common mistake:"
+      },
+      {
+       "t": 8.71,
+       "text": "Authentication (authN): who are you?"
+      },
+      {
+       "t": 12.265,
+       "text": "Answered at login."
+      },
+      {
+       "t": 14.745,
+       "text": "Failure is 401 Unauthorized."
+      },
+      {
+       "t": 18.75,
+       "text": "Authorization (authZ): what may you do?"
+      },
+      {
+       "t": 22.705,
+       "text": "Answered on every request."
+      },
+      {
+       "t": 25.61,
+       "text": "Failure is 403 Forbidden."
+      },
+      {
+       "t": 29.215,
+       "text": "RBAC is a way to answer the second question that stays manageable as users grow: you manage a handful of roles instead of thousands of individual grants."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Core model",
+     "file": "/lessons/rbac/03-section-1.m4a",
+     "duration": 40.81,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Core model."
+      },
+      {
+       "t": 2.455,
+       "text": "A permission is an action on a resource, written like \"invoice:read\" or \"invoice:approve\"."
+      },
+      {
+       "t": 9.485,
+       "text": "A role is a named set of permissions, like \"accountant\"."
+      },
+      {
+       "t": 14.015,
+       "text": "A user has one or more roles."
+      },
+      {
+       "t": 17.12,
+       "text": "Their effective permissions are the union of their roles' permissions."
+      },
+      {
+       "t": 22.375,
+       "text": "Both links are many-to-many, which is why the database uses two join tables: userroles and rolepermissions."
+      },
+      {
+       "t": 31.055,
+       "text": "Principles: deny by default (no matching permission means no access), and least privilege (give each role only what it needs)."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Components",
+     "file": "/lessons/rbac/04-section-2.m4a",
+     "duration": 59.49,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "Login Service: authenticates users and issues tokens."
+      },
+      {
+       "t": 7.585,
+       "text": "It is the only place that sees passwords."
+      },
+      {
+       "t": 11.265,
+       "text": "Users & Roles DB: the source of truth for users, roles, permissions and the links between them."
+      },
+      {
+       "t": 19.395,
+       "text": "Issue J W T (roles claim): signs the token (RS256 lets any service verify it with the public key)."
+      },
+      {
+       "t": 29.225,
+       "text": "API Gateway: checks the token once at the edge, so services do not each re-implement it."
+      },
+      {
+       "t": 36.555,
+       "text": "Policy Check: turns roles into permissions for the requested action; can live in the gateway or a shared library."
+      },
+      {
+       "t": 45.385,
+       "text": "Protected Service: still checks ownership rules itself (see \"Where to enforce\")."
+      },
+      {
+       "t": 51.765,
+       "text": "Audit Log: append-only record of access decisions, required by most compliance standards."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Where to enforce",
+     "file": "/lessons/rbac/05-section-3.m4a",
+     "duration": 41.65,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Where to enforce."
+      },
+      {
+       "t": 2.83,
+       "text": "Coarse checks (\"only editors may call POST /articles\") fit well in the gateway."
+      },
+      {
+       "t": 9.035,
+       "text": "Fine-grained checks (\"editors may edit only their own drafts\") need data the gateway does not have, so the service enforces them."
+      },
+      {
+       "t": 19.215,
+       "text": "When rules depend on attributes (owner, department, time of day), RBAC alone stops scaling."
+      },
+      {
+       "t": 26.82,
+       "text": "That is where ABAC (attribute-based access control) or relationship-based models (like Google Zanzibar) come in; many real systems combine RBAC with a few attribute checks."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/rbac/06-section-4.m4a",
+     "duration": 56.16,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Roles in the token versus looked up per request."
+      },
+      {
+       "t": 7.185,
+       "text": "Roles in the J W T avoid a database call on every request, but changes (like removing a role) only take effect when the token expires."
+      },
+      {
+       "t": 19.015,
+       "text": "Typical answer: short-lived access tokens (about 5 to 15 minutes) plus refresh tokens, with permissions cached per role."
+      },
+      {
+       "t": 28.995,
+       "text": "Permission naming: \"resource:action\" strings are easy to read, check and audit."
+      },
+      {
+       "t": 35.225,
+       "text": "Role design: start with a few broad roles."
+      },
+      {
+       "t": 39.305,
+       "text": "Too many fine-grained roles (\"role explosion\") is as hard to manage as per-user grants."
+      },
+      {
+       "t": 46.66,
+       "text": "Revocation: for urgent cases (a fired employee), keep a short denylist of revoked token ids until they expire."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/rbac/07-section-5.m4a",
+     "duration": 39.93,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "Permission checks run on every request, so cache role  to  permissions in memory; it changes rarely."
+      },
+      {
+       "t": 10.635,
+       "text": "If the Identity Provider goes down, existing tokens keep working until they expire, but nobody new can sign in."
+      },
+      {
+       "t": 19.94,
+       "text": "Run it highly available."
+      },
+      {
+       "t": 22.67,
+       "text": "Signing keys must rotate: publish the public keys (JWKS) so services can pick up new ones without redeploying."
+      },
+      {
+       "t": 32.625,
+       "text": "Fail closed: if a permission check cannot be completed, deny the request rather than allow it."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/rbac/08-walkthrough.m4a",
+     "duration": 107.27,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: editor tries article:delete."
+      },
+      {
+       "t": 6.68,
+       "text": "Step 1."
+      },
+      {
+       "t": 8.585,
+       "text": "The User signs in through the Client App, which sends the credentials to the Login Service over HTTPS."
+      },
+      {
+       "t": 17.69,
+       "text": "Step 2."
+      },
+      {
+       "t": 19.57,
+       "text": "The Login Service checks the password against the stored bcrypt hash, then loads the user's roles."
+      },
+      {
+       "t": 27.925,
+       "text": "Step 3."
+      },
+      {
+       "t": 29.88,
+       "text": "Issue J W T: the roles go into a signed, short-lived token."
+      },
+      {
+       "t": 35.61,
+       "text": "Anyone can read the claims; only the Identity Provider can sign them."
+      },
+      {
+       "t": 42.09,
+       "text": "Step 4."
+      },
+      {
+       "t": 44.02,
+       "text": "The Client App calls the API with the token."
+      },
+      {
+       "t": 47.9,
+       "text": "The route needs the permission \"article:delete\"."
+      },
+      {
+       "t": 52.505,
+       "text": "Step 5."
+      },
+      {
+       "t": 54.51,
+       "text": "Token valid?"
+      },
+      {
+       "t": 56.615,
+       "text": "The gateway verifies the RS256 signature with the public key for kid \"key-2026-10\" and checks exp."
+      },
+      {
+       "t": 66.145,
+       "text": "Both pass."
+      },
+      {
+       "t": 68.825,
+       "text": "Step 6."
+      },
+      {
+       "t": 70.755,
+       "text": "Policy Check expands the role into permissions and looks for \"article:delete\"."
+      },
+      {
+       "t": 77.66,
+       "text": "Step 7."
+      },
+      {
+       "t": 79.665,
+       "text": "Has permission?"
+      },
+      {
+       "t": 81.745,
+       "text": "No."
+      },
+      {
+       "t": 83.35,
+       "text": "The user is signed in, but \"editor\" does not include \"article:delete\", so the answer is 403 Forbidden (not 401: signing in again would not help)."
+      },
+      {
+       "t": 96.83,
+       "text": "Step 8."
+      },
+      {
+       "t": 98.66,
+       "text": "Refusals are audited too: they are how you spot misconfigured roles or someone probing the API."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/rbac/09-takeaways.m4a",
+     "duration": 45.91,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: Authentication asks who you are (401); authorization asks what you may do (403)."
+      },
+      {
+       "t": 12.11,
+       "text": "2: Grant permissions to roles and roles to users, never permissions to users directly."
+      },
+      {
+       "t": 19.84,
+       "text": "3: Deny by default, and give each role only what it needs."
+      },
+      {
+       "t": 25.595,
+       "text": "4: Short-lived J W Ts carry roles; a removed role stops working when the token expires."
+      },
+      {
+       "t": 34.45,
+       "text": "5: Check coarse rules at the gateway and ownership rules in the service."
+      },
+      {
+       "t": 40.68,
+       "text": "6: Audit every decision, refusals included."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/rbac/10-practice.m4a",
+     "duration": 103.08,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "A user's role is removed."
+      },
+      {
+       "t": 16.12,
+       "text": "How quickly does it take effect, and how would you make it immediate?"
+      },
+      {
+       "t": 28.95,
+       "text": "Question 2."
+      },
+      {
+       "t": 30.98,
+       "text": "How would you let editors edit only their own articles?"
+      },
+      {
+       "t": 43.31,
+       "text": "Question 3."
+      },
+      {
+       "t": 45.465,
+       "text": "How do you support role hierarchies, where admin inherits everything editor has?"
+      },
+      {
+       "t": 59.97,
+       "text": "Question 4."
+      },
+      {
+       "t": 62.075,
+       "text": "Where do you store tokens in a browser, and how do you protect them from XSS and CSRF?"
+      },
+      {
+       "t": 77.205,
+       "text": "Question 5."
+      },
+      {
+       "t": 79.385,
+       "text": "How would multi-tenant RBAC work, where roles differ per organization?"
+      },
+      {
+       "t": 93.565,
+       "text": "That's Role-Based Access Control (RBAC)."
+      },
+      {
+       "t": 98.095,
+       "text": "Next up: Uber Surge Pricing & Artificial Scarcity."
+      }
+     ]
+    }
+   ],
+   "duration": 570
+  },
+  "uber-surge": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/uber-surge/01-intro.m4a",
+     "duration": 44.12,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Uber Surge Pricing & Artificial Scarcity."
+      },
+      {
+       "t": 4.755,
+       "text": "Surge pricing raises the price where riders outnumber free drivers, to pull more drivers in."
+      },
+      {
+       "t": 12.135,
+       "text": "Because the price reacts to supply, drivers can fake a shortage by going offline together: artificial scarcity."
+      },
+      {
+       "t": 20.99,
+       "text": "A robust design prices from smoothed, sanity-checked supply and locks the price the rider sees."
+      },
+      {
+       "t": 29.17,
+       "text": "In this lesson: overview, the problem: artificial scarcity, fixes, components, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/uber-surge/02-section-0.m4a",
+     "duration": 43.27,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "A ride app is a marketplace with two sides."
+      },
+      {
+       "t": 6.235,
+       "text": "When riders in one area outnumber free drivers, waits get long."
+      },
+      {
+       "t": 11.765,
+       "text": "Surge pricing raises the price there, which does two things: some riders wait or choose another option, and drivers nearby head over."
+      },
+      {
+       "t": 21.795,
+       "text": "Supply and demand meet again."
+      },
+      {
+       "t": 24.975,
+       "text": "The area unit matters."
+      },
+      {
+       "t": 27.655,
+       "text": "Uber divides cities into hexagons with H3, its open-source grid."
+      },
+      {
+       "t": 33.86,
+       "text": "Hexagons are used because every neighbour is the same distance away, which makes \"this cell and its neighbours\" easy to compute."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "The problem: artificial scarcity",
+     "file": "/lessons/uber-surge/03-section-1.m4a",
+     "duration": 43.94,
+     "cues": [
+      {
+       "t": 0,
+       "text": "The problem: artificial scarcity."
+      },
+      {
+       "t": 3.98,
+       "text": "The price is a function of supply, so whoever controls supply controls the price."
+      },
+      {
+       "t": 10.585,
+       "text": "News reports have described drivers at some airports switching off the app together."
+      },
+      {
+       "t": 17.09,
+       "text": "The map shows no free cars, the price surges, and the drivers switch back on to take the higher fares."
+      },
+      {
+       "t": 25.045,
+       "text": "That is artificial scarcity: the shortage is fake, the price is real."
+      },
+      {
+       "t": 30.775,
+       "text": "Riders overpay, and the honest signal the system depends on is corrupted."
+      },
+      {
+       "t": 36.855,
+       "text": "The same weakness applies to any price driven by live supply, like flash sales and ticketing."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Fixes",
+     "file": "/lessons/uber-surge/04-section-2.m4a",
+     "duration": 76.47,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Fixes."
+      },
+      {
+       "t": 2.355,
+       "text": "Smooth the signal."
+      },
+      {
+       "t": 4.635,
+       "text": "Never price from one snapshot."
+      },
+      {
+       "t": 7.69,
+       "text": "Average supply over a window of minutes and blend in neighbouring hexagons."
+      },
+      {
+       "t": 13.945,
+       "text": "A sudden dip that lasts two minutes barely moves a 10-minute average."
+      },
+      {
+       "t": 19.4,
+       "text": "Detect coordination."
+      },
+      {
+       "t": 22.005,
+       "text": "Normal churn is spread out; a coordinated logout is many drivers, one hexagon, one minute."
+      },
+      {
+       "t": 29.81,
+       "text": "Leave those drop-offs out of supply and review the accounts."
+      },
+      {
+       "t": 34.64,
+       "text": "Lock the price."
+      },
+      {
+       "t": 36.77,
+       "text": "The rider sees one upfront price when they request, valid for a short time, so a manipulated spike a minute later cannot change it."
+      },
+      {
+       "t": 46.725,
+       "text": "Forecast and nudge."
+      },
+      {
+       "t": 49.18,
+       "text": "Flights landing, concerts ending and rain are predictable."
+      },
+      {
+       "t": 54.085,
+       "text": "Use forecasts and heatmaps to bring drivers in before the spike, so there is less shortage to exploit."
+      },
+      {
+       "t": 61.815,
+       "text": "Change the incentive."
+      },
+      {
+       "t": 64.32,
+       "text": "Pay drivers bonuses tied to an area and time window rather than the live multiplier at the moment of acceptance, so logging off to spike the price stops paying."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/uber-surge/05-section-3.m4a",
+     "duration": 61.91,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "API Gateway: authenticates the apps and turns their updates into events."
+      },
+      {
+       "t": 8.61,
+       "text": "Kafka (location events): a durable, ordered stream; hundreds of thousands of drivers sending updates every few seconds is a high-volume write stream that a database should not take directly."
+      },
+      {
+       "t": 23.19,
+       "text": "Stream Processor: a streaming job (Flink is common) that keeps windowed counts per hexagon in memory."
+      },
+      {
+       "t": 31.17,
+       "text": "Supply & Demand per H3 Cell: the current counts, kept in a fast key-value store and also written to surgesnapshots for analysis."
+      },
+      {
+       "t": 41.7,
+       "text": "Coordinated Drop-off?: rules or a model over driverstatusevents."
+      },
+      {
+       "t": 47.53,
+       "text": "Pricing Service: reads smoothed counts and forecasts, and returns a multiplier per hexagon."
+      },
+      {
+       "t": 55.31,
+       "text": "Locked Upfront Quote: a short-lived quote stored with an expiry, honoured at booking."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/uber-surge/06-section-4.m4a",
+     "duration": 51.29,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Hexagon size: smaller cells react to local demand but have few drivers each, so the counts are noisy and easier to manipulate."
+      },
+      {
+       "t": 13.11,
+       "text": "Larger cells are stable but blunt."
+      },
+      {
+       "t": 16.465,
+       "text": "Smoothing across neighbours gets some of both."
+      },
+      {
+       "t": 20.07,
+       "text": "Window length: a longer window resists manipulation but reacts more slowly to real spikes, like a stadium emptying."
+      },
+      {
+       "t": 29.475,
+       "text": "Forecasts help cover the gap."
+      },
+      {
+       "t": 32.455,
+       "text": "Fairness and caps: many places limit surge during emergencies; the pricing service needs a cap per region."
+      },
+      {
+       "t": 40.91,
+       "text": "Explainability: store the inputs for every multiplier (surgesnapshots), so you can answer \"why was this ride ₹600?\"."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/uber-surge/07-section-5.m4a",
+     "duration": 46.01,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "Partition the Kafka topic by hexagon (or region), so one processor owns the counts for a set of cells and no coordination is needed."
+      },
+      {
+       "t": 13.81,
+       "text": "If the stream lags, prices go stale."
+      },
+      {
+       "t": 17.365,
+       "text": "Fail safe: fall back to 1 times  or the last good value with a short expiry, never to an extreme multiplier."
+      },
+      {
+       "t": 26.37,
+       "text": "Late and duplicate GPS events happen on mobile networks; count by event time, deduplicate by (driver, timestamp), and tolerate a little lateness."
+      },
+      {
+       "t": 38.375,
+       "text": "Hot cells (airports, stadiums) get far more events; keep enough processor partitions for them."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/uber-surge/08-walkthrough.m4a",
+     "duration": 123.02,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: 8 riders, 14 drivers usually, 12 went offline."
+      },
+      {
+       "t": 9.13,
+       "text": "Step 1."
+      },
+      {
+       "t": 11.035,
+       "text": "Every Driver App reports its location and status every few seconds through the API Gateway."
+      },
+      {
+       "t": 19.065,
+       "text": "In the last two minutes, 12 of the 14 drivers in this hexagon switched to offline."
+      },
+      {
+       "t": 26.745,
+       "text": "Step 2."
+      },
+      {
+       "t": 28.625,
+       "text": "Riders opening the Rider App count as demand in the same hexagon: 8 are waiting."
+      },
+      {
+       "t": 35.955,
+       "text": "Step 3."
+      },
+      {
+       "t": 37.91,
+       "text": "Events land in Kafka, and the Stream Processor keeps running counts per H3 hexagon."
+      },
+      {
+       "t": 45.74,
+       "text": "Step 4."
+      },
+      {
+       "t": 47.67,
+       "text": "A naive design would price from this snapshot: 8 riders ÷ 2 drivers gives 2.2 times ."
+      },
+      {
+       "t": 55.225,
+       "text": "That is the number a coordinated logout tries to trigger."
+      },
+      {
+       "t": 60.855,
+       "text": "Step 5."
+      },
+      {
+       "t": 62.86,
+       "text": "Coordinated drop-off?"
+      },
+      {
+       "t": 65.49,
+       "text": "Yes: 12 drivers (86% of the hexagon) left within two minutes."
+      },
+      {
+       "t": 72.07,
+       "text": "Their drop is not treated as a real shortage, and the accounts go to review."
+      },
+      {
+       "t": 78.65,
+       "text": "Step 6."
+      },
+      {
+       "t": 80.58,
+       "text": "Smooth over Time & Space: average the trusted supply over the last 10 minutes, and blend in the neighbouring hexagons, so a short dip barely moves it."
+      },
+      {
+       "t": 92.76,
+       "text": "Step 7."
+      },
+      {
+       "t": 94.765,
+       "text": "The Pricing Service applies the rule to the smoothed supply: 1.0 times  instead of 2.2 times ."
+      },
+      {
+       "t": 103.095,
+       "text": "Step 8."
+      },
+      {
+       "t": 104.925,
+       "text": "The rider gets a Locked Upfront Quote: whatever happens to supply in the next two minutes, this price holds."
+      },
+      {
+       "t": 113.605,
+       "text": "Step 9."
+      },
+      {
+       "t": 115.585,
+       "text": "With a normal price, Dispatch / Matching simply offers the trip to the nearest driver."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/uber-surge/09-takeaways.m4a",
+     "duration": 40.61,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: Surge compares riders asking with free drivers, per H3 hexagon."
+      },
+      {
+       "t": 9.735,
+       "text": "2: A price driven by live supply can be gamed: a coordinated logout fakes a shortage."
+      },
+      {
+       "t": 17.665,
+       "text": "3: Smooth supply over minutes and neighbouring hexagons, never one snapshot."
+      },
+      {
+       "t": 24.745,
+       "text": "4: Flag many drivers going offline in one place at once."
+      },
+      {
+       "t": 30.475,
+       "text": "5: Lock the rider's price when they request."
+      },
+      {
+       "t": 34.88,
+       "text": "6: Forecast demand and bring drivers in before the spike."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/uber-surge/10-practice.m4a",
+     "duration": 100.62,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "How would you detect a coordinated logout that is spread over 10 minutes instead of 1?"
+      },
+      {
+       "t": 27.945,
+       "text": "Question 2."
+      },
+      {
+       "t": 29.975,
+       "text": "How do you choose the hexagon size and the smoothing window?"
+      },
+      {
+       "t": 42.73,
+       "text": "Question 3."
+      },
+      {
+       "t": 44.885,
+       "text": "What happens to prices if the stream processor is 2 minutes behind?"
+      },
+      {
+       "t": 58.69,
+       "text": "Question 4."
+      },
+      {
+       "t": 60.795,
+       "text": "How would you design surge so that it stays fair during an emergency?"
+      },
+      {
+       "t": 74.15,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.33,
+       "text": "How would you prevent riders from gaming it, for example by requesting from a cheaper neighbouring hexagon?"
+      },
+      {
+       "t": 92.11,
+       "text": "That's Uber Surge Pricing & Artificial Scarcity."
+      },
+      {
+       "t": 96.665,
+       "text": "Next up: Docker versus Virtual Machines."
+      }
+     ]
+    }
+   ],
+   "duration": 631
+  },
+  "twitter-timeline": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/twitter-timeline/01-intro.m4a",
+     "duration": 40.57,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Twitter Timeline & Search."
+      },
+      {
+       "t": 3.455,
+       "text": "Users post tweets, read a home timeline built from everyone they follow, and search."
+      },
+      {
+       "t": 9.885,
+       "text": "Reads dwarf writes, so the home timeline is precomputed: each new tweet is pushed into followers' timelines in memory (fan-out on write), except for celebrities, whose tweets are merged in when a timeline is read."
+      },
+      {
+       "t": 26.34,
+       "text": "In this lesson: overview, requirements, capacity estimates, components, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/twitter-timeline/02-section-0.m4a",
+     "duration": 42.81,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Two timelines matter:"
+      },
+      {
+       "t": 4.985,
+       "text": "The user timeline: one person's own tweets."
+      },
+      {
+       "t": 9.24,
+       "text": "Easy: a query on tweets by userid."
+      },
+      {
+       "t": 13.095,
+       "text": "The home timeline: tweets from everyone you follow, newest first."
+      },
+      {
+       "t": 18.225,
+       "text": "Hard: it combines hundreds of people, and it is the most-read page in the product."
+      },
+      {
+       "t": 24.58,
+       "text": "Computing the home timeline on every read (fan-out on read) means querying everyone you follow each time."
+      },
+      {
+       "t": 32.91,
+       "text": "Instead, this design does the work once per tweet (fan-out on write) and keeps every active user's home timeline ready in memory."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Requirements",
+     "file": "/lessons/twitter-timeline/03-section-1.m4a",
+     "duration": 29.39,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Requirements."
+      },
+      {
+       "t": 2.58,
+       "text": "In scope:"
+      },
+      {
+       "t": 4.435,
+       "text": "A user posts a tweet; followers get push notifications and emails."
+      },
+      {
+       "t": 10.365,
+       "text": "A user views their user timeline and their home timeline."
+      },
+      {
+       "t": 15.445,
+       "text": "A user searches by keyword."
+      },
+      {
+       "t": 18.45,
+       "text": "High availability."
+      },
+      {
+       "t": 20.855,
+       "text": "Out of scope: the firehose and other streams, visibility rules (hidden replies and retweets), analytics."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Capacity estimates",
+     "file": "/lessons/twitter-timeline/04-section-2.m4a",
+     "duration": 60,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Capacity estimates."
+      },
+      {
+       "t": 3.08,
+       "text": "Assumptions from the System Design Primer:"
+      },
+      {
+       "t": 7.01,
+       "text": "100 million active users; 500 million tweets a day (15 billion a month)."
+      },
+      {
+       "t": 14.665,
+       "text": "Each tweet fans out to 10 followers on average: 5 billion deliveries a day."
+      },
+      {
+       "t": 21.295,
+       "text": "250 billion timeline reads and 10 billion searches a month."
+      },
+      {
+       "t": 27.5,
+       "text": "Which works out to:"
+      },
+      {
+       "t": 29.755,
+       "text": "About 6,000 tweets per second written, 60,000 fan-out deliveries per second."
+      },
+      {
+       "t": 36.735,
+       "text": "About 100,000 timeline reads per second and 4,000 searches per second."
+      },
+      {
+       "t": 43.615,
+       "text": "About 10 KB per tweet with media: 150 TB of new content a month, 5.4 PB in three years."
+      },
+      {
+       "t": 53.345,
+       "text": "Handy rule: 400 requests per second  about  1 billion requests per month."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/twitter-timeline/05-section-3.m4a",
+     "duration": 65.86,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "Web Server: a reverse proxy in front of the API servers (TLS, routing, compression)."
+      },
+      {
+       "t": 10.11,
+       "text": "Write API, Read API, Search API: stateless servers for the three paths, scaled separately."
+      },
+      {
+       "t": 18.265,
+       "text": "Fan Out Service: turns one tweet into N home-timeline writes, in the background."
+      },
+      {
+       "t": 24.745,
+       "text": "User Graph Service: who follows whom, cached in memory."
+      },
+      {
+       "t": 29.7,
+       "text": "Timeline Service: builds the response from cached ids plus multigets."
+      },
+      {
+       "t": 35.555,
+       "text": "Memory Cache (Redis): each home timeline is a list of (tweetid, userid, meta), 8 + 8 + 1 bytes per entry."
+      },
+      {
+       "t": 45.11,
+       "text": "SQL Database: the source of truth for tweets and users."
+      },
+      {
+       "t": 50.14,
+       "text": "Object Store: photos and video."
+      },
+      {
+       "t": 53.67,
+       "text": "Search Cluster: an inverted index (Lucene-style), kept in memory for low latency."
+      },
+      {
+       "t": 60.5,
+       "text": "Notification Service: sends pushes and emails off a queue."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/twitter-timeline/06-section-4.m4a",
+     "duration": 67.64,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Fan-out on write versus on read."
+      },
+      {
+       "t": 6.085,
+       "text": "On write: reads are one cache lookup, but each tweet costs O(followers) writes."
+      },
+      {
+       "t": 12.165,
+       "text": "On read: tweets are cheap, every timeline read is expensive."
+      },
+      {
+       "t": 17.62,
+       "text": "Twitter-scale read traffic favours writing."
+      },
+      {
+       "t": 21.225,
+       "text": "The celebrity problem."
+      },
+      {
+       "t": 23.78,
+       "text": "Fanning out a tweet to tens of millions of followers takes minutes and floods the cache."
+      },
+      {
+       "t": 29.96,
+       "text": "Skip fan-out above a threshold and merge those accounts' recent tweets in at read time: a hybrid."
+      },
+      {
+       "t": 37.34,
+       "text": "What to keep in memory."
+      },
+      {
+       "t": 39.845,
+       "text": "Only the newest few hundred entries per timeline, and only for users active in the last 30 days."
+      },
+      {
+       "t": 47.7,
+       "text": "An inactive user's timeline is rebuilt from SQL when they come back."
+      },
+      {
+       "t": 53.305,
+       "text": "Ids, not tweets, in the timeline lists: tiny entries, and edits or deletes only touch the Tweet Info Service."
+      },
+      {
+       "t": 61.885,
+       "text": "REST for public APIs, RPC between internal services."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/twitter-timeline/07-section-5.m4a",
+     "duration": 53.63,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "The Fan Out Service is the obvious bottleneck."
+      },
+      {
+       "t": 7.16,
+       "text": "Slow fan-out can also make a reply appear before the tweet it answers; re-ordering by timestamp at serve time hides that."
+      },
+      {
+       "t": 16.39,
+       "text": "The SQL Database will not keep up with 6,000 writes per second plus cache misses on one primary: add read replicas, then federation (split by function), sharding (split by user), and denormalization."
+      },
+      {
+       "t": 32.295,
+       "text": "Some data fits NoSQL better, for example timelines and the social graph."
+      },
+      {
+       "t": 38.45,
+       "text": "Keep the Search Cluster's index in memory; queries scatter to every shard, so one slow shard slows every search."
+      },
+      {
+       "t": 47.355,
+       "text": "Benchmark, profile, fix the worst bottleneck, repeat: scaling is iterative."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/twitter-timeline/08-walkthrough.m4a",
+     "duration": 120.93,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: @devnews (12,000 followers) posts a tweet."
+      },
+      {
+       "t": 8.33,
+       "text": "Step 1."
+      },
+      {
+       "t": 10.235,
+       "text": "@devnews posts a tweet."
+      },
+      {
+       "t": 13.04,
+       "text": "The Client sends it to the Web Server (a reverse proxy), which forwards it to the Write API."
+      },
+      {
+       "t": 21.07,
+       "text": "Step 2."
+      },
+      {
+       "t": 22.95,
+       "text": "The Write API saves the tweet to the author's own timeline in the SQL Database."
+      },
+      {
+       "t": 29.505,
+       "text": "That is the user timeline: the author's own tweets, in order."
+      },
+      {
+       "t": 35.41,
+       "text": "Step 3."
+      },
+      {
+       "t": 37.365,
+       "text": "Media goes to the Object Store, not the database: a tweet row stays small, and photos and videos are served from cheap blob storage (usually behind a CDN)."
+      },
+      {
+       "t": 50.745,
+       "text": "Step 4."
+      },
+      {
+       "t": 52.675,
+       "text": "The Write API hands the tweet to the Fan Out Service, which asks the User Graph Service who follows the author."
+      },
+      {
+       "t": 61.23,
+       "text": "The follower lists live in the Memory Cache."
+      },
+      {
+       "t": 65.635,
+       "text": "Step 5."
+      },
+      {
+       "t": 67.64,
+       "text": "Fan-out on write: the tweet id is pushed onto the home timeline of each of the 12,000 followers in the Memory Cache."
+      },
+      {
+       "t": 76.62,
+       "text": "It is O(n): 12,000 followers means 12,000 inserts, and each list is trimmed to its newest 800."
+      },
+      {
+       "t": 86.7,
+       "text": "Step 6."
+      },
+      {
+       "t": 88.63,
+       "text": "The tweet is added to the Search Cluster so keyword searches can find it within seconds."
+      },
+      {
+       "t": 95.96,
+       "text": "Step 7."
+      },
+      {
+       "t": 97.965,
+       "text": "Notifications go out through the Notification Service, which works off a queue so a slow push or email provider never delays the post."
+      },
+      {
+       "t": 109.17,
+       "text": "Step 8."
+      },
+      {
+       "t": 111,
+       "text": "The author gets a response as soon as the tweet is saved; fan-out, indexing and notifications carry on in the background."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/twitter-timeline/09-takeaways.m4a",
+     "duration": 49.71,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: The home timeline is read far more than tweets are written, so build it ahead of time: fan out on write."
+      },
+      {
+       "t": 11.66,
+       "text": "2: Fan-out is O(followers): fine for most users, far too slow for celebrities."
+      },
+      {
+       "t": 19.215,
+       "text": "3: Skip fan-out for accounts with millions of followers and merge their tweets in at read time."
+      },
+      {
+       "t": 27.195,
+       "text": "4: Keep timelines in memory, only the newest few hundred tweets, and only for active users."
+      },
+      {
+       "t": 35.475,
+       "text": "5: Store tweets in SQL for the user timeline; serve home timelines from the cache."
+      },
+      {
+       "t": 42.98,
+       "text": "6: Push notifications and indexing through queues so posting stays fast."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/twitter-timeline/10-practice.m4a",
+     "duration": 95.7,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "Where exactly would you put the celebrity threshold, and how would you measure it?"
+      },
+      {
+       "t": 27.17,
+       "text": "Question 2."
+      },
+      {
+       "t": 29.2,
+       "text": "A user unfollows someone."
+      },
+      {
+       "t": 32.28,
+       "text": "How do their tweets leave the home timeline?"
+      },
+      {
+       "t": 43.86,
+       "text": "Question 3."
+      },
+      {
+       "t": 46.015,
+       "text": "How do you rebuild the timeline of a user who has been away for a year?"
+      },
+      {
+       "t": 59.47,
+       "text": "Question 4."
+      },
+      {
+       "t": 61.575,
+       "text": "How would you rank the timeline instead of sorting it by time?"
+      },
+      {
+       "t": 74.28,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.46,
+       "text": "How would you make a tweet searchable within a few seconds of posting?"
+      },
+      {
+       "t": 89.415,
+       "text": "That's Twitter Timeline & Search."
+      },
+      {
+       "t": 92.545,
+       "text": "Next up: Web Crawler & Search."
+      }
+     ]
+    }
+   ],
+   "duration": 626
+  },
+  "web-crawler": {
+   "chapters": [
+    {
+     "id": "intro",
+     "title": "Introduction",
+     "file": "/lessons/web-crawler/01-intro.m4a",
+     "duration": 37.7,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Web Crawler & Search."
+      },
+      {
+       "t": 3.155,
+       "text": "A crawler keeps a priority queue of links, fetches the most important page, skips it if a near-identical page was already crawled, and otherwise queues it for indexing."
+      },
+      {
+       "t": 15.885,
+       "text": "Search reads only the reverse index (word  to  pages) and the stored titles and snippets."
+      },
+      {
+       "t": 23.465,
+       "text": "In this lesson: overview, requirements, capacity estimates, components, key decisions, scaling and failure, a request walked through step by step, the key takeaways, and interview practice."
+      }
+     ]
+    },
+    {
+     "id": "section-0",
+     "title": "Overview",
+     "file": "/lessons/web-crawler/02-section-0.m4a",
+     "duration": 34.51,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Overview."
+      },
+      {
+       "t": 2.455,
+       "text": "Two systems share the data:"
+      },
+      {
+       "t": 5.235,
+       "text": "The crawler: runs all the time, turning links into indexed pages."
+      },
+      {
+       "t": 10.79,
+       "text": "It is write-heavy and must never get stuck in a loop."
+      },
+      {
+       "t": 15.12,
+       "text": "Search: answers user queries from the index."
+      },
+      {
+       "t": 18.95,
+       "text": "It is read-heavy and must be fast."
+      },
+      {
+       "t": 22.305,
+       "text": "The web is a graph full of cycles and copies (mirrors, URL parameters, printer-friendly pages), so most of the design is about deciding what not to crawl."
+      }
+     ]
+    },
+    {
+     "id": "section-1",
+     "title": "Requirements",
+     "file": "/lessons/web-crawler/03-section-1.m4a",
+     "duration": 26.91,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Requirements."
+      },
+      {
+       "t": 2.58,
+       "text": "In scope:"
+      },
+      {
+       "t": 4.435,
+       "text": "Crawl a list of URLs, building a reverse index of words to pages and a static title and snippet per page."
+      },
+      {
+       "t": 13.34,
+       "text": "A user searches and sees relevant pages with titles and snippets."
+      },
+      {
+       "t": 19.07,
+       "text": "High availability."
+      },
+      {
+       "t": 21.475,
+       "text": "Out of scope: search analytics, personalized results, PageRank."
+      }
+     ]
+    },
+    {
+     "id": "section-2",
+     "title": "Capacity estimates",
+     "file": "/lessons/web-crawler/04-section-2.m4a",
+     "duration": 35.06,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Capacity estimates."
+      },
+      {
+       "t": 3.08,
+       "text": "Assumptions from the System Design Primer:"
+      },
+      {
+       "t": 7.01,
+       "text": "1 billion links, refreshed about weekly: 4 billion crawls a month."
+      },
+      {
+       "t": 12.74,
+       "text": "500 KB stored per page; 100 billion searches a month."
+      },
+      {
+       "t": 18.87,
+       "text": "Which works out to:"
+      },
+      {
+       "t": 21.125,
+       "text": "2 PB of page content a month, 72 PB in three years."
+      },
+      {
+       "t": 27.055,
+       "text": "About 1,600 page writes per second."
+      },
+      {
+       "t": 31.385,
+       "text": "About 40,000 searches per second."
+      }
+     ]
+    },
+    {
+     "id": "section-3",
+     "title": "Components",
+     "file": "/lessons/web-crawler/05-section-3.m4a",
+     "duration": 53.84,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Components."
+      },
+      {
+       "t": 2.455,
+       "text": "linkstocrawl: the frontier, a priority queue of URLs (NoSQL, or a sorted set in Redis)."
+      },
+      {
+       "t": 10.585,
+       "text": "crawledlinks: every crawled URL with its signature and last-crawl time."
+      },
+      {
+       "t": 16.615,
+       "text": "Crawler Service: many workers pulling from the frontier, polite per site."
+      },
+      {
+       "t": 22.345,
+       "text": "Reverse Index Queue and Document Queue: decouple crawling from indexing."
+      },
+      {
+       "t": 28.55,
+       "text": "Reverse Index Service: maintains word  to  list of pages (posting lists), sharded by word."
+      },
+      {
+       "t": 36.205,
+       "text": "Document Service: generates static titles and snippets."
+      },
+      {
+       "t": 41.085,
+       "text": "Query API: parses the query (strip markup, split terms, fix typos, normalize case, build a boolean query), looks up the index, ranks, and adds snippets."
+      }
+     ]
+    },
+    {
+     "id": "section-4",
+     "title": "Key decisions",
+     "file": "/lessons/web-crawler/06-section-4.m4a",
+     "duration": 55.94,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key decisions."
+      },
+      {
+       "t": 2.78,
+       "text": "Duplicate URLs: with a billion links, deduplicate with MapReduce (keep URLs whose count is 1) or a Bloom filter in front of the frontier."
+      },
+      {
+       "t": 14.135,
+       "text": "Duplicate content: compare page signatures (simhash, or Jaccard and cosine similarity over word sets)."
+      },
+      {
+       "t": 22.59,
+       "text": "Near-duplicates, not just exact copies, must match."
+      },
+      {
+       "t": 27.17,
+       "text": "Freshness: store a last-crawled timestamp; refresh about weekly, more often for popular or frequently changing pages."
+      },
+      {
+       "t": 36.5,
+       "text": "Learn each page's change rate over time."
+      },
+      {
+       "t": 40.13,
+       "text": "Politeness: obey robots.txt and limit requests per site, or you will be blocked (and you will hurt small sites)."
+      },
+      {
+       "t": 48.86,
+       "text": "Static snippets: generated once at crawl time, so search never touches page content."
+      }
+     ]
+    },
+    {
+     "id": "section-5",
+     "title": "Scaling and failure",
+     "file": "/lessons/web-crawler/07-section-5.m4a",
+     "duration": 37.45,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Scaling and failure."
+      },
+      {
+       "t": 2.93,
+       "text": "Shard the frontier and assign each site to one worker group, which makes per-site rate limits easy."
+      },
+      {
+       "t": 10.185,
+       "text": "DNS lookups add up at this scale: cache them in the crawler."
+      },
+      {
+       "t": 15.215,
+       "text": "Popular queries repeat a lot: cache their results in front of the Query API."
+      },
+      {
+       "t": 21.62,
+       "text": "Shard the Reverse Index by word or by document; a query fans out to shards and merges the results."
+      },
+      {
+       "t": 29.7,
+       "text": "A crawler worker crashing mid-page just leaves the link in linkstocrawl; jobs on the queues retry."
+      }
+     ]
+    },
+    {
+     "id": "walkthrough",
+     "title": "Walkthrough",
+     "file": "/lessons/web-crawler/08-walkthrough.m4a",
+     "duration": 106.94,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Let's follow one request through the design: https://blog.example.org/raft-explained."
+      },
+      {
+       "t": 10.08,
+       "text": "Step 1."
+      },
+      {
+       "t": 11.985,
+       "text": "The Crawler Service takes the highest-priority link from linkstocrawl."
+      },
+      {
+       "t": 17.14,
+       "text": "Priorities start from site popularity, so important pages are crawled first."
+      },
+      {
+       "t": 23.97,
+       "text": "Step 2."
+      },
+      {
+       "t": 25.85,
+       "text": "It fetches the page from The Web (respecting robots.txt and a per-site rate limit), then computes a signature from its content."
+      },
+      {
+       "t": 36.555,
+       "text": "Step 3."
+      },
+      {
+       "t": 38.51,
+       "text": "Similar page crawled?"
+      },
+      {
+       "t": 41.115,
+       "text": "No signature in crawledlinks is close, so this is new content."
+      },
+      {
+       "t": 47.37,
+       "text": "Step 4."
+      },
+      {
+       "t": 49.3,
+       "text": "Two jobs are queued: one for the Reverse Index Service (which words appear on which pages) and one for the Document Service (a static title and snippet)."
+      },
+      {
+       "t": 61.105,
+       "text": "Queues let crawling run at its own pace."
+      },
+      {
+       "t": 65.36,
+       "text": "Step 5."
+      },
+      {
+       "t": 67.365,
+       "text": "The link moves from linkstocrawl to crawledlinks with its signature, and the page's own links are added to linkstocrawl for later."
+      },
+      {
+       "t": 77.22,
+       "text": "Step 6."
+      },
+      {
+       "t": 79.15,
+       "text": "The Reverse Index Service adds the page to each word's posting list in the Reverse Index; the Document Service stores its title and snippet."
+      },
+      {
+       "t": 90.33,
+       "text": "Step 7."
+      },
+      {
+       "t": 92.335,
+       "text": "Later, someone searches for \"raft consensus\"."
+      },
+      {
+       "t": 96.39,
+       "text": "The Query API parses the query, finds matching pages in the Reverse Index, ranks them, and fetches titles and snippets."
+      }
+     ]
+    },
+    {
+     "id": "takeaways",
+     "title": "Key takeaways",
+     "file": "/lessons/web-crawler/09-takeaways.m4a",
+     "duration": 46.06,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Key takeaways."
+      },
+      {
+       "t": 2.705,
+       "text": "1: Crawl from a priority queue (the frontier), seeded by site popularity."
+      },
+      {
+       "t": 9.785,
+       "text": "2: Detect duplicate content with page signatures, or the crawler loops and wastes work."
+      },
+      {
+       "t": 17.365,
+       "text": "3: Lower a duplicate's priority instead of crawling it again."
+      },
+      {
+       "t": 23.145,
+       "text": "4: Hand indexing and snippet generation to queues so crawling never waits on them."
+      },
+      {
+       "t": 30.95,
+       "text": "5: A reverse index maps each word to the pages containing it; search reads only that."
+      },
+      {
+       "t": 38.73,
+       "text": "6: Re-crawl on a schedule (about weekly), more often for pages that change often."
+      }
+     ]
+    },
+    {
+     "id": "practice",
+     "title": "Interview practice",
+     "file": "/lessons/web-crawler/10-practice.m4a",
+     "duration": 92.22,
+     "cues": [
+      {
+       "t": 0,
+       "text": "Interview practice."
+      },
+      {
+       "t": 2.405,
+       "text": "I'll ask a question, then pause so you can answer it in your head, or out loud if the carriage is empty."
+      },
+      {
+       "t": 11.135,
+       "text": "Question 1."
+      },
+      {
+       "t": 13.19,
+       "text": "How would you detect that two pages are the same article with different ads around it?"
+      },
+      {
+       "t": 27.62,
+       "text": "Question 2."
+      },
+      {
+       "t": 29.65,
+       "text": "How do you avoid crawler traps, such as infinite calendar pages?"
+      },
+      {
+       "t": 43.08,
+       "text": "Question 3."
+      },
+      {
+       "t": 45.235,
+       "text": "How would you decide which pages to re-crawl every hour?"
+      },
+      {
+       "t": 57.69,
+       "text": "Question 4."
+      },
+      {
+       "t": 59.795,
+       "text": "How would you shard the reverse index, and what does a query cost in each case?"
+      },
+      {
+       "t": 73.9,
+       "text": "Question 5."
+      },
+      {
+       "t": 76.08,
+       "text": "How would you add PageRank to the ranking?"
+      },
+      {
+       "t": 87.46,
+       "text": "That's Web Crawler & Search."
+      },
+      {
+       "t": 90.265,
+       "text": "Well done."
+      }
+     ]
+    }
+   ],
+   "duration": 527
+  }
+ },
+ "speed": 0.96
+}

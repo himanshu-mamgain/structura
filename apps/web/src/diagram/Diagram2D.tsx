@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { motion } from 'motion/react'
 import { layout, type Layout, type LayoutDiagram, type Placed } from '../board/layout'
 import { iconFor } from './icons'
 
 // A flat, crisp drawing of a diagram: the same ELK layout the 3D view uses,
-// drawn as SVG boxes with icons and labelled arrows. Pans with a drag, zooms
-// with the buttons or ctrl + wheel, and dims everything but the boxes in focus.
+// drawn as glowing component cards (icon, name, one-line role) joined by
+// flowing dashed arrows. Pans with a drag, zooms with the buttons or ctrl +
+// wheel, and dims everything but the boxes in focus, where a packet travels.
 
 const COLORS: Record<string, string> = {
   black: '#9ca3af',
@@ -25,8 +27,8 @@ const COLORS: Record<string, string> = {
 const PAD = 40
 /** Never zoom out further than this on its own: past it, labels get too small to read. */
 const MIN_READABLE = 0.72
-/** Space at the bottom of the card taken by the walkthrough caption. */
-const CAPTION_SPACE = 130
+/** Space kept free at the bottom when framing a step (the step player sits below the diagram now). */
+const CAPTION_SPACE = 24
 const normalize = (text: string) => text.toLowerCase().replace(/\s+/g, ' ').trim()
 
 /** Where an arrow leaves or enters a box: the middle of the side facing the other box. */
@@ -64,9 +66,17 @@ export interface Diagram2DProps {
   failed?: ReadonlySet<string>
   /** A box was clicked (or the background: null). */
   onSelect?: (id: string | null) => void
+  /** One line under each box's name, by node id (its role). */
+  subtitles?: Record<string, string>
 }
 
-export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect }: Diagram2DProps) {
+/** Card size: room for the icon tile, the name and the subtitle line. */
+const cardSize = (label: string, subtitle?: string) => ({
+  width: Math.max(220, Math.round(label.length * 8.6 + 92)),
+  height: subtitle ? 78 : 64,
+})
+
+export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles }: Diagram2DProps) {
   const [placed, setPlaced] = useState<Layout | null>(null)
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
   const host = useRef<HTMLDivElement>(null)
@@ -89,7 +99,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     // Lay out in whichever direction suits the card's shape, with snug gaps.
     const el = host.current
     const fitRatio = el && el.clientHeight ? el.clientWidth / el.clientHeight : 1.6
-    void layout(diagram, { fitRatio, maxLayerGap: 220 }).then((result) => alive && setPlaced(result))
+    void layout(diagram, { fitRatio, maxLayerGap: 220, nodeSize: (n) => cardSize(n.label, subtitles?.[n.id]) }).then((result) => alive && setPlaced(result))
     return () => {
       alive = false
     }
@@ -239,23 +249,32 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
               const broken = failed?.has(edge.from) || failed?.has(edge.to)
               const { from: p, to: q, horizontal } = sides(a, b)
               const { d, mid } = curve(p, q, horizontal)
-              const width = edge.label ? edge.label.length * 7.4 + 18 : 0
+              // Arrows take the colour of where they start, like the request leaving that box.
+              const color = broken ? '#f87171' : (COLORS[from.color] ?? COLORS.grey)
               return (
-                <g key={i} className={`d2-edge${edge.dashed ? ' is-dashed' : ''}${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${broken ? ' is-broken' : ''}`}>
-                  <path d={d} markerEnd="url(#d2-arrow)" />
+                <g
+                  key={i}
+                  className={`d2-edge${edge.dashed ? ' is-dashed' : ''}${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${broken ? ' is-broken' : ''}`}
+                  style={{ color }}
+                >
+                  <path className="d2-edge-glow" d={d} />
+                  <path className="d2-edge-flow" d={d} markerEnd="url(#d2-arrow)" />
+                  {inFocus && lit && !broken && (
+                    // A packet travelling along the arrows of the step in focus.
+                    <circle className="d2-packet" r={5}>
+                      <animateMotion dur="1.4s" repeatCount="indefinite" path={d} />
+                    </circle>
+                  )}
                   {edge.label && (
-                    <g transform={`translate(${mid.x} ${mid.y})`}>
-                      <rect x={-width / 2} y={-13} width={width} height={26} rx={13} />
-                      <text textAnchor="middle" dy="4.5">
-                        {edge.label}
-                      </text>
-                    </g>
+                    <text className="d2-edge-text" x={mid.x} y={mid.y - 8} textAnchor="middle">
+                      {edge.label}
+                    </text>
                   )}
                 </g>
               )
             })}
 
-            {diagram.nodes.map((node) => {
+            {diagram.nodes.map((node, index) => {
               const p = placed.nodes.get(node.id)
               if (!p) return null
               const color = COLORS[node.color] ?? COLORS.grey
@@ -265,22 +284,41 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
                 const [name, ...columns] = node.table.lines
                 return (
                   <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
-                    <div className="d2-table" style={{ borderColor: color }}>
+                    <motion.div
+                      className="d2-table"
+                      style={{ borderColor: color, ['--glow' as string]: color }}
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.04, type: 'spring', stiffness: 220, damping: 22 }}
+                    >
                       <strong style={{ background: `${color}26` }}>{name}</strong>
                       {columns.map((line, i) => (
                         <code key={i}>{line}</code>
                       ))}
-                    </div>
+                    </motion.div>
                   </foreignObject>
                 )
               }
               const Icon = iconFor(node.label)
+              const subtitle = subtitles?.[node.id]
               return (
                 <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
-                  <div className={`d2-box is-${node.shape}`} style={{ borderColor: color, background: `${color}1a`, color }}>
-                    <Icon size={22} strokeWidth={2} aria-hidden />
-                    <span>{node.label}</span>
-                  </div>
+                  <motion.div
+                    className={`d2-card is-${node.shape}`}
+                    style={{ ['--glow' as string]: color }}
+                    initial={{ opacity: 0, y: 14, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    whileHover={{ scale: 1.035 }}
+                    transition={{ delay: index * 0.045, type: 'spring', stiffness: 240, damping: 20 }}
+                  >
+                    <span className="d2-card-icon">
+                      <Icon size={22} strokeWidth={2} aria-hidden />
+                    </span>
+                    <span className="d2-card-text">
+                      <strong>{node.label}</strong>
+                      {subtitle && <small>{subtitle}</small>}
+                    </span>
+                  </motion.div>
                 </foreignObject>
               )
             })}
