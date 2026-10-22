@@ -32,6 +32,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Twitter Timeline & Search | Intermediate | ✓ | ✓ | |
 | Web Crawler & Search | Intermediate | ✓ | ✓ | |
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
+| Social Network Graph | Advanced | | | |
 
 ## Getting started
 
@@ -84,7 +85,7 @@ Netlify builds `main` with `netlify.toml` (`npm run build -w @structura/web`, pu
 
 Structura's code is MIT licensed ([LICENSE](LICENSE)). Content and tools from other projects are used under their licences:
 
-- **[System Design Primer](https://github.com/donnemartin/system-design-primer)** by Donne Martin, CC BY 4.0. The Twitter Timeline and Web Crawler topics are adapted from it; each topic page credits it.
+- **[System Design Primer](https://github.com/donnemartin/system-design-primer)** by Donne Martin, CC BY 4.0. The Twitter Timeline, Web Crawler and Social Network Graph topics are adapted from it; each topic page credits it.
 - **[System Design 101 course](https://github.com/mominurr/system-design-101)** by Mominur Rahman, MIT. The quiz and glossary; notice in [`apps/web/public/licenses`](apps/web/public/licenses).
 - **[Awesome Scalability](https://github.com/binhnguyennus/awesome-scalability)** by Binh Nguyen, MIT. Its reading list, in the library.
 - **[ByteByteGo System Design 101](https://github.com/ByteByteGoHq/system-design-101)**, CC BY-NC-ND 4.0. Titles and links only, in the library.
