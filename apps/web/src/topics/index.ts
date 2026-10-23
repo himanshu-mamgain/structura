@@ -3,6 +3,7 @@ import { kafka } from './kafka'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
 import { rbac } from './rbac'
+import { salesRank } from './sales-rank'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
 import autoVideos from './videos.json'
@@ -21,6 +22,7 @@ const BASE_TOPICS: StaticTopic[] = [
   webCrawler,
   kafka,
   paymentIdempotency,
+  salesRank,
 ]
 
 /**
