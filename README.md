@@ -32,7 +32,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Twitter Timeline & Search | Intermediate | ✓ | ✓ | |
 | Web Crawler & Search | Intermediate | ✓ | ✓ | |
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
-| Scaling to Millions of Users on AWS | Intermediate | | ✓ | |
+| Scaling to Millions of Users on AWS | Intermediate | | | |
 
 ## Getting started
 
