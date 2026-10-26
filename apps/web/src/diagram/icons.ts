@@ -36,6 +36,7 @@ import {
 // Picks an icon for a diagram box from its label, so hand-written topics get
 // sensible icons without listing one per box. First match wins.
 const RULES: [RegExp, LucideIcon][] = [
+  [/rate limit|limiter/i, Gauge],
   [/forbidden|unauthori[sz]ed|\b40[13]\b/i, ShieldX],
   [/database|\bdb\b|store|postgres|sql|snapshot/i, Database],
   [/driver app|rider app|client app|mobile|phone/i, Smartphone],
