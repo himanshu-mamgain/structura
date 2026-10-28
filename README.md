@@ -32,6 +32,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Twitter Timeline & Search | Intermediate | ✓ | ✓ | |
 | Web Crawler & Search | Intermediate | ✓ | ✓ | |
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
+| Chat System (WhatsApp-style) | Intermediate | | | |
 
 ## Getting started
 
