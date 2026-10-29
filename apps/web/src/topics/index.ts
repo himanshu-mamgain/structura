@@ -1,3 +1,4 @@
+import { cdn } from './cdn'
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
@@ -21,6 +22,7 @@ const BASE_TOPICS: StaticTopic[] = [
   webCrawler,
   kafka,
   paymentIdempotency,
+  cdn,
 ]
 
 /**
