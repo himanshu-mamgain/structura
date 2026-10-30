@@ -1,5 +1,6 @@
 import {
   Activity,
+  BellRing,
   Box,
   Boxes,
   Cog,
@@ -46,6 +47,7 @@ const RULES: [RegExp, LucideIcon][] = [
   [/webhook/i, Webhook],
   [/reconcil/i, Scale],
   [/internet|wi-fi|\b4g\b/i, Globe],
+  [/fcm|apns|provider/i, BellRing],
   [/cache|redis/i, Zap],
   [/kafka|queue|stream|event/i, ListOrdered],
   [/key|token|jwt/i, KeyRound],
