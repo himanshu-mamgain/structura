@@ -1,5 +1,6 @@
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
+import { notificationSystem } from './notification-system'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
 import { rbac } from './rbac'
@@ -21,6 +22,7 @@ const BASE_TOPICS: StaticTopic[] = [
   webCrawler,
   kafka,
   paymentIdempotency,
+  notificationSystem,
 ]
 
 /**
