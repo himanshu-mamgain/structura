@@ -2,6 +2,7 @@ import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
+import { uniqueIdGenerator } from './unique-id-generator'
 import { rbac } from './rbac'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
@@ -21,6 +22,7 @@ const BASE_TOPICS: StaticTopic[] = [
   webCrawler,
   kafka,
   paymentIdempotency,
+  uniqueIdGenerator,
 ]
 
 /**
