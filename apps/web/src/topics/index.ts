@@ -3,6 +3,7 @@ import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
+import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
 import { scalingAws } from './scaling-aws'
 import { queryCache } from './query-cache'
@@ -27,6 +28,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  rateLimiter,
   scalingAws,
   queryCache,
   salesRank,
