@@ -1,4 +1,4 @@
-import { Bug, Car, Container, DatabaseZap, IndianRupee, Link2, type LucideIcon, MessageSquareText, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
+import { Bell, Bug, Car, Container, DatabaseZap, Earth, FingerprintPattern, Gauge, IndianRupee, Link2, type LucideIcon, MessageSquareText, MessagesSquare, Orbit, ServerCog, Shapes, Share2, ShieldCheck, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -10,6 +10,16 @@ const ICONS: Record<string, LucideIcon> = {
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
   'key-value-store': DatabaseZap,
+  'social-graph': Share2,
+  'sales-rank': Trophy,
+  'query-cache': DatabaseZap,
+  'scaling-aws': ServerCog,
+  'rate-limiter': Gauge,
+  'consistent-hashing': Orbit,
+  'chat-system': MessagesSquare,
+  cdn: Earth,
+  'notification-system': Bell,
+  'unique-id-generator': FingerprintPattern,
 }
 
 /** The icon shown for a topic in the sidebar, cards and header. */
