@@ -7,6 +7,7 @@ import { keyValueStore } from './key-value-store'
 import { notificationSystem } from './notification-system'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
+import { uniqueIdGenerator } from './unique-id-generator'
 import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
 import { scalingAws } from './scaling-aws'
@@ -32,6 +33,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  uniqueIdGenerator,
   notificationSystem,
   cdn,
   chatSystem,
