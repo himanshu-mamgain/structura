@@ -34,6 +34,17 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
 | Mint: Personal Finance Aggregator | Intermediate | | | |
 | Pastebin | Beginner | | | |
+| Key-Value Store (Dynamo-style) | Advanced | | | |
+| Social Network Graph | Advanced | | | |
+| Amazon's Sales Rank by Category | Intermediate | | | |
+| Query Cache for a Search Engine | Intermediate | | | |
+| Scaling to Millions of Users on AWS | Intermediate | | | |
+| Rate Limiter | Intermediate | | | |
+| Consistent Hashing | Intermediate | | | |
+| Chat System (WhatsApp-style) | Intermediate | | | |
+| CDN: Content Delivery Network | Intermediate | | | |
+| Notification System | Intermediate | | | |
+| Unique ID Generator (Snowflake) | Intermediate | | | |
 
 ## Getting started
 
@@ -86,7 +97,7 @@ Netlify builds `main` with `netlify.toml` (`npm run build -w @structura/web`, pu
 
 Structura's code is MIT licensed ([LICENSE](LICENSE)). Content and tools from other projects are used under their licences:
 
-- **[System Design Primer](https://github.com/donnemartin/system-design-primer)** by Donne Martin, CC BY 4.0. The Twitter Timeline and Web Crawler topics are adapted from it; each topic page credits it.
+- **[System Design Primer](https://github.com/donnemartin/system-design-primer)** by Donne Martin, CC BY 4.0. The Twitter Timeline, Web Crawler, Pastebin, Mint, Social Network Graph, Sales Rank, Query Cache and Scaling on AWS topics are adapted from it; each topic page credits it.
 - **[System Design 101 course](https://github.com/mominurr/system-design-101)** by Mominur Rahman, MIT. The quiz and glossary; notice in [`apps/web/public/licenses`](apps/web/public/licenses).
 - **[Awesome Scalability](https://github.com/binhnguyennus/awesome-scalability)** by Binh Nguyen, MIT. Its reading list, in the library.
 - **[ByteByteGo System Design 101](https://github.com/ByteByteGoHq/system-design-101)**, CC BY-NC-ND 4.0. Titles and links only, in the library.

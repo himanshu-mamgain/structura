@@ -1,15 +1,26 @@
+import { cdn } from './cdn'
+import { chatSystem } from './chat-system'
+import { consistentHashing } from './consistent-hashing'
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
+import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { mint } from './mint'
-import { paymentIdempotency } from './payment-idempotency'
+import { notificationSystem } from './notification-system'
 import { pastebin } from './pastebin'
+import { paymentIdempotency } from './payment-idempotency'
+import { queryCache } from './query-cache'
+import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
+import { salesRank } from './sales-rank'
+import { scalingAws } from './scaling-aws'
+import { socialGraph } from './social-graph'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
-import autoVideos from './videos.json'
 import { uberSurge } from './uber-surge'
+import { uniqueIdGenerator } from './unique-id-generator'
 import { urlShortener } from './url-shortener'
+import autoVideos from './videos.json'
 import { webCrawler } from './web-crawler'
 
 export type { StaticTopic } from './types'
@@ -25,6 +36,17 @@ const BASE_TOPICS: StaticTopic[] = [
   paymentIdempotency,
   mint,
   pastebin,
+  keyValueStore,
+  socialGraph,
+  salesRank,
+  queryCache,
+  scalingAws,
+  rateLimiter,
+  consistentHashing,
+  chatSystem,
+  cdn,
+  notificationSystem,
+  uniqueIdGenerator,
 ]
 
 /**

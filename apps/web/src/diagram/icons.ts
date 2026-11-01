@@ -1,5 +1,6 @@
 import {
   Activity,
+  BellRing,
   Box,
   Boxes,
   Cog,
@@ -36,6 +37,7 @@ import {
 // Picks an icon for a diagram box from its label, so hand-written topics get
 // sensible icons without listing one per box. First match wins.
 const RULES: [RegExp, LucideIcon][] = [
+  [/rate limit|limiter/i, Gauge],
   [/forbidden|unauthori[sz]ed|\b40[13]\b/i, ShieldX],
   [/database|\bdb\b|store|postgres|sql|snapshot/i, Database],
   [/driver app|rider app|client app|mobile|phone/i, Smartphone],
@@ -46,6 +48,7 @@ const RULES: [RegExp, LucideIcon][] = [
   [/webhook/i, Webhook],
   [/reconcil/i, Scale],
   [/internet|wi-fi|\b4g\b/i, Globe],
+  [/fcm|apns|provider/i, BellRing],
   [/cache|redis/i, Zap],
   [/kafka|queue|stream|event/i, ListOrdered],
   [/key|token|jwt/i, KeyRound],
@@ -56,6 +59,8 @@ const RULES: [RegExp, LucideIcon][] = [
   [/smooth|average/i, Activity],
   [/drop-off|detect/i, Gauge],
   [/quote/i, Receipt],
+  [/rank|mapreduce/i, TrendingUp],
+  [/schedul/i, Cog],
   [/worker|processor|generator|engine/i, Cog],
   [/hypervisor|hardware/i, Cpu],
   [/os\b|kernel|guest/i, HardDrive],
