@@ -1,3 +1,4 @@
+import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
@@ -29,6 +30,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  chatSystem,
   consistentHashing,
   rateLimiter,
   scalingAws,

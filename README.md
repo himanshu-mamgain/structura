@@ -33,6 +33,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Web Crawler & Search | Intermediate | ✓ | ✓ | |
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
 | Key-Value Store (Dynamo-style) | Advanced | | | |
+| Chat System (WhatsApp-style) | Intermediate | | | |
 | Consistent Hashing | Intermediate | | | |
 | Rate Limiter | Intermediate | | | |
 | Scaling to Millions of Users on AWS | Intermediate | | | |
