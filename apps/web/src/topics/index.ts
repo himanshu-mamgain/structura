@@ -29,6 +29,6 @@ const BASE_TOPICS: StaticTopic[] = [
  * rendered (apps/video/scripts/render-topics.ts writes videos.json).
  */
 export const STATIC_TOPICS: StaticTopic[] = BASE_TOPICS.map((t) => {
-  const auto = (autoVideos as Record<string, { video: string; chapters: [number, string][] }>)[t.id]
+  const auto = (autoVideos as unknown as Record<string, { video: string; chapters: [number, string][] }>)[t.id]
   return t.video || !auto ? t : { ...t, video: auto.video, chapters: auto.chapters }
 })
