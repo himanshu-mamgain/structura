@@ -1,3 +1,4 @@
+import { consistentHashing } from './consistent-hashing'
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
@@ -28,6 +29,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  consistentHashing,
   rateLimiter,
   scalingAws,
   queryCache,
