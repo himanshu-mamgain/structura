@@ -5,7 +5,9 @@ import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
+import { mint } from './mint'
 import { notificationSystem } from './notification-system'
+import { pastebin } from './pastebin'
 import { paymentIdempotency } from './payment-idempotency'
 import { queryCache } from './query-cache'
 import { rateLimiter } from './rate-limiter'
@@ -32,6 +34,8 @@ const BASE_TOPICS: StaticTopic[] = [
   webCrawler,
   kafka,
   paymentIdempotency,
+  mint,
+  pastebin,
   keyValueStore,
   socialGraph,
   salesRank,
@@ -51,6 +55,6 @@ const BASE_TOPICS: StaticTopic[] = [
  * rendered (apps/video/scripts/render-topics.ts writes videos.json).
  */
 export const STATIC_TOPICS: StaticTopic[] = BASE_TOPICS.map((t) => {
-  const auto = (autoVideos as Record<string, { video: string; chapters: [number, string][] }>)[t.id]
+  const auto = (autoVideos as unknown as Record<string, { video: string; chapters: [number, string][] }>)[t.id]
   return t.video || !auto ? t : { ...t, video: auto.video, chapters: auto.chapters }
 })

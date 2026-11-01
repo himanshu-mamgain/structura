@@ -1,1 +1,47 @@
-{}
+{
+ "twitter-timeline": {
+  "video": "/videos/twitter-timeline.mp4",
+  "chapters": [
+   [
+    3,
+    "Introduction"
+   ],
+   [
+    33,
+    "Step 1: Client → Web Server"
+   ],
+   [
+    45,
+    "Step 2: Write API → SQL Database"
+   ],
+   [
+    59,
+    "Step 3: Object Store"
+   ],
+   [
+    76,
+    "Step 4: Write API → Fan Out Service"
+   ],
+   [
+    90,
+    "Step 5: Fan-out on write"
+   ],
+   [
+    112,
+    "Step 6: Fan Out Service → Search Cluster"
+   ],
+   [
+    120,
+    "Step 7: Fan Out Service → Notification Service"
+   ],
+   [
+    134,
+    "Step 8: Write API → Client"
+   ],
+   [
+    145,
+    "Key takeaways"
+   ]
+  ]
+ }
+}

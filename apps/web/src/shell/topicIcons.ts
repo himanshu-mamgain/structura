@@ -1,4 +1,4 @@
-import { Bell, Bug, Car, Container, DatabaseZap, Earth, FingerprintPattern, Gauge, IndianRupee, Link2, type LucideIcon, MessageSquareText, MessagesSquare, Orbit, ServerCog, Shapes, Share2, ShieldCheck, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Bug, Car, ClipboardPaste, Container, DatabaseZap, Earth, FingerprintPattern, Gauge, IndianRupee, Link2, type LucideIcon, MessageSquareText, MessagesSquare, Orbit, PiggyBank, ServerCog, Shapes, Share2, ShieldCheck, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -9,6 +9,8 @@ const ICONS: Record<string, LucideIcon> = {
   'web-crawler': Bug,
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
+  mint: PiggyBank,
+  pastebin: ClipboardPaste,
   'key-value-store': DatabaseZap,
   'social-graph': Share2,
   'sales-rank': Trophy,
