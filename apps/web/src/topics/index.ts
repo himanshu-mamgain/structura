@@ -4,6 +4,7 @@ import { consistentHashing } from './consistent-hashing'
 import { dockerVsVm } from './docker-vs-vm'
 import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
+import { notificationSystem } from './notification-system'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
 import { rateLimiter } from './rate-limiter'
@@ -31,6 +32,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  notificationSystem,
   cdn,
   chatSystem,
   consistentHashing,
