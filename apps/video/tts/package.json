@@ -1,0 +1,10 @@
+{
+  "name": "structura-tts",
+  "private": true,
+  "type": "module",
+  "description": "Kokoro text-to-speech for apps/video. Deliberately not a workspace, so the web build never installs it; scripts/voice.mjs installs it on first use.",
+  "dependencies": {
+    "onnxruntime-web": "1.30.0",
+    "phonemizer": "1.2.1"
+  }
+}

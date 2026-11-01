@@ -1,0 +1,44 @@
+{
+  "voice": "am_michael",
+  "speed": 1.1,
+  "gap": 7,
+  "scenes": {
+    "hook": [
+      { "id": "hook-1", "text": "You pay ₹100 at a store.", "say": "You pay a hundred rupees at a store.", "frames": 45 },
+      { "id": "hook-2", "text": "The app says: payment failed.", "frames": 45 },
+      { "id": "hook-3", "text": "But your bank says ₹100 is gone.", "say": "But your bank says a hundred rupees is gone.", "frames": 45 },
+      { "id": "hook-4", "text": "So you pay again. Now it's gone twice.", "frames": 45 }
+    ],
+    "lost": [
+      { "id": "lost-1", "text": "Here's what actually happened.", "frames": 30 },
+      { "id": "lost-2", "text": "Your request reached the bank, and the bank took the money.", "frames": 45 },
+      { "id": "lost-3", "text": "But the response got lost on the way back.", "frames": 45 },
+      { "id": "lost-4", "text": "The payment didn't fail. Your app just never heard back.", "frames": 45 }
+    ],
+    "trap": [
+      { "id": "trap-1", "text": "A timeout isn't a failure. It's unknown.", "frames": 45 },
+      { "id": "trap-2", "text": "But if the app retries it as a brand new payment,", "frames": 30 },
+      { "id": "trap-3", "text": "the bank sees a new order, and charges you again.", "frames": 45 }
+    ],
+    "key": [
+      { "id": "key-1", "text": "The fix is an idempotency key.", "frames": 30 },
+      { "id": "key-2", "text": "When checkout opens, the app creates one unique key,", "frames": 30 },
+      { "id": "key-3", "text": "and sends that same key with every retry.", "frames": 30 },
+      { "id": "key-4", "text": "The server saves the key with the result.", "frames": 30 },
+      { "id": "key-5", "text": "Same key again? It replays the saved answer, and never calls the bank twice.", "frames": 45 }
+    ],
+    "cases": [
+      { "id": "cases-1", "text": "Double tap? A unique constraint lets only one request win.", "frames": 30 },
+      { "id": "cases-2", "text": "The second one waits for the first one's answer.", "frames": 30 },
+      { "id": "cases-3", "text": "Bank too slow? Mark it pending, never failed.", "frames": 30 },
+      { "id": "cases-4", "text": "A webhook or a reconciliation job settles it later.", "frames": 45 }
+    ],
+    "takeaway": [
+      { "id": "take-1", "text": "Retries are only safe when the operation is idempotent.", "frames": 30 },
+      { "id": "take-2", "text": "One checkout. One key. One debit.", "frames": 60 }
+    ],
+    "cta": [
+      { "id": "cta-1", "text": "Try it yourself in Structura: drop the response and watch the retry.", "frames": 90 }
+    ]
+  }
+}

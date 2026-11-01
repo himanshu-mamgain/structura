@@ -129,6 +129,12 @@ The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
   writes `public/lessons/<id>/*.m4a` and `src/learn/lessons.json`.
 - **Hand-made videos** (URL shortener, RBAC, Uber, Docker) live in `apps/video/src/*.tsx`;
   their narration still uses Windows voices (`npm run voice`), Windows only.
+- **Card reels** (Idempotent Payments, `src/IdempotentPayments.tsx` with the kit in
+  `src/cards/`) use Kokoro in Node instead: a narration whose `voice` is a Kokoro id
+  and has no `"engine"` goes through `tts/kokoro.mjs` (no Python; installs itself on
+  first use), which also masters the audio and writes word timings for the karaoke
+  captions. `npm run voice -w @structura/video -- payment-idempotency`, then
+  `npm run render:payments -w @structura/video`.
 
 ## Style
 

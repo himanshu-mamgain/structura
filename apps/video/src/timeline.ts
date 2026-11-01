@@ -14,11 +14,18 @@ export interface NarrationLine {
 
 export interface Narration {
   voice: string
+  /** Kokoro voices only: speaking speed (1 is the voice's natural pace). */
+  speed?: number
+  /** Frames of silence after each spoken line (default 14). Reels keep it tight. */
+  gap?: number
   scenes: Record<string, NarrationLine[]>
 }
 
 /** Seconds of speech per line id, from public/voice/<video>/manifest.json (null when not generated). */
 export type Voice = Record<string, number> | null
+
+/** When each caption word is spoken, per line id: [word, start s, end s] (Kokoro voices only). */
+export type Words = Record<string, [word: string, start: number, end: number][]> | null
 
 export interface TimedLine extends Line {
   id: string
@@ -41,11 +48,12 @@ export function sceneLines(video: string, narration: Narration, scene: string, v
   let previousEnd = 0
   return narration.scenes[scene].map((line) => {
     const from = Math.max(planned, previousEnd)
-    const spoken = voice?.[line.id] ? Math.ceil(voice[line.id] * FPS) + GAP : 0
+    const gap = narration.gap ?? GAP
+    const spoken = voice?.[line.id] ? Math.ceil(voice[line.id] * FPS) + gap : 0
     const to = from + Math.max(line.frames, spoken)
     planned += line.frames
     previousEnd = to
-    return { id: line.id, audio: spoken > 0 ? `voice/${video}/${line.id}.wav` : undefined, speech: spoken > 0 ? spoken - GAP : 0, from, to, text: line.text, highlight: line.highlight }
+    return { id: line.id, audio: spoken > 0 ? `voice/${video}/${line.id}.wav` : undefined, speech: spoken > 0 ? spoken - gap : 0, from, to, text: line.text, highlight: line.highlight }
   })
 }
 

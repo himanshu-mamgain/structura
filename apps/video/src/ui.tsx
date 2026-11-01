@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { AbsoluteFill, Html5Audio, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion'
 import { Captions } from './Caption'
 import { colors, font, HEIGHT, mono, WIDTH } from './theme'
-import { type Narration, sceneFrames, sceneLines, type TimedLine, type Voice } from './timeline'
+import { type Narration, sceneFrames, sceneLines, type TimedLine, type Voice, type Words } from './timeline'
 
 // Building blocks shared by every video: entrances, headings, callouts, cards,
 // narrated captions and the scene timeline.
@@ -16,6 +16,8 @@ export interface SceneProps {
 export interface VideoProps extends Record<string, unknown> {
   /** Spoken seconds per line; null renders captions only. */
   voice: Voice
+  /** When each word is spoken, for word-by-word captions (Kokoro voices only). */
+  words?: Words
 }
 
 /** Fades and slides children in at `enter` (scene frames). */
