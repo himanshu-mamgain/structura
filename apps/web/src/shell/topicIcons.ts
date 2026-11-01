@@ -1,4 +1,4 @@
-import { Bell, Bug, Car, Container, IndianRupee, Link2, type LucideIcon, MessageSquareText, ShieldCheck, Shapes, Waypoints } from 'lucide-react'
+import { Bell, Bug, Car, Container, DatabaseZap, IndianRupee, Link2, type LucideIcon, MessageSquareText, Shapes, ShieldCheck, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -9,6 +9,7 @@ const ICONS: Record<string, LucideIcon> = {
   'web-crawler': Bug,
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
+  'key-value-store': DatabaseZap,
   'notification-system': Bell,
 }
 
