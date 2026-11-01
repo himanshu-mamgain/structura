@@ -4,6 +4,7 @@ import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { paymentIdempotency } from './payment-idempotency'
 import { rbac } from './rbac'
+import { queryCache } from './query-cache'
 import { salesRank } from './sales-rank'
 import { socialGraph } from './social-graph'
 import { twitterTimeline } from './twitter-timeline'
@@ -25,6 +26,7 @@ const BASE_TOPICS: StaticTopic[] = [
   kafka,
   paymentIdempotency,
   keyValueStore,
+  queryCache,
   salesRank,
   socialGraph,
 ]

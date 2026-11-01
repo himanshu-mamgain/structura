@@ -10,6 +10,7 @@ const ICONS: Record<string, LucideIcon> = {
   kafka: Waypoints,
   'payment-idempotency': IndianRupee,
   'key-value-store': DatabaseZap,
+  'query-cache': DatabaseZap,
   'sales-rank': Trophy,
   'social-graph': Share2,
 }
