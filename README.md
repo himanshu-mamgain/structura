@@ -33,6 +33,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Web Crawler & Search | Intermediate | ✓ | ✓ | |
 | Kafka: Event Streaming | Intermediate | ✓ | ✓ | |
 | Key-Value Store (Dynamo-style) | Advanced | | | |
+| Amazon's Sales Rank by Category | Intermediate | | | |
 | Social Network Graph | Advanced | | | |
 
 ## Getting started

@@ -56,6 +56,8 @@ const RULES: [RegExp, LucideIcon][] = [
   [/smooth|average/i, Activity],
   [/drop-off|detect/i, Gauge],
   [/quote/i, Receipt],
+  [/rank|mapreduce/i, TrendingUp],
+  [/schedul/i, Cog],
   [/worker|processor|generator|engine/i, Cog],
   [/hypervisor|hardware/i, Cpu],
   [/os\b|kernel|guest/i, HardDrive],
