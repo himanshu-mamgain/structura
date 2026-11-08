@@ -27,5 +27,5 @@ const ICONS: Record<string, LucideIcon> = {
   'video-streaming': Clapperboard,
 }
 
-/** The icon shown for a topic in the sidebar, cards and header. */
+/** The icon shown for a topic in Explore, cards, reels and the header. */
 export const topicIcon = (id: string): LucideIcon => ICONS[id] ?? Shapes

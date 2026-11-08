@@ -11,13 +11,14 @@ Every topic is a live architecture, not a static picture:
 - **Interactive diagram.** Glowing component cards joined by animated arrows. Click any component to see what it does, its key responsibilities and technologies, and what calls it. Switch parts off (a cache, a broker) and see which requests break.
 - **Walkthrough.** Follow one real request step by step, with a packet travelling the arrows and the actual request, cache entry or SQL at each step. Most topics let you try your own input; the Kafka topic uses Kafka's real partitioner.
 - **3D load lab.** Switch to a three.js city and put real load on the design with a discrete-event simulator (Rust, compiled to WebAssembly). Watch queues build and the bottleneck light up.
-- **Narrated videos.** Vertical explainers made with [Remotion](https://www.remotion.dev/), with chapters, resume and save-for-offline. Every topic gets one automatically.
+- **Narrated videos and Reels.** Vertical explainers made with [Remotion](https://www.remotion.dev/), with chapters, resume and save-for-offline. Every topic gets one automatically. The Reels tab plays them full screen, one after another, swiped like Instagram.
 - **Voice assistant.** Always on screen: ask by voice or text ("what is a load balancer?", "walk me through it", "what should I learn today?"). It answers aloud in a natural voice, drives the app, and highlights each word as it speaks.
 - **Commute mode.** Every topic as an offline audio lesson, like a podcast: save on Wi-Fi, listen with the screen off, lock-screen and earphone controls, interview practice with thinking pauses, and it remembers where you stopped.
 - **Explanation, code and data model** for each topic, with key takeaways and interview follow-ups.
 - **Progress.** Today's pick, bookmarks, completed topics, difficulty levels and an interview-readiness score, saved on your device.
 - **Practice.** A quiz and a glossary.
-- **Library.** About 1,350 guides, chapters and articles from open system design collections, searchable, as the syllabus for future topics.
+- **Library.** About 1,350 guides, chapters and articles from open system design collections, searchable in Explore, as the syllabus for future topics.
+- **App-style navigation.** Five tabs, as in Instagram: Home, Explore, Reels, Listen and Practice. They sit along the bottom on phones and in the top bar on desktop.
 
 Everything runs in your browser: no backend, no accounts, no AI services. The voice is [Kokoro](https://github.com/hexgrad/kokoro), an open-weight speech model that runs on the device.
 

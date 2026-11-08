@@ -1,32 +1,61 @@
 import { useEffect, useState } from 'react'
-import { BookA, BookMarked, Bookmark, Boxes, CheckCircle2, ExternalLink, GraduationCap, Headphones, House, Menu, Search, X } from 'lucide-react'
+import { BookA, Boxes, Clapperboard, GraduationCap, Headphones, House, Search, type LucideIcon } from 'lucide-react'
 import { board } from './board/store'
-import { useProgress } from './learn/progress'
 import { InstallButton } from './pwa/InstallButton'
+import { Explore } from './shell/Explore'
 import { Home } from './shell/Home'
 import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { Glossary, Quiz } from './shell/Practice'
 import { Commute, MiniPlayer } from './shell/Commute'
+import { Reels } from './shell/Reels'
+import { SearchBox } from './shell/Search'
 import { TopicView } from './shell/TopicView'
 import { VoiceAssistant } from './shell/VoiceAssistant'
-import { topicIcon } from './shell/topicIcons'
 import { STATIC_TOPICS, type StaticTopic } from './topics'
-import { categoryTitle, LIBRARY } from './topics/library'
 
-type Page = 'quiz' | 'glossary' | 'listen'
+type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels'
+const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels']
 
-/** Where the learner is lives in the URL (?topic=…, ?page=quiz, ?library=…), so links can be shared. */
+/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?library=…), so links can be shared. */
 function readRoute() {
   const query = new URLSearchParams(window.location.search)
-  const page = query.get('page')
-  return { topicId: query.get('topic'), category: query.get('library'), page: page === 'quiz' || page === 'glossary' || page === 'listen' ? (page as Page) : null }
+  const page = query.get('page') as Page | null
+  const category = query.get('library')
+  return {
+    topicId: query.get('topic'),
+    category,
+    // The library lives in Explore, so its links open there.
+    page: page && PAGES.includes(page) ? page : category ? 'explore' : null,
+    reel: query.get('reel'),
+  }
+}
+
+type Tab = 'home' | 'explore' | 'reels' | 'listen' | 'practice'
+
+// The five tabs, like Instagram's: along the bottom on phones, in the top bar on desktop.
+const TABS: [Tab, string, LucideIcon][] = [
+  ['home', 'Home', House],
+  ['explore', 'Explore', Search],
+  ['reels', 'Reels', Clapperboard],
+  ['listen', 'Listen', Headphones],
+  ['practice', 'Practice', GraduationCap],
+]
+
+function Tabs({ current, onTab, className }: { current: Tab | null; onTab: (tab: Tab) => void; className: string }) {
+  return (
+    <nav className={className} aria-label="Sections">
+      {TABS.map(([id, label, Icon]) => (
+        <button key={id} type="button" className={`tab${current === id ? ' is-active' : ''}`} onClick={() => onTab(id)} aria-current={current === id ? 'page' : undefined}>
+          <Icon size={24} strokeWidth={current === id ? 2.5 : 1.8} aria-hidden />
+          <span>{label}</span>
+        </button>
+      ))}
+    </nav>
+  )
 }
 
 export default function App() {
   const [route, setRoute] = useState(readRoute)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const progress = useProgress()
   useNotificationEngine()
   const topic = STATIC_TOPICS.find((t) => t.id === route.topicId) ?? null
   // ?topic=…&load opens the topic with its load test running.
@@ -43,8 +72,6 @@ export default function App() {
     url.search = search
     window.history.pushState(null, '', url)
     setRoute(readRoute())
-    setMenuOpen(false)
-    setQuery('')
   }
 
   function open(next: StaticTopic | null) {
@@ -57,105 +84,45 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  function openReel(id: string) {
+    navigate(`?page=reels&reel=${id}`)
+  }
+
   function openCategory(id: string | null) {
-    navigate(id ? `?library=${id}` : '')
+    navigate(id ? `?library=${id}` : '?page=explore')
     requestAnimationFrame(() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' }))
   }
 
-  const q = query.trim().toLowerCase()
-  const matches = q ? STATIC_TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty}`.toLowerCase().includes(q)) : []
-  const guideMatches = q ? LIBRARY.guides.filter((g) => `${g.title} ${g.tags.join(' ')}`.toLowerCase().includes(q)).slice(0, 8) : []
-  const home = !topic && !route.page
+  const tab: Tab | null = topic
+    ? null
+    : route.page === 'quiz' || route.page === 'glossary'
+      ? 'practice'
+      : route.page === 'explore' || route.page === 'reels' || route.page === 'listen'
+        ? route.page
+        : 'home'
+
+  function onTab(next: Tab) {
+    // Tapping the tab you're on goes back to its top, as on Instagram.
+    if (next === tab && !route.category) return window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (next === 'home') open(null)
+    else openPage(next === 'practice' ? 'quiz' : next)
+  }
+
+  const reels = !topic && route.page === 'reels'
 
   return (
-    <div className="shell">
-      <aside className={`sidebar${menuOpen ? ' is-open' : ''}`} aria-label="Navigation">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden>
-            <Boxes size={22} />
-          </span>
-          <span>
-            <strong>Structura</strong>
-            <small>System design, visualised</small>
-          </span>
-          <button type="button" className="icon-btn sidebar-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-            <X size={20} />
-          </button>
-        </div>
-        <nav>
-          <button type="button" className={`nav-item${home && !route.category ? ' is-active' : ''}`} onClick={() => open(null)}>
-            <House size={18} /> Home
-          </button>
-          <p className="nav-group">System design</p>
-          {STATIC_TOPICS.map((t) => {
-            const Icon = topicIcon(t.id)
-            const tp = progress.topics[t.id]
-            return (
-              <button key={t.id} type="button" className={`nav-item${t.id === topic?.id ? ' is-active' : ''}`} onClick={() => open(t)}>
-                <Icon size={18} /> <span className="nav-label">{t.title}</span>
-                {tp?.completed ? <CheckCircle2 className="nav-flag is-done" size={15} aria-label="Completed" /> : tp?.bookmarked ? <Bookmark className="nav-flag" size={14} aria-label="Bookmarked" /> : null}
-              </button>
-            )
-          })}
-          <p className="nav-group">Practice</p>
-          <button type="button" className={`nav-item${route.page === 'listen' ? ' is-active' : ''}`} onClick={() => openPage('listen')}>
-            <Headphones size={18} /> Commute mode
-          </button>
-          <button type="button" className={`nav-item${route.page === 'quiz' ? ' is-active' : ''}`} onClick={() => openPage('quiz')}>
-            <GraduationCap size={18} /> Quiz
-          </button>
-          <button type="button" className={`nav-item${route.page === 'glossary' ? ' is-active' : ''}`} onClick={() => openPage('glossary')}>
-            <BookA size={18} /> Glossary
-          </button>
-          <p className="nav-group">Library</p>
-          {LIBRARY.categories.map((c) => (
-            <button key={c.id} type="button" className={`nav-item is-small${home && route.category === c.id ? ' is-active' : ''}`} onClick={() => openCategory(c.id)}>
-              <BookMarked size={16} /> {c.title}
-            </button>
-          ))}
-        </nav>
-      </aside>
-      {menuOpen && <div className="scrim" onClick={() => setMenuOpen(false)} />}
-
+    <div className={`shell${reels ? ' is-reels' : ''}`}>
       <div className="main">
         <header className="appbar">
-          <button type="button" className="icon-btn menu-btn" onClick={() => setMenuOpen(true)} aria-label="Open menu">
-            <Menu size={22} />
+          <button type="button" className="brand" onClick={() => open(null)} aria-label="Structura, home">
+            <span className="brand-mark" aria-hidden>
+              <Boxes size={20} />
+            </span>
+            <span className="brand-name">Structura</span>
           </button>
-          <div className="search">
-            <Search size={17} aria-hidden />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && matches[0] && open(matches[0])}
-              placeholder="Search topics and guides… (Redis, Kafka, OAuth)"
-              aria-label="Search topics and guides"
-            />
-            {(matches.length > 0 || guideMatches.length > 0) && (
-              <ul className="search-results">
-                {matches.map((t) => (
-                  <li key={t.id}>
-                    <button type="button" onClick={() => open(t)}>
-                      <strong>{t.title}</strong>
-                      <span>
-                        Interactive topic · {t.difficulty} · {t.blurb}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-                {guideMatches.map((g) => (
-                  <li key={g.slug}>
-                    <a href={g.url} target="_blank" rel="noreferrer" onClick={() => setQuery('')}>
-                      <strong>
-                        {g.title} <ExternalLink size={12} aria-hidden />
-                      </strong>
-                      <span>Guide · {g.categories.map(categoryTitle).join(', ')}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Tabs current={tab} onTab={onTab} className="appbar-tabs" />
+          {/* Explore has its own, bigger search. */}
+          {route.page !== 'explore' && <SearchBox onOpen={open} className="appbar-search" />}
           <InstallButton />
           <NotificationBell
             onOpen={(url) => {
@@ -168,18 +135,32 @@ export default function App() {
         <main className="content">
           {topic ? (
             <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} />
-          ) : route.page === 'quiz' ? (
-            <Quiz />
-          ) : route.page === 'glossary' ? (
-            <Glossary />
+          ) : route.page === 'quiz' || route.page === 'glossary' ? (
+            <>
+              <div className="seg practice-switch" role="group" aria-label="Practice">
+                <button type="button" aria-pressed={route.page === 'quiz'} onClick={() => openPage('quiz')}>
+                  <GraduationCap size={16} /> Quiz
+                </button>
+                <button type="button" aria-pressed={route.page === 'glossary'} onClick={() => openPage('glossary')}>
+                  <BookA size={16} /> Glossary
+                </button>
+              </div>
+              {route.page === 'quiz' ? <Quiz /> : <Glossary />}
+            </>
           ) : route.page === 'listen' ? (
             <Commute />
+          ) : route.page === 'explore' ? (
+            <Explore onOpen={open} category={route.category} onCategory={openCategory} />
+          ) : reels ? (
+            <Reels start={route.reel} onOpen={open} />
           ) : (
-            <Home onOpen={open} onPage={openPage} category={route.category} onCategory={openCategory} />
+            <Home onOpen={open} onPage={openPage} onReel={openReel} />
           )}
         </main>
       </div>
-      {route.page !== 'listen' && <MiniPlayer onOpen={() => openPage('listen')} />}
+      <Tabs current={tab} onTab={onTab} className="tabbar" />
+      {route.page !== 'listen' && !reels && <MiniPlayer onOpen={() => openPage('listen')} />}
+      {/* Stays mounted on Reels (hidden there by CSS), so a conversation isn't lost. */}
       <VoiceAssistant topic={topic} open={open} openPage={openPage} />
     </div>
   )
