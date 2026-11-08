@@ -35,7 +35,14 @@ export function AppSwitcher() {
                 const here = app.id === THIS_APP
                 return (
                   <li key={app.id}>
-                    <a className="apps-item" href={here ? '/' : app.url} aria-current={here ? 'page' : undefined} onClick={() => setOpen(false)}>
+                    {/* A new window for the other app, so a phone with it installed opens the app itself. */}
+                    <a
+                      className="apps-item"
+                      href={here ? '/' : app.url}
+                      {...(!here && { target: '_blank', rel: 'noreferrer' })}
+                      aria-current={here ? 'page' : undefined}
+                      onClick={() => setOpen(false)}
+                    >
                       <span className="apps-mark" style={{ background: app.color }} aria-hidden>
                         {app.name[0]}
                       </span>
