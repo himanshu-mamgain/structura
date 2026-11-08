@@ -45,6 +45,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | CDN: Content Delivery Network | Intermediate | | | |
 | Notification System | Intermediate | | | |
 | Unique ID Generator (Snowflake) | Intermediate | | | |
+| Search Autocomplete (Typeahead) | Intermediate | | | |
 | Video Streaming (YouTube-style) | Intermediate | | | |
 
 ## Getting started
