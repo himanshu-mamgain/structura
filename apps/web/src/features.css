@@ -2494,3 +2494,51 @@ html {
   color: var(--muted);
   font-size: 12px;
 }
+
+/* The card on Home that asks for phone notifications. */
+.notify-prompt {
+  display: flex;
+  gap: 14px;
+  margin: 16px 0;
+  padding: 16px;
+  border-color: rgba(109, 106, 248, 0.45);
+  background: linear-gradient(135deg, rgba(109, 106, 248, 0.14), rgba(139, 92, 246, 0.06)), var(--card);
+}
+
+.notify-prompt-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.notify-prompt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.notify-prompt-text strong {
+  font-size: 16px;
+}
+
+.notify-prompt-text > span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.notify-prompt-error {
+  color: #ff6b81 !important;
+}
+
+.notify-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
