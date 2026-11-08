@@ -114,9 +114,6 @@ export default function App() {
             </button>
           ))}
         </nav>
-        <div className="sidebar-foot">
-          <InstallButton />
-        </div>
       </aside>
       {menuOpen && <div className="scrim" onClick={() => setMenuOpen(false)} />}
 
@@ -159,6 +156,7 @@ export default function App() {
               </ul>
             )}
           </div>
+          <InstallButton />
           <NotificationBell
             onOpen={(url) => {
               navigate(new URL(url, window.location.origin).search)

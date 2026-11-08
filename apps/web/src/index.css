@@ -128,40 +128,6 @@ body,
   outline-offset: -1px;
 }
 
-.install-btn,
-.install-close {
-  border: 1px solid var(--assistant-border);
-  background: var(--assistant-bg);
-  color: var(--assistant-fg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-  font: inherit;
-}
-
-.install-btn {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.install-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  line-height: 1;
-}
-
-.install-help {
-  flex-basis: 100%;
-  margin: 4px 0 0;
-  padding: 8px 12px;
-  border: 1px solid var(--assistant-border);
-  border-radius: 10px;
-  background: var(--assistant-bg);
-  color: var(--assistant-fg);
-  text-align: center;
-}
-
 .assistant-chip {
   margin-top: 8px;
   padding: 4px 10px;

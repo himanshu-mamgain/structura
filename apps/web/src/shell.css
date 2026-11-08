@@ -193,40 +193,6 @@ button {
   color: #a5b4fc;
 }
 
-.sidebar-foot {
-  margin-top: auto;
-  padding-top: 16px;
-}
-
-.sidebar-foot .install {
-  display: flex;
-  gap: 6px;
-}
-
-.sidebar-foot .install-btn,
-.sidebar-foot .install-close {
-  min-height: 40px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.sidebar-foot .install-btn {
-  flex: 1;
-}
-
-.sidebar-foot .install-close {
-  width: 40px;
-}
-
-.sidebar-foot .install-help {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
 /* ─── App bar ─── */
 
 .appbar {
@@ -1284,4 +1250,72 @@ button {
   .topic-grid.no-side {
     grid-template-columns: minmax(0, 1fr) 300px;
   }
+}
+
+/* ─── Install, in the app bar beside the search ─── */
+
+.appbar-install {
+  position: relative;
+  flex: none;
+}
+
+.appbar-install-btn {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+/* Phones: just the icon, so the search keeps its room. */
+.appbar-install-label {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .appbar-install-btn {
+    padding: 0 16px;
+  }
+
+  .appbar-install-label {
+    display: inline;
+  }
+}
+
+.install-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.install-popover {
+  position: absolute;
+  top: 52px;
+  right: -52px;
+  z-index: 61;
+  width: min(300px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 14px 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  font-size: 14px;
+}
+
+.install-popover ol {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+}
+
+.install-popover li {
+  margin: 6px 0;
+}
+
+.install-popover svg {
+  vertical-align: -3px;
+  color: var(--text);
+}
+
+.install-popover-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
 }
