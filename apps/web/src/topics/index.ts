@@ -15,6 +15,7 @@ import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
 import { salesRank } from './sales-rank'
 import { scalingAws } from './scaling-aws'
+import { searchAutocomplete } from './search-autocomplete'
 import { socialGraph } from './social-graph'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
@@ -48,6 +49,7 @@ const BASE_TOPICS: StaticTopic[] = [
   cdn,
   notificationSystem,
   uniqueIdGenerator,
+  searchAutocomplete,
   proximityService,
 ]
 
