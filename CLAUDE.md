@@ -28,8 +28,12 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - `src/topics/`: one file per topic (`url-shortener.ts`, `twitter-timeline.ts`, …),
     registered in `src/topics/index.ts`. Types in `src/topics/types.ts`.
   - `src/topics/library.json`: the syllabus (generated, see below). `library.ts` reads it.
-  - `src/shell/`: app shell. `App.tsx` (routes via `?topic=`, `?page=quiz|glossary`,
-    `?library=`), `Home.tsx`, `TopicView.tsx`, `Practice.tsx`, `topicIcons.ts`.
+  - `src/shell/`: app shell. `App.tsx` (routes via `?topic=`, `?page=explore|reels|listen|quiz|glossary`,
+    `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
+    phones and in the top bar from 1024px), `Home.tsx` (reels row first), `Explore.tsx`
+    (search, topic grid, library), `Reels.tsx` (full-screen video feed), `Search.tsx`,
+    `TopicView.tsx`, `Practice.tsx`, `topicIcons.ts`. There's no sidebar: anything fixed
+    to the bottom of the screen sits above the tab bar (`bottom: calc(… + var(--tabbar))`).
   - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), box icons (`icons.ts`),
     component inspector logic (`inspect.ts`).
   - `src/board/`: the 3D city (`scene.ts`), ELK layout (`layout.ts`), load test panel.

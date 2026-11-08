@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Bookmark, CheckCircle2, ExternalLink, Footprints, GraduationCap, Headphones, Library, Play, Sparkles, Video, WifiOff, Zap } from 'lucide-react'
+import { Bookmark, CheckCircle2, Footprints, GraduationCap, Headphones, Play, Sparkles, Video, WifiOff, Zap } from 'lucide-react'
 import { ago, readiness, type TopicProgress, useProgress, videoFraction } from '../learn/progress'
 import course from '../learn/course.json'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
-import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
+import { LIBRARY } from '../topics/library'
 import { NotifyPrompt } from './Notifications'
+import { ReelsRow } from './Reels'
 import { topicIcon } from './topicIcons'
 import { TodayCard } from './VoiceGuide'
 import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
@@ -14,17 +15,15 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60))
 
 type Filter = 'all' | 'bookmarked' | 'in-progress' | 'completed'
 
-/** The first screen: what Structura is, where you left off, the videos, every topic, and the library. */
+/** The first screen: the reels, what Structura is, today's pick, where you left off and every topic. */
 export function Home({
   onOpen,
   onPage,
-  category,
-  onCategory,
+  onReel,
 }: {
   onOpen: (topic: StaticTopic) => void
-  onPage: (page: 'quiz' | 'glossary' | 'listen') => void
-  category: string | null
-  onCategory: (id: string | null) => void
+  onPage: (page: 'quiz' | 'glossary' | 'listen' | 'reels' | 'explore') => void
+  onReel: (id: string) => void
 }) {
   const progress = useProgress()
   const [filter, setFilter] = useState<Filter>('all')
@@ -45,6 +44,8 @@ export function Home({
 
   return (
     <div className="home">
+      <ReelsRow onPlay={onReel} onAll={() => onPage('reels')} />
+
       <section className="hero">
         <p className="eyebrow">
           <Sparkles size={15} /> Interactive system design
@@ -116,32 +117,6 @@ export function Home({
         </section>
       )}
 
-      <section className="home-section" aria-label="Videos">
-        <h2>
-          <Video size={19} /> Narrated videos
-        </h2>
-        <div className="video-row">
-          {STATIC_TOPICS.filter((t) => t.video).map((t) => {
-            const watched = videoFraction(p(t))
-            return (
-              <button key={t.id} type="button" className="video-tile" onClick={() => onOpen(t)}>
-                <span className="video-thumb">
-                  <img src={thumbnail(t)} alt="" loading="lazy" />
-                  <Play className="video-tile-play" size={26} fill="currentColor" />
-                  {watched > 0 && (
-                    <span className="video-watched">
-                      <span style={{ width: `${watched * 100}%` }} />
-                    </span>
-                  )}
-                </span>
-                <strong>{t.title}</strong>
-                <span>{t.chapters ? `${t.chapters.length} chapters` : 'Video'}{watched >= 0.97 ? ' · watched' : ''}</span>
-              </button>
-            )
-          })}
-        </div>
-      </section>
-
       <section className="home-section" aria-label="Topics">
         <div className="section-head">
           <h2>Topics</h2>
@@ -207,71 +182,14 @@ export function Home({
         </div>
       </section>
 
-      <LibraryList category={category} onCategory={onCategory} onOpen={onOpen} />
+      <p className="home-more">
+        More to read: the full library of {LIBRARY.guides.length} guides is in{' '}
+        <button type="button" className="link-btn" onClick={() => onPage('explore')}>
+          Explore
+        </button>
+        .
+      </p>
     </div>
-  )
-}
-
-/** The whole syllabus: every guide and chapter, filterable by category, linking to the original. */
-function LibraryList({ category, onCategory, onOpen }: { category: string | null; onCategory: (id: string | null) => void; onOpen: (topic: StaticTopic) => void }) {
-  // Phones start with a shorter list; "Show more" loads the rest.
-  const [limit, setLimit] = useState(() => (window.innerWidth < 640 ? 24 : 60))
-  const guides = category ? LIBRARY.guides.filter((g) => g.categories.includes(category)) : LIBRARY.guides
-  return (
-    <section className="library home-section" id="library" aria-label="Library">
-      <header className="library-head">
-        <h2>
-          <Library size={20} /> Library
-        </h2>
-        <p>
-          {LIBRARY.guides.length} guides and chapters from open system design collections, our syllabus. Titles link to the originals; the ones
-          marked Interactive are already Structura topics.
-        </p>
-      </header>
-      <div className="library-cats">
-        <button type="button" aria-pressed={!category} onClick={() => onCategory(null)}>
-          All
-        </button>
-        {LIBRARY.categories.map((c) => (
-          <button key={c.id} type="button" aria-pressed={category === c.id} onClick={() => onCategory(c.id)}>
-            {c.title}
-          </button>
-        ))}
-      </div>
-      <ul className="guides">
-        {guides.slice(0, limit).map((g) => {
-          const covered = topicForGuide(STATIC_TOPICS, g.slug)
-          return (
-            <li key={g.slug} className="guide">
-              <a href={g.url} target="_blank" rel="noreferrer">
-                {g.title} <ExternalLink size={13} aria-hidden />
-              </a>
-              <span className="guide-tags">{[sourceOf(g).name.split(' (')[0], ...g.tags.slice(0, 3)].join(' · ')}</span>
-              {covered && (
-                <button type="button" className="guide-interactive" onClick={() => onOpen(covered)}>
-                  Interactive: {covered.title}
-                </button>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-      {guides.length > limit && (
-        <button type="button" className="btn btn-ghost library-more" onClick={() => setLimit(limit + 90)}>
-          Show more ({guides.length - limit} left)
-        </button>
-      )}
-      <ul className="library-note">
-        {Object.values(LIBRARY.sources).map((s) => (
-          <li key={s.repo}>
-            <a href={s.repo} target="_blank" rel="noreferrer">
-              {s.name}
-            </a>
-            : {s.license}
-          </li>
-        ))}
-      </ul>
-    </section>
   )
 }
 
