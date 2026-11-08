@@ -3,7 +3,7 @@ import { Download, Share, SquarePlus, X } from 'lucide-react'
 import { getInstallState, promptInstall, subscribeInstallState } from './install'
 
 /**
- * "Install" in the app bar, beside the search, while the app can be installed.
+ * "Install" in the app bar, beside the bell, while the app can be installed.
  * Chrome, Edge and Samsung Internet show their own install dialog; on iPhone and
  * iPad there's none, so it explains Share → Add to Home Screen instead.
  */
