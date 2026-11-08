@@ -1,49 +1,58 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { Download, Share, SquarePlus, X } from 'lucide-react'
 import { getInstallState, promptInstall, subscribeInstallState } from './install'
 
-const DISMISS_KEY = 'structura:install-dismissed'
-
-function readDismissed() {
-  try {
-    return localStorage.getItem(DISMISS_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-
+/**
+ * "Install" in the app bar, beside the search, while the app can be installed.
+ * Chrome, Edge and Samsung Internet show their own install dialog; on iPhone and
+ * iPad there's none, so it explains Share → Add to Home Screen instead.
+ */
 export function InstallButton() {
   // getInstallState returns a fresh object each call, so subscribe to its kind.
   const kind = useSyncExternalStore(subscribeInstallState, () => getInstallState().kind)
-  const [showIosHelp, setShowIosHelp] = useState(false)
-  const [dismissed, setDismissed] = useState(readDismissed)
+  const [help, setHelp] = useState(false)
 
-  if (kind === 'installed' || kind === 'unavailable' || dismissed) return null
+  useEffect(() => {
+    if (!help) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setHelp(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [help])
 
-  function dismiss() {
-    setDismissed(true)
-    try {
-      localStorage.setItem(DISMISS_KEY, '1')
-    } catch {
-      // Storage blocked; the button just comes back next visit.
-    }
-  }
+  if (kind === 'installed' || kind === 'unavailable') return null
 
   return (
-    <div className="install">
+    <div className="appbar-install">
       <button
         type="button"
-        className="install-btn"
-        onClick={() => (kind === 'ios' ? setShowIosHelp(!showIosHelp) : void promptInstall())}
+        className="btn btn-primary appbar-install-btn"
+        onClick={() => (kind === 'ios' ? setHelp(!help) : void promptInstall())}
+        aria-expanded={kind === 'ios' ? help : undefined}
+        aria-label="Install the app"
+        title="Install the app: opens full screen, works offline"
       >
-        ⬇ Install app
+        <Download size={18} aria-hidden />
+        <span className="appbar-install-label">Install</span>
       </button>
-      <button type="button" className="install-close" onClick={dismiss} aria-label="Hide install button">
-        ×
-      </button>
-      {showIosHelp && (
-        <p className="install-help">
-          In Safari, tap <strong>Share</strong> (the square with an arrow), then <strong>Add to Home Screen</strong>.
-        </p>
+      {help && (
+        <>
+          <div className="install-scrim" onClick={() => setHelp(false)} />
+          <div className="card install-popover" role="dialog" aria-label="Install on iPhone or iPad">
+            <button type="button" className="icon-btn install-popover-close" onClick={() => setHelp(false)} aria-label="Close">
+              <X size={16} />
+            </button>
+            <strong>Install Structura</strong>
+            <ol>
+              <li>
+                In Safari, tap <Share size={15} aria-label="Share" /> <b>Share</b>.
+              </li>
+              <li>
+                Choose <SquarePlus size={15} aria-hidden /> <b>Add to Home Screen</b>.
+              </li>
+              <li>Open Structura from your Home Screen.</li>
+            </ol>
+          </div>
+        </>
       )}
     </div>
   )
