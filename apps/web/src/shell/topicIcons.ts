@@ -1,4 +1,4 @@
-import { Bell, Bug, Car, ClipboardPaste, Container, DatabaseZap, Earth, FingerprintPattern, Gauge, IndianRupee, Link2, type LucideIcon, MessageSquareText, MessagesSquare, Orbit, PiggyBank, ServerCog, Shapes, Share2, ShieldCheck, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Bug, Car, ClipboardPaste, Container, DatabaseZap, Earth, FingerprintPattern, Gauge, IndianRupee, Link2, type LucideIcon, MapPin, MessageSquareText, MessagesSquare, Orbit, PiggyBank, ServerCog, Shapes, Share2, ShieldCheck, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -23,6 +23,7 @@ const ICONS: Record<string, LucideIcon> = {
   'notification-system': Bell,
   'unique-id-generator': FingerprintPattern,
   'search-autocomplete': TextSearch,
+  'proximity-service': MapPin,
 }
 
 /** The icon shown for a topic in the sidebar, cards and header. */

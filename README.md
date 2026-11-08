@@ -46,6 +46,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Notification System | Intermediate | | | |
 | Unique ID Generator (Snowflake) | Intermediate | | | |
 | Search Autocomplete (Typeahead) | Intermediate | | | |
+| Proximity Service (Nearby Places) | Intermediate | | | |
 
 ## Getting started
 

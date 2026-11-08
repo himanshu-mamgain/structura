@@ -9,6 +9,7 @@ import { mint } from './mint'
 import { notificationSystem } from './notification-system'
 import { pastebin } from './pastebin'
 import { paymentIdempotency } from './payment-idempotency'
+import { proximityService } from './proximity-service'
 import { queryCache } from './query-cache'
 import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
@@ -49,6 +50,7 @@ const BASE_TOPICS: StaticTopic[] = [
   notificationSystem,
   uniqueIdGenerator,
   searchAutocomplete,
+  proximityService,
 ]
 
 /**
