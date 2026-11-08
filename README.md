@@ -15,6 +15,7 @@ Every topic is a live architecture, not a static picture:
 - **Voice assistant.** Always on screen: ask by voice or text ("what is a load balancer?", "walk me through it", "what should I learn today?"). It answers aloud in a natural voice, drives the app, and highlights each word as it speaks.
 - **Commute mode.** Every topic as an offline audio lesson, like a podcast: save on Wi-Fi, listen with the screen off, lock-screen and earphone controls, interview practice with thinking pauses, and it remembers where you stopped.
 - **Explanation, code and data model** for each topic, with key takeaways and interview follow-ups.
+- **Your Notion notes.** Optionally, each deploy builds the owner's Notion notes into the app: a reader, search, and the matching notes on each topic, locked with a passphrase.
 - **Progress.** Today's pick, bookmarks, completed topics, difficulty levels and an interview-readiness score, saved on your device.
 - **Practice.** A quiz and a glossary.
 - **Library.** About 1,350 guides, chapters and articles from open system design collections, searchable in Explore, as the syllabus for future topics.
