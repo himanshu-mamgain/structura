@@ -35,6 +35,9 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - `src/board/`: the 3D city (`scene.ts`), ELK layout (`layout.ts`), load test panel.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
   - CSS: `index.css` (panel internals), `shell.css` (layout), `features.css` (newer features).
+  - Links to other sites use `target="_blank" rel="noreferrer"`. In the installed app,
+    `src/pwa/externalLinks.ts` opens them in the app's own window instead, so learners stay
+    in Structura (Android and desktop show a bar with an ✕ back; iPhone shows a Safari sheet).
 - `apps/video`: Remotion videos (narration in `src/narration/*.json`).
 - `packages/shared`: zod schemas for diagrams, ERDs, traces and explanations (`src/schemas.ts`).
 - `packages/sim`: Rust load simulator compiled to WASM. `pkg/` is committed, so
