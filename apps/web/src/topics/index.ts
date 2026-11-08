@@ -20,6 +20,7 @@ import type { StaticTopic } from './types'
 import { uberSurge } from './uber-surge'
 import { uniqueIdGenerator } from './unique-id-generator'
 import { urlShortener } from './url-shortener'
+import { videoStreaming } from './video-streaming'
 import autoVideos from './videos.json'
 import { webCrawler } from './web-crawler'
 
@@ -47,6 +48,7 @@ const BASE_TOPICS: StaticTopic[] = [
   cdn,
   notificationSystem,
   uniqueIdGenerator,
+  videoStreaming,
 ]
 
 /**
