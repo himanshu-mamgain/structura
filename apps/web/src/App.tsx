@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BookA, Boxes, Clapperboard, GraduationCap, Headphones, House, Search, type LucideIcon } from 'lucide-react'
 import { board } from './board/store'
 import { InstallButton } from './pwa/InstallButton'
+import { AppSwitcher } from './shell/AppSwitcher'
 import { Explore } from './shell/Explore'
 import { NoteView } from './shell/Notes'
 import { Home } from './shell/Home'
@@ -139,6 +140,7 @@ export default function App() {
               window.scrollTo({ top: 0 })
             }}
           />
+          <AppSwitcher />
         </header>
 
         <main className="content">

@@ -3820,3 +3820,64 @@ html {
 .explore-title + .explore-grid {
   margin-top: 12px;
 }
+
+/* App switcher: same panel as the notifications, listing Himanshu's apps (src/ecosystem.ts). */
+.notify.apps {
+  margin-left: 0;
+}
+
+.apps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.apps-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.apps-item:hover,
+.apps-item[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.apps-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-weight: 800;
+  color: #0b0f17;
+}
+
+.apps-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.apps-text span {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
+@media (min-width: 640px) {
+  .apps-panel {
+    width: 320px;
+  }
+}
+
+/* Links styled as buttons (e.g. "Practice DSA" on a topic). */
+a.btn {
+  text-decoration: none;
+}

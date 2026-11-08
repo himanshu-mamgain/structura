@@ -21,6 +21,7 @@ import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
 import { topicIcon } from './topicIcons'
+import { ecoLinks } from '../ecosystem'
 
 // The 3D city (three.js) and the load test (Rust/WASM simulator) load on first use.
 const BoardCanvas = lazy(() => import('../board/react').then((m) => ({ default: m.BoardCanvas })))
@@ -315,6 +316,10 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
           >
             {progress?.completed ? <CheckCircle2 size={17} /> : <Circle size={17} />} {progress?.completed ? 'Completed' : 'Mark complete'}
           </button>
+          {/* Your DSA Atlas problems linked to this topic (DSA Atlas keeps them on your device). */}
+          <a className="btn btn-ghost" href={ecoLinks.dsaProblemsForTopic(topic.id)} target="_blank" rel="noreferrer" title="Open the DSA Atlas problems you linked to this topic">
+            <Code2 size={17} /> Practice DSA
+          </a>
           {topic.video && (
             <button type="button" className="btn btn-primary" onClick={watch}>
               <Play size={16} fill="currentColor" />
