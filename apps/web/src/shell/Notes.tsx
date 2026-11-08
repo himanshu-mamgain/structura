@@ -1,7 +1,7 @@
 import { type FormEvent, Fragment, type ReactNode, useEffect, useState } from 'react'
-import { ArrowUpRight, ChevronRight, FileText, KeyRound, Link2, Lock, NotebookPen } from 'lucide-react'
+import { ArrowUpRight, Check, ChevronRight, FileText, KeyRound, Link2, Loader2, Lock, NotebookPen, Send } from 'lucide-react'
 import { ago } from '../learn/progress'
-import { imageSrc, isSealed, loadNote, lockNotes, noteIdIn, notesFor, topicsFor, unlock, useNotes } from '../learn/notes'
+import { canSave, imageSrc, isSealed, loadNote, lockNotes, noteIdIn, notesFor, saveNote, topicsFor, unlock, useNotes } from '../learn/notes'
 import type { Block, NoteFile, NoteMeta, NotesIndex, Rich } from '../learn/notesFormat'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { topicIcon } from './topicIcons'
@@ -121,6 +121,82 @@ export function TopicNotes({ topic, onNote }: { topic: StaticTopic; onNote: (id:
         ))}
       </ul>
     </>
+  )
+}
+
+const draftKey = (topic: StaticTopic) => `structura:note-draft:${topic.id}`
+
+/**
+ * Under a topic's takeaways, for the owner once his notes are unlocked: write a
+ * note and save it to the topic's page in Notion. The draft is kept in this
+ * browser until it's saved.
+ */
+export function NoteBox({ topic }: { topic: StaticTopic }) {
+  const notes = useNotes()
+  const [text, setText] = useState(() => {
+    try {
+      return localStorage.getItem(draftKey(topic)) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const [state, setState] = useState<{ kind: 'idle' } | { kind: 'saving' } | { kind: 'saved'; url: string } | { kind: 'error'; message: string }>({ kind: 'idle' })
+  if (notes.status !== 'ready' || !canSave()) return null
+
+  function edit(next: string) {
+    setText(next)
+    if (state.kind !== 'saving') setState({ kind: 'idle' })
+    try {
+      if (next) localStorage.setItem(draftKey(topic), next)
+      else localStorage.removeItem(draftKey(topic))
+    } catch {
+      // Not kept; still saved when sent.
+    }
+  }
+
+  async function save() {
+    setState({ kind: 'saving' })
+    try {
+      const url = await saveNote(topic, text)
+      edit('')
+      setState({ kind: 'saved', url })
+    } catch (error) {
+      setState({ kind: 'error', message: (error as Error).message })
+    }
+  }
+
+  return (
+    <div className="note-box">
+      <h3 className="deeper-title">
+        <NotebookPen size={15} aria-hidden /> Write a note
+      </h3>
+      <textarea
+        value={text}
+        onChange={(e) => edit(e.target.value)}
+        placeholder="What clicked, what to revise, an interview answer… Start lines with - for bullets."
+        rows={4}
+        maxLength={6000}
+        aria-label={`Note on ${topic.title}`}
+      />
+      <div className="note-box-row">
+        <button type="button" className="btn btn-primary" disabled={!text.trim() || state.kind === 'saving'} onClick={() => void save()}>
+          {state.kind === 'saving' ? <Loader2 size={16} className="spin" /> : <Send size={16} />} Save to Notion
+        </button>
+        {state.kind === 'saved' && (
+          <span className="note-box-status" role="status">
+            <Check size={15} /> Saved ·{' '}
+            <a href={state.url} target="_blank" rel="noreferrer">
+              Open in Notion
+            </a>
+          </span>
+        )}
+      </div>
+      {state.kind === 'error' && (
+        <p className="note-box-error" role="status">
+          {state.message}
+        </p>
+      )}
+    </div>
   )
 }
 

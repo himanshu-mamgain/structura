@@ -16,7 +16,7 @@ import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
-import { TopicNotes } from './Notes'
+import { NoteBox, TopicNotes } from './Notes'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
@@ -785,6 +785,7 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
             ))}
           </ol>
           {onNote && <TopicNotes topic={topic} onNote={onNote} />}
+          <NoteBox topic={topic} />
           {guidesFor(topic).length > 0 && (
             <>
               <h3 className="deeper-title">Go deeper</h3>

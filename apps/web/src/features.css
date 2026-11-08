@@ -3755,6 +3755,54 @@ html {
   text-decoration: line-through;
 }
 
+/* Writing a note back to Notion, under a topic's takeaways */
+
+.note-box textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.note-box textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+.note-box-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.note-box-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ok);
+  font-size: 14px;
+}
+
+.note-box-status a {
+  color: #a5b4fc;
+}
+
+.note-box-error {
+  margin: 8px 0 0;
+  color: #fca5a5;
+  font-size: 14px;
+}
+
 .note-body hr {
   margin: 22px 0;
   border: 0;

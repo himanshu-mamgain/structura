@@ -11,7 +11,8 @@
     "build": "npm run build --workspaces --if-present",
     "lan": "npm run build -w @structura/web && npm run preview -w @structura/web",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p netlify",
-    "test:push": "tsx --test netlify/lib/push.test.ts"
+    "test:push": "tsx --test netlify/lib/push.test.ts",
+    "test:notion": "tsx --test netlify/lib/notion-save.test.ts"
   },
   "engines": {
     "node": ">=20"

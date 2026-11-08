@@ -5,6 +5,7 @@
 # VAPID_PRIVATE_KEY in the site's environment variables; without them push is off.
 # The build also turns the owner's Notion notes into static files (apps/web/scripts/notion.ts)
 # when NOTION_TOKEN and NOTION_ROOT_PAGE_ID are set (NOTION_PASSPHRASE encrypts them).
+# /api/notion-note lets the owner save a note from a topic back to Notion (same variables).
 [build]
   base = ""
   command = "npm run build -w @structura/web"
