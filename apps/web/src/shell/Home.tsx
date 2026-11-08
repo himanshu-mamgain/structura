@@ -4,6 +4,7 @@ import { ago, readiness, type TopicProgress, useProgress, videoFraction } from '
 import course from '../learn/course.json'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
+import { NotifyPrompt } from './Notifications'
 import { topicIcon } from './topicIcons'
 import { TodayCard } from './VoiceGuide'
 import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
@@ -80,6 +81,7 @@ export function Home({
       </section>
 
       <TodayCard onOpen={onOpen} />
+      <NotifyPrompt />
       <CommuteCard onPage={onPage} />
 
       {recent.length > 0 && (

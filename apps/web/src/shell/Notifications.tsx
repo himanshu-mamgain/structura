@@ -144,6 +144,100 @@ function NotifySettingsView() {
   )
 }
 
+const PROMPT_KEY = 'structura:notify-prompt'
+/** After "Not now", the card stays away this long. */
+const SNOOZE = 7 * 24 * 60 * 60 * 1000
+
+const snoozedUntil = () => {
+  try {
+    return Number(localStorage.getItem(PROMPT_KEY) ?? 0) + SNOOZE
+  } catch {
+    return 0
+  }
+}
+
+/** "19:00" as the learner's clock shows it, e.g. "7:00 pm". */
+const clockTime = (time: string) => {
+  const [h, m] = time.split(':').map(Number)
+  return new Date(2000, 0, 1, h, m).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
+/**
+ * A card on Home that asks once for phone notifications, so the browser's
+ * permission prompt comes from a tap with its reason in view (browsers hide
+ * prompts that appear on page load).
+ */
+export function NotifyPrompt() {
+  const { settings } = useNotify()
+  const progress = useProgress()
+  const [hidden, setHidden] = useState(() => Date.now() < snoozedUntil())
+  const [state, setState] = useState<'ask' | 'busy' | 'done'>('ask')
+  const [error, setError] = useState<string | null>(null)
+
+  if (hidden || (settings.push && state !== 'done') || pushSupport() !== 'ok') return null
+
+  async function turnOn() {
+    setState('busy')
+    setError(null)
+    try {
+      await enablePush(upcoming(STATIC_TOPICS, progress, Date.now(), course.quiz.length), settings.newTopics)
+      updateSettings({ push: true })
+      setState('done')
+    } catch (e) {
+      setState('ask')
+      setError(e instanceof PushError ? e.message : `That didn't work: ${e instanceof Error ? e.message : 'unknown error'}.`)
+    }
+  }
+
+  function notNow() {
+    setHidden(true)
+    try {
+      localStorage.setItem(PROMPT_KEY, String(Date.now()))
+    } catch {
+      // Storage blocked: the card comes back next visit.
+    }
+  }
+
+  return (
+    <section className="card notify-prompt" aria-label="Notifications">
+      <span className="notify-prompt-icon" aria-hidden>
+        <BellRing size={22} />
+      </span>
+      {state === 'done' ? (
+        <div className="notify-prompt-text">
+          <strong>You're set</strong>
+          <span>Your first reminder comes at {clockTime(settings.time)}. Change the time or what you get from the bell.</span>
+          <div className="notify-prompt-actions">
+            <button type="button" className="btn btn-ghost" onClick={() => setHidden(true)}>
+              OK
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="notify-prompt-text">
+          <strong>Get a daily study reminder?</strong>
+          <span>
+            At {clockTime(settings.time)}, with today's topic, plus new topics and review reminders. Change or turn them off any time from the bell.
+          </span>
+          {error && (
+            <span className="notify-prompt-error" role="status">
+              {error}
+            </span>
+          )}
+          <div className="notify-prompt-actions">
+            <button type="button" className="btn btn-primary" disabled={state === 'busy'} onClick={turnOn}>
+              <BellRing size={16} /> Turn on
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={notNow}>
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
 export function NotificationBell({ onOpen }: { onOpen: (url: string) => void }) {
   const { inbox, settings } = useNotify()
   const [open, setOpen] = useState(false)
