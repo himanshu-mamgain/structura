@@ -61,7 +61,10 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
   const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
   const [tab, setTab] = useState<Tab>('explain')
-  const [section, setSection] = useState(0)
+  // A review reminder (?review) opens the interview follow-ups, to answer without looking.
+  const [section, setSection] = useState(() =>
+    new URLSearchParams(window.location.search).has('review') ? Math.max(0, topic.explanation.sections.findIndex((s) => /interview/i.test(s.heading))) : 0,
+  )
   const [trace, setTrace] = useState<Trace | null>(topic.explanation.trace)
   const [walk, setWalk] = useState<{ index: number; playing: boolean } | null>(null)
   const [showLoad, setShowLoad] = useState(openLoad && Boolean(topic.loadTest))
@@ -306,7 +309,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
           <button
             type="button"
             className={`btn btn-ghost${progress?.completed ? ' is-on' : ''}`}
-            onClick={() => updateTopic(topic.id, (p) => ({ completed: !p.completed }))}
+            onClick={() => updateTopic(topic.id, (p) => ({ completed: !p.completed, completedAt: p.completed ? undefined : Date.now() }))}
             aria-pressed={Boolean(progress?.completed)}
           >
             {progress?.completed ? <CheckCircle2 size={17} /> : <Circle size={17} />} {progress?.completed ? 'Completed' : 'Mark complete'}
