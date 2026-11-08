@@ -12,6 +12,9 @@ static site from `main`: https://structura-web.netlify.app
   API calls, servers, API keys or LLM features to the app. On-device speech is fine
   (the voice assistant runs Kokoro in a Web Worker; its "brain" is search, not AI). (`apps/server` was
   deleted on purpose; a Render build failing on `@structura/server` is expected.)
+  **The one exception is push notifications** (`netlify/functions`, see "Notifications"
+  below): they only store and send reminder texts the browser worked out. Don't grow
+  them into a general backend, and never send learner progress to them.
 - **Work on a branch and open a pull request. Never push to `main`.** Netlify
   makes a deploy preview for each PR; the owner reviews it on their phone and merges.
 - **Respect source licences** (see "Sources" below). When in doubt, link, don't copy.
@@ -135,6 +138,26 @@ The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
   first use), which also masters the audio and writes word timings for the karaoke
   captions. `npm run voice -w @structura/video -- payment-idempotency`, then
   `npm run render:payments -w @structura/video`.
+
+## Notifications
+
+The bell in the app bar (`src/shell/Notifications.tsx`) shows a daily study reminder
+(the "Today" plan), new topics, a nudge after 3 days away from an unfinished topic,
+and reviews 1, 3 and 7 days after finishing one. They're worked out in the browser
+from progress (`src/learn/notify.ts`).
+
+Phone notifications use Web Push through Netlify Functions:
+
+- `/api/push` (`netlify/functions/push.mts`) stores each browser's subscription and
+  its upcoming reminders (text, link, time) in Netlify Blobs.
+- `push-send.mts` runs every 15 minutes in production, sends what's due, and announces
+  topics added since its last run (from `/topics.json`, written by `npm run build`).
+- `public/notify-sw.js` (added to the service worker) shows them and opens the page.
+- Logic lives in `netlify/lib/push.ts`; test it with `npm run test:push`.
+- Setup, once: `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`,
+  `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address) in Netlify's
+  environment variables. Without them push is off and the bell still works.
+- iPhone and iPad get push only from the Home Screen app (iOS 16.4+).
 
 ## Style
 

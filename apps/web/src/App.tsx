@@ -4,6 +4,7 @@ import { board } from './board/store'
 import { useProgress } from './learn/progress'
 import { InstallButton } from './pwa/InstallButton'
 import { Home } from './shell/Home'
+import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { Glossary, Quiz } from './shell/Practice'
 import { Commute, MiniPlayer } from './shell/Commute'
 import { TopicView } from './shell/TopicView'
@@ -26,6 +27,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
   const progress = useProgress()
+  useNotificationEngine()
   const topic = STATIC_TOPICS.find((t) => t.id === route.topicId) ?? null
   // ?topic=…&load opens the topic with its load test running.
   const [openLoad] = useState(() => new URLSearchParams(window.location.search).has('load'))
@@ -157,6 +159,12 @@ export default function App() {
               </ul>
             )}
           </div>
+          <NotificationBell
+            onOpen={(url) => {
+              navigate(new URL(url, window.location.origin).search)
+              window.scrollTo({ top: 0 })
+            }}
+          />
         </header>
 
         <main className="content">

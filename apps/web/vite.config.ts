@@ -43,6 +43,8 @@ export default defineConfig({
         // Store screenshots are for the install sheet, not the app; videos are saved on request.
         // Store screenshots, videos and the natural voice's 21 MB speech runtime download on demand.
         globIgnores: ['screenshots/**', 'videos/*.mp4', '**/ort-wasm*.wasm', '**/kokoro.worker-*.js'],
+        // Push notifications: shows them and opens the page when tapped (public/notify-sw.js).
+        importScripts: ['notify-sw.js'],
         runtimeCaching: [
           {
             // Commute-mode lessons saved for offline (learn/commute.ts) play from the cache, seeking
@@ -71,7 +73,7 @@ export default defineConfig({
           },
         ],
         // Files under /licenses and /videos are real files, not app routes.
-        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//],
+        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//, /^\/api\//],
       },
     }),
   ],

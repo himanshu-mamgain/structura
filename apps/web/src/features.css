@@ -2160,3 +2160,337 @@ html {
 .content {
   padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
 }
+
+/* ─── Notifications: the bell, its panel and settings ─── */
+
+.notify {
+  position: relative;
+  flex: none;
+  margin-left: auto;
+}
+
+.notify-btn {
+  position: relative;
+}
+
+.notify-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+  background: #ff6b81;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}
+
+.notify-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Phones: a sheet under the app bar. Wider screens: a dropdown under the bell. */
+.notify-panel {
+  position: fixed;
+  top: calc(var(--top-h) + 6px);
+  left: 10px;
+  right: 10px;
+  z-index: 61;
+  max-height: calc(100dvh - var(--top-h) - 24px);
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+@media (min-width: 640px) {
+  .notify-scrim {
+    background: transparent;
+  }
+
+  .notify-panel {
+    position: absolute;
+    top: 52px;
+    left: auto;
+    right: 0;
+    width: 380px;
+    max-height: min(640px, calc(100dvh - 90px));
+  }
+}
+
+.notify-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+
+.notify-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+}
+
+.notify-head .icon-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.notify-link {
+  padding: 4px 6px;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notify-list {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+
+.notify-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 26px 10px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.notify-item:hover {
+  background: var(--primary-soft);
+}
+
+.notify-item.is-unread {
+  background: rgba(109, 106, 248, 0.08);
+}
+
+.notify-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--card-2);
+  color: var(--primary);
+}
+
+.notify-icon.is-new {
+  color: #fbbf24;
+}
+
+.notify-icon.is-nudge {
+  color: #fb923c;
+}
+
+.notify-icon.is-review {
+  color: var(--ok);
+}
+
+.notify-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.notify-text strong {
+  font-size: 14px;
+}
+
+.notify-item.is-unread::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6b81;
+}
+
+.notify-text span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.notify-text small {
+  color: var(--muted);
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.notify-empty {
+  margin: 0;
+  padding: 22px 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.notify-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 12px);
+  margin: 0 6px 8px;
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notify-settings {
+  padding: 4px 16px 16px;
+}
+
+.notify-settings h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.notify-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.notify-switch span {
+  display: flex;
+  flex-direction: column;
+}
+
+.notify-switch strong {
+  font-size: 14px;
+}
+
+.notify-switch small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* A switch, from a plain checkbox. */
+.notify-switch input {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--card-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.notify-switch input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.notify-switch input:checked {
+  background: var(--primary);
+}
+
+.notify-switch input:checked::after {
+  transform: translateX(18px);
+}
+
+.notify-switch input:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.notify-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.notify-time input {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 16px; /* no iOS zoom on focus */
+  color-scheme: dark;
+}
+
+.notify-push {
+  margin-top: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.notify-push .btn-primary {
+  width: 100%;
+}
+
+.notify-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.notify-actions .btn {
+  flex: 1;
+}
+
+.notify-note {
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+
+.notify-fine {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}

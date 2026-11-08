@@ -1,9 +1,16 @@
-# Netlify hosts the whole app: a static PWA with no server and no API keys.
-# Diagrams, the WASM load simulator, quizzes and progress all run in the browser.
+# Netlify hosts the whole app: a static PWA. Diagrams, the WASM load simulator,
+# quizzes and progress all run in the browser. The one server piece is push
+# notifications (netlify/functions): /api/push stores each browser's upcoming
+# reminders and a scheduled function sends them. It needs VAPID_PUBLIC_KEY and
+# VAPID_PRIVATE_KEY in the site's environment variables; without them push is off.
 [build]
   base = ""
   command = "npm run build -w @structura/web"
   publish = "apps/web/dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [build.environment]
   NODE_VERSION = "22"
@@ -11,6 +18,12 @@
 # The service worker and manifest must always be revalidated so updates reach users.
 [[headers]]
   for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Read by the push function to spot new topics: always fresh.
+[[headers]]
+  for = "/topics.json"
   [headers.values]
     Cache-Control = "no-cache"
 

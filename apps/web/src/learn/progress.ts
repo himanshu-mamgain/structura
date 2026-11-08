@@ -7,6 +7,8 @@ import type { StaticTopic } from '../topics'
 export interface TopicProgress {
   bookmarked?: boolean
   completed?: boolean
+  /** When it was marked complete, for review reminders. */
+  completedAt?: number
   /** Explanation sections the learner has opened (by index). */
   sectionsRead?: number[]
   /** Finished the walkthrough to its last step. */
