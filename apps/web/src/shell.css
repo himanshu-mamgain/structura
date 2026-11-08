@@ -1257,6 +1257,12 @@ button {
 .appbar-install {
   position: relative;
   flex: none;
+  /* Pushed right, so it sits beside the bell; the bell keeps the push when Install is hidden. */
+  margin-left: auto;
+}
+
+.appbar-install + .notify {
+  margin-left: 0;
 }
 
 .appbar-install-btn {
