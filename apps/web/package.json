@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && tsx scripts/export-topics.ts",
+    "build": "tsc --noEmit && vite build && tsx scripts/export-topics.ts && tsx scripts/notion.ts",
+    "notes": "tsx scripts/notion.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "export:videos": "tsx scripts/export-videos.ts",

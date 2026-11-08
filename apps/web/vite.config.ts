@@ -61,6 +61,12 @@ export default defineConfig({
             options: { cacheName: 'structura-voice-engine', cacheableResponse: { statuses: [200] } },
           },
           {
+            // Notion notes (scripts/notion.ts): fresh when online, the last copy when offline.
+            urlPattern: ({ url }) => url.pathname.startsWith('/notion/'),
+            handler: 'NetworkFirst',
+            options: { cacheName: 'structura-notes', networkTimeoutSeconds: 4, cacheableResponse: { statuses: [200] } },
+          },
+          {
             // Videos the learner saved for offline (see OfflineVideo.tsx) play from the
             // cache, seeking included; others stream from the network as usual.
             urlPattern: ({ url }) => url.pathname.startsWith('/videos/') && url.pathname.endsWith('.mp4'),
@@ -73,7 +79,7 @@ export default defineConfig({
           },
         ],
         // Files under /licenses and /videos are real files, not app routes.
-        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//, /^\/api\//],
+        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//, /^\/notion\//, /^\/api\//],
       },
     }),
   ],

@@ -14,7 +14,8 @@ static site from `main`: https://structura-web.netlify.app
   deleted on purpose; a Render build failing on `@structura/server` is expected.)
   **The one exception is push notifications** (`netlify/functions`, see "Notifications"
   below): they only store and send reminder texts the browser worked out. Don't grow
-  them into a general backend, and never send learner progress to them.
+  them into a general backend, and never send learner progress to them. (The owner's
+  Notion notes are fetched at **build** time, not at runtime: see "Notion notes".)
 - **Work on a branch and open a pull request. Never push to `main`.** Netlify
   makes a deploy preview for each PR; the owner reviews it on their phone and merges.
 - **Respect source licences** (see "Sources" below). When in doubt, link, don't copy.
@@ -165,6 +166,25 @@ Phone notifications use Web Push through Netlify Functions:
   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address) in Netlify's
   environment variables. Without them push is off and the bell still works.
 - iPhone and iPad get push only from the Home Screen app (iOS 16.4+).
+
+## Notion notes
+
+The owner's Notion notes (his "System Design" page and its sub-pages) are built into
+the site by `apps/web/scripts/notion.ts`, the last step of `npm run build`, into
+`dist/notion/` (an index plus one file per note, images saved beside them). The app
+shows them in Explore ("Your notes"), in a reader (`?note=<id>`), in search, and under
+the takeaways of matching topics (`notesFor` in `src/learn/notes.ts` matches note titles
+to topics; add words to its `ALIASES` to link more). Format and encryption:
+`src/learn/notesFormat.ts`.
+
+- Netlify environment variables: `NOTION_TOKEN` (an internal integration's secret; the
+  page must be shared with it), `NOTION_ROOT_PAGE_ID`, `NOTION_PASSPHRASE` (encrypts every
+  file with AES-GCM; the app asks for it once and keeps the derived key, not the
+  passphrase) and optionally `NOTION_EXCLUDE` (comma-separated titles to leave out).
+- Without a token the step is skipped and the app hides notes. A Notion error never fails
+  the build. Unchanged pages are reused from `node_modules/.cache/structura-notion`.
+- Notes change on the next deploy. Test locally against a mock with `NOTION_API=<url>`.
+- Never commit the token or generated notes, and never log note content.
 
 ## Style
 

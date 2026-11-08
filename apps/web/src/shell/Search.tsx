@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { ExternalLink, Search as SearchIcon, X } from 'lucide-react'
+import { ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
+import { useNotes } from '../learn/notes'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { categoryTitle, LIBRARY } from '../topics/library'
+import { searchNotes } from './Notes'
 import { topicIcon } from './topicIcons'
 
-// Search over the interactive topics and the library's guides. Explore shows
+// Search over the interactive topics, the owner's Notion notes and the library's guides. Explore shows
 // the results in the page; the desktop app bar shows them in a dropdown.
 
 export function search(query: string) {
@@ -16,9 +18,11 @@ export function search(query: string) {
   }
 }
 
-function Results({ query, onOpen, onDone }: { query: string; onOpen: (t: StaticTopic) => void; onDone: () => void }) {
+function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t: StaticTopic) => void; onNote?: (id: string) => void; onDone: () => void }) {
   const { topics, guides } = search(query)
-  if (!topics.length && !guides.length) return null
+  const notesState = useNotes()
+  const notes = onNote && notesState.status === 'ready' ? searchNotes(notesState.index, query) : []
+  if (!topics.length && !guides.length && !notes.length) return null
   return (
     <ul className="search-results">
       {topics.map((t) => {
@@ -39,6 +43,25 @@ function Results({ query, onOpen, onDone }: { query: string; onOpen: (t: StaticT
           </li>
         )
       })}
+      {notes.map((n) => (
+        <li key={n.id}>
+          <button
+            type="button"
+            onClick={() => {
+              onDone()
+              onNote?.(n.id)
+            }}
+          >
+            <span className="search-result-icon is-note" aria-hidden>
+              {n.icon && !/^https?:/.test(n.icon) ? n.icon : <NotebookPen size={16} />}
+            </span>
+            <span className="search-result-text">
+              <strong>{n.title}</strong>
+              <span>Your note{n.summary ? ` · ${n.summary}` : ''}</span>
+            </span>
+          </button>
+        </li>
+      ))}
       {guides.map((g) => (
         <li key={g.slug}>
           <a href={g.url} target="_blank" rel="noreferrer" onClick={onDone}>
@@ -62,12 +85,14 @@ function Results({ query, onOpen, onDone }: { query: string; onOpen: (t: StaticT
  */
 export function SearchBox({
   onOpen,
+  onNote,
   inline = false,
   query: controlled,
   onQuery,
   className = '',
 }: {
   onOpen: (t: StaticTopic) => void
+  onNote?: (id: string) => void
   inline?: boolean
   query?: string
   onQuery?: (q: string) => void
@@ -103,7 +128,7 @@ export function SearchBox({
           </button>
         )}
       </div>
-      <Results query={query} onOpen={pick} onDone={() => setQuery('')} />
+      <Results query={query} onOpen={pick} onNote={onNote} onDone={() => setQuery('')} />
     </div>
   )
 }

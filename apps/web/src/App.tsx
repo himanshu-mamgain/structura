@@ -4,6 +4,7 @@ import { board } from './board/store'
 import { InstallButton } from './pwa/InstallButton'
 import { AppSwitcher } from './shell/AppSwitcher'
 import { Explore } from './shell/Explore'
+import { NoteView } from './shell/Notes'
 import { Home } from './shell/Home'
 import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { Glossary, Quiz } from './shell/Practice'
@@ -17,7 +18,7 @@ import { STATIC_TOPICS, type StaticTopic } from './topics'
 type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels'
 const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels']
 
-/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?library=…), so links can be shared. */
+/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…), so links can be shared. */
 function readRoute() {
   const query = new URLSearchParams(window.location.search)
   const page = query.get('page') as Page | null
@@ -28,6 +29,7 @@ function readRoute() {
     // The library lives in Explore, so its links open there.
     page: page && PAGES.includes(page) ? page : category ? 'explore' : null,
     reel: query.get('reel'),
+    noteId: query.get('note'),
   }
 }
 
@@ -89,6 +91,11 @@ export default function App() {
     navigate(`?page=reels&reel=${id}`)
   }
 
+  function openNote(id: string) {
+    navigate(`?note=${id}`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openCategory(id: string | null) {
     navigate(id ? `?library=${id}` : '?page=explore')
     requestAnimationFrame(() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' }))
@@ -96,7 +103,9 @@ export default function App() {
 
   const tab: Tab | null = topic
     ? null
-    : route.page === 'quiz' || route.page === 'glossary'
+    : route.noteId
+      ? 'explore'
+      : route.page === 'quiz' || route.page === 'glossary'
       ? 'practice'
       : route.page === 'explore' || route.page === 'reels' || route.page === 'listen'
         ? route.page
@@ -123,7 +132,7 @@ export default function App() {
           </button>
           <Tabs current={tab} onTab={onTab} className="appbar-tabs" />
           {/* Explore has its own, bigger search. */}
-          {route.page !== 'explore' && <SearchBox onOpen={open} className="appbar-search" />}
+          {route.page !== 'explore' && <SearchBox onOpen={open} onNote={openNote} className="appbar-search" />}
           <InstallButton />
           <NotificationBell
             onOpen={(url) => {
@@ -136,7 +145,9 @@ export default function App() {
 
         <main className="content">
           {topic ? (
-            <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} />
+            <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} />
+          ) : route.noteId ? (
+            <NoteView id={route.noteId} onNote={openNote} onOpen={open} />
           ) : route.page === 'quiz' || route.page === 'glossary' ? (
             <>
               <div className="seg practice-switch" role="group" aria-label="Practice">
@@ -152,7 +163,7 @@ export default function App() {
           ) : route.page === 'listen' ? (
             <Commute />
           ) : route.page === 'explore' ? (
-            <Explore onOpen={open} category={route.category} onCategory={openCategory} />
+            <Explore onOpen={open} onNote={openNote} category={route.category} onCategory={openCategory} />
           ) : reels ? (
             <Reels start={route.reel} onOpen={open} />
           ) : (

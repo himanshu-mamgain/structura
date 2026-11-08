@@ -16,6 +16,7 @@ import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { openStaticTopic } from '../topics/open'
+import { TopicNotes } from './Notes'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
@@ -57,7 +58,7 @@ function useNarrow() {
  * the narrated video with chapters, the explanation with a walkthrough, code
  * and data model, and the key takeaways. Mounted fresh for each topic.
  */
-export function TopicView({ topic, board, openLoad = false }: { topic: StaticTopic; board: Board; openLoad?: boolean }) {
+export function TopicView({ topic, board, openLoad = false, onNote }: { topic: StaticTopic; board: Board; openLoad?: boolean; onNote?: (id: string) => void }) {
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
   const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
@@ -788,6 +789,7 @@ export function TopicView({ topic, board, openLoad = false }: { topic: StaticTop
               <li key={t}>{t}</li>
             ))}
           </ol>
+          {onNote && <TopicNotes topic={topic} onNote={onNote} />}
           {guidesFor(topic).length > 0 && (
             <>
               <h3 className="deeper-title">Go deeper</h3>

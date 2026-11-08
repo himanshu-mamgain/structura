@@ -1,24 +1,40 @@
 import { useState } from 'react'
-import { CheckCircle2, Clapperboard, ExternalLink, Library } from 'lucide-react'
+import { CheckCircle2, Clapperboard, ExternalLink, Library, Shapes } from 'lucide-react'
 import { useProgress } from '../learn/progress'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
+import { NotesShelf } from './Notes'
 import { SearchBox } from './Search'
 import { topicIcon } from './topicIcons'
 
 /**
- * The Explore tab, like Instagram's: search at the top, every topic as a grid
- * of tiles (the ones with a reel show its cover), then the whole library.
+ * The Explore tab, like Instagram's: search at the top, your Notion notes,
+ * every topic as a grid of tiles (the ones with a reel show its cover), then
+ * the whole library.
  */
-export function Explore({ onOpen, category, onCategory }: { onOpen: (topic: StaticTopic) => void; category: string | null; onCategory: (id: string | null) => void }) {
+export function Explore({
+  onOpen,
+  onNote,
+  category,
+  onCategory,
+}: {
+  onOpen: (topic: StaticTopic) => void
+  onNote: (id: string) => void
+  category: string | null
+  onCategory: (id: string | null) => void
+}) {
   const [query, setQuery] = useState('')
   const progress = useProgress()
 
   return (
     <div className="explore">
-      <SearchBox inline onOpen={onOpen} query={query} onQuery={setQuery} />
+      <SearchBox inline onOpen={onOpen} onNote={onNote} query={query} onQuery={setQuery} />
       {!query.trim() && (
         <>
+          <NotesShelf onNote={onNote} />
+          <h2 className="explore-title">
+            <Shapes size={19} aria-hidden /> Topics
+          </h2>
           <section className="explore-grid" aria-label="Topics">
             {STATIC_TOPICS.map((t) => {
               const Icon = topicIcon(t.id)
