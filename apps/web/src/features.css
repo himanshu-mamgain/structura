@@ -3755,24 +3755,6 @@ html {
   text-decoration: line-through;
 }
 
-.note-body hr {
-  margin: 22px 0;
-  border: 0;
-  border-top: 1px solid var(--line);
-}
-
-.explore-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 26px 0 0;
-  font-size: 21px;
-}
-
-.explore-title + .explore-grid {
-  margin-top: 12px;
-}
-
 /* Writing a note back to Notion, under a topic's takeaways */
 
 .note-box textarea {
@@ -3819,4 +3801,22 @@ html {
   margin: 8px 0 0;
   color: #fca5a5;
   font-size: 14px;
+}
+
+.note-body hr {
+  margin: 22px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.explore-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 0;
+  font-size: 21px;
+}
+
+.explore-title + .explore-grid {
+  margin-top: 12px;
 }
