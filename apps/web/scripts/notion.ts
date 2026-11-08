@@ -280,7 +280,9 @@ async function main() {
         }
         const cached = readCache(id)
         let raw: RawBlock[]
-        if (cached && cached.edited === page.last_edited_time) {
+        // Pages that hold sub-pages are always read again: a new sub-page may not
+        // change its parent's edit time. They're mostly lists, so it's cheap.
+        if (cached && cached.edited === page.last_edited_time && !cached.raw.some((b) => b.type === 'child_page')) {
           raw = cached.raw
           reused++
         } else {

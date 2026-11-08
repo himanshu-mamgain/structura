@@ -15,7 +15,9 @@ static site from `main`: https://structura-web.netlify.app
   **The one exception is push notifications** (`netlify/functions`, see "Notifications"
   below): they only store and send reminder texts the browser worked out. Don't grow
   them into a general backend, and never send learner progress to them. (The owner's
-  Notion notes are fetched at **build** time, not at runtime: see "Notion notes".)
+  Notion notes are fetched at **build** time, not at runtime: see "Notion notes". The
+  second, owner-approved exception is `/api/notion-note`, which only appends a note the
+  owner writes and seals with his notes key; nothing else may write to Notion.)
 - **Work on a branch and open a pull request. Never push to `main`.** Netlify
   makes a deploy preview for each PR; the owner reviews it on their phone and merges.
 - **Respect source licences** (see "Sources" below). When in doubt, link, don't copy.
@@ -181,6 +183,12 @@ to topics; add words to its `ALIASES` to link more). Format and encryption:
 - Without a token the step is skipped and the app hides notes. A Notion error never fails
   the build. Unchanged pages are reused from `node_modules/.cache/structura-notion`.
 - Notes change on the next deploy. Test locally against a mock with `NOTION_API=<url>`.
+- Writing back: once the notes are unlocked, each topic shows "Write a note". It's sealed
+  with the notes key and sent to `/api/notion-note` (`netlify/functions/notion-note.mts`,
+  logic in `netlify/lib/notion-save.ts`, `npm run test:notion`), which derives the same key
+  from `NOTION_PASSPHRASE`, refuses anything that doesn't open or is over 5 minutes old,
+  and appends it to *<root> / Notes from Structura / <topic title>*. Those pages come back
+  into the app on the next build. The integration needs the "Insert content" capability.
 - Never commit the token or generated notes, and never log note content.
 
 ## Style

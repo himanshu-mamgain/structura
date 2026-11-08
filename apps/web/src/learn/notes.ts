@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { StaticTopic } from '../topics'
-import { exportKey, fromBase64, importKey, deriveKey, type NoteFile, type NoteMeta, type NotesIndex, type PublishedIndex, unseal } from './notesFormat'
+import { exportKey, fromBase64, importKey, deriveKey, type NoteFile, type NoteMeta, type NotesIndex, type PublishedIndex, seal, toBase64, unseal } from './notesFormat'
 
 // The owner's Notion notes, built into the site by scripts/notion.ts. They're
 // static files under /notion/, read only by this browser. When they're locked,
@@ -101,6 +101,29 @@ export function lockNotes() {
   }
   key = null
   if (sealed) set({ status: 'locked' })
+}
+
+/** Notes can be written back to Notion: they're locked, and unlocked here. */
+export const canSave = () => sealed !== null && key !== null
+
+/**
+ * Appends a note to the topic's page in Notion (under "Notes from Structura"),
+ * through /api/notion-note. The note is sealed with the notes key, which is
+ * how the function knows it's the owner. Returns the page's URL.
+ */
+export async function saveNote(topic: StaticTopic, text: string): Promise<string> {
+  if (!key) throw new Error('Unlock your notes first.')
+  const note = { topicId: topic.id, topicTitle: topic.title, text, at: Date.now(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
+  const data = toBase64(await seal(key, new TextEncoder().encode(JSON.stringify(note))))
+  let res: Response
+  try {
+    res = await fetch('/api/notion-note', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data }) })
+  } catch {
+    throw new Error("You're offline. Your note is kept here; save it when you're back online.")
+  }
+  const body = (await res.json().catch(() => ({}))) as { url?: string; error?: string }
+  if (!res.ok || !body.url) throw new Error(body.error ?? `Saving failed (${res.status}).`)
+  return body.url
 }
 
 async function fetchBytes(url: string) {
