@@ -78,6 +78,15 @@ export function fromBase64(text: string): Uint8Array<ArrayBuffer> {
   return out
 }
 
+/**
+ * The salt for a site's notes: fixed per Notion root page, so the key stays the
+ * same from build to build and a browser that unlocked once stays unlocked.
+ */
+export async function saltFor(rootPageId: string): Promise<Uint8Array<ArrayBuffer>> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`structura-notes|${rootPageId.replace(/-/g, '').toLowerCase()}`))
+  return new Uint8Array(digest.slice(0, 16))
+}
+
 export async function deriveKey(passphrase: string, salt: Uint8Array<ArrayBuffer>, iterations: number): Promise<CryptoKey> {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase.normalize('NFC')), 'PBKDF2', false, ['deriveKey'])
   // Extractable, so the browser can remember the key (not the passphrase) after unlocking.

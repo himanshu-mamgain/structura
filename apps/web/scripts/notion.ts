@@ -27,6 +27,7 @@ import {
   PBKDF2_ITERATIONS,
   type PublishedIndex,
   type Rich,
+  saltFor,
   seal,
   toBase64,
 } from '../src/learn/notesFormat'
@@ -315,7 +316,7 @@ async function main() {
 
   rmSync(OUT, { recursive: true, force: true })
   mkdirSync(join(OUT, 'img'), { recursive: true })
-  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const salt = await saltFor(root)
   const key = passphrase ? await deriveKey(passphrase, salt, PBKDF2_ITERATIONS) : null
   const write = async (name: string, bytes: Uint8Array<ArrayBuffer>) => writeFileSync(join(OUT, key ? name.replace(/\.\w+$/, '.bin') : name), key ? await seal(key, bytes) : bytes)
   const json = (value: unknown) => new TextEncoder().encode(JSON.stringify(value))
