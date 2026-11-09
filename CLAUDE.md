@@ -18,8 +18,12 @@ static site from `main`: https://structura-web.netlify.app
   Notion notes are fetched at **build** time, not at runtime: see "Notion notes". The
   second, owner-approved exception is `/api/notion-note`, which only appends a note the
   owner writes and seals with his notes key; nothing else may write to Notion.)
-- **Work on a branch and open a pull request. Never push to `main`.** Netlify
-  makes a deploy preview for each PR; the owner reviews it on their phone and merges.
+- **Work on a branch and open a pull request, then merge it. Never push to `main`.**
+  Every change lands through a PR, and the owner wants Claude to merge its own PRs
+  (including the daily topic routine's) once the Netlify deploy preview and any CI
+  pass and the PR is mergeable, with a merge commit. If a check fails, fix it on the
+  branch; if it can't be made green or a conflict can't be resolved safely, leave the
+  PR open and say what is blocking.
 - **Respect source licences** (see "Sources" below). When in doubt, link, don't copy.
 - Keep the mobile-first layout working: check anything visual at 390px wide too.
 
