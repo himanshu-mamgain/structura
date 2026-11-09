@@ -50,6 +50,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Search Autocomplete (Typeahead) | Intermediate | | | |
 | Proximity Service (Nearby Places) | Intermediate | | | |
 | Video Streaming (YouTube-style) | Intermediate | | | |
+| File Sync (Dropbox-style) | Intermediate | | | |
 
 ## Getting started
 

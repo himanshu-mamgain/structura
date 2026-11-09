@@ -2,6 +2,7 @@ import { cdn } from './cdn'
 import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { dockerVsVm } from './docker-vs-vm'
+import { fileSync } from './file-sync'
 import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
@@ -53,6 +54,7 @@ const BASE_TOPICS: StaticTopic[] = [
   searchAutocomplete,
   proximityService,
   videoStreaming,
+  fileSync,
 ]
 
 /**
