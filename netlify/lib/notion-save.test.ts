@@ -46,15 +46,15 @@ test('splits long text into pieces Notion accepts', () => {
 })
 
 test('reads page ids from URLs', () => {
-  assert.equal(pageIdOf('https://www.notion.so/System-Design-38063e41004f80f0b77ec8441dfe8815?pvs=4'), '38063e41-004f-80f0-b77e-c8441dfe8815')
-  assert.equal(pageIdOf('38063e41-004f-80f0-b77e-c8441dfe8815'), '38063e41-004f-80f0-b77e-c8441dfe8815')
+  assert.equal(pageIdOf('https://www.notion.so/System-Design-0f1e2d3c4b5a69788796a5b4c3d2e1f0?pvs=4'), '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0')
+  assert.equal(pageIdOf('0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0'), '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0')
   assert.equal(pageIdOf('nope'), null)
 })
 
 test('the app and the function derive the same key', async () => {
-  const root = '38063e41004f80f0b77ec8441dfe8815'
+  const root = '0f1e2d3c4b5a69788796a5b4c3d2e1f0'
   const app = await deriveKey('correct horse battery', await saltFor(root), PBKDF2_ITERATIONS)
-  const fn = await deriveKey('correct horse battery', await saltFor('38063e41-004f-80f0-b77e-c8441dfe8815'), PBKDF2_ITERATIONS)
+  const fn = await deriveKey('correct horse battery', await saltFor('0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0'), PBKDF2_ITERATIONS)
   const sealed = toBase64(await seal(app, new TextEncoder().encode('hello')))
   assert.equal(new TextDecoder().decode(await unseal(fn, fromBase64(sealed))), 'hello')
   const other = await deriveKey('wrong', await saltFor(root), PBKDF2_ITERATIONS)
