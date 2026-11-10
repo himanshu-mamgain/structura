@@ -51,6 +51,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Proximity Service (Nearby Places) | Intermediate | | | |
 | Video Streaming (YouTube-style) | Intermediate | | | |
 | File Sync (Dropbox-style) | Intermediate | | | |
+| Leader Election (Raft) | Advanced | | | |
 
 ## Getting started
 
