@@ -189,6 +189,7 @@ const ALIASES: Record<string, string[]> = {
   'search-autocomplete': ['autocomplete', 'typeahead', 'search system'],
   'unique-id-generator': ['id generation', 'snowflake', 'ulid', 'uuid', 'unique id'],
   'video-streaming': ['video', 'streaming'],
+  locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],
 }
 
 export function notesFor(topic: StaticTopic, index: NotesIndex): NoteMeta[] {
