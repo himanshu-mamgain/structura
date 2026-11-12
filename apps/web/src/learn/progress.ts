@@ -11,6 +11,8 @@ export interface TopicProgress {
   completedAt?: number
   /** Explanation sections the learner has opened (by index). */
   sectionsRead?: number[]
+  /** Read the topic's story to the end. */
+  storyRead?: boolean
   /** Finished the walkthrough to its last step. */
   walked?: boolean
   videoTime?: number

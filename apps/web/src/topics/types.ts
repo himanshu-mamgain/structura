@@ -24,6 +24,8 @@ export interface StaticTopic {
   video?: string
   /** The video's chapters: start second and title (from apps/video scripts/chapters.ts). */
   chapters?: [number, string][]
+  /** A story to read first: a real-feeling incident told in chapters (learn/story.tsx renders it). */
+  story?: Story
   /** The few points worth remembering, shown beside the explanation. */
   takeaways: string[]
   /** How much background the topic assumes. */
@@ -32,4 +34,22 @@ export interface StaticTopic {
   guides?: string[]
   /** Credit when the topic is adapted from an openly licensed work (required by CC BY). */
   adaptedFrom?: { title: string; author: string; url: string; license: string; licenseUrl: string }
+}
+
+/**
+ * A topic told as a story: something breaks, and the design is how it gets
+ * fixed. Chapter bodies are plain text: paragraphs split by blank lines,
+ * "- " bullets, "> " for a pull quote, `code` and **bold** inline.
+ */
+export interface Story {
+  /** The headline, like a magazine piece. */
+  title: string
+  /** One line under the headline. */
+  dek: string
+  chapters: {
+    heading: string
+    body: string
+    /** Simulator inputs that replay this moment on the diagram. */
+    replay?: { label: string; values: Record<string, string> }
+  }[]
 }
