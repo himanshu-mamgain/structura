@@ -1,4 +1,8 @@
 import { aiAgent } from './ai-agent'
+import { awsAlb } from './aws-alb'
+import { awsEcsFargate } from './aws-ecs-fargate'
+import { awsEcsFullstack } from './aws-ecs-fullstack'
+import { awsVpc } from './aws-vpc'
 import { cdn } from './cdn'
 import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
@@ -71,6 +75,10 @@ const BASE_TOPICS: StaticTopic[] = [
   vectorDatabase,
   llmGateway,
   aiAgent,
+  awsVpc,
+  awsAlb,
+  awsEcsFargate,
+  awsEcsFullstack,
 ]
 
 /**
