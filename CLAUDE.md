@@ -118,6 +118,9 @@ estimates, hashes) rather than guessing. Use realistic example data.
 | [docker-curriculum](https://github.com/prakhar1989/docker-curriculum) | MIT | May be adapted, with credit |
 | [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) | GPL-3.0 | **Link only**: copying would make Structura's code GPL |
 | [kafka-nodejs-tutorial](https://github.com/billonline33/kafka-nodejs-tutorial) | none | Link only |
+| [amazon-ecs-fullstack-app-terraform](https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform) | MIT-0 | May be adapted; credit it anyway |
+| [terraform-aws-modules](https://github.com/terraform-aws-modules) (ECS, VPC, ALB) | Apache 2.0 | May be adapted, with credit |
+| [aws/containers-roadmap](https://github.com/aws/containers-roadmap) | CC BY-SA 4.0 | **Link only**: adapting it would make Structura's text share-alike |
 
 Otherwise, write topics from your own knowledge. The library (`library.json`)
 is the syllabus: topics not yet built are good candidates.

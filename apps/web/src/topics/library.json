@@ -25,6 +25,11 @@
    "repo": "https://github.com/binhnguyennus/awesome-scalability",
    "license": "MIT: the curated list of titles and links; each article belongs to its author."
   },
+  "aws": {
+   "name": "AWS containers on Terraform",
+   "repo": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform",
+   "license": "aws-samples full-stack app MIT-0 and terraform-aws-modules Apache 2.0: topics adapted from them credit them. containers-roadmap CC BY-SA 4.0: linked only."
+  },
   "references": {
    "name": "Projects and tutorials",
    "repo": "https://kafka.apache.org/",
@@ -193,6 +198,24 @@
    "title": "Scalability reading: Talk",
    "sort": 5009,
    "source": "scalability"
+  },
+  {
+   "id": "aws-sample",
+   "title": "AWS: full-stack app on ECS (sample)",
+   "sort": 8000,
+   "source": "aws"
+  },
+  {
+   "id": "aws-terraform",
+   "title": "AWS: Terraform modules (ECS, VPC, ALB)",
+   "sort": 8001,
+   "source": "aws"
+  },
+  {
+   "id": "aws-roadmap",
+   "title": "AWS: containers roadmap",
+   "sort": 8002,
+   "source": "aws"
   },
   {
    "id": "references",
@@ -5759,6 +5782,290 @@
     "references"
    ],
    "source": "references"
+  },
+  {
+   "slug": "aws-ecs-fullstack-sample",
+   "title": "Amazon ECS full-stack app with Terraform (Vue.js + Node.js on Fargate)",
+   "url": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform",
+   "tags": [
+    "ECS",
+    "Terraform",
+    "MIT-0"
+   ],
+   "categories": [
+    "aws-sample"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-ecs-fullstack-infrastructure",
+   "title": "Full-stack sample: infrastructure architecture (VPC, 2 ALBs, ECS, DynamoDB, S3)",
+   "url": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform#infrastructure-architecture",
+   "tags": [
+    "ECS",
+    "ALB",
+    "VPC"
+   ],
+   "categories": [
+    "aws-sample"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-ecs-fullstack-cicd",
+   "title": "Full-stack sample: CI/CD with CodePipeline, CodeBuild and blue/green CodeDeploy",
+   "url": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform#cicd-architecture",
+   "tags": [
+    "CI/CD",
+    "Blue/green"
+   ],
+   "categories": [
+    "aws-sample"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-ecs-fullstack-autoscaling",
+   "title": "Full-stack sample: testing ECS service autoscaling",
+   "url": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform#autoscaling-test",
+   "tags": [
+    "ECS",
+    "Autoscaling"
+   ],
+   "categories": [
+    "aws-sample"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-ecs-fullstack-modules",
+   "title": "Full-stack sample: its Terraform modules (Networking, ALB, ECS, IAM, CodePipeline…)",
+   "url": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform/tree/main/Infrastructure/Modules",
+   "tags": [
+    "Terraform"
+   ],
+   "categories": [
+    "aws-sample"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs",
+   "title": "terraform-aws-ecs: ECS clusters, services and task definitions",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs",
+   "tags": [
+    "ECS",
+    "Terraform",
+    "Apache 2.0"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs-fargate",
+   "title": "terraform-aws-ecs example: a service on Fargate",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/fargate",
+   "tags": [
+    "ECS",
+    "Fargate"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs-ec2-autoscaling",
+   "title": "terraform-aws-ecs example: EC2 capacity with Auto Scaling groups",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/ec2-autoscaling",
+   "tags": [
+    "ECS",
+    "EC2"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs-complete",
+   "title": "terraform-aws-ecs example: complete (cluster, services, capacity providers)",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/examples/complete",
+   "tags": [
+    "ECS"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs-service-module",
+   "title": "terraform-aws-ecs service module: deployments, autoscaling, load balancer wiring",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/modules/service",
+   "tags": [
+    "ECS"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-ecs-container-definition",
+   "title": "terraform-aws-ecs container definition module",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-ecs/tree/master/modules/container-definition",
+   "tags": [
+    "ECS",
+    "Containers"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-vpc",
+   "title": "terraform-aws-vpc: VPCs, subnets, route tables, NAT and internet gateways",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-vpc",
+   "tags": [
+    "VPC",
+    "Terraform",
+    "Apache 2.0"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-vpc-simple",
+   "title": "terraform-aws-vpc example: a simple VPC with public and private subnets",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/examples/simple",
+   "tags": [
+    "VPC"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-vpc-complete",
+   "title": "terraform-aws-vpc example: complete (database subnets, NAT, endpoints)",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/examples/complete",
+   "tags": [
+    "VPC"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-vpc-endpoints",
+   "title": "terraform-aws-vpc VPC endpoints module: reach AWS services without NAT",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/modules/vpc-endpoints",
+   "tags": [
+    "VPC",
+    "PrivateLink"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-vpc-flow-log",
+   "title": "terraform-aws-vpc example: VPC flow logs",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-vpc/tree/master/examples/flow-log",
+   "tags": [
+    "VPC",
+    "Observability"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-alb",
+   "title": "terraform-aws-alb: Application and Network Load Balancers",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-alb",
+   "tags": [
+    "ALB",
+    "Terraform",
+    "Apache 2.0"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-alb-complete",
+   "title": "terraform-aws-alb example: complete ALB (listeners, rules, target groups)",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-alb/tree/master/examples/complete-alb",
+   "tags": [
+    "ALB"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-alb-patterns",
+   "title": "terraform-aws-alb patterns: HTTPS redirects, fixed responses, authenticated listeners",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-alb/blob/master/docs/patterns.md",
+   "tags": [
+    "ALB",
+    "TLS"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "tf-aws-nlb-complete",
+   "title": "terraform-aws-alb example: complete Network Load Balancer",
+   "url": "https://github.com/terraform-aws-modules/terraform-aws-alb/tree/master/examples/complete-nlb",
+   "tags": [
+    "NLB"
+   ],
+   "categories": [
+    "aws-terraform"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-containers-roadmap",
+   "title": "AWS containers roadmap: what is coming to ECS, ECR, Fargate and EKS",
+   "url": "https://github.com/aws/containers-roadmap",
+   "tags": [
+    "ECS",
+    "EKS",
+    "CC BY-SA 4.0"
+   ],
+   "categories": [
+    "aws-roadmap"
+   ],
+   "source": "aws"
+  },
+  {
+   "slug": "aws-containers-roadmap-board",
+   "title": "AWS containers roadmap board (issues by stage)",
+   "url": "https://github.com/aws/containers-roadmap/projects/1",
+   "tags": [
+    "Roadmap"
+   ],
+   "categories": [
+    "aws-roadmap"
+   ],
+   "source": "aws"
   },
   {
    "slug": "scale-lessons-from-giant-scale-services---eric-brewer-uc-berkeley--google",
