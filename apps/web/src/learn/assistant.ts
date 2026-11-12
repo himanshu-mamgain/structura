@@ -72,7 +72,8 @@ const index = new MiniSearch<Doc>({
   storeFields: ['kind', 'title', 'text', 'topicId', 'index'],
   searchOptions: { boost: { title: 3 }, prefix: true, fuzzy: 0.2 },
 })
-index.addAll(docs)
+// A duplicate id makes MiniSearch throw, which would blank the whole app; keep the first.
+index.addAll(docs.filter((d, i) => docs.findIndex((x) => x.id === d.id) === i))
 
 const STOP = /\b(what|whats|is|are|the|a|an|does|do|how|why|explain|tell|me|about|please|can|you|in|of|to|work|works|mean|means)\b/g
 

@@ -59,6 +59,10 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Vector Database | Advanced | | | |
 | LLM Gateway | Intermediate | | | |
 | AI Agent with Tools | Advanced | | | |
+| AWS VPC Networking | Intermediate | | | |
+| Application Load Balancer | Intermediate | | | |
+| ECS on Fargate | Intermediate | | | |
+| Full-stack App on ECS | Advanced | | | |
 
 ## Getting started
 

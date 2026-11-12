@@ -1,4 +1,4 @@
-import { Bell, Blocks, BookOpenCheck, Bot, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Container, Crown, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Orbit, PiggyBank, Router, ServerCog, Shapes, Share2, ShieldCheck, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Container, Crown, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Router, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -34,6 +34,10 @@ const ICONS: Record<string, LucideIcon> = {
   'vector-database': ChartScatter,
   'llm-gateway': Router,
   'ai-agent': Bot,
+  'aws-vpc': Network,
+  'aws-alb': Split,
+  'aws-ecs-fargate': Boxes,
+  'aws-ecs-fullstack': Ship,
 }
 
 /** The icon shown for a topic in Explore, cards, reels and the header. */
