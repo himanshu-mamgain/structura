@@ -3,6 +3,8 @@
 // - ByteByteGo's System Design 101 (github.com/ByteByteGoHq/system-design-101),
 //   CC BY-NC-ND 4.0 (no derivatives): only each guide's title, categories, tags
 //   and a link are kept. No article text, descriptions or images.
+// - AWS containers on Terraform (see "AWS containers on Terraform" below): links to
+//   the aws-samples ECS full-stack app, terraform-aws-modules and the containers roadmap.
 // - Donne Martin's System Design Primer (github.com/donnemartin/system-design-primer),
 //   CC BY 4.0: its concept chapters and worked designs, linked by section. Being
 //   CC BY, Structura topics may be adapted from it, with credit.
@@ -176,6 +178,45 @@ const references = [
   { slug: 'ref-awesome-scalability', title: 'Awesome Scalability: patterns of large-scale systems', url: SCALABILITY, tags: ['Scalability', 'MIT'] },
 ].map((r) => ({ ...r, categories: ['references'], source: 'references' }))
 
+// ─── AWS containers on Terraform (adaptable with credit; the roadmap is linked only) ───
+//
+// - aws-samples/amazon-ecs-fullstack-app-terraform: MIT-0, a full-stack app on ECS.
+// - terraform-aws-modules (ECS, VPC, ALB): Apache 2.0, the modules most teams start from.
+// - aws/containers-roadmap: CC BY-SA 4.0, so linked only (adapting it would make ours share-alike).
+
+const GH = 'https://github.com'
+const ECS_SAMPLE = `${GH}/aws-samples/amazon-ecs-fullstack-app-terraform`
+const TF = (mod, path = '') => `${GH}/terraform-aws-modules/terraform-aws-${mod}${path ? `/tree/master/${path}` : ''}`
+const aws = [
+  // The full-stack sample, section by section.
+  { slug: 'aws-ecs-fullstack-sample', title: 'Amazon ECS full-stack app with Terraform (Vue.js + Node.js on Fargate)', url: ECS_SAMPLE, tags: ['ECS', 'Terraform', 'MIT-0'], categories: ['aws-sample'] },
+  { slug: 'aws-ecs-fullstack-infrastructure', title: 'Full-stack sample: infrastructure architecture (VPC, 2 ALBs, ECS, DynamoDB, S3)', url: `${ECS_SAMPLE}#infrastructure-architecture`, tags: ['ECS', 'ALB', 'VPC'], categories: ['aws-sample'] },
+  { slug: 'aws-ecs-fullstack-cicd', title: 'Full-stack sample: CI/CD with CodePipeline, CodeBuild and blue/green CodeDeploy', url: `${ECS_SAMPLE}#cicd-architecture`, tags: ['CI/CD', 'Blue/green'], categories: ['aws-sample'] },
+  { slug: 'aws-ecs-fullstack-autoscaling', title: 'Full-stack sample: testing ECS service autoscaling', url: `${ECS_SAMPLE}#autoscaling-test`, tags: ['ECS', 'Autoscaling'], categories: ['aws-sample'] },
+  { slug: 'aws-ecs-fullstack-modules', title: 'Full-stack sample: its Terraform modules (Networking, ALB, ECS, IAM, CodePipeline…)', url: `${ECS_SAMPLE}/tree/main/Infrastructure/Modules`, tags: ['Terraform'], categories: ['aws-sample'] },
+  // terraform-aws-ecs
+  { slug: 'tf-aws-ecs', title: 'terraform-aws-ecs: ECS clusters, services and task definitions', url: TF('ecs'), tags: ['ECS', 'Terraform', 'Apache 2.0'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-ecs-fargate', title: 'terraform-aws-ecs example: a service on Fargate', url: TF('ecs', 'examples/fargate'), tags: ['ECS', 'Fargate'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-ecs-ec2-autoscaling', title: 'terraform-aws-ecs example: EC2 capacity with Auto Scaling groups', url: TF('ecs', 'examples/ec2-autoscaling'), tags: ['ECS', 'EC2'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-ecs-complete', title: 'terraform-aws-ecs example: complete (cluster, services, capacity providers)', url: TF('ecs', 'examples/complete'), tags: ['ECS'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-ecs-service-module', title: 'terraform-aws-ecs service module: deployments, autoscaling, load balancer wiring', url: TF('ecs', 'modules/service'), tags: ['ECS'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-ecs-container-definition', title: 'terraform-aws-ecs container definition module', url: TF('ecs', 'modules/container-definition'), tags: ['ECS', 'Containers'], categories: ['aws-terraform'] },
+  // terraform-aws-vpc
+  { slug: 'tf-aws-vpc', title: 'terraform-aws-vpc: VPCs, subnets, route tables, NAT and internet gateways', url: TF('vpc'), tags: ['VPC', 'Terraform', 'Apache 2.0'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-vpc-simple', title: 'terraform-aws-vpc example: a simple VPC with public and private subnets', url: TF('vpc', 'examples/simple'), tags: ['VPC'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-vpc-complete', title: 'terraform-aws-vpc example: complete (database subnets, NAT, endpoints)', url: TF('vpc', 'examples/complete'), tags: ['VPC'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-vpc-endpoints', title: 'terraform-aws-vpc VPC endpoints module: reach AWS services without NAT', url: TF('vpc', 'modules/vpc-endpoints'), tags: ['VPC', 'PrivateLink'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-vpc-flow-log', title: 'terraform-aws-vpc example: VPC flow logs', url: TF('vpc', 'examples/flow-log'), tags: ['VPC', 'Observability'], categories: ['aws-terraform'] },
+  // terraform-aws-alb
+  { slug: 'tf-aws-alb', title: 'terraform-aws-alb: Application and Network Load Balancers', url: TF('alb'), tags: ['ALB', 'Terraform', 'Apache 2.0'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-alb-complete', title: 'terraform-aws-alb example: complete ALB (listeners, rules, target groups)', url: TF('alb', 'examples/complete-alb'), tags: ['ALB'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-alb-patterns', title: 'terraform-aws-alb patterns: HTTPS redirects, fixed responses, authenticated listeners', url: `${GH}/terraform-aws-modules/terraform-aws-alb/blob/master/docs/patterns.md`, tags: ['ALB', 'TLS'], categories: ['aws-terraform'] },
+  { slug: 'tf-aws-nlb-complete', title: 'terraform-aws-alb example: complete Network Load Balancer', url: TF('alb', 'examples/complete-nlb'), tags: ['NLB'], categories: ['aws-terraform'] },
+  // The containers roadmap (linked only)
+  { slug: 'aws-containers-roadmap', title: 'AWS containers roadmap: what is coming to ECS, ECR, Fargate and EKS', url: `${GH}/aws/containers-roadmap`, tags: ['ECS', 'EKS', 'CC BY-SA 4.0'], categories: ['aws-roadmap'] },
+  { slug: 'aws-containers-roadmap-board', title: 'AWS containers roadmap board (issues by stage)', url: `${GH}/aws/containers-roadmap/projects/1`, tags: ['Roadmap'], categories: ['aws-roadmap'] },
+].map((r) => ({ ...r, source: 'aws' }))
+
 writeFileSync(
   out,
   `${JSON.stringify(
@@ -186,6 +227,7 @@ writeFileSync(
         course: { name: 'System Design 101 course (Mominur Rahman)', repo: 'https://github.com/mominurr/system-design-101', license: 'MIT: quiz and glossary reused with its notice.' },
         diagrams: { name: 'System design diagrams (Chaki34)', repo: DIAGRAMS, license: 'No licence given: linked only.' },
         scalability: { name: 'Awesome Scalability (Binh Nguyen)', repo: SCALABILITY, license: 'MIT: the curated list of titles and links; each article belongs to its author.' },
+        aws: { name: 'AWS containers on Terraform', repo: ECS_SAMPLE, license: 'aws-samples full-stack app MIT-0 and terraform-aws-modules Apache 2.0: topics adapted from them credit them. containers-roadmap CC BY-SA 4.0: linked only.' },
         references: { name: 'Projects and tutorials', repo: 'https://kafka.apache.org/', license: 'Linked; each keeps its own licence (Kafka Apache 2.0, docker-curriculum MIT, awesome-system-design-resources GPL-3.0, link only).' },
       },
       categories: [
@@ -193,6 +235,9 @@ writeFileSync(
         { id: 'primer-solutions', title: 'Worked designs (Primer)', sort: 1, source: 'primer' },
         ...categories.map((c) => ({ ...c, source: 'bytebytego' })),
         ...scalabilitySections.map((title, i) => ({ id: `scalability-${anchor(title)}`, title: `Scalability reading: ${title}`, sort: 5000 + i, source: 'scalability' })),
+        { id: 'aws-sample', title: 'AWS: full-stack app on ECS (sample)', sort: 8000, source: 'aws' },
+        { id: 'aws-terraform', title: 'AWS: Terraform modules (ECS, VPC, ALB)', sort: 8001, source: 'aws' },
+        { id: 'aws-roadmap', title: 'AWS: containers roadmap', sort: 8002, source: 'aws' },
         { id: 'references', title: 'Projects and tutorials', sort: 9000, source: 'references' },
         { id: 'community-diagrams', title: 'Community diagrams', sort: 9999, source: 'diagrams' },
       ],
@@ -201,6 +246,7 @@ writeFileSync(
         ...solutions.map((g) => ({ ...g, source: 'primer' })),
         ...guides.map((g) => ({ ...g, source: 'bytebytego', url: `https://bytebytego.com/guides/${encodeURIComponent(g.slug)}/` })),
         ...references,
+        ...aws,
         ...scalabilityLinks.map((g) => ({ ...g, source: 'scalability' })),
         ...diagrams.map((g) => ({ ...g, source: 'diagrams' })),
       ],
@@ -209,4 +255,4 @@ writeFileSync(
     1,
   )}\n`,
 )
-console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${references.length} references, ${diagrams.length} diagram sets → src/topics/library.json`)
+console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${references.length} references, ${aws.length} AWS links, ${diagrams.length} diagram sets → src/topics/library.json`)
