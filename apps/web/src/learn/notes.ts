@@ -190,6 +190,8 @@ const ALIASES: Record<string, string[]> = {
   'unique-id-generator': ['id generation', 'snowflake', 'ulid', 'uuid', 'unique id'],
   'video-streaming': ['video', 'streaming'],
   'rag-pipeline': ['rag', 'retrieval', 'llm', 'chatbot', 'hallucinat', 'prompt'],
+  'llm-gateway': ['llm gateway', 'ai gateway', 'model routing', 'litellm', 'token limit'],
+  'ai-agent': ['agent', 'tool call', 'function calling', 'prompt injection', 'mcp'],
   'vector-database': ['vector', 'embedding', 'similarity search', 'nearest neighbo', 'hnsw', 'pgvector'],
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],
 }
