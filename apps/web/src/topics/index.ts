@@ -6,6 +6,7 @@ import { dockerVsVm } from './docker-vs-vm'
 import { fileSync } from './file-sync'
 import { leaderElection } from './leader-election'
 import { locking } from './locking'
+import { distributedCache } from './distributed-cache'
 import { kafka } from './kafka'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
@@ -60,6 +61,7 @@ const BASE_TOPICS: StaticTopic[] = [
   fileSync,
   leaderElection,
   locking,
+  distributedCache,
   databaseSharding,
 ]
 

@@ -99,6 +99,35 @@ export const twitterTimeline: StaticTopic = {
     'twitter-architecture-2022-vs-2012',
     'how-does-twitter-recommend-tweets',
   ],
+  story: {
+    title: 'Why your feed is ready before you open the app',
+    dek: 'Every post on your home timeline was copied there before you asked for it. That works for 150 followers. It falls apart at 40 million.',
+    chapters: [
+      {
+        heading: 'Reading should be boring',
+        body: 'Open the app and you see your home timeline: posts from everyone you follow, newest first. The obvious way to build it is to wait until you open the app, find everyone you follow, fetch each one\'s recent posts, merge them all by time and keep the top 20. If you follow 400 accounts, that\'s 400 lookups and a big sort on every refresh, for hundreds of millions of people.\n\nSo the system turns it around. It does the work when someone **posts**, not when you **read**. This is called **fan-out on write**. When Maya, who has 150 followers, posts "hello world!", a Fan Out Service copies the post\'s id into the home timeline of each of her 150 followers. Those timelines are lists kept in memory, in Redis, and each one keeps only its newest 800 entries.\n\nOpening the app is now a single list read: "give me the first 20 ids in my timeline". Turning those ids into full posts takes one batched lookup for the posts and one for their authors. Reading became boring, which is exactly what you want for the thing people do all day.',
+        replay: { label: 'Follow Maya\'s post into 150 timelines', values: { author: 'Regular user (150 followers)', action: 'Post a tweet' } },
+      },
+      {
+        heading: 'Then @popstar posted',
+        body: 'Fan-out on write has a hidden cost: the work grows with the number of followers. Engineers write that as O(n). For Maya that\'s 150 writes. For a news account with 12,000 followers it\'s 12,000 writes, which is still fine.\n\nThen @popstar, with 40 million followers, posted a selfie. Fan-out meant 40 million list writes for one post. Even at 2,00,000 writes a second, that\'s 200 seconds, more than three minutes before the last follower sees it, while the same service is meant to be delivering everyone else\'s posts too. Each entry takes about 20 bytes, so one post churned through roughly 800 MB of cache. And @popstar posts several times a day.\n\n> The design that made reading free made one post cost three minutes.',
+        replay: { label: 'See the fan-out for 12,000 followers', values: { author: 'Popular account (12,000 followers)', action: 'Post a tweet' } },
+      },
+      {
+        heading: 'Push for most, pull for the famous',
+        body: 'The fix is a hybrid. Accounts with fewer than a million followers keep fan-out on write. Accounts above that line are not fanned out at all: their posts stay in the author\'s own list.\n\nWhen you open your timeline, the Timeline Service reads your precomputed list as before. Then it fetches recent posts from the few celebrities you follow, since most people follow only a handful, and merges them in by time. That\'s a few extra reads per refresh instead of 40 million writes per post.\n\nEach side pays where it\'s cheap. Ordinary posts are pushed when they\'re written. Famous posts are pulled when they\'re read.',
+        replay: { label: 'Open a timeline that follows @popstar', values: { author: 'Celebrity (40 million followers)', action: 'A follower opens their home timeline' } },
+      },
+      {
+        heading: 'Memory is the budget',
+        body: 'Precomputed timelines have to live somewhere, and fast means memory. Say there are 100 million active users, each with a timeline of 800 entries at about 20 bytes each. That\'s 100,000,000 × 800 × 20 bytes, about 1.6 TB of RAM, spread across a fleet of Redis servers. Memory is the budget, and two rules keep it in check.\n\nFirst, a timeline holds only its newest 800 entries. Nobody scrolls back 3,000 posts, and anyone who does can be served from the database, slowly, once.\n\nSecond, only **active** users get a timeline at all. Fanning out to someone who hasn\'t opened the app in three months is pure waste. When they do come back, their timeline is rebuilt the slow way, by fetching from the people they follow and merging, just once. After that, fan-out keeps it fresh again.\n\nThat\'s how the system serves about 100,000 timeline reads a second from memory, while the database mostly sees writes.',
+      },
+      {
+        heading: 'Everything else waits',
+        body: 'Posting does more than fan out, and none of it should make the author wait. The post row goes into the SQL database, which is the author\'s own timeline. Photos and videos go into an object store behind a CDN, so the database row stays small. The text goes into the search cluster, so it can be found in seconds, and notifications go out through a queue so a slow push provider never holds anything up. The author\'s request returns as soon as the post is saved. Everything else happens in the background.\n\nThe lessons travel well beyond social apps:\n- Precompute what people read most, at the moment it\'s written.\n- Cap the work: a timeline keeps 800 entries, not forever.\n- Look for the one input that\'s a million times bigger than the rest, and give it its own path.\n- Answer the user first, and do the rest in the background.',
+      },
+    ],
+  },
   takeaways: [
     'The home timeline is read far more than tweets are written, so build it ahead of time: fan out on write.',
     'Fan-out is O(followers): fine for most users, far too slow for celebrities.',
