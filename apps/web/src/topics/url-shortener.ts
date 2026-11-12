@@ -81,6 +81,30 @@ export const urlShortener: StaticTopic = {
     "what-happens-when-you-type-a-url-into-your-browser",
     "url-uri-urn-do-you-know-the-differences",
   ],
+  story: {
+    title: 'The link that had to survive a cricket final',
+    dek: 'A college project, a seven-character code and one link on TV during the last over. Why a URL shortener is really a lesson in reading fast.',
+    chapters: [
+      {
+        heading: 'Seven characters',
+        body: 'Meera built sho.rt in her final year of college, mostly so the fest posters could fit a link. The idea is tiny: store a long URL, hand back a short code, and when someone opens the code, send them on to the long URL.\n\nThe interesting part is the code. Meera used a counter: every new link gets the next number, and the number is written in **base62**, using the digits 0–9, a–z and A–Z, 62 symbols in all. Base62 squeezes big numbers into very few characters. Link number 125,000,000,000 becomes `2crtgcg`. Seven characters give 62⁷ codes, about 3.5 trillion (3.5 lakh crore), far more than the service will ever need.\n\nA counter never collides, so there is no "is this code taken?" check. To avoid asking a central counter on every request, each server reserves a block of 1,000 numbers at a time and hands them out on its own.',
+        replay: { label: 'Shorten a link and follow it', values: { url: 'https://www.example.com/fest/2026/schedule-and-passes' } },
+      },
+      {
+        heading: 'The final over',
+        body: 'Two years later, sho.rt was a small company creating about 100 million links a month. That sounds like a lot, but it\'s only about 40 new links a second (100,000,000 ÷ 30 days ÷ 86,400 seconds ≈ 38.6). The real load runs the other way. A link is created once and opened about 100 times, so the servers handled about 4,000 redirects a second. A URL shortener is read-heavy.\n\nThen a sports channel put a sho.rt link on screen during the last over of a cricket final. Redirects for that one code jumped from nothing to tens of thousands a second. Every redirect was a database read, and almost all of them were for the same row. The database\'s CPU hit 100%, and every link on the service slowed down, not just the famous one.\n\nThe fix was a **cache**: a small, fast, in-memory copy of the answers asked for most. Before touching the database, the redirect server now asks Redis, "do you have `2crtgcg`?" On a miss it reads the database once and stores the answer in Redis for a day (a TTL, time to live). This pattern is called **cache-aside**. Link traffic is very lopsided, with a few hot links getting most of the clicks, so a small cache answers almost every redirect in under a millisecond.\n\n> The database stopped seeing the final. Redis saw all of it.\n\nThere was one more scare. When the hot entry finally expired, thousands of requests missed at the same instant and all ran to the database together: a **cache stampede**. Now only the first request refills the entry, and the others wait a few milliseconds for its answer.',
+        replay: { label: 'Watch a cache miss, then a hit', values: { url: 'https://www.example.com/sports/final-over-highlights' } },
+      },
+      {
+        heading: 'Where did the clicks go?',
+        body: 'A week later, the marketing team asked why their click counts had halved while their sales went up.\n\nThe redirect was answering with **301 Moved Permanently**. A 301 tells the browser "this will never change, so remember it", and the browser did: the next time anyone tapped the link, it skipped sho.rt entirely. That\'s great for speed and terrible for counting, and the link\'s target could never be changed again.\n\nMeera switched to **302 Found**, a temporary redirect, so every click comes back through the service. To keep counting from slowing redirects down, each redirect drops a small "click" event onto a queue and moves on. A separate worker reads the queue and adds up clicks per link per day.',
+      },
+      {
+        heading: 'Guessable by design',
+        body: 'The last lesson arrived in a security email. Someone had noticed that sho.rt codes were sequential: `2crtgcg`, then `2crtgch`, then `2crtgci`. They wrote a script that walked through the codes and found links people thought were private, like shared documents and invoices.\n\nA counter is perfect for uniqueness and terrible for secrecy. Private links now get random seven-character codes, and the `UNIQUE` index on the code column rejects the rare duplicate, so the server just tries again. Public links keep the fast counter. Link creation also got a rate limit, so nobody can mint millions of links to probe with.\n\nHere is what sho.rt looks like today:\n- Creating a link: Shorten API, then the Key Generator for an ID, then the URL Database.\n- Opening a link: Redirect API, then the Redis Cache, and the database only on a miss.\n- A 302 for every redirect, with the click counted later, off a queue.\n- Random codes for anything private.\n\nOpen the diagram and follow one link from its creation to its first redirect.',
+      },
+    ],
+  },
   takeaways: [
     "Give each link a unique ID from a counter and write it in base62: 7 characters cover 3.5 trillion links.",
     "Reads outnumber writes about 100 to 1, so optimise the redirect path.",

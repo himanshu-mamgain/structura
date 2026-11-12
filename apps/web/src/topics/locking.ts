@@ -300,7 +300,7 @@ const simulator: Simulator = {
       steps.push({
         text: `Both servers insert a booking and charge a card. Two people now hold tickets for ${SEAT.seat}. Turn on the UNIQUE index, or choose a strategy where the database checks the write, to stop this.`,
         nodes: ['Bookings Table', 'Buyer Asha', 'Buyer Ben'],
-        data: `INSERT … (${SEAT.show}, '${SEAT.seat}', ${PEOPLE[first].id})  → ok, charged ₹450\nINSERT … (${SEAT.show}, '${SEAT.seat}', ${PEOPLE[second].id})  → ok, charged ₹450\n✗ double booking: Asha and Ben both paid for ${SEAT.seat}`,
+        data: `INSERT … (${SEAT.show}, '${SEAT.seat}', ${PEOPLE[first].id})  → ok, charged ₹4,500\nINSERT … (${SEAT.show}, '${SEAT.seat}', ${PEOPLE[second].id})  → ok, charged ₹4,500\n✗ double booking: Asha and Ben both paid for ${SEAT.seat}`,
       })
       verdict = '✗ double booking'
     }
@@ -325,6 +325,36 @@ export const locking: StaticTopic = {
     'scale-distributed-locking-at-uber',
     'scale-database-isolation-levels-and-effects-on-performance-and-scalability',
   ],
+  story: {
+    title: 'The night seat 14A was sold twice',
+    dek: 'Two people, one seat, 3 milliseconds apart. How a small ticketing team learned what a lock is for, twice.',
+    chapters: [
+      {
+        heading: 'Both of them saw "free"',
+        body: 'At 9:59 PM on a Friday, 2,00,000 people were staring at the same countdown. A band was playing a stadium in Mumbai, 5,000 seats, and the sale opened at 10:00.\n\nAsha, in Pune, had her card details saved. Ben, in Bengaluru, had refreshed the page eleven times. At 10:00:04 they both tapped Book on the same seat, 14A. Ben was 3 milliseconds behind.\n\nTheir requests landed on two different servers, and each server did the obvious thing:\n- read the seat: is it free?\n- it is, so write: booked, for my buyer.\n\nBoth reads happened before either write. So both servers saw `status = \'free\'`, both wrote `status = \'booked\'`, and both charged a card ₹4,500. The second write quietly replaced the first. Engineers call this a **lost update**, and it lives in the gap between "check" and "act".\n\n> Two people paid for 14A. The database remembered only one of them.\n\nPriya, the engineer on call, found it the next morning in a support ticket titled "SOMEONE IS IN MY SEAT". There was no bug you could point at. Every line of code did what it said. The bug was in the timing.',
+        replay: { label: 'Replay the race with no lock', values: { strategy: 'No lock (read, then write)', pause: 'Runs normally', ttl: '10 s', unique: 'Off' } },
+      },
+      {
+        heading: 'Lock the row',
+        body: 'The first fix everyone reaches for is a lock: a rule that makes requests take turns. Databases have two basic kinds. A **shared lock** lets many readers in at once, but no writer. An **exclusive lock** lets exactly one holder in, and everyone else waits outside. That "one at a time" idea has a name: mutual exclusion.\n\nPriya wrapped the booking in a transaction and changed the read to `SELECT … FOR UPDATE`. Now the first server takes an exclusive lock on row 14A, and the second server\'s `FOR UPDATE` waits in line until the first one commits. When it finally reads the row, it sees "booked", and Ben gets a polite "sold out".\n\nIt worked. Then the next big sale came. 2,00,000 people in one minute is about 3,333 booking attempts a second, and every waiting request holds a database connection. With an average wait of a tenth of a second, that is 3,333 × 0.1 ≈ 333 connections busy at once. Their pool had 100. Requests queued for connections, then for locks, then timed out.\n\nSo Priya made the common case cheaper. Most bookings need just one rule, "book it if it\'s still free", and that fits in a single statement:\n\n`UPDATE seats SET status = \'booked\' WHERE id = 9041 AND status = \'free\'`\n\nThe check and the write are now one step, so there is no gap to race through. The first request changes one row. Everyone after it changes zero rows and hears "sold out". Nobody waits.',
+        replay: { label: 'See Ben wait behind FOR UPDATE', values: { strategy: 'Pessimistic: SELECT … FOR UPDATE', pause: 'Pauses 12 s mid-booking (GC)', ttl: '10 s', unique: 'Off' } },
+      },
+      {
+        heading: 'The lock that expired mid-nap',
+        body: 'A few months later, product asked for seat holds: tap a seat and it\'s yours for 10 minutes while you pay. You can\'t keep a database transaction open for 10 minutes, so the team moved the lock into **Redis**, an in-memory store that every server can reach.\n\nTaking the lock is one command: `SET lock:seat:14A <random id> NX PX 10000`. NX means "only if nobody has it". PX gives the key an expiry, here 10 seconds, so a server that crashes can\'t hold the seat forever. Releasing the lock checks the random id first, so a server never deletes someone else\'s lock.\n\nIt ran fine for weeks. Then, on the night of a Diwali sale, API Server 1 took the lock for Asha, read the seat, and froze. A garbage-collection pause, the runtime stopping to clean up memory, held it still for 12 seconds.\n\nAt 10 seconds the lock expired, exactly as designed. Ben tapped again, API Server 2 got the lock, saw the seat was free and booked it for him. Two seconds later API Server 1 woke up. As far as it knew, no time had passed. It still "held" the lock, so it wrote the seat for Asha.\n\n> The lock worked perfectly. It just stopped protecting anything the moment it expired.\n\nSeat 14A was sold twice, again.',
+        replay: { label: 'Replay the 12-second pause', values: { strategy: 'Redis lock (SET NX PX)', pause: 'Pauses 12 s mid-booking (GC)', ttl: '10 s', unique: 'Off' } },
+      },
+      {
+        heading: 'A number that only goes up',
+        body: 'A longer expiry only moves the problem: a pause can always outlast a timeout. What fixed it was a **fencing token**.\n\nEvery time the lock is granted, Redis also increments a counter, in the same atomic step. Asha\'s server got token 41. When the lock expired and Ben\'s server took it, it got 42. The seat row remembers the highest token it has accepted, and every write must carry a bigger one:\n\n`UPDATE seats SET … fence = 42 WHERE id = 9041 AND fence < 42`\n\nBen\'s write went through, and the row remembered 42. When Asha\'s server woke up and wrote with 41, `fence < 41` matched nothing. Its write was rejected before any card was charged, and Asha saw "this seat was just booked".\n\nPriya added one more guard underneath: a `UNIQUE (show_id, seat_no)` index on bookings. Even if every lock failed at once, the database would refuse a second booking for the same seat.',
+        replay: { label: 'Replay it with a fencing token', values: { strategy: 'Redis lock + fencing token', pause: 'Pauses 12 s mid-booking (GC)', ttl: '10 s', unique: 'Off' } },
+      },
+      {
+        heading: 'What went on the whiteboard',
+        body: 'The next morning, four rules went up on the team\'s whiteboard:\n- If the data lives in one database, let the database decide: an atomic `UPDATE … WHERE`, a unique index, `FOR UPDATE` or a version check.\n- Use Redis locks for what the database can\'t see: holds, cron jobs, calls to other services.\n- A lock that can expire needs a fencing token, checked by the place the data lives.\n- Keep locks short, and never wait on a network call while holding one.\n\nNow open the simulator and try to double-book seat 14A yourself. There are six strategies, and two of them will let you.',
+      },
+    ],
+  },
   takeaways: [
     'A lock turns check-then-act into one step: without it, two buyers both see "free" and both book.',
     'Shared locks allow many readers and exclusive locks allow one holder; update and intent locks exist to avoid upgrade deadlocks and row-by-row checks.',

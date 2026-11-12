@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
+import { AlertTriangle, BookOpenText, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
@@ -9,6 +9,7 @@ import { iconFor } from '../diagram/icons'
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
+import { readingMinutes, storyText, StoryView } from '../learn/story'
 import { speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/speech'
 import type { WalkCommand } from '../learn/assistant'
 import { erdToDiagram } from '../learn/erd'
@@ -27,7 +28,7 @@ import { ecoLinks } from '../ecosystem'
 const BoardCanvas = lazy(() => import('../board/react').then((m) => ({ default: m.BoardCanvas })))
 const LoadPanel = lazy(() => import('../board/LoadPanel').then((m) => ({ default: m.LoadPanel })))
 
-type Tab = 'explain' | 'walk' | 'code' | 'data'
+type Tab = 'story' | 'explain' | 'walk' | 'code' | 'data'
 
 /** Seconds a walkthrough step stays on screen: long enough to read it. */
 const stepDuration = (text: string) => Math.max(3500, text.length * 60)
@@ -62,11 +63,11 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
   const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
-  const [tab, setTab] = useState<Tab>('explain')
-  // A review reminder (?review) opens the interview follow-ups, to answer without looking.
-  const [section, setSection] = useState(() =>
-    new URLSearchParams(window.location.search).has('review') ? Math.max(0, topic.explanation.sections.findIndex((s) => /interview/i.test(s.heading))) : 0,
-  )
+  // A review reminder (?review) opens the interview follow-ups, to answer without looking;
+  // otherwise a topic with a story opens on it.
+  const [review] = useState(() => new URLSearchParams(window.location.search).has('review'))
+  const [tab, setTab] = useState<Tab>(topic.story && !review ? 'story' : 'explain')
+  const [section, setSection] = useState(() => (review ? Math.max(0, topic.explanation.sections.findIndex((s) => /interview/i.test(s.heading))) : 0))
   const [trace, setTrace] = useState<Trace | null>(topic.explanation.trace)
   const [walk, setWalk] = useState<{ index: number; playing: boolean } | null>(null)
   const [showLoad, setShowLoad] = useState(openLoad && Boolean(topic.loadTest))
@@ -80,6 +81,7 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
   const video = useRef<HTMLVideoElement>(null)
   const content = useRef<HTMLElement>(null)
+  const diagramCard = useRef<HTMLElement>(null)
   const lastSaved = useRef(0)
   const Icon = topicIcon(topic.id)
   const progress = useProgress().topics[topic.id]
@@ -211,6 +213,15 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
     } else setTour('off')
   }
 
+  /** A story chapter's "replay" button: run the simulator with its inputs and play it on the diagram. */
+  function replay(values: Record<string, string>) {
+    if (!topic.simulator) return
+    setTrace(topic.simulator.run(values))
+    setDiagramView('architecture')
+    setWalk({ index: 0, playing: true })
+    diagramCard.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   function startWalk(from = 0) {
     setTab('walk')
     setDiagramView('architecture')
@@ -276,6 +287,16 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
             </span>
           </div>
           <p>{explanation.summary}</p>
+          {topic.story && (
+            <button type="button" className="story-teaser" onClick={() => go('story')}>
+              <BookOpenText size={18} aria-hidden />
+              <span>
+                <small>Story · {readingMinutes(topic.story)} min read</small>
+                {topic.story.title}
+              </span>
+              <ChevronRight size={18} aria-hidden />
+            </button>
+          )}
           {topic.adaptedFrom && (
             <p className="credit">
               Adapted from{' '}
@@ -330,6 +351,11 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
       </header>
 
       <nav className="tabs" aria-label="Sections">
+        {topic.story && (
+          <button type="button" className={tab === 'story' ? 'is-active' : ''} onClick={() => go('story')}>
+            Story
+          </button>
+        )}
         {explanation.sections.map((s, i) => (
           <button key={s.heading} type="button" className={tab === 'explain' && section === i ? 'is-active' : ''} onClick={() => go('explain', i)}>
             {s.heading}
@@ -353,7 +379,7 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
       </nav>
 
       <div className={`topic-grid${topic.video || showLoad ? '' : ' no-side'}`}>
-        <section className="card diagram-card" aria-label="Diagram">
+        <section className="card diagram-card" aria-label="Diagram" ref={diagramCard}>
           <header className="card-head">
             <div className="seg" role="group" aria-label="Diagram">
               <button type="button" aria-pressed={diagramView === 'architecture'} onClick={() => setDiagramView('architecture')}>
@@ -685,6 +711,11 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
 
         <section className="card content-card" ref={content} aria-label="Explanation">
           <nav className="content-tabs">
+            {topic.story && (
+              <button type="button" aria-pressed={tab === 'story'} onClick={() => setTab('story')}>
+                <BookOpenText size={15} /> Story
+              </button>
+            )}
             <button type="button" aria-pressed={tab === 'explain'} onClick={() => setTab('explain')}>
               <BookOpen size={15} /> Explanation
             </button>
@@ -706,6 +737,28 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
           </nav>
 
           <div className="content-body explain">
+            {tab === 'story' && topic.story && (
+              <StoryView
+                story={topic.story}
+                onReplay={topic.simulator ? replay : undefined}
+                onListen={speechSupported ? () => void speak(storyText(topic.story!), { source: `story:${topic.id}`, title: `${topic.title}: the story` }) : undefined}
+                onFinished={() => updateTopic(topic.id, { storyRead: true })}
+                listening={now.speaking && now.source === `story:${topic.id}` ? <ReadingView sentences={now.sentences} current={now.sentence} word={now.word} /> : undefined}
+              />
+            )}
+            {tab === 'story' && topic.story && (
+              <div className="story-next">
+                <button type="button" className="btn" onClick={() => go('explain', 0)}>
+                  <BookOpen size={16} /> Read the explanation
+                </button>
+                {topic.simulator && (
+                  <button type="button" className="btn btn-primary" onClick={() => go('walk')}>
+                    <Footprints size={16} /> Try it with your own input
+                  </button>
+                )}
+              </div>
+            )}
+
             {tab === 'explain' && explanation.sections[section] && (
               <>
                 <h3 className="section-title">
