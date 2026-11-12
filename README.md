@@ -54,6 +54,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Leader Election (Raft) | Advanced | | | |
 | Locking: Redis & Database | Intermediate | | | |
 | Distributed Cache | Intermediate | | | |
+| Database Sharding | Intermediate | | | |
 
 ## Getting started
 

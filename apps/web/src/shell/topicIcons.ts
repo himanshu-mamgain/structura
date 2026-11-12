@@ -1,4 +1,4 @@
-import { Bell, Bug, Car, Clapperboard, ClipboardPaste, Container, Crown, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Orbit, PiggyBank, ServerCog, Shapes, Share2, ShieldCheck, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Blocks, Bug, Car, Clapperboard, ClipboardPaste, Container, Crown, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Orbit, PiggyBank, ServerCog, Shapes, Share2, ShieldCheck, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -29,6 +29,7 @@ const ICONS: Record<string, LucideIcon> = {
   'leader-election': Crown,
   locking: LockKeyhole,
   'distributed-cache': MemoryStick,
+  'database-sharding': Blocks,
 }
 
 /** The icon shown for a topic in Explore, cards, reels and the header. */
