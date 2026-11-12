@@ -189,6 +189,8 @@ const ALIASES: Record<string, string[]> = {
   'search-autocomplete': ['autocomplete', 'typeahead', 'search system'],
   'unique-id-generator': ['id generation', 'snowflake', 'ulid', 'uuid', 'unique id'],
   'video-streaming': ['video', 'streaming'],
+  'rag-pipeline': ['rag', 'retrieval', 'llm', 'chatbot', 'hallucinat', 'prompt'],
+  'vector-database': ['vector', 'embedding', 'similarity search', 'nearest neighbo', 'hnsw', 'pgvector'],
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],
 }
 
