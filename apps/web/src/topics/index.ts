@@ -16,6 +16,7 @@ import { pastebin } from './pastebin'
 import { paymentIdempotency } from './payment-idempotency'
 import { proximityService } from './proximity-service'
 import { queryCache } from './query-cache'
+import { ragPipeline } from './rag-pipeline'
 import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
 import { salesRank } from './sales-rank'
@@ -27,6 +28,7 @@ import type { StaticTopic } from './types'
 import { uberSurge } from './uber-surge'
 import { uniqueIdGenerator } from './unique-id-generator'
 import { urlShortener } from './url-shortener'
+import { vectorDatabase } from './vector-database'
 import { videoStreaming } from './video-streaming'
 import autoVideos from './videos.json'
 import { webCrawler } from './web-crawler'
@@ -63,6 +65,8 @@ const BASE_TOPICS: StaticTopic[] = [
   locking,
   distributedCache,
   databaseSharding,
+  ragPipeline,
+  vectorDatabase,
 ]
 
 /**

@@ -55,6 +55,8 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Locking: Redis & Database | Intermediate | | | |
 | Distributed Cache | Intermediate | | | |
 | Database Sharding | Intermediate | | | |
+| RAG Pipeline | Intermediate | | | |
+| Vector Database | Advanced | | | |
 
 ## Getting started
 
