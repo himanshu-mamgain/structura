@@ -1,3 +1,4 @@
+import { aiAgent } from './ai-agent'
 import { cdn } from './cdn'
 import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
@@ -5,6 +6,7 @@ import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
 import { fileSync } from './file-sync'
 import { leaderElection } from './leader-election'
+import { llmGateway } from './llm-gateway'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
 import { kafka } from './kafka'
@@ -67,6 +69,8 @@ const BASE_TOPICS: StaticTopic[] = [
   databaseSharding,
   ragPipeline,
   vectorDatabase,
+  llmGateway,
+  aiAgent,
 ]
 
 /**

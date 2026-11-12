@@ -57,6 +57,8 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Database Sharding | Intermediate | | | |
 | RAG Pipeline | Intermediate | | | |
 | Vector Database | Advanced | | | |
+| LLM Gateway | Intermediate | | | |
+| AI Agent with Tools | Advanced | | | |
 
 ## Getting started
 
