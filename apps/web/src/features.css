@@ -5170,3 +5170,63 @@ button.roadmap-step-title:hover {
 .reader li code {
   overflow-wrap: anywhere;
 }
+
+/* Deep notes in read mode (src/topics/notes/<id>.md): the Notion note styles, at reading size. */
+.reader .note-body {
+  margin-top: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.reader .note-body h3 {
+  margin: 26px 0 8px;
+  font-size: 1.12em;
+}
+
+.reader .note-body h4 {
+  font-size: 1em;
+}
+
+.reader .note-body p {
+  margin: 0 0 14px;
+}
+
+.reader .note-body li {
+  margin: 0 0 6px;
+}
+
+.reader .note-table table {
+  font-size: 0.84em;
+  line-height: 1.5;
+}
+
+/* Words stay whole in table cells: a narrow screen scrolls the table sideways
+   instead of breaking "Container" into "Con-tain-er". */
+.reader .note-table :is(th, td) {
+  min-width: 6em;
+  overflow-wrap: normal;
+}
+
+.reader .note-code pre {
+  font-size: 0.78em;
+}
+
+.reader .note-callout {
+  margin: 16px 0;
+  line-height: 1.65;
+}
+
+/* The TL;DR under the title, marked like the summary it replaces. */
+.reader-intro .note-callout:first-child {
+  border-left: 3px solid var(--brand);
+  background: var(--card);
+}
+
+.reader-kind {
+  padding: 2px 8px;
+  border: 1px solid rgba(212, 255, 63, 0.35);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 700;
+}

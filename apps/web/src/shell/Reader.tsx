@@ -1,21 +1,27 @@
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, BookOpenText, CheckCircle2, Circle, ExternalLink, Footprints, Headphones, Lightbulb, Move, Network, Pause } from 'lucide-react'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { responsibility, subtitleOf } from '../diagram/inspect'
 import { LESSONS, playTopic, toggle, useCommute } from '../learn/commute'
 import { Body, CodeBlock } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
+import { type Markdown, plainText } from '../learn/markdown'
+import type { Block } from '../learn/notesFormat'
 import { updateTopic, useProgress } from '../learn/progress'
 import { ROADMAP } from '../learn/roadmap'
 import { StoryView } from '../learn/story'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
+import { hasDeepNote, loadDeepNote } from '../topics/deepNotes'
 import { guidesFor, sourceOf } from '../topics/library'
 import type { StaticTopic } from '../topics/types'
+import { Blocks } from './Notes'
 import { topicIcon } from './topicIcons'
 
 // Read mode: a topic as one article, top to bottom, like a guide or a newsletter
 // issue. The same content as the topic page (explanation, a request step by step,
-// code, takeaways, the story), laid out for reading rather than exploring.
+// code, takeaways, the story), laid out for reading rather than exploring. A topic
+// with deep notes (src/topics/notes/<id>.md) reads those instead of its explanation
+// and code: the notes go further and carry their own code.
 
 const SIZES = [16, 17.5, 19, 21] as const
 const SIZE_KEY = 'structura:reader-size'
@@ -33,6 +39,21 @@ function savedSize(): number {
 const words = (text: string) => text.split(/\s+/).filter(Boolean).length
 const anchor = (s: string) => `read-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 
+/** A deep note's blocks before its first section, and its sections. */
+function sectionsOf(note: Markdown) {
+  const intro: Block[] = []
+  const sections: { heading: string; blocks: Block[] }[] = []
+  for (const block of note.blocks) {
+    if (block.t === 'h1') sections.push({ heading: block.r.map(([t]) => t).join(''), blocks: [] })
+    else if (sections.length) sections.at(-1)!.blocks.push(block)
+    // A rule just before the first section only separates it from the intro.
+    else if (block.t !== 'hr') intro.push(block)
+  }
+  // Same for a rule closing each section: the next heading already starts a new one.
+  for (const s of sections) if (s.blocks.at(-1)?.t === 'hr') s.blocks.pop()
+  return { intro, sections }
+}
+
 /** The next topic after this one in its roadmap part, to keep reading in order. */
 function nextInRoadmap(id: string): TopicMeta | null {
   for (const part of ROADMAP) {
@@ -44,7 +65,17 @@ function nextInRoadmap(id: string): TopicMeta | null {
   return null
 }
 
-export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: () => void; onRead: (next: TopicMeta) => void }) {
+export function Reader({
+  topic,
+  onExit,
+  onRead,
+  onOpen,
+}: {
+  topic: StaticTopic
+  onExit: () => void
+  onRead: (next: TopicMeta) => void
+  onOpen: (next: TopicMeta) => void
+}) {
   const progress = useProgress().topics[topic.id]
   const commute = useCommute()
   const [size, setSize] = useState(savedSize)
@@ -59,6 +90,20 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
   const lesson = LESSONS.topics[topic.id]
   const next = nextInRoadmap(topic.id)
   const playing = commute.topicId === topic.id && commute.playing
+  const deep = hasDeepNote(topic.id)
+  const [note, setNote] = useState<ReturnType<typeof sectionsOf> & { title?: string; words: number }>()
+
+  useEffect(() => {
+    if (!deep) return
+    let live = true
+    loadDeepNote(topic.id).then(
+      (md) => md && live && setNote({ ...sectionsOf(md), title: md.title, words: words(plainText(md.blocks)) }),
+      () => undefined,
+    )
+    return () => {
+      live = false
+    }
+  }, [topic.id, deep])
 
   const narrow = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches
   const architecture = useMemo(() => (narrow ? { ...topic.architecture, direction: 'down' as const } : topic.architecture), [topic, narrow])
@@ -69,23 +114,38 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
 
   const minutes = useMemo(() => {
     const text = [
-      explanation.summary,
-      ...explanation.sections.map((s) => s.body),
+      ...(deep ? [] : [explanation.summary, ...explanation.sections.map((s) => s.body)]),
       ...(trace?.steps.map((s) => s.text) ?? []),
       ...topic.takeaways,
       ...(topic.story?.chapters.map((c) => c.body) ?? []),
     ].join(' ')
-    return Math.max(1, Math.round(words(text) / WORDS_A_MINUTE))
-  }, [topic, explanation, trace])
+    return Math.max(1, Math.round((words(text) + (note?.words ?? 0)) / WORDS_A_MINUTE))
+  }, [topic, explanation, trace, deep, note])
 
   const contents = [
-    ...explanation.sections.map((s) => s.heading),
+    ...(deep ? (note?.sections.map((s) => s.heading) ?? []) : explanation.sections.map((s) => s.heading)),
     ...(trace?.steps.length ? ['One request, step by step'] : []),
-    ...(explanation.code.length ? ['Code'] : []),
-    ...(sql ? ['Data model'] : []),
+    ...(!deep && explanation.code.length ? ['Code'] : []),
+    ...(!deep && sql ? ['Data model'] : []),
     'Key takeaways',
     ...(topic.story ? ['The story'] : []),
   ]
+
+  // A deep note's section i stands in for the explanation section at the same point,
+  // so reading the notes moves the interview-readiness score the same way.
+  const sectionFor = (i: number, of: number) => Math.min(explanation.sections.length - 1, Math.floor((i * explanation.sections.length) / of))
+
+  // Links in the notes to other topics open them here, without reloading the app.
+  function followLink(e: MouseEvent) {
+    const href = (e.target as HTMLElement).closest('a')?.getAttribute('href')
+    if (!href?.startsWith('/?')) return
+    const url = new URL(href, window.location.origin)
+    const meta = TOPICS.find((t) => t.id === url.searchParams.get('topic'))
+    if (!meta) return
+    e.preventDefault()
+    if (url.searchParams.has('read')) onRead(meta)
+    else onOpen(meta)
+  }
 
   function changeSize(delta: number) {
     const i = Math.min(SIZES.length - 1, Math.max(0, SIZES.indexOf(size as (typeof SIZES)[number]) + delta))
@@ -133,7 +193,7 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
     article.current?.querySelectorAll('[data-section]').forEach((el) => io.observe(el))
     updateTopic(topic.id, { lastOpenedAt: Date.now() })
     return () => io.disconnect()
-  }, [topic.id])
+  }, [topic.id, note])
 
   // Reaching the end of the article counts every section as read, however fast the scroll.
   useEffect(() => {
@@ -151,7 +211,7 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
   const jump = (heading: string) => document.getElementById(anchor(heading))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
-    <article ref={article} className="reader" style={{ '--reader-size': `${size}px` } as CSSProperties}>
+    <article ref={article} className="reader" style={{ '--reader-size': `${size}px` } as CSSProperties} onClick={followLink}>
       <div className="reader-bar">
         <button type="button" className="btn btn-ghost" onClick={onExit} title="Back to the interactive topic page">
           <ArrowLeft size={16} /> <span>Interactive</span>
@@ -176,11 +236,20 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
 
       <header className="reader-head">
         <p className="reader-kicker">
-          <Icon size={16} aria-hidden /> <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span> · {minutes} min read
+          <Icon size={16} aria-hidden /> <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span>
+          {deep && <span className="reader-kind">Deep notes</span>} · {minutes} min read
         </p>
-        <h1>{topic.title}</h1>
+        <h1>{note?.title ?? topic.title}</h1>
         <p className="reader-dek">{topic.blurb}</p>
-        <p className="reader-summary">{explanation.summary}</p>
+        {deep ? (
+          note ? (
+            <div className="note-body reader-intro">
+              <Blocks blocks={note.intro} />
+            </div>
+          ) : null
+        ) : (
+          <p className="reader-summary">{explanation.summary}</p>
+        )}
       </header>
 
       <figure className={`reader-figure${liveDiagram ? ' is-live' : ''}`}>
@@ -221,15 +290,28 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
         </ol>
       </nav>
 
-      {explanation.sections.map((s, i) => (
-        <section key={s.heading} id={anchor(s.heading)} data-section={i} className="reader-section">
-          <h2>
-            <span>{String(i + 1).padStart(2, '0')}</span>
-            {s.heading}
-          </h2>
-          <Body text={s.body} />
-        </section>
-      ))}
+      {deep
+        ? note?.sections.map((s, i, all) => (
+            <section key={s.heading} id={anchor(s.heading)} data-section={sectionFor(i, all.length)} className="reader-section">
+              <h2>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {s.heading}
+              </h2>
+              <div className="note-body">
+                <Blocks blocks={s.blocks} />
+              </div>
+            </section>
+          ))
+        : explanation.sections.map((s, i) => (
+            <section key={s.heading} id={anchor(s.heading)} data-section={i} className="reader-section">
+              <h2>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {s.heading}
+              </h2>
+              <Body text={s.body} />
+            </section>
+          ))}
+      {deep && !note && <p className="reader-note">Loading the notes…</p>}
 
       {trace && trace.steps.length > 0 && (
         <section id={anchor('One request, step by step')} className="reader-section">
@@ -257,7 +339,7 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
         </section>
       )}
 
-      {explanation.code.length > 0 && (
+      {!deep && explanation.code.length > 0 && (
         <section id={anchor('Code')} className="reader-section">
           <h2>Code</h2>
           {explanation.code.map((snippet, i) => (
@@ -266,7 +348,7 @@ export function Reader({ topic, onExit, onRead }: { topic: StaticTopic; onExit: 
         </section>
       )}
 
-      {sql && (
+      {!deep && sql && (
         <section id={anchor('Data model')} className="reader-section">
           <h2>Data model</h2>
           <CodeBlock snippet={{ title: 'Schema (PostgreSQL)', language: 'sql', source: sql }} />
