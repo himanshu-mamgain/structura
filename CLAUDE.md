@@ -122,6 +122,7 @@ estimates, hashes) rather than guessing. Use realistic example data.
 | [mominurr/system-design-101](https://github.com/mominurr/system-design-101) | MIT | Quiz and glossary reused with the notice in `public/licenses/` |
 | [Chaki34/system-design-diagrams](https://github.com/Chaki34/system-design-diagrams) | none | Links only |
 | [awesome-scalability](https://github.com/binhnguyennus/awesome-scalability) | MIT | Its reading list (titles and links) is in the library; the articles belong to their authors |
+| [awesome-database-learning](https://github.com/pingcap/awesome-database-learning) | none | **Link only**: the library links to its README sections (`db-*` slugs); its list is not copied |
 | [Apache Kafka](https://github.com/apache/kafka) docs | Apache 2.0 | May be adapted, with credit |
 | [docker-curriculum](https://github.com/prakhar1989/docker-curriculum) | MIT | May be adapted, with credit |
 | [awesome-system-design-resources](https://github.com/ashishps1/awesome-system-design-resources) | GPL-3.0 | **Link only**: copying would make Structura's code GPL |

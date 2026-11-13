@@ -3,7 +3,8 @@ import type { TopicMeta } from './catalog'
 
 // The syllabus, from several open sources (see scripts/kb-sync.mjs): ByteByteGo's
 // System Design 101 (titles and links only), the System Design Primer (CC BY,
-// which topics may be adapted from), and community diagrams (linked only).
+// which topics may be adapted from), Awesome Scalability's reading list (MIT),
+// and, linked only, community diagrams and Awesome Database Learning's sections.
 
 export interface Guide {
   slug: string

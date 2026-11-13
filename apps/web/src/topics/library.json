@@ -30,6 +30,11 @@
    "repo": "https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform",
    "license": "aws-samples full-stack app MIT-0 and terraform-aws-modules Apache 2.0: topics adapted from them credit them. containers-roadmap CC BY-SA 4.0: linked only."
   },
+  "databases": {
+   "name": "Awesome Database Learning (PingCAP)",
+   "repo": "https://github.com/pingcap/awesome-database-learning",
+   "license": "No licence given: its sections are linked only; nothing is copied."
+  },
   "references": {
    "name": "Projects and tutorials",
    "repo": "https://kafka.apache.org/",
@@ -216,6 +221,12 @@
    "title": "AWS: containers roadmap",
    "sort": 8002,
    "source": "aws"
+  },
+  {
+   "id": "db-learning",
+   "title": "Database internals (Awesome Database Learning)",
+   "sort": 8500,
+   "source": "databases"
   },
   {
    "id": "references",
@@ -5777,6 +5788,19 @@
    "tags": [
     "Scalability",
     "MIT"
+   ],
+   "categories": [
+    "references"
+   ],
+   "source": "references"
+  },
+  {
+   "slug": "ref-awesome-database-learning",
+   "title": "Awesome Database Learning: papers, courses and talks on database internals",
+   "url": "https://github.com/pingcap/awesome-database-learning",
+   "tags": [
+    "Databases",
+    "Link only"
    ],
    "categories": [
     "references"
@@ -15256,6 +15280,546 @@
    "tags": [],
    "url": "https://www.youtube.com/watch?v=F-f0-k46WVk",
    "source": "scalability"
+  },
+  {
+   "slug": "db-recommended-courses-books-and-talks",
+   "title": "Database internals: Recommended Courses, Books and Talks",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#recommended-courses-books-and-talks",
+   "source": "databases"
+  },
+  {
+   "slug": "db-courses",
+   "title": "Database internals: Recommended Courses, Books and Talks › Courses",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#courses",
+   "source": "databases"
+  },
+  {
+   "slug": "db-books",
+   "title": "Database internals: Recommended Courses, Books and Talks › Books",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#books",
+   "source": "databases"
+  },
+  {
+   "slug": "db-talks",
+   "title": "Database internals: Recommended Courses, Books and Talks › Talks",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#talks",
+   "source": "databases"
+  },
+  {
+   "slug": "db-blogs",
+   "title": "Database internals: Recommended Courses, Books and Talks › Blogs",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#blogs",
+   "source": "databases"
+  },
+  {
+   "slug": "db-sql-relation-algebra",
+   "title": "Database internals: SQL & Relation Algebra",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#sql--relation-algebra",
+   "source": "databases"
+  },
+  {
+   "slug": "db-query-optimizer",
+   "title": "Database internals: Query Optimizer",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#query-optimizer",
+   "source": "databases"
+  },
+  {
+   "slug": "db-planner-models",
+   "title": "Database internals: Query Optimizer › Planner Models",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#planner-models",
+   "source": "databases"
+  },
+  {
+   "slug": "db-subquery-optimization",
+   "title": "Database internals: Query Optimizer › Subquery Optimization",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#subquery-optimization",
+   "source": "databases"
+  },
+  {
+   "slug": "db-join-order-optimization",
+   "title": "Database internals: Query Optimizer › Join Order Optimization",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#join-order-optimization",
+   "source": "databases"
+  },
+  {
+   "slug": "db-functional-dependency-physical-properties",
+   "title": "Database internals: Query Optimizer › Functional Dependency & Physical Properties",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#functional-dependency--physical-properties",
+   "source": "databases"
+  },
+  {
+   "slug": "db-cost-model",
+   "title": "Database internals: Query Optimizer › Cost Model",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#cost-model",
+   "source": "databases"
+  },
+  {
+   "slug": "db-statistics",
+   "title": "Database internals: Query Optimizer › Statistics",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#statistics",
+   "source": "databases"
+  },
+  {
+   "slug": "db-query-execution",
+   "title": "Database internals: Query Execution",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#query-execution",
+   "source": "databases"
+  },
+  {
+   "slug": "db-execution-framework",
+   "title": "Database internals: Query Execution › Execution Framework",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#execution-framework",
+   "source": "databases"
+  },
+  {
+   "slug": "db-vectorization-vs-compilization",
+   "title": "Database internals: Query Execution › Vectorization vs Compilization",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#vectorization-vs-compilization",
+   "source": "databases"
+  },
+  {
+   "slug": "db-join",
+   "title": "Database internals: Query Execution › Join",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#join",
+   "source": "databases"
+  },
+  {
+   "slug": "db-hash-table",
+   "title": "Database internals: Query Execution › Hash Table",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#hash-table",
+   "source": "databases"
+  },
+  {
+   "slug": "db-bloom-filter",
+   "title": "Database internals: Query Execution › Bloom Filter",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#bloom-filter",
+   "source": "databases"
+  },
+  {
+   "slug": "db-ddl",
+   "title": "Database internals: DDL",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#ddl",
+   "source": "databases"
+  },
+  {
+   "slug": "db-relational-model",
+   "title": "Database internals: Relational Model",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#relational-model",
+   "source": "databases"
+  },
+  {
+   "slug": "db-codds-rules",
+   "title": "Database internals: Relational Model › Codd's Rules",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#codds-rules",
+   "source": "databases"
+  },
+  {
+   "slug": "db-relational-data-model",
+   "title": "Database internals: Relational Model › Relational Data Model",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#relational-data-model",
+   "source": "databases"
+  },
+  {
+   "slug": "db-relational-algebra",
+   "title": "Database internals: Relational Model › Relational Algebra",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#relational-algebra",
+   "source": "databases"
+  },
+  {
+   "slug": "db-er-to-relational-model",
+   "title": "Database internals: Relational Model › ER to Relational Model",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#er-to-relational-model",
+   "source": "databases"
+  },
+  {
+   "slug": "db-sql-overview",
+   "title": "Database internals: Relational Model › SQL - Overview",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#sql---overview",
+   "source": "databases"
+  },
+  {
+   "slug": "db-transaction",
+   "title": "Database internals: Transaction",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#transaction",
+   "source": "databases"
+  },
+  {
+   "slug": "db-isolation-levels",
+   "title": "Database internals: Transaction › Isolation Levels",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#isolation-levels",
+   "source": "databases"
+  },
+  {
+   "slug": "db-concurrency-control",
+   "title": "Database internals: Transaction › Concurrency Control",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#concurrency-control",
+   "source": "databases"
+  },
+  {
+   "slug": "db-network",
+   "title": "Database internals: Network",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#network",
+   "source": "databases"
+  },
+  {
+   "slug": "db-storage",
+   "title": "Database internals: Storage",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#storage",
+   "source": "databases"
+  },
+  {
+   "slug": "db-nosql-systems",
+   "title": "Database internals: Storage › NoSQL Systems",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#nosql-systems",
+   "source": "databases"
+  },
+  {
+   "slug": "db-buffer-management",
+   "title": "Database internals: Storage › Buffer Management",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#buffer-management",
+   "source": "databases"
+  },
+  {
+   "slug": "db-disk-io",
+   "title": "Database internals: Storage › Disk IO",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#disk-io",
+   "source": "databases"
+  },
+  {
+   "slug": "db-b-tree",
+   "title": "Database internals: Storage › B-Tree",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#b-tree",
+   "source": "databases"
+  },
+  {
+   "slug": "db-lsm-tree",
+   "title": "Database internals: Storage › LSM-Tree",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#lsm-tree",
+   "source": "databases"
+  },
+  {
+   "slug": "db-learned-indexes-structures",
+   "title": "Database internals: Storage › Learned Indexes Structures",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#learned-indexes-structures",
+   "source": "databases"
+  },
+  {
+   "slug": "db-serializing-rpc",
+   "title": "Database internals: Serializing & RPC",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#serializing--rpc",
+   "source": "databases"
+  },
+  {
+   "slug": "db-data-partitioning",
+   "title": "Database internals: Data Partitioning",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#data-partitioning",
+   "source": "databases"
+  },
+  {
+   "slug": "db-replication-consistency",
+   "title": "Database internals: Replication & Consistency",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#replication--consistency",
+   "source": "databases"
+  },
+  {
+   "slug": "db-consensus",
+   "title": "Database internals: Consensus",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#consensus",
+   "source": "databases"
+  },
+  {
+   "slug": "db-scheduling",
+   "title": "Database internals: Scheduling",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#scheduling",
+   "source": "databases"
+  },
+  {
+   "slug": "db-benchmark-testing",
+   "title": "Database internals: Benchmark & Testing",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#benchmark--testing",
+   "source": "databases"
+  },
+  {
+   "slug": "db-htap",
+   "title": "Database internals: HTAP",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#htap",
+   "source": "databases"
+  },
+  {
+   "slug": "db-tla",
+   "title": "Database internals: TLA+",
+   "categories": [
+    "db-learning"
+   ],
+   "tags": [
+    "Databases"
+   ],
+   "url": "https://github.com/pingcap/awesome-database-learning#tla",
+   "source": "databases"
   },
   {
    "slug": "diagrams-system-design-netflix",

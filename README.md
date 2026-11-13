@@ -18,7 +18,7 @@ Every topic is a live architecture, not a static picture:
 - **Your Notion notes.** Optionally, each deploy builds the owner's Notion notes into the app: a reader, search, and the matching notes on each topic, locked with a passphrase.
 - **Progress.** Today's pick, bookmarks, completed topics, difficulty levels and an interview-readiness score, saved on your device.
 - **Practice.** A quiz and a glossary.
-- **Library.** About 1,350 guides, chapters and articles from open system design collections, searchable in Explore, as the syllabus for future topics.
+- **Library.** About 1,400 guides, chapters and articles from open system design and database collections, searchable in Explore, as the syllabus for future topics.
 - **App-style navigation.** Five tabs, as in Instagram: Home, Explore, Reels, Listen and Practice. They sit along the bottom on phones and in the top bar on desktop.
 
 Everything runs in your browser: no backend, no accounts, no AI services. The voice is [Kokoro](https://github.com/hexgrad/kokoro), an open-weight speech model that runs on the device.
