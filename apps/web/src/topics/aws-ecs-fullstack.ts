@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from aws-samples/amazon-ecs-fullstack-app-terraform (MIT-0): the
@@ -341,7 +341,9 @@ What made it work wasn't one service. It was the pieces together:
         body: '- Walk through what happens between git push and users seeing the change.\n- Why did a release with passing health checks still break production? What catches it?\n- Blue/green or rolling deployments: what does each cost and protect against?\n- How would you choose the canary percentage and the alarm threshold?\n- How do you roll back a database change that the new release depends on?\n- What would you change in this sample before running it in production?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Blue/green with an alarm rollback (bash)',

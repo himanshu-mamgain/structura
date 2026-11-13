@@ -23,7 +23,7 @@ function nextSteps(topic: StaticTopic, progress: Progress): string[] {
   if (topic.video && videoFraction(p) < 0.9) {
     steps.push(p?.videoTime ? 'Finish the narrated video' : 'Watch the narrated video')
   }
-  if (!p?.walked && topic.explanation.trace) steps.push('Walk one request through the diagram')
+  if (!p?.walked && (topic.simulator || topic.explanation.trace)) steps.push('Walk one request through the diagram')
   if (unread >= 0) steps.push(`Read "${topic.explanation.sections[unread].heading}"`)
   const followUps = topic.explanation.sections.find((s) => /interview/i.test(s.heading))
   if (followUps) steps.push('Answer the interview follow-ups out loud')

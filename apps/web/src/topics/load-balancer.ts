@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator, stableHash } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // A load balancer in front of three app servers. The simulator really runs the
@@ -266,7 +266,9 @@ export const loadBalancer: StaticTopic = {
         body: '- What is the difference between a load balancer, a reverse proxy and an API gateway?\n- How do you avoid the load balancer being a single point of failure?\n- A server is up but very slow. What happens with round robin, and what would you change?\n- How do you deploy a new version with no downtime?\n- When would you choose layer 4 over layer 7?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'nginx: least connections with passive health checks',

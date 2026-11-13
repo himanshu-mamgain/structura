@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // A CDN in front of an e-commerce site whose origin is in Virginia (us-east-1).
@@ -368,7 +368,9 @@ export const cdn: StaticTopic = {
         body: '- How do you update a file that is cached for a year?\n- Why does a cookie in the cache key hurt, and how do you avoid it?\n- A product page is cached, but the price just changed. What are your options?\n- How do you serve private files (paid videos) through a CDN?\n- What happens when a million people request a new file the instant it is released?\n- How would you measure whether the CDN is paying for itself?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Origin: headers that tell the CDN what to do (Express)',

@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // The simulator really searches: it builds a flat index, an IVF-PQ index and an
@@ -73,16 +73,21 @@ interface Stats {
   distances: number
 }
 
-/** Exact top k: compare the query with every allowed vector. */
+/** Exact top k: compare the query with every allowed vector, keeping only the best k as it goes. */
 function exact(q: Vec, ids: number[] | null, stats?: Stats): number[] {
   const { vecs } = sample()
   const pool = ids ?? vecs.map((_, i) => i)
   if (stats) stats.distances += pool.length
-  return pool
-    .map((i) => ({ i, d: dist(q, vecs[i]) }))
-    .sort((a, b) => a.d - b.d)
-    .slice(0, K)
-    .map((x) => x.i)
+  const best: { i: number; d: number }[] = []
+  for (const i of pool) {
+    const d = dist(q, vecs[i])
+    if (best.length === K && d >= best[K - 1].d) continue
+    let at = best.length
+    while (at > 0 && best[at - 1].d > d) at--
+    best.splice(at, 0, { i, d })
+    if (best.length > K) best.pop()
+  }
+  return best.map((x) => x.i)
 }
 
 function nearest(p: Vec, cents: Vec[]): number {
@@ -788,7 +793,9 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
         body: '- Why can\'t a B-tree index answer "which vector is nearest to this one"?\n- 1 billion vectors: HNSW, IVF-PQ or something on disk? Show the memory maths.\n- A filter matches 0.1% of items. What does each filtering strategy return?\n- How do you measure recall in production without an exact scan on every query?\n- The embedding model changes. What happens to the 100 million stored vectors?\n- Why doesn\'t adding shards increase queries per second?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Exact top k by cosine similarity (TypeScript)',

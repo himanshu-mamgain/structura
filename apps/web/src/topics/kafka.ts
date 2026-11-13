@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Kafka as an order-events pipeline: 3 brokers, a 3-partition topic, two consumer
@@ -296,7 +296,9 @@ export const kafka: StaticTopic = {
         body: '- How do you guarantee all events for one user are processed in order?\n- What happens to ordering if you increase the partition count?\n- How would you make sure a payment event is never lost and never charged twice?\n- Your consumer lag keeps growing. What do you check, and what do you change?\n- When would you choose a classic queue like RabbitMQ or SQS over Kafka?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Producer: durable, ordered per key (kafkajs)',

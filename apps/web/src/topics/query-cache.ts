@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design a key-value cache to save the results of the most recent
@@ -255,7 +255,9 @@ export const queryCache: StaticTopic = {
         body: '- Implement an LRU cache with O(1) get and put. Why a doubly linked list rather than a singly linked one?\n- How would you choose the cache size and the TTL from real traffic?\n- How do you keep the cache fresh when the index updates every few seconds?\n- What changes if every user sees personalised results?\n- Redis only approximates LRU by sampling a few keys. When does that matter?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'LRU cache with a Map',

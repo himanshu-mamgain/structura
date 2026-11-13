@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // A cache cluster that decides which node owns a key. The simulator runs the real
@@ -292,7 +292,9 @@ export const consistentHashing: StaticTopic = {
         body: '- Why does hash mod N fail when you add a server?\n- How many keys move when you add the 11th node to a ring of 10?\n- Why do virtual nodes help, and how many would you use?\n- How would you store three replicas of each key on a ring?\n- How do clients learn about a node change, and what if they learn at different times?\n- A single key is far hotter than the rest. What do you do?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'A hash ring with virtual nodes (TypeScript)',

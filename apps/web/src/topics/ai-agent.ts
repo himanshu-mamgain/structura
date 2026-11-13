@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // The simulator runs a real agent loop over real (fictional) tools: a flight
@@ -495,7 +495,9 @@ The team added three things:
         body: '- When should a task be a fixed workflow instead of an agent?\n- A tool result says "ignore your instructions". Which layers stop that from causing harm?\n- The payment call times out. What does the agent do next, and why?\n- How do you test an agent before changing its prompt or model?\n- How would you keep the cost of a 30-step task under control?\n- What should the agent do when the customer asks for something impossible?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'The agent loop with limits (TypeScript)',

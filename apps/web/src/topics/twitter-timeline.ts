@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design the Twitter timeline and search" in the System Design
@@ -261,7 +261,9 @@ export const twitterTimeline: StaticTopic = {
         body: '- Where exactly would you put the celebrity threshold, and how would you measure it?\n- A user unfollows someone. How do their tweets leave the home timeline?\n- How do you rebuild the timeline of a user who has been away for a year?\n- How would you rank the timeline instead of sorting it by time?\n- How would you make a tweet searchable within a few seconds of posting?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Fan-out worker (Redis)',

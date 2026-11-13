@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design Pastebin.com (or Bit.ly)" in the System Design Primer by
@@ -337,7 +337,9 @@ export const pastebin: StaticTopic = {
         body: '- What happens when two pastes get the same key? Where is it caught?\n- Why enforce expiry at read time as well as in a cleanup job?\n- How would you support custom aliases without a collision race?\n- A paste goes viral: what protects the Object Store?\n- How would you stop one client from creating millions of pastes?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Make the paste key',

@@ -161,7 +161,8 @@ export function Home({
                       <Video size={13} /> Video
                     </span>
                   )}
-                  {t.explanation.trace && (
+                  {/* simulator first: reading trace would run the simulator just to draw a chip */}
+                  {(t.simulator || t.explanation.trace) && (
                     <span>
                       <Footprints size={13} /> Walkthrough
                     </span>

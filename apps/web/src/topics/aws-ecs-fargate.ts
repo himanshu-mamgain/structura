@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from terraform-aws-modules/terraform-aws-ecs (Apache License 2.0) for
@@ -350,7 +350,9 @@ They kept 0.5 vCPU, set memory from what the app actually used plus headroom, an
         body: '- What is the difference between a task definition, a task and a service?\n- Traffic triples in a minute. Walk through what target tracking does and when capacity actually arrives.\n- A deploy\'s new tasks keep crashing. What do users see, and what does the circuit breaker change?\n- When would you choose EC2 over Fargate?\n- How would you scale a queue worker on ECS?\n- How do you get a database password into a container safely?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'A Fargate service with terraform-aws-ecs (bash)',

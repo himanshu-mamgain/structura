@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { stableHash, type Simulator } from './simulator'
+import { defaultTrace, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // The simulator pushes one real sample of 40 requests (a slice of one minute)
@@ -630,7 +630,9 @@ A normal minute now costs $6.41 instead of $10.22, 37% less, with no wrong cache
         body: '- How would you enforce a monthly budget exactly, not just eventually?\n- A provider returns 429 for one model but not another. How should routing react?\n- How do you test that a fallback model is good enough before an outage?\n- How would you design a semantic cache that never leaks one customer\'s answer to another?\n- How do you rate-limit by tokens when you don\'t know the output length in advance?\n- Where should personal data be masked, and what breaks if the model needs it?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Token limiter with Redis (TypeScript)',

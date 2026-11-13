@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Illustrative numbers throughout: a simple riders-to-drivers rule, not Uber's
@@ -266,7 +266,9 @@ export const uberSurge: StaticTopic = {
         body: '- How would you detect a coordinated logout that is spread over 10 minutes instead of 1?\n- How do you choose the hexagon size and the smoothing window?\n- What happens to prices if the stream processor is 2 minutes behind?\n- How would you design surge so that it stays fair during an emergency?\n- How would you prevent riders from gaming it, for example by requesting from a cheaper neighbouring hexagon?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Robust surge multiplier',

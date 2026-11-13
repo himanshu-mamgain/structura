@@ -89,8 +89,9 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      row, cache entry or response at that step.
    - `simulator` (recommended): a few `options` fields and a `run()` that returns a
      trace computed from the input, so the learner sees cause and effect (see the
-     celebrity fan-out switch in twitter-timeline). Set `explanation.trace` to
-     `simulator.run(simulator.defaults)`.
+     celebrity fan-out switch in twitter-timeline). Make `explanation.trace` a getter,
+     `get trace() { return defaultTrace(simulator) }` (from `./simulator`), so the
+     simulator runs when the topic is opened, not when the app starts.
    - `code`: up to 4 short, runnable snippets (`typescript`, `javascript`, `python`,
      `sql`, `go`, `java`, `bash`), with brief comments.
    - `takeaways`: 5 or 6 one-sentence points.

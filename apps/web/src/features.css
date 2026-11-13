@@ -833,6 +833,18 @@ html {
   color: #fff;
   box-shadow: 0 10px 30px rgba(109, 106, 248, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.25);
   cursor: pointer;
+}
+
+/* The breathing glow animates opacity on its own layer, so it runs on the compositor
+   instead of repainting a box-shadow every frame. */
+.orb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 12px 38px rgba(34, 211, 238, 0.5), inset 0 0 22px rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  pointer-events: none;
   animation: orb-breathe 4s ease-in-out infinite;
 }
 
@@ -887,7 +899,7 @@ html {
 
 @keyframes orb-breathe {
   50% {
-    box-shadow: 0 12px 38px rgba(34, 211, 238, 0.5), inset 0 0 22px rgba(255, 255, 255, 0.3);
+    opacity: 1;
   }
 }
 
@@ -1230,6 +1242,7 @@ html {
 
 @media (prefers-reduced-motion: reduce) {
   .orb,
+  .orb::before,
   .orb-ring,
   .orb-wave span,
   .karaoke .is-now,
@@ -4104,6 +4117,16 @@ a.btn {
   .content-body .story-chapter h3 {
     font-size: 20px;
   }
+}
+
+/* ─── Start-up rendering ─── */
+
+/* Long grids of cards below the fold: the browser skips laying out and painting the
+   ones off screen until they scroll near (the size hint keeps the scrollbar steady). */
+.topic-cards > .topic-card,
+.explore-grid > .explore-tile {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
 }
 
 /* ─── Roadmap ─── */

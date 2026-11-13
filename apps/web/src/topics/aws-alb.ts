@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from terraform-aws-modules/terraform-aws-alb (Apache License 2.0): the
@@ -325,7 +325,9 @@ That sounds wrong, but it's deliberate: a health check that is itself broken (a 
         body: '- A request matches two rules. Which one wins, and how do you check?\n- How long can a dead target keep getting traffic? How would you shorten it, and what\'s the risk?\n- Why does an ALB route to unhealthy targets when they\'re all unhealthy?\n- When would you choose a Network Load Balancer instead?\n- How do you send 5% of real traffic to a new version?\n- Deploys cause a burst of 502 errors. What would you look at?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'ALB listeners and rules in Terraform (bash)',

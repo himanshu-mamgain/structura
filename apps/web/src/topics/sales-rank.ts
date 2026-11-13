@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design Amazon's sales ranking by category feature" in the System
@@ -235,7 +235,9 @@ export const salesRank: StaticTopic = {
         body: '- How would you show "sales in the last hour" instead of the last week?\n- How do you keep a rolling 7-day window when the job runs every hour?\n- A product is in several categories. What changes in the map step?\n- How would you stop a seller from gaming the rank with fake orders?\n- When does a stream processor beat the batch job?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'MapReduce job (Python)',

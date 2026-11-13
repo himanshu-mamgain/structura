@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -234,7 +234,9 @@ export const urlShortener: StaticTopic = {
         body: '- How would you support custom aliases without collisions?\n- How do you make codes unguessable for private links?\n- What changes if each link must redirect differently by country or device?\n- How do you delete expired links without slowing down the database?\n- How would you guarantee a link keeps working if a whole region goes down?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Base62 encode and decode',

@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design a system that scales to millions of users on AWS" in the
@@ -318,7 +318,9 @@ export const scalingAws: StaticTopic = {
         body: '- How would you tell that it is time to move from stage 3 to stage 4?\n- What breaks if web servers keep sessions in memory?\n- How do you pick a shard key, and what happens when one shard is hotter than the rest?\n- A cache node dies at peak. What happens to the database, and how do you protect it?\n- How would you survive the loss of a whole region?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Cache-aside with replica reads',

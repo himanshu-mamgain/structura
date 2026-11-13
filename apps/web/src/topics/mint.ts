@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design Mint.com" in the System Design Primer by Donne Martin
@@ -287,7 +287,9 @@ export const mint: StaticTopic = {
         body: '- How do you avoid counting a transaction twice if the bank sends it again?\n- A user recategorizes a purchase from last month. What has to be recomputed?\n- How would you decide how often to sync each account?\n- How do you alert once at 80%, and not on every later purchase?\n- How would you shard the Transactions Database, and what does a cross-account query cost?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Idempotent save and budget update',
