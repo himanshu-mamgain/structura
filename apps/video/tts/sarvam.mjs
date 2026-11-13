@@ -136,10 +136,10 @@ async function request(text, { speaker, pace, rate }) {
       return decodeWav(Buffer.from(audio, 'base64'))
     }
     // Rate limits and server errors are worth retrying; a bad key or request isn't.
-    const retry = (res.status === 429 || res.status >= 500) && attempt < 5
+    const retry = (res.status === 429 || res.status >= 500) && attempt < 7
     const detail = await res.text().catch(() => '')
     if (!retry) throw new Error(`Sarvam ${res.status}: ${detail.slice(0, 300)}`)
-    const wait = 2000 * 2 ** attempt
+    const wait = Math.min(60_000, 2000 * 2 ** attempt)
     console.warn(`Sarvam ${res.status}, retrying in ${wait / 1000}s`)
     await sleep(wait)
   }
@@ -175,4 +175,21 @@ export async function speak(text, { speaker = 'shubh', pace = 1, cacheDir } = {}
     writeFileSync(cached, encodeWav(out))
   }
   return out
+}
+
+/**
+ * Speaks many pieces a few at a time, filling the cache, so a long lesson takes
+ * minutes rather than hours. Callers then read each clip back with speak(), in order.
+ */
+export async function warm(texts, { speaker = 'shubh', pace = 1, cacheDir, concurrency = 6 } = {}) {
+  const queue = [...new Set(texts)]
+  let done = 0
+  const worker = async () => {
+    for (let text = queue.shift(); text !== undefined; text = queue.shift()) {
+      await speak(text, { speaker, pace, cacheDir })
+      done++
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+  return done
 }

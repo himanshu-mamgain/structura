@@ -50,8 +50,11 @@ function voiceWithKokoro(chapters: ReturnType<typeof lessonChapters>, out: strin
 
 /** Sarvam Bulbul v3, sentence by sentence (cached), laid out like lesson_speak.py does. */
 async function voiceWithSarvam(chapters: ReturnType<typeof lessonChapters>, out: string): Promise<Timings> {
-  const { speak, encodeWav, SAMPLE_RATE } = await import(pathToFileURL(join(video, 'tts/sarvam.mjs')).href)
+  const { speak, warm, encodeWav, SAMPLE_RATE } = await import(pathToFileURL(join(video, 'tts/sarvam.mjs')).href)
   const GAP = 0.28 // silence between sentences, seconds, as in lesson_speak.py
+  const options = { speaker: voice, pace: speed, cacheDir: join(video, '.cache/sarvam') }
+  // Voice every sentence a few at a time first; the loop below then reads them from the cache in order.
+  await warm(chapters.flatMap((c) => c.items.flatMap((i) => ('say' in i ? [i.say] : []))), options)
   const timings: Timings = {}
   for (const chapter of chapters) {
     const parts: Float32Array[] = []
@@ -61,7 +64,7 @@ async function voiceWithSarvam(chapters: ReturnType<typeof lessonChapters>, out:
       let silence: number
       if ('pause' in item) silence = item.pause
       else {
-        const audio: Float32Array = await speak(item.say, { speaker: voice, pace: speed, cacheDir: join(video, '.cache/sarvam') })
+        const audio: Float32Array = await speak(item.say, options)
         cues.push({ t: Math.round(t * 1000) / 1000, text: item.say })
         parts.push(audio)
         t += audio.length / SAMPLE_RATE
