@@ -295,9 +295,10 @@ async function voiceWithKokoro(narration, voice, outDir, manifest) {
 
 /** Sarvam Bulbul v3: one request per line (cached), mastered like the Kokoro voices. */
 async function voiceWithSarvam(narration, speaker, outDir, manifest) {
-  const { speak, SAMPLE_RATE } = await import(pathToFileURL(join(root, 'tts/sarvam.mjs')).href)
+  const { speak, warm, SAMPLE_RATE } = await import(pathToFileURL(join(root, 'tts/sarvam.mjs')).href)
   const pace = Number(process.env.TTS_PACE ?? 1)
   const lines = Object.values(narration.scenes).flat()
+  await warm(lines.map((l) => l.say ?? l.text), { speaker, pace, cacheDir: join(root, '.cache/sarvam') })
   const clips = []
   for (const line of lines) {
     const spokenText = line.say ?? line.text

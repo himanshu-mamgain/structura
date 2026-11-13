@@ -149,8 +149,8 @@ uv pip install --python .venv "kokoro>=0.9.4" soundfile pip
 The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
 `apps/video/scripts/measure_voices.py`), loudness -14 LUFS.
 
-**Sarvam Bulbul v3 (Indian English) is the narration voice going forward**, chosen by the
-owner. It is a hosted API, so it is used only to generate audio ahead of time, never by the
+**Sarvam Bulbul v3 (Indian English), speaker `shubh` at pace 1.0, is the narration voice
+going forward**, chosen by the owner from the samples. It is a hosted API, so it is used only to generate audio ahead of time, never by the
 app at runtime. This cloud workspace can't reach `api.sarvam.ai`, so narration is made by the
 **Narrate with Sarvam Bulbul** GitHub Action (`.github/workflows/narrate.yml`, run by hand;
 needs the `SARVAM_API_KEY` repository secret). It voices `samples` (a passage per speaker at
