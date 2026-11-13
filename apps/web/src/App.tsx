@@ -7,7 +7,7 @@ import { Home } from './shell/Home'
 import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { MiniPlayer } from './shell/MiniPlayer'
 import { Reels } from './shell/Reels'
-import { SearchBox } from './shell/Search'
+import { focusSearchNext, SearchBox } from './shell/Search'
 import { VoiceAssistant } from './shell/VoiceAssistant'
 import { loadTopic, topicMeta, type TopicMeta } from './topics/catalog'
 import type { StaticTopic } from './topics/types'
@@ -177,6 +177,20 @@ export default function App() {
           <Tabs current={tab} onTab={onTab} className="appbar-tabs" />
           {/* Explore has its own, bigger search. */}
           {route.page !== 'explore' && <SearchBox onOpen={open} onRead={openRead} onNote={openNote} className="appbar-search" />}
+          {/* Narrower screens have no room for the field: this opens Explore's, ready to type. */}
+          {route.page !== 'explore' && (
+            <button
+              type="button"
+              className="icon-btn appbar-find"
+              onClick={() => {
+                focusSearchNext()
+                openPage('explore')
+              }}
+              aria-label="Search"
+            >
+              <Search size={19} />
+            </button>
+          )}
           <InstallButton />
           <NotificationBell
             onOpen={(url) => {

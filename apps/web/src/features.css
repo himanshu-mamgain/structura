@@ -2617,11 +2617,26 @@ html {
   }
 }
 
+/* The search button stands in for the field until the bar is wide enough for it. */
+.appbar-find {
+  flex: none;
+  margin-left: auto;
+}
+
+.appbar-find ~ .appbar-install,
+.appbar-find ~ .notify {
+  margin-left: 0;
+}
+
 @media (min-width: 1200px) {
   .appbar-search {
     display: block;
     max-width: 340px;
     margin-left: auto;
+  }
+
+  .appbar-find {
+    display: none;
   }
 
   .appbar-search ~ .appbar-install,
