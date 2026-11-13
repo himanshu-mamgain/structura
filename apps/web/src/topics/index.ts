@@ -10,6 +10,7 @@ import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
 import { fileSync } from './file-sync'
 import { leaderElection } from './leader-election'
+import { loadBalancer } from './load-balancer'
 import { llmGateway } from './llm-gateway'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
@@ -79,6 +80,7 @@ const BASE_TOPICS: StaticTopic[] = [
   awsAlb,
   awsEcsFargate,
   awsEcsFullstack,
+  loadBalancer,
 ]
 
 /**

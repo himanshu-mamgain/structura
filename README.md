@@ -63,6 +63,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Application Load Balancer | Intermediate | | | |
 | ECS on Fargate | Intermediate | | | |
 | Full-stack App on ECS | Advanced | | | |
+| Load Balancer | Intermediate | | | |
 
 ## Getting started
 
