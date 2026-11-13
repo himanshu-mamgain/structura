@@ -1,4 +1,4 @@
-import { BookOpen, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
+import { BookOpen, BookOpenText, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
 import { LEVEL_TAGLINE, levelGroups, nextStep, partDone, ROADMAP, ROADMAP_STEPS, type RoadmapStep, stepDone, unplacedTopics } from '../learn/roadmap'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
@@ -20,7 +20,7 @@ function toggle(step: RoadmapStep) {
 }
 
 /** The roadmap page: every part in order, each step a topic or a reading, ticked off as you go. */
-export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
+export function Roadmap({ onOpen, onRead }: { onOpen: (topic: TopicMeta) => void; onRead: (topic: TopicMeta) => void }) {
   const progress = useProgress()
   const done = ROADMAP_STEPS.filter(({ step }) => stepDone(step, progress)).length
   const next = nextStep(progress)
@@ -99,7 +99,7 @@ export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
                   )}
                   <ol className="roadmap-steps">
                     {group.steps.map((step) => (
-                      <Step key={step.id} step={step} isNext={next?.step.id === step.id} onOpen={onOpen} />
+                      <Step key={step.id} step={step} isNext={next?.step.id === step.id} onOpen={onOpen} onRead={onRead} />
                     ))}
                   </ol>
                 </section>
@@ -120,7 +120,7 @@ export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
             </header>
             <ol className="roadmap-steps">
               {extra.map((t) => (
-                <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} />
+                <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} onRead={onRead} />
               ))}
             </ol>
           </li>
@@ -158,7 +158,7 @@ function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: 
   )
 }
 
-function Step({ step, isNext, onOpen }: { step: RoadmapStep; isNext: boolean; onOpen: (topic: TopicMeta) => void }) {
+function Step({ step, isNext, onOpen, onRead }: { step: RoadmapStep; isNext: boolean; onOpen: (topic: TopicMeta) => void; onRead: (topic: TopicMeta) => void }) {
   const progress = useProgress()
   const lib = useLibrary()
   const topic = step.topic ? topicById.get(step.topic) : undefined
@@ -190,6 +190,11 @@ function Step({ step, isNext, onOpen }: { step: RoadmapStep; isNext: boolean; on
             <button type="button" className="roadmap-topic" onClick={() => onOpen(topic)}>
               <Icon size={15} aria-hidden /> {topic.title}
               <span>{readiness(topic, progress.topics[topic.id])}% ready</span>
+            </button>
+          )}
+          {topic && (
+            <button type="button" className="roadmap-read" onClick={() => onRead(topic)} title={`Read ${topic.title} as an article`}>
+              <BookOpenText size={14} aria-hidden /> Read
             </button>
           )}
           {step.practice && (

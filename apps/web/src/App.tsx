@@ -14,6 +14,8 @@ import type { StaticTopic } from './topics/types'
 
 // The topic page and every topic's content load together, the first time a topic opens.
 const TopicView = lazy(() => import('./shell/TopicView').then((m) => ({ default: m.TopicView })))
+// Read mode (?topic=…&read): the same topic as one article.
+const Reader = lazy(() => import('./shell/Reader').then((m) => ({ default: m.Reader })))
 // Other pages load when first visited, so the home page starts with less to download.
 const Explore = lazy(() => import('./shell/Explore').then((m) => ({ default: m.Explore })))
 const NoteView = lazy(() => import('./shell/Notes').then((m) => ({ default: m.NoteView })))
@@ -37,6 +39,7 @@ function readRoute() {
     page: page && PAGES.includes(page) ? page : category ? 'explore' : null,
     reel: query.get('reel'),
     noteId: query.get('note'),
+    read: query.has('read'),
   }
 }
 
@@ -118,6 +121,11 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  function openRead(next: TopicMeta) {
+    navigate(`?topic=${next.id}&read`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openPage(page: Page) {
     navigate(`?page=${page}`)
     window.scrollTo({ top: 0 })
@@ -184,7 +192,11 @@ export default function App() {
             {meta ? (
               topic ? (
                 <Suspense fallback={<TopicLoading meta={meta} />}>
-                  <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} />
+                  {route.read ? (
+                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} />
+                  ) : (
+                    <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} onRead={() => openRead(meta)} />
+                  )}
                 </Suspense>
               ) : (
                 <TopicLoading meta={meta} />
@@ -206,7 +218,7 @@ export default function App() {
             ) : route.page === 'listen' ? (
               <Commute />
             ) : route.page === 'roadmap' ? (
-              <Roadmap onOpen={open} />
+              <Roadmap onOpen={open} onRead={openRead} />
             ) : route.page === 'explore' ? (
               <Explore onOpen={open} onNote={openNote} category={route.category} onCategory={openCategory} onRoadmap={() => openPage('roadmap')} />
             ) : reels ? (

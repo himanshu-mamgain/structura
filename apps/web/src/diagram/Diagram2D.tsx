@@ -68,6 +68,8 @@ export interface Diagram2DProps {
   onSelect?: (id: string | null) => void
   /** One line under each box's name, by node id (its role). */
   subtitles?: Record<string, string>
+  /** Always start with the whole diagram in view, however small (a figure in an article). */
+  fitAll?: boolean
 }
 
 /** Card size: room for the icon tile, the name and the subtitle line. */
@@ -76,7 +78,7 @@ const cardSize = (label: string, subtitle?: string) => ({
   height: subtitle ? 78 : 64,
 })
 
-export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles }: Diagram2DProps) {
+export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles, fitAll = false }: Diagram2DProps) {
   const [placed, setPlaced] = useState<Layout | null>(null)
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
   const host = useRef<HTMLDivElement>(null)
@@ -114,7 +116,8 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     const { clientWidth: w, clientHeight: h } = host.current
     const fullW = placed.w + PAD * 2
     const fullH = placed.h + PAD * 2
-    const scale = Math.max(MIN_READABLE, Math.min(1.1, w / fullW, h / fullH))
+    const whole = Math.min(1.1, w / fullW, h / fullH)
+    const scale = fitAll ? whole : Math.max(MIN_READABLE, whole)
     // Too big to show whole: start where the flow starts (the first box), within the edges.
     const first = placed.nodes.get(diagram.nodes[0]?.id ?? '')
     const along = (size: number, full: number, start: number) =>
