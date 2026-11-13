@@ -14,6 +14,7 @@ import { loadBalancer } from './load-balancer'
 import { llmGateway } from './llm-gateway'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
+import { awsBasics } from './aws-basics'
 import { kafka } from './kafka'
 import { redisBasics } from './redis-basics'
 import { redisPersistence } from './redis-persistence'
@@ -85,6 +86,7 @@ const BASE_TOPICS: StaticTopic[] = [
   loadBalancer,
   redisBasics,
   redisPersistence,
+  awsBasics,
 ]
 
 /**

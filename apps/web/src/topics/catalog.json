@@ -1971,5 +1971,50 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "aws-basics",
+  "title": "AWS Basics: What the Cloud Is and Why",
+  "blurb": "Buying servers vs renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each costs",
+  "difficulty": "Beginner",
+  "guides": [
+   "what-are-the-most-important-aws-services-to-learn",
+   "aws-services-cheat-sheet",
+   "2-decades-of-cloud-evolution",
+   "hidden-costs-of-the-cloud",
+   "cloud-cost-reduction-techniques",
+   "how-does-aws-lambda-work-behind-the-scenes"
+  ],
+  "explanation": {
+   "summary": "AWS (Amazon Web Services) rents out computing, such as servers, storage, databases and networking, by the hour or by the request. Instead of buying hardware for your peak and waiting weeks for more, you start what you need in minutes, spread it across data centres, and pay for what you use. The trade-off is a bill that you have to design for and watch.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]
