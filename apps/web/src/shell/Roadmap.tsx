@@ -35,7 +35,7 @@ export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
         <h1>Where to start</h1>
         <p>
           Docker first, then Redis and Kafka, the system design essentials, AWS and Terraform: {ROADMAP.length} parts in the order they build on
-          each other. Each step opens a topic or a reading. Tick it off when you're done; a topic counts once you mark it complete.
+          each other. Redis, Kafka, AWS and Terraform each go from Basics to Advanced. Each step opens a topic or a reading. Tick it off when you're done; a topic counts once you mark it complete.
         </p>
         <div className="roadmap-total">
           <span className="progress-bar" aria-hidden>
