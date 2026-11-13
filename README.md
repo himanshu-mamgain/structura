@@ -68,6 +68,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Redis Persistence and Replication | Advanced | | | |
 | AWS Basics: What the Cloud Is and Why | Beginner | | | |
 | AWS IAM: Who Can Do What | Beginner | | | |
+| Disaster Recovery Across AWS Regions | Advanced | | | |
 
 ## Getting started
 
