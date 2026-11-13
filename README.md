@@ -66,6 +66,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Load Balancer | Intermediate | | | |
 | Redis Basics: Data Types | Beginner | | | |
 | Redis Persistence and Replication | Advanced | | | |
+| AWS Basics: What the Cloud Is and Why | Beginner | | | |
 
 ## Getting started
 
