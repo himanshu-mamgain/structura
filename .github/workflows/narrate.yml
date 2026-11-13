@@ -47,6 +47,8 @@ jobs:
       TTS_VOICE: ${{ inputs.speaker }}
       TTS_PACE: ${{ inputs.pace }}
       TOPICS: ${{ inputs.topics }}
+      # Bulbul's limit on pay-as-you-go is 60 requests a minute; Pro allows 200.
+      SARVAM_RPM: 55
     steps:
       - name: Check the key
         run: |

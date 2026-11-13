@@ -119,11 +119,24 @@ export function trimSilence(samples, rate = SAMPLE_RATE, keep = 0.04) {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// Pay-as-you-go accounts may make 60 Bulbul requests a minute. Start requests no faster
+// than SARVAM_RPM a minute (default 55), however many workers are waiting, so a long run
+// isn't slowed down by 429s and retries.
+const RPM = Number(process.env.SARVAM_RPM ?? 55)
+let nextSlot = 0
+async function slot() {
+  const now = Date.now()
+  const at = Math.max(now, nextSlot)
+  nextSlot = at + 60_000 / RPM
+  if (at > now) await sleep(at - now)
+}
+
 async function request(text, { speaker, pace, rate }) {
   const key = process.env.SARVAM_API_KEY
   if (!key) throw new Error('Set SARVAM_API_KEY (a Sarvam API subscription key) to voice with Bulbul.')
   const url = process.env.SARVAM_API_URL ?? 'https://api.sarvam.ai/text-to-speech'
   for (let attempt = 0; ; attempt++) {
+    await slot()
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'api-subscription-key': key, 'content-type': 'application/json' },
