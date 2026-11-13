@@ -4586,3 +4586,46 @@ button.roadmap-step-title:hover {
     padding: 14px 16px;
   }
 }
+
+/* ─── Loading pages and topics (they load on demand) ─── */
+
+.page-loading,
+.topic-loading {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  color: var(--muted);
+}
+
+.topic-loading {
+  align-content: start;
+  justify-items: start;
+  gap: 8px;
+  padding: 24px 4px;
+}
+
+.topic-loading h1 {
+  margin: 0;
+  color: var(--text);
+}
+
+.topic-loading p {
+  margin: 0 0 12px;
+}
+
+.mini-player {
+  animation: mini-in 0.3s ease-out;
+}
+
+@keyframes mini-in {
+  from {
+    opacity: 0;
+    transform: translateY(80px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-player {
+    animation: none;
+  }
+}

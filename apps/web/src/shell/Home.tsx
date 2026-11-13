@@ -2,16 +2,15 @@ import { useState } from 'react'
 import { Bookmark, CheckCircle2, Footprints, GraduationCap, Headphones, Play, Sparkles, Video, WifiOff, Zap } from 'lucide-react'
 import { ago, readiness, type TopicProgress, useProgress, videoFraction } from '../learn/progress'
 import course from '../learn/course.json'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
-import { LIBRARY } from '../topics/library'
+import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
 import { NotifyPrompt } from './Notifications'
 import { ReelsRow } from './Reels'
-import { RoadmapCard } from './Roadmap'
+import { RoadmapCard } from './RoadmapCard'
 import { topicIcon } from './topicIcons'
 import { TodayCard } from './VoiceGuide'
 import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
 
-const thumbnail = (topic: StaticTopic) => topic.video?.replace(/\.mp4$/, '.jpg')
+const thumbnail = (topic: TopicMeta) => (topic.video ? smallCover(topic.video) : undefined)
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 type Filter = 'all' | 'bookmarked' | 'in-progress' | 'completed'
@@ -22,20 +21,20 @@ export function Home({
   onPage,
   onReel,
 }: {
-  onOpen: (topic: StaticTopic) => void
+  onOpen: (topic: TopicMeta) => void
   onPage: (page: 'quiz' | 'glossary' | 'listen' | 'reels' | 'explore' | 'roadmap') => void
   onReel: (id: string) => void
 }) {
   const progress = useProgress()
   const [filter, setFilter] = useState<Filter>('all')
-  const p = (t: StaticTopic): TopicProgress | undefined => progress.topics[t.id]
+  const p = (t: TopicMeta): TopicProgress | undefined => progress.topics[t.id]
 
-  const recent = STATIC_TOPICS.filter((t) => p(t)?.lastOpenedAt)
+  const recent = TOPICS.filter((t) => p(t)?.lastOpenedAt)
     .sort((a, b) => (p(b)?.lastOpenedAt ?? 0) - (p(a)?.lastOpenedAt ?? 0))
     .slice(0, 3)
-  const overall = Math.round(STATIC_TOPICS.reduce((sum, t) => sum + readiness(t, p(t)), 0) / STATIC_TOPICS.length)
-  const completed = STATIC_TOPICS.filter((t) => p(t)?.completed).length
-  const shown = STATIC_TOPICS.filter((t) => {
+  const overall = Math.round(TOPICS.reduce((sum, t) => sum + readiness(t, p(t)), 0) / TOPICS.length)
+  const completed = TOPICS.filter((t) => p(t)?.completed).length
+  const shown = TOPICS.filter((t) => {
     const tp = p(t)
     if (filter === 'bookmarked') return tp?.bookmarked
     if (filter === 'completed') return tp?.completed
@@ -73,7 +72,7 @@ export function Home({
           <div>
             <dt>Topics completed</dt>
             <dd>
-              {completed}/{STATIC_TOPICS.length}
+              {completed}/{TOPICS.length}
             </dd>
           </div>
           <div>
@@ -99,7 +98,7 @@ export function Home({
               return (
                 <button key={t.id} type="button" className="card continue-card" onClick={() => onOpen(t)}>
                   <span className="continue-thumb">
-                    {thumbnail(t) ? <img src={thumbnail(t)} alt="" loading="lazy" /> : <Icon size={30} />}
+                    {thumbnail(t) ? <img src={thumbnail(t)} alt="" loading="lazy" onError={fullCoverOnError} /> : <Icon size={30} />}
                     {t.video && <Play className="continue-play" size={22} fill="currentColor" />}
                   </span>
                   <span className="continue-body">
@@ -161,13 +160,13 @@ export function Home({
                       <Video size={13} /> Video
                     </span>
                   )}
-                  {/* simulator first: reading trace would run the simulator just to draw a chip */}
-                  {(t.simulator || t.explanation.trace) && (
+                  {/* simulator first: on a loaded topic, reading trace would run the simulator */}
+                  {Boolean(t.simulator || t.explanation.trace) && (
                     <span>
                       <Footprints size={13} /> Walkthrough
                     </span>
                   )}
-                  {t.loadTest && (
+                  {Boolean(t.loadTest) && (
                     <span>
                       <Zap size={13} /> Load test
                     </span>
@@ -187,7 +186,7 @@ export function Home({
       </section>
 
       <p className="home-more">
-        More to read: the full library of {LIBRARY.guides.length} guides is in{' '}
+        More to read: the full library of guides is in{' '}
         <button type="button" className="link-btn" onClick={() => onPage('explore')}>
           Explore
         </button>
@@ -203,7 +202,7 @@ function CommuteCard({ onPage }: { onPage: (page: 'listen') => void }) {
   const topics = lessonTopics()
   if (!topics.length) return null
   const total = Object.values(LESSONS.topics).reduce((n, t) => n + t.duration, 0)
-  const current = STATIC_TOPICS.find((t) => t.id === commute.topicId)
+  const current = TOPICS.find((t) => t.id === commute.topicId)
   return (
     <button type="button" className="card commute-card" onClick={() => onPage('listen')}>
       <span className="commute-card-icon">

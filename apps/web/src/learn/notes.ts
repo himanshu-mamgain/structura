@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 import { exportKey, fromBase64, importKey, deriveKey, type NoteFile, type NoteMeta, type NotesIndex, type PublishedIndex, seal, toBase64, unseal } from './notesFormat'
 
 // The owner's Notion notes, built into the site by scripts/notion.ts. They're
@@ -111,7 +111,7 @@ export const canSave = () => sealed !== null && key !== null
  * through /api/notion-note. The note is sealed with the notes key, which is
  * how the function knows it's the owner. Returns the page's URL.
  */
-export async function saveNote(topic: StaticTopic, text: string): Promise<string> {
+export async function saveNote(topic: TopicMeta, text: string): Promise<string> {
   if (!key) throw new Error('Unlock your notes first.')
   const note = { topicId: topic.id, topicTitle: topic.title, text, at: Date.now(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
   const data = toBase64(await seal(key, new TextEncoder().encode(JSON.stringify(note))))
@@ -200,13 +200,13 @@ const ALIASES: Record<string, string[]> = {
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],
 }
 
-export function notesFor(topic: StaticTopic, index: NotesIndex): NoteMeta[] {
+export function notesFor(topic: TopicMeta, index: NotesIndex): NoteMeta[] {
   const words = [...(ALIASES[topic.id] ?? []), topic.title.toLowerCase().split(/[:(&]/)[0].trim()].filter((w) => w.length > 2)
   // From the start of a word, so "ride" doesn't match "override".
   const match = new RegExp(`\\b(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})`, 'i')
   return index.notes.filter((n) => match.test(n.title))
 }
 
-export function topicsFor(note: NoteMeta, topics: StaticTopic[], index: NotesIndex): StaticTopic[] {
+export function topicsFor(note: NoteMeta, topics: TopicMeta[], index: NotesIndex): TopicMeta[] {
   return topics.filter((t) => notesFor(t, index).some((n) => n.id === note.id))
 }

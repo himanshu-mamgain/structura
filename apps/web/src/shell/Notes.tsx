@@ -3,7 +3,7 @@ import { ArrowUpRight, Check, ChevronRight, FileText, KeyRound, Link2, Loader2, 
 import { ago } from '../learn/progress'
 import { canSave, imageSrc, isSealed, loadNote, lockNotes, noteIdIn, notesFor, saveNote, topicsFor, unlock, useNotes } from '../learn/notes'
 import type { Block, NoteFile, NoteMeta, NotesIndex, Rich } from '../learn/notesFormat'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
+import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { topicIcon } from './topicIcons'
 
 // The owner's Notion notes in the app: a shelf in Explore, a reader
@@ -101,7 +101,7 @@ export function NotesShelf({ onNote }: { onNote: (id: string) => void }) {
 }
 
 /** On a topic page, under the takeaways: the notes about it, if there are any. */
-export function TopicNotes({ topic, onNote }: { topic: StaticTopic; onNote: (id: string) => void }) {
+export function TopicNotes({ topic, onNote }: { topic: TopicMeta; onNote: (id: string) => void }) {
   const notes = useNotes()
   if (notes.status !== 'ready') return null
   const mine = notesFor(topic, notes.index)
@@ -124,14 +124,14 @@ export function TopicNotes({ topic, onNote }: { topic: StaticTopic; onNote: (id:
   )
 }
 
-const draftKey = (topic: StaticTopic) => `structura:note-draft:${topic.id}`
+const draftKey = (topic: TopicMeta) => `structura:note-draft:${topic.id}`
 
 /**
  * Under a topic's takeaways, for the owner once his notes are unlocked: write a
  * note and save it to the topic's page in Notion. The draft is kept in this
  * browser until it's saved.
  */
-export function NoteBox({ topic }: { topic: StaticTopic }) {
+export function NoteBox({ topic }: { topic: TopicMeta }) {
   const notes = useNotes()
   const [text, setText] = useState(() => {
     try {
@@ -208,7 +208,7 @@ export function searchNotes(index: NotesIndex, query: string): NoteMeta[] {
 
 // ─── The reader ──────────────────────────────────────────────────────────────
 
-export function NoteView({ id, onNote, onOpen }: { id: string; onNote: (id: string) => void; onOpen: (topic: StaticTopic) => void }) {
+export function NoteView({ id, onNote, onOpen }: { id: string; onNote: (id: string) => void; onOpen: (topic: TopicMeta) => void }) {
   const notes = useNotes()
   const [file, setFile] = useState<NoteFile | null>(null)
   const [failed, setFailed] = useState(false)
@@ -235,7 +235,7 @@ export function NoteView({ id, onNote, onOpen }: { id: string; onNote: (id: stri
 
   const parent = note.parent ? index.notes.find((n) => n.id === note.parent) : null
   const children = index.notes.filter((n) => n.parent === note.id)
-  const topics = topicsFor(note, STATIC_TOPICS, index)
+  const topics = topicsFor(note, TOPICS, index)
 
   return (
     <article className="note">

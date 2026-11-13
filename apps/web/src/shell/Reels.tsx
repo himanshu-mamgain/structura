@@ -2,14 +2,14 @@ import { type PointerEvent, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Clapperboard, ListVideo, Pause, Play, RotateCcw, Send, SkipForward, Volume2, VolumeX } from 'lucide-react'
 import { toggle as toggleCommute, useCommute } from '../learn/commute'
 import { updateTopic, useProgress, videoFraction } from '../learn/progress'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
+import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
 import { topicIcon } from './topicIcons'
 
 // Reels: every topic video, full screen, one after another, swiped like
 // Instagram. Home shows them as a row of covers; the Reels tab plays them.
 
-export const REELS = STATIC_TOPICS.filter((t) => t.video)
-const cover = (t: StaticTopic) => t.video!.replace(/\.mp4$/, '.jpg')
+export const REELS = TOPICS.filter((t) => t.video)
+const cover = (t: TopicMeta) => t.video!.replace(/\.mp4$/, '.jpg')
 
 /** The row of reel covers on Home. */
 export function ReelsRow({ onPlay, onAll }: { onPlay: (id: string) => void; onAll: () => void }) {
@@ -30,7 +30,7 @@ export function ReelsRow({ onPlay, onAll }: { onPlay: (id: string) => void; onAl
           const watched = videoFraction(progress.topics[t.id])
           return (
             <button key={t.id} type="button" className={`reel-tile${watched >= 0.97 ? ' is-watched' : ''}`} onClick={() => onPlay(t.id)}>
-              <img src={cover(t)} alt="" loading="lazy" />
+              <img src={smallCover(t.video!)} alt="" loading="lazy" onError={fullCoverOnError} />
               <span className="reel-tile-shade" aria-hidden />
               <Play className="reel-tile-play" size={15} fill="currentColor" aria-hidden />
               <span className="reel-tile-text">
@@ -51,11 +51,11 @@ export function ReelsRow({ onPlay, onAll }: { onPlay: (id: string) => void; onAl
 }
 
 /** The Reels tab: a vertical feed that plays the reel in view. */
-export function Reels(props: { start: string | null; onOpen: (topic: StaticTopic) => void }) {
+export function Reels(props: { start: string | null; onOpen: (topic: TopicMeta) => void }) {
   return REELS.length ? <Feed {...props} /> : <p className="practice-empty">No reels yet.</p>
 }
 
-function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: StaticTopic) => void }) {
+function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMeta) => void }) {
   const progress = useProgress()
   const commute = useCommute()
   const feed = useRef<HTMLDivElement>(null)
@@ -76,7 +76,7 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: StaticT
 
   const reel = REELS[active]
 
-  function save(v: HTMLVideoElement, t: StaticTopic) {
+  function save(v: HTMLVideoElement, t: TopicMeta) {
     if (!v.duration) return
     lastSaved.current = Date.now()
     updateTopic(t.id, { videoTime: v.currentTime, videoDuration: v.duration, lastWatchedAt: Date.now() })
@@ -197,7 +197,7 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: StaticT
     return () => window.clearTimeout(timer)
   }, [toast])
 
-  async function share(t: StaticTopic) {
+  async function share(t: TopicMeta) {
     const url = `${window.location.origin}/?page=reels&reel=${t.id}`
     if (navigator.share) {
       try {

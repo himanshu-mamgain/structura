@@ -4,7 +4,7 @@ import { useProgress } from '../learn/progress'
 import { NATURAL_VOICES, prepareNaturalVoice, setSpeechSettings, speak, type SpeechSettings, speechSupported, stopSpeaking, useNaturalVoice, useSpeechSettings, useVoices } from '../learn/speech'
 import { planToday } from '../learn/today'
 import course from '../learn/course.json'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
+import { TOPICS, type TopicMeta } from '../topics/catalog'
 
 /**
  * Voice settings: the natural voice (Kokoro, downloaded once and kept on the
@@ -115,9 +115,9 @@ export function VoiceSettingsButton() {
 }
 
 /** Home's "Today's pick": what to study today, from progress, and a spoken plan. */
-export function TodayCard({ onOpen }: { onOpen: (topic: StaticTopic) => void }) {
+export function TodayCard({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
   const progress = useProgress()
-  const plan = planToday(STATIC_TOPICS, progress, course.quiz.length)
+  const plan = planToday(TOPICS, progress, course.quiz.length)
   const [speaking, setSpeaking] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 

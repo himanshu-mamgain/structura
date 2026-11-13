@@ -67,6 +67,8 @@ for (const id of ids) {
   // 4. Thumbnail: a frame from the second walkthrough step.
   const thumbFrame = (chapters[2]?.[0] ?? 10) * FPS + 45
   run('npx', ['remotion', 'still', 'src/index.ts', `Topic-${id}`, `../web/public/videos/${id}.jpg`, `--frame=${thumbFrame}`, '--scale=0.5', '--image-format=jpeg'])
+  // A small copy for the tiles on Home and Explore, which show it about 150px wide.
+  run('npx', ['remotion', 'ffmpeg', '-y', '-loglevel', 'error', '-i', `../web/public/videos/${id}.jpg`, '-vf', 'scale=300:-2', '-q:v', '5', `../web/public/videos/${id}-sm.jpg`])
 
   registry[id] = { video: `/videos/${id}.mp4`, chapters }
   writeFileSync(registryPath, `${JSON.stringify(registry, null, 1)}\n`)

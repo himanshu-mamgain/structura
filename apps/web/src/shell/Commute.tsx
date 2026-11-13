@@ -19,7 +19,7 @@ import {
   toggle,
   useCommute,
 } from '../learn/commute'
-import { STATIC_TOPICS } from '../topics'
+import { TOPICS } from '../topics/catalog'
 import { topicIcon } from './topicIcons'
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
@@ -59,7 +59,7 @@ function NowPlaying() {
   const s = useCommute()
   const chapters = chaptersOf(s.topicId)
   const chapter = chapters[s.chapter]
-  const topic = STATIC_TOPICS.find((t) => t.id === s.topicId)
+  const topic = TOPICS.find((t) => t.id === s.topicId)
   const Icon = topic ? topicIcon(topic.id) : Headphones
   const total = LESSONS.topics[s.topicId ?? '']?.duration ?? 0
   const elapsed = chapters.slice(0, s.chapter).reduce((n, c) => n + c.duration, 0) + s.time
@@ -173,7 +173,7 @@ export function Commute() {
           ) : (
             <button type="button" className="btn btn-primary" disabled={Boolean(s.saving)} onClick={() => void saveOffline(topics.map((t) => t.id))}>
               {s.saving ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
-              {s.saving ? `Saving ${STATIC_TOPICS.find((t) => t.id === s.saving!.topicId)?.title} (${s.saving.done}/${s.saving.total})` : 'Save all for offline'}
+              {s.saving ? `Saving ${TOPICS.find((t) => t.id === s.saving!.topicId)?.title} (${s.saving.done}/${s.saving.total})` : 'Save all for offline'}
             </button>
           )}
         </div>
@@ -244,28 +244,5 @@ export function Commute() {
         </section>
       </div>
     </div>
-  )
-}
-
-/** A slim player that follows you around the app while a lesson is loaded. */
-export function MiniPlayer({ onOpen }: { onOpen: () => void }) {
-  const s = useCommute()
-  const chapter = chaptersOf(s.topicId)[s.chapter]
-  const topic = STATIC_TOPICS.find((t) => t.id === s.topicId)
-  if (!topic || !chapter || (!s.playing && s.time === 0)) return null
-  return (
-    <motion.div className="mini-player" initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}>
-      <span className="mini-progress" style={{ width: `${(s.time / (chapter.duration || 1)) * 100}%` }} />
-      <button type="button" className="mini-text" onClick={onOpen}>
-        <strong>{chapter.title}</strong>
-        <span>{topic.title}</span>
-      </button>
-      <button type="button" className="mini-btn" onClick={() => toggle()} aria-label={s.playing ? 'Pause' : 'Play'}>
-        {s.playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-      </button>
-      <button type="button" className="mini-btn" onClick={() => next()} aria-label="Next chapter">
-        <SkipForward size={20} />
-      </button>
-    </motion.div>
   )
 }

@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { CheckCircle2, Clapperboard, ExternalLink, Library, Shapes } from 'lucide-react'
 import { useProgress } from '../learn/progress'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
-import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
+import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
+import { useLibrary } from '../topics/useLibrary'
 import { NotesShelf } from './Notes'
-import { RoadmapCard } from './Roadmap'
+import { RoadmapCard } from './RoadmapCard'
 import { SearchBox } from './Search'
 import { topicIcon } from './topicIcons'
 
@@ -20,7 +20,7 @@ export function Explore({
   onCategory,
   onRoadmap,
 }: {
-  onOpen: (topic: StaticTopic) => void
+  onOpen: (topic: TopicMeta) => void
   onNote: (id: string) => void
   category: string | null
   onCategory: (id: string | null) => void
@@ -40,12 +40,12 @@ export function Explore({
             <Shapes size={19} aria-hidden /> Topics
           </h2>
           <section className="explore-grid" aria-label="Topics">
-            {STATIC_TOPICS.map((t) => {
+            {TOPICS.map((t) => {
               const Icon = topicIcon(t.id)
               const done = progress.topics[t.id]?.completed
               return (
                 <button key={t.id} type="button" className={`explore-tile is-${t.difficulty.toLowerCase()}`} onClick={() => onOpen(t)}>
-                  {t.video ? <img src={t.video.replace(/\.mp4$/, '.jpg')} alt="" loading="lazy" /> : <Icon className="explore-tile-icon" size={34} aria-hidden />}
+                  {t.video ? <img src={smallCover(t.video)} alt="" loading="lazy" onError={fullCoverOnError} /> : <Icon className="explore-tile-icon" size={34} aria-hidden />}
                   {t.video && <Clapperboard className="explore-tile-reel" size={16} aria-label="Has a reel" />}
                   {done && <CheckCircle2 className="explore-tile-done" size={16} aria-label="Completed" />}
                   <span className="explore-tile-title">{t.title}</span>
@@ -61,7 +61,31 @@ export function Explore({
 }
 
 /** The whole syllabus: every guide and chapter, filterable by category, linking to the original. */
-function LibraryList({ category, onCategory, onOpen }: { category: string | null; onCategory: (id: string | null) => void; onOpen: (topic: StaticTopic) => void }) {
+function LibraryList({ category, onCategory, onOpen }: { category: string | null; onCategory: (id: string | null) => void; onOpen: (topic: TopicMeta) => void }) {
+  const lib = useLibrary()
+  if (!lib) {
+    return (
+      <section className="library home-section" id="library" aria-label="Library" aria-busy="true">
+        <h2>
+          <Library size={20} /> Library
+        </h2>
+      </section>
+    )
+  }
+  return <LibraryGuides lib={lib} category={category} onCategory={onCategory} onOpen={onOpen} />
+}
+
+function LibraryGuides({
+  lib: { LIBRARY, sourceOf, topicForGuide },
+  category,
+  onCategory,
+  onOpen,
+}: {
+  lib: NonNullable<ReturnType<typeof useLibrary>>
+  category: string | null
+  onCategory: (id: string | null) => void
+  onOpen: (topic: TopicMeta) => void
+}) {
   // Phones start with a shorter list; "Show more" loads the rest.
   const [limit, setLimit] = useState(() => (window.innerWidth < 640 ? 24 : 60))
   const guides = category ? LIBRARY.guides.filter((g) => g.categories.includes(category)) : LIBRARY.guides
@@ -88,7 +112,7 @@ function LibraryList({ category, onCategory, onOpen }: { category: string | null
       </div>
       <ul className="guides">
         {guides.slice(0, limit).map((g) => {
-          const covered = topicForGuide(STATIC_TOPICS, g.slug)
+          const covered = topicForGuide(TOPICS, g.slug)
           return (
             <li key={g.slug} className="guide">
               <a href={g.url} target="_blank" rel="noreferrer">

@@ -4,6 +4,7 @@ import type { Progress } from './progress'
 import { lessonTopics, LESSONS, next as nextChapter, playTopic, toggle as toggleLesson } from './commute'
 import { planToday } from './today'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 import { nextStep, ROADMAP } from './roadmap'
 
 // The voice assistant's "brain", with no AI: a few commands it recognises by
@@ -15,7 +16,7 @@ export interface AssistantContext {
   /** The topic on screen, if any. */
   topic: StaticTopic | null
   progress: Progress
-  open: (topic: StaticTopic | null) => void
+  open: (topic: TopicMeta | null) => void
   openPage: (page: 'quiz' | 'glossary' | 'listen' | 'roadmap') => void
 }
 

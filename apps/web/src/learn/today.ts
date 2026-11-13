@@ -1,4 +1,4 @@
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 import { type Progress, readiness, videoFraction } from './progress'
 
 // "What should I study today?" without AI: a few plain rules over the learner's
@@ -6,7 +6,7 @@ import { type Progress, readiness, videoFraction } from './progress'
 // difficulty, and when everything is done, practise.
 
 export interface TodayPlan {
-  topic: StaticTopic | null
+  topic: TopicMeta | null
   headline: string
   reason: string
   steps: string[]
@@ -16,7 +16,7 @@ export interface TodayPlan {
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const
 
-function nextSteps(topic: StaticTopic, progress: Progress): string[] {
+function nextSteps(topic: TopicMeta, progress: Progress): string[] {
   const p = progress.topics[topic.id]
   const steps: string[] = []
   const unread = topic.explanation.sections.findIndex((_, i) => !p?.sectionsRead?.includes(i))
@@ -36,8 +36,8 @@ function greeting(): string {
   return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 }
 
-export function planToday(topics: StaticTopic[], progress: Progress, quizTotal: number): TodayPlan {
-  const p = (t: StaticTopic) => progress.topics[t.id]
+export function planToday(topics: TopicMeta[], progress: Progress, quizTotal: number): TodayPlan {
+  const p = (t: TopicMeta) => progress.topics[t.id]
 
   const started = topics
     .filter((t) => p(t)?.lastOpenedAt && !p(t)?.completed)

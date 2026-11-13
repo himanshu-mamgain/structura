@@ -1,25 +1,28 @@
 import { useState } from 'react'
 import { ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
 import { useNotes } from '../learn/notes'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
-import { categoryTitle, LIBRARY } from '../topics/library'
+import { TOPICS, type TopicMeta } from '../topics/catalog'
+import { useLibrary } from '../topics/useLibrary'
 import { searchNotes } from './Notes'
 import { topicIcon } from './topicIcons'
 
 // Search over the interactive topics, the owner's Notion notes and the library's guides. Explore shows
 // the results in the page; the desktop app bar shows them in a dropdown.
 
-export function search(query: string) {
+export function search(query: string, library?: ReturnType<typeof useLibrary>) {
   const q = query.trim().toLowerCase()
   if (!q) return { topics: [], guides: [] }
   return {
-    topics: STATIC_TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty}`.toLowerCase().includes(q)),
-    guides: LIBRARY.guides.filter((g) => `${g.title} ${g.tags.join(' ')}`.toLowerCase().includes(q)).slice(0, 8),
+    topics: TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty}`.toLowerCase().includes(q)),
+    // Guides join the results as soon as the library has loaded.
+    guides: library ? library.LIBRARY.guides.filter((g) => `${g.title} ${g.tags.join(' ')}`.toLowerCase().includes(q)).slice(0, 8) : [],
   }
 }
 
-function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t: StaticTopic) => void; onNote?: (id: string) => void; onDone: () => void }) {
-  const { topics, guides } = search(query)
+function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t: TopicMeta) => void; onNote?: (id: string) => void; onDone: () => void }) {
+  // Only load the library once there is something to search for.
+  const library = useLibrary(Boolean(query.trim()))
+  const { topics, guides } = search(query, library)
   const notesState = useNotes()
   const notes = onNote && notesState.status === 'ready' ? searchNotes(notesState.index, query) : []
   if (!topics.length && !guides.length && !notes.length) return null
@@ -70,7 +73,7 @@ function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t:
             </span>
             <span className="search-result-text">
               <strong>{g.title}</strong>
-              <span>Guide · {g.categories.map(categoryTitle).join(', ')}</span>
+              <span>Guide · {g.categories.map(library!.categoryTitle).join(', ')}</span>
             </span>
           </a>
         </li>
@@ -91,7 +94,7 @@ export function SearchBox({
   onQuery,
   className = '',
 }: {
-  onOpen: (t: StaticTopic) => void
+  onOpen: (t: TopicMeta) => void
   onNote?: (id: string) => void
   inline?: boolean
   query?: string
@@ -102,7 +105,7 @@ export function SearchBox({
   const query = controlled ?? own
   const setQuery = onQuery ?? setOwn
   const first = search(query).topics[0]
-  const pick = (t: StaticTopic) => {
+  const pick = (t: TopicMeta) => {
     setQuery('')
     onOpen(t)
   }
