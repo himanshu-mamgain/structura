@@ -1298,3 +1298,30 @@ button {
   width: 32px;
   height: 32px;
 }
+
+/* A topic result: the row opens the topic, the Read chip opens its article. */
+.search-results li.search-topic {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-results li.search-topic > button:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-results button.search-read {
+  flex: none;
+  gap: 6px;
+  width: auto;
+  min-height: 34px;
+  margin-right: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card-2);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}

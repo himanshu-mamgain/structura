@@ -176,7 +176,7 @@ export default function App() {
           </button>
           <Tabs current={tab} onTab={onTab} className="appbar-tabs" />
           {/* Explore has its own, bigger search. */}
-          {route.page !== 'explore' && <SearchBox onOpen={open} onNote={openNote} className="appbar-search" />}
+          {route.page !== 'explore' && <SearchBox onOpen={open} onRead={openRead} onNote={openNote} className="appbar-search" />}
           <InstallButton />
           <NotificationBell
             onOpen={(url) => {
@@ -220,7 +220,7 @@ export default function App() {
             ) : route.page === 'roadmap' ? (
               <Roadmap onOpen={open} onRead={openRead} />
             ) : route.page === 'explore' ? (
-              <Explore onOpen={open} onNote={openNote} category={route.category} onCategory={openCategory} onRoadmap={() => openPage('roadmap')} />
+              <Explore onOpen={open} onRead={openRead} onNote={openNote} category={route.category} onCategory={openCategory} onRoadmap={() => openPage('roadmap')} />
             ) : reels ? (
               <Reels start={route.reel} onOpen={open} />
             ) : (
