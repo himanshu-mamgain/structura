@@ -132,10 +132,10 @@ export const ROADMAP: RoadmapPart[] = [
     tagline: 'Infrastructure as code',
     why: 'Learn it after you\'ve clicked through AWS once, so you know what you\'re describing.',
     steps: [
-      { id: 'tf-basics', title: 'Providers, resources, variables, outputs and state', detail: 'How plan and apply turn code into cloud resources.', guides: ['how-does-terraform-turn-code-into-cloud', 'a-cheatsheet-on-infrastructure-as-code-landscape'] },
-      { id: 'tf-state', title: 'Remote state with locking', detail: 'Keep state in S3 with a lock, so two people can never apply at once.', guides: ['how-does-terraform-turn-code-into-cloud'] },
-      { id: 'tf-modules', title: 'Modules', detail: 'Use terraform-aws-vpc, terraform-aws-alb and terraform-aws-ecs instead of writing everything.', guides: ['tf-aws-vpc', 'tf-aws-alb', 'tf-aws-ecs'] },
-      { id: 'tf-practice', title: 'Rebuild the full-stack ECS sample from its Terraform', detail: 'Plan it, read every resource it creates, apply it, then destroy it.', practice: true, guides: ['aws-ecs-fullstack-sample', 'aws-ecs-fullstack-modules'] },
+      { id: 'tf-basics', level: 'Basics', title: 'Providers, resources, variables, outputs and state', detail: 'How plan and apply turn code into cloud resources, in-place vs replace, drift, and why state matters.', topic: 'terraform-basics', guides: ['how-does-terraform-turn-code-into-cloud', 'a-cheatsheet-on-infrastructure-as-code-landscape'] },
+      { id: 'tf-state', level: 'Intermediate', title: 'Remote state with locking', detail: 'Keep state in S3 with a lock, so two people can never apply at once.', topic: 'terraform-state', guides: ['how-does-terraform-turn-code-into-cloud'] },
+      { id: 'tf-modules', level: 'Advanced', title: 'Modules and environments', detail: 'Versioned modules, a root per environment, promotion from dev to prod, and guards against destroy.', topic: 'terraform-modules', guides: ['tf-aws-vpc', 'tf-aws-alb', 'tf-aws-ecs'] },
+      { id: 'tf-practice', level: 'Advanced', title: 'Rebuild the full-stack ECS sample from its Terraform', detail: 'Plan it, read every resource it creates, apply it, then destroy it.', practice: true, guides: ['aws-ecs-fullstack-sample', 'aws-ecs-fullstack-modules'] },
     ],
   },
   {

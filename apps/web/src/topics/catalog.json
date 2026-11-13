@@ -2190,5 +2190,136 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "terraform-basics",
+  "title": "Terraform Basics: Plan, Apply, State",
+  "blurb": "Infrastructure as code: resources, the dependency graph, in-place vs replace, drift, and why the state file matters",
+  "difficulty": "Beginner",
+  "guides": [
+   "how-does-terraform-turn-code-into-cloud",
+   "a-cheatsheet-on-infrastructure-as-code-landscape",
+   "tf-aws-vpc-simple",
+   "aws-ecs-fullstack-modules"
+  ],
+  "explanation": {
+   "summary": "Terraform turns .tf files describing the infrastructure you want into API calls that make it so. It keeps a state file mapping each resource in the code to a real one, refreshes it, diffs the code against it, and shows a plan: create, update in place, replace or destroy. Apply follows the dependency graph and writes the new state.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "terraform-state",
+  "title": "Terraform Remote State and Locking",
+  "blurb": "Why state lives in S3, how a lock stops two applies colliding, and what orphans and stale locks look like",
+  "difficulty": "Intermediate",
+  "guides": [
+   "how-does-terraform-turn-code-into-cloud",
+   "aws-ecs-fullstack-modules",
+   "tf-aws-vpc",
+   "a-cheatsheet-on-infrastructure-as-code-landscape"
+  ],
+  "explanation": {
+   "summary": "Terraform's state file is its memory of what it manages, so a team must share one copy and never write it twice at once. A remote backend such as S3 shares it, versioning keeps every revision, and a lock makes concurrent runs wait. When runs die, locks and orphaned resources need deliberate cleanup.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "terraform-modules",
+  "title": "Terraform Modules and Environments",
+  "blurb": "Copy-paste vs workspaces vs versioned modules: blast radius, promotion from dev to prod, and guarding against destroy",
+  "difficulty": "Advanced",
+  "guides": [
+   "tf-aws-ecs-service-module",
+   "tf-aws-vpc",
+   "tf-aws-alb",
+   "aws-ecs-fullstack-modules",
+   "tf-aws-ecs",
+   "how-does-terraform-turn-code-into-cloud"
+  ],
+  "explanation": {
+   "summary": "Terraform modules package resources behind input variables and outputs, so one component can be reused across environments. How you lay out environments decides the blast radius of every change: copied folders drift, workspaces share one code version, and versioned modules with a root configuration and state per environment let changes be promoted and mistakes contained.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]

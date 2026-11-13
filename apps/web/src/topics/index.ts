@@ -34,6 +34,9 @@ import { ragPipeline } from './rag-pipeline'
 import { rateLimiter } from './rate-limiter'
 import { rbac } from './rbac'
 import { salesRank } from './sales-rank'
+import { terraformBasics } from './terraform-basics'
+import { terraformModules } from './terraform-modules'
+import { terraformState } from './terraform-state'
 import { scalingAws } from './scaling-aws'
 import { searchAutocomplete } from './search-autocomplete'
 import { socialGraph } from './social-graph'
@@ -95,6 +98,9 @@ const BASE_TOPICS: StaticTopic[] = [
   awsDisasterRecovery,
   kafkaBasics,
   kafkaReliability,
+  terraformBasics,
+  terraformState,
+  terraformModules,
 ]
 
 /**

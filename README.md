@@ -71,6 +71,9 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Disaster Recovery Across AWS Regions | Advanced | | | |
 | Kafka Basics: Topics, Partitions, Groups | Beginner | | | |
 | Kafka Reliability: Durability, Exactly-Once | Advanced | | | |
+| Terraform Basics: Plan, Apply, State | Beginner | | | |
+| Terraform Remote State and Locking | Intermediate | | | |
+| Terraform Modules and Environments | Advanced | | | |
 
 ## Getting started
 
