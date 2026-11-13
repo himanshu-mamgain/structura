@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BookOpen, ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
 import { useNotes } from '../learn/notes'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
@@ -100,6 +100,13 @@ function Results({
   )
 }
 
+// Set by the app bar's search button just before it opens Explore, so Explore's field
+// takes the focus once, when it appears.
+let focusOnMount = false
+export function focusSearchNext() {
+  focusOnMount = true
+}
+
 /**
  * The search field. `inline` (Explore) lists results under it in the page;
  * otherwise (the desktop app bar) they drop down over the content.
@@ -122,6 +129,13 @@ export function SearchBox({
   className?: string
 }) {
   const [own, setOwn] = useState('')
+  const input = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (inline && focusOnMount) {
+      focusOnMount = false
+      input.current?.focus()
+    }
+  }, [inline])
   const query = controlled ?? own
   const setQuery = onQuery ?? setOwn
   const first = search(query).topics[0]
@@ -141,6 +155,7 @@ export function SearchBox({
       <div className="search-field">
         <SearchIcon size={17} aria-hidden />
         <input
+          ref={input}
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
