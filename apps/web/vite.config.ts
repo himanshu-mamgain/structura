@@ -79,7 +79,7 @@ export default defineConfig({
           },
         ],
         // Files under /licenses and /videos are real files, not app routes.
-        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//, /^\/notion\//, /^\/api\//],
+        navigateFallbackDenylist: [/^\/licenses\//, /^\/videos\//, /^\/notion\//, /^\/api\//, /^\/voice-samples\//],
       },
     }),
   ],

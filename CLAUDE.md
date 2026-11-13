@@ -149,6 +149,17 @@ uv pip install --python .venv "kokoro>=0.9.4" soundfile pip
 The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
 `apps/video/scripts/measure_voices.py`), loudness -14 LUFS.
 
+**Sarvam Bulbul v3 (Indian English) is the narration voice going forward**, chosen by the
+owner. It is a hosted API, so it is used only to generate audio ahead of time, never by the
+app at runtime. This cloud workspace can't reach `api.sarvam.ai`, so narration is made by the
+**Narrate with Sarvam Bulbul** GitHub Action (`.github/workflows/narrate.yml`, run by hand;
+needs the `SARVAM_API_KEY` repository secret). It voices `samples` (a passage per speaker at
+`/voice-samples/index.html` on the PR's preview, for picking a narrator; close that PR),
+`lessons`, `videos` or `both`, for the topics given (empty = all), and opens a PR with the
+audio. The engine is `apps/video/tts/sarvam.mjs` (clips cached in `apps/video/.cache/sarvam`);
+locally, `TTS_ENGINE=sarvam TTS_VOICE=<speaker> TTS_PACE=1` (or `--engine=sarvam`) switches
+`voice.mjs`, `render-topics.ts` and `lessons.ts` to it. `SARVAM_API_URL` points it at a mock.
+
 - **Topic videos (automatic):** every topic without a hand-made video gets one.
   After adding a topic: `npm run export:videos -w @structura/web`, then
   `npm run topics -w @structura/video` (voices, renders `public/videos/<id>.mp4`,

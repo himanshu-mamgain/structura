@@ -1,4 +1,5 @@
-// Makes the automatic topic videos end to end: voice (Kokoro), render the MP4,
+// Makes the automatic topic videos end to end: voice (Kokoro, or Sarvam Bulbul with
+// TTS_ENGINE=sarvam, see scripts/voice.mjs), render the MP4,
 // take a thumbnail, compute chapters, and register each video with its topic
 // in the app (apps/web/src/topics/videos.json).
 //
@@ -39,8 +40,10 @@ for (const id of ids) {
   const manifestPath = join(root, `public/voice/${video}/manifest.json`)
   console.log(`\n▶ ${id}`)
 
-  // 1. Voice, unless it's up to date with the narration.
-  if (!existsSync(manifestPath) || statSync(manifestPath).mtimeMs < statSync(narrationPath).mtimeMs) run('node', ['scripts/voice.mjs', video])
+  // 1. Voice, unless it's up to date with the narration and in the voice asked for.
+  const wantedVoice = process.env.TTS_ENGINE === 'sarvam' ? `sarvam:${process.env.TTS_VOICE ?? 'shubh'}` : null
+  const voicedWith = existsSync(manifestPath) ? (JSON.parse(readFileSync(manifestPath, 'utf8')) as { voice?: string }).voice : null
+  if (!existsSync(manifestPath) || statSync(manifestPath).mtimeMs < statSync(narrationPath).mtimeMs || (wantedVoice && voicedWith !== wantedVoice)) run('node', ['scripts/voice.mjs', video])
 
   // 2. Render.
   run('npx', ['remotion', 'render', 'src/index.ts', `Topic-${id}`, `../web/public/videos/${id}.mp4`])
