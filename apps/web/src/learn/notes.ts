@@ -200,6 +200,8 @@ const ALIASES: Record<string, string[]> = {
   'aws-basics': ['aws', 'cloud', 'ec2', 'lambda', 'serverless', 'availability zone', 'region', 'auto scaling', 'autoscaling'],
   'aws-iam': ['iam', 'least privilege', 'sts', 'assume role', 'access key', 'service control polic', 'permissions boundar'],
   'aws-disaster-recovery': ['disaster recovery', 'rto', 'rpo', 'backup', 'failover', 'multi-region', 'multi region', 'pilot light', 'warm standby'],
+  'kafka-basics': ['kafka', 'partition', 'consumer group', 'offset'],
+  'kafka-reliability': ['isr', 'in-sync replica', 'exactly once', 'exactly-once', 'unclean', 'idempotent producer', 'rebalanc'],
   'redis-basics': ['redis', 'data type', 'sorted set', 'leaderboard', 'ttl'],
   'redis-persistence': ['persistence', 'replication', 'sentinel', 'append-only', 'snapshot', 'failover', 'split brain', 'split-brain'],
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],

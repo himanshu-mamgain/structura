@@ -18,6 +18,8 @@ import { awsBasics } from './aws-basics'
 import { awsDisasterRecovery } from './aws-disaster-recovery'
 import { awsIam } from './aws-iam'
 import { kafka } from './kafka'
+import { kafkaBasics } from './kafka-basics'
+import { kafkaReliability } from './kafka-reliability'
 import { redisBasics } from './redis-basics'
 import { redisPersistence } from './redis-persistence'
 import { keyValueStore } from './key-value-store'
@@ -91,6 +93,8 @@ const BASE_TOPICS: StaticTopic[] = [
   awsBasics,
   awsIam,
   awsDisasterRecovery,
+  kafkaBasics,
+  kafkaReliability,
 ]
 
 /**

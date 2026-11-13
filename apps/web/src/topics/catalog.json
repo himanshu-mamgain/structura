@@ -2102,5 +2102,93 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "kafka-basics",
+  "title": "Kafka Basics: Topics, Partitions, Groups",
+  "blurb": "Events in an append-only log: keys pick partitions, consumer groups share them, offsets let anyone replay",
+  "difficulty": "Beginner",
+  "guides": [
+   "the-ultimate-kafka-101-you-cannot-miss",
+   "why-is-kafka-fast",
+   "top-5-kafka-use-cases",
+   "types-of-message-queue",
+   "ref-apache-kafka-docs",
+   "ref-kafka-nodejs-tutorial"
+  ],
+  "explanation": {
+   "summary": "Kafka stores events in topics: append-only logs split into partitions. A key's hash picks the partition, which keeps each key's events in order. Consumers in a group share the partitions, one consumer per partition, and save their position as offsets, so many groups can read the same events, and any of them can rewind.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "kafka-reliability",
+  "title": "Kafka Reliability: Durability, Exactly-Once",
+  "blurb": "ISR, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances",
+  "difficulty": "Advanced",
+  "guides": [
+   "can-kafka-lose-messages",
+   "ref-apache-kafka-docs",
+   "why-is-kafka-fast",
+   "the-ultimate-kafka-101-you-cannot-miss"
+  ],
+  "explanation": {
+   "summary": "Kafka's guarantees come from configuration. Replication with acks=all and min.insync.replicas decides which confirmed messages survive a broker failure; unclean leader election chooses between availability and data; idempotent producers remove duplicates from retries; and transactions make read-process-write exactly-once within Kafka.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]

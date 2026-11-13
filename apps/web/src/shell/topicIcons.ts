@@ -1,4 +1,4 @@
-import { Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Crown, DatabaseBackup, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, KeyRound, Layers, LifeBuoy, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, CopyCheck, Crown, DatabaseBackup, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -43,6 +43,8 @@ const ICONS: Record<string, LucideIcon> = {
   'aws-basics': Cloud,
   'aws-iam': KeyRound,
   'aws-disaster-recovery': LifeBuoy,
+  'kafka-basics': ListOrdered,
+  'kafka-reliability': CopyCheck,
   'load-balancer': Scale,
 }
 
