@@ -198,6 +198,7 @@ const ALIASES: Record<string, string[]> = {
   'ai-agent': ['agent', 'tool call', 'function calling', 'prompt injection', 'mcp'],
   'vector-database': ['vector', 'embedding', 'similarity search', 'nearest neighbo', 'hnsw', 'pgvector'],
   'aws-basics': ['aws', 'cloud', 'ec2', 'lambda', 'serverless', 'availability zone', 'region', 'auto scaling', 'autoscaling'],
+  'aws-iam': ['iam', 'least privilege', 'sts', 'assume role', 'access key', 'service control polic', 'permissions boundar'],
   'redis-basics': ['redis', 'data type', 'sorted set', 'leaderboard', 'ttl'],
   'redis-persistence': ['persistence', 'replication', 'sentinel', 'append-only', 'snapshot', 'failover', 'split brain', 'split-brain'],
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],

@@ -2016,5 +2016,48 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "aws-iam",
+  "title": "AWS IAM: Who Can Do What",
+  "blurb": "Users, roles and JSON policies, and how AWS decides: explicit deny, SCPs, resource policies and permissions boundaries",
+  "difficulty": "Beginner",
+  "guides": [
+   "scale-scalable-iam-architecture-to-secure-access-to-100-aws-accounts-at-segm",
+   "scale-aardvark-and-repokid-aws-least-privilege-for-distributed-high-velocity",
+   "scale-detecting-credential-compromise-in-aws-at-netflix",
+   "what-are-the-most-important-aws-services-to-learn"
+  ],
+  "explanation": {
+   "summary": "IAM (Identity and Access Management) decides whether each AWS API call is allowed. Every call is signed by an identity: a user, or a role with temporary credentials. AWS gathers the policies that apply (identity policies, resource policies, permissions boundaries and organisation SCPs) and evaluates them: an explicit Deny anywhere wins, and without an Allow the answer is no.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]
