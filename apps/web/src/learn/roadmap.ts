@@ -80,10 +80,12 @@ export const ROADMAP: RoadmapPart[] = [
     tagline: 'Event streaming',
     why: 'How services talk without waiting for each other, and replay what happened.',
     steps: [
-      { id: 'kafka-basics', title: 'Topics, partitions, offsets and consumer groups', detail: 'How a log is split for scale and how consumers share it.', topic: 'kafka', guides: ['the-ultimate-kafka-101-you-cannot-miss', 'why-is-kafka-fast'] },
-      { id: 'kafka-delivery', title: 'Delivery guarantees and idempotent consumers', detail: 'At-least-once delivery means duplicates; idempotency keys make them harmless.', topic: 'payment-idempotency', guides: ['can-kafka-lose-messages'] },
-      { id: 'kafka-choose', title: 'Kafka, Redis Streams or a simple queue?', detail: 'When a log beats a queue, and when it is overkill.', guides: ['types-of-message-queue', 'how-do-message-queue-architectures-evolve', 'top-5-kafka-use-cases'] },
-      { id: 'kafka-practice', title: 'Run Kafka in Docker Compose with a Node producer and consumer', detail: 'Publish an event from your app and process it in a second service.', practice: true, guides: ['ref-kafka-nodejs-tutorial'] },
+      { id: 'kafka-basics', level: 'Basics', title: 'Topics, partitions, offsets and consumer groups', detail: 'Events in an append-only log: keys pick partitions, a group shares them, offsets let you replay.', topic: 'kafka-basics', guides: ['the-ultimate-kafka-101-you-cannot-miss', 'why-is-kafka-fast'] },
+      { id: 'kafka-pipeline', level: 'Intermediate', title: 'Replication and a real pipeline', detail: 'Brokers, replicas, acks, two consumer groups and a dead-letter topic, end to end.', topic: 'kafka' },
+      { id: 'kafka-delivery', level: 'Intermediate', title: 'Delivery guarantees and idempotent consumers', detail: 'At-least-once delivery means duplicates; idempotency keys make them harmless.', topic: 'payment-idempotency', guides: ['can-kafka-lose-messages'] },
+      { id: 'kafka-choose', level: 'Intermediate', title: 'Kafka, Redis Streams or a simple queue?', detail: 'When a log beats a queue, and when it is overkill.', guides: ['types-of-message-queue', 'how-do-message-queue-architectures-evolve', 'top-5-kafka-use-cases'] },
+      { id: 'kafka-practice', level: 'Intermediate', title: 'Run Kafka in Docker Compose with a Node producer and consumer', detail: 'Publish an event from your app and process it in a second service.', practice: true, guides: ['ref-kafka-nodejs-tutorial'] },
+      { id: 'kafka-reliability', level: 'Advanced', title: 'Durability and exactly-once', detail: 'ISR and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances.', topic: 'kafka-reliability', guides: ['can-kafka-lose-messages'] },
     ],
   },
   {

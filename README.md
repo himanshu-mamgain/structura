@@ -69,6 +69,8 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | AWS Basics: What the Cloud Is and Why | Beginner | | | |
 | AWS IAM: Who Can Do What | Beginner | | | |
 | Disaster Recovery Across AWS Regions | Advanced | | | |
+| Kafka Basics: Topics, Partitions, Groups | Beginner | | | |
+| Kafka Reliability: Durability, Exactly-Once | Advanced | | | |
 
 ## Getting started
 
