@@ -57,7 +57,7 @@ export function Home({
         </p>
         <div className="hero-actions">
           {/* New learners start with the roadmap; everyone else carries on where they were. */}
-          <button type="button" className="btn btn-primary" onClick={() => (recent[0] ? onOpen(recent[0]) : onPage('roadmap'))}>
+          <button type="button" className="btn btn-primary btn-wrap" onClick={() => (recent[0] ? onOpen(recent[0]) : onPage('roadmap'))}>
             <Play size={16} fill="currentColor" /> {recent[0] ? `Continue ${recent[0].title}` : 'Start the roadmap'}
           </button>
           <button type="button" className="btn" onClick={() => onPage('quiz')}>
