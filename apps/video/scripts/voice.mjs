@@ -2,7 +2,10 @@
 // plus a manifest of their lengths (and, for Kokoro voices, when each word is
 // spoken) that the video uses to time captions and scenes. Offline, no AI service.
 //
-// The engine depends on the narration file:
+// The engine depends on the narration file, unless --engine= (or TTS_ENGINE) says otherwise:
+//   - sarvam: Sarvam Bulbul v3 (tts/sarvam.mjs), an Indian English voice from Sarvam's
+//     API, generated ahead of time; needs SARVAM_API_KEY. --voice= (or TTS_VOICE) is the
+//     speaker (default shubh), TTS_PACE the pace (default 1)
 //   - "engine": "kokoro": Kokoro in Python (apps/video/.venv, scripts/kokoro_speak.py),
 //     every line in one model load (the generated topic videos use this)
 //   - otherwise a Kokoro voice id like "am_michael": Kokoro in Node (tts/kokoro.mjs),
@@ -12,6 +15,7 @@
 //   npm run voice -w @structura/video                        (every video)
 //   npm run voice -w @structura/video -- payment-idempotency (one video)
 //   npm run voice -w @structura/video -- --voice=am_fenrir   (another voice)
+//   npm run voice -w @structura/video -- topic-kafka --engine=sarvam --voice=aditya
 import { execFileSync, execSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -21,6 +25,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const voiceOverride = args.find((a) => a.startsWith('--voice='))?.slice('--voice='.length)
+const engineOverride = args.find((a) => a.startsWith('--engine='))?.slice('--engine='.length) ?? process.env.TTS_ENGINE
 const named = args.filter((a) => !a.startsWith('--'))
 const videos = named.length ? named : readdirSync(join(root, 'src/narration')).filter((f) => f.endsWith('.json')).map((f) => basename(f, '.json'))
 
@@ -286,20 +291,43 @@ async function voiceWithKokoro(narration, voice, outDir, manifest) {
   })
 }
 
+// ─── Sarvam Bulbul ───────────────────────────────────────────────────────────
+
+/** Sarvam Bulbul v3: one request per line (cached), mastered like the Kokoro voices. */
+async function voiceWithSarvam(narration, speaker, outDir, manifest) {
+  const { speak, SAMPLE_RATE } = await import(pathToFileURL(join(root, 'tts/sarvam.mjs')).href)
+  const pace = Number(process.env.TTS_PACE ?? 1)
+  const lines = Object.values(narration.scenes).flat()
+  const clips = []
+  for (const line of lines) {
+    const spokenText = line.say ?? line.text
+    const audio = await speak(spokenText, { speaker, pace, cacheDir: join(root, '.cache/sarvam') })
+    clips.push(audio)
+    console.log(`${line.id.padEnd(14)} ${(audio.length / SAMPLE_RATE).toFixed(2)}s  ${spokenText}`)
+  }
+  manifest.pace = pace
+  master(clips, SAMPLE_RATE).forEach((audio, i) => {
+    writeFileSync(join(outDir, `${lines[i].id}.wav`), wavFile(audio, SAMPLE_RATE))
+    manifest.lines[lines[i].id] = audio.length / SAMPLE_RATE
+  })
+}
+
 async function voiceVideo(video) {
   const narration = JSON.parse(readFileSync(join(root, 'src/narration', `${video}.json`), 'utf8'))
-  const voice = voiceOverride ?? narration.voice
+  const engine = engineOverride ?? narration.engine
+  const voice = engine === 'sarvam' ? (voiceOverride ?? process.env.TTS_VOICE ?? 'shubh') : (voiceOverride ?? narration.voice)
   const outDir = join(root, 'public/voice', video)
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
-  const manifest = { voice, lines: {} }
-  if (narration.engine === 'kokoro') voiceWithPython(narration, voice, outDir, manifest, video)
+  const manifest = { voice: engine === 'sarvam' ? `sarvam:${voice}` : voice, lines: {} }
+  if (engine === 'sarvam') await voiceWithSarvam(narration, voice, outDir, manifest)
+  else if (engine === 'kokoro') voiceWithPython(narration, voice, outDir, manifest, video)
   else if (isKokoroVoice(voice)) await voiceWithKokoro(narration, voice, outDir, manifest)
   else voiceWithWindows(narration, voice, outDir, manifest)
   writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
   console.log(`
-${video}: ${Object.keys(manifest.lines).length} lines voiced by ${voice} → public/voice/${video}/
+${video}: ${Object.keys(manifest.lines).length} lines voiced by ${manifest.voice} → public/voice/${video}/
 `)
 }
 

@@ -5,13 +5,14 @@
 //   npx tsx scripts/lessons.ts                  (every topic)
 //   npx tsx scripts/lessons.ts rbac uber-surge  (some topics)
 //   npx tsx scripts/lessons.ts --voice=am_michael
+//   npx tsx scripts/lessons.ts --engine=sarvam --voice=shubh rbac   (Sarvam Bulbul v3, needs SARVAM_API_KEY)
 //
 // Needs apps/video/.venv (Kokoro, see apps/video/scripts/kokoro_speak.py); ffmpeg is the one
 // bundled with Remotion. Voice: am_michael at 0.96 (see measure_voices.py); --voice / --speed override.
 import { execFileSync, spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { lessonChapters } from '../src/learn/lesson'
 import { STATIC_TOPICS } from '../src/topics'
 
@@ -21,12 +22,67 @@ const python = join(video, process.platform === 'win32' ? '.venv/Scripts/python.
 const args = process.argv.slice(2)
 // The target speaking profile: a male voice around 114 Hz, ~158 words a minute.
 // am_michael measures 121 Hz and 164 wpm at 1.0 (scripts/measure_voices.py), so 0.96 lands on ~158.
-const voice = args.find((a) => a.startsWith('--voice='))?.slice(8) ?? 'am_michael'
-const speed = Number(args.find((a) => a.startsWith('--speed='))?.slice(8) ?? 0.96)
+// --engine=sarvam (or TTS_ENGINE) voices with Sarvam Bulbul v3 instead: speaker from --voice
+// or TTS_VOICE (default shubh), pace from --speed or TTS_PACE (default 1).
+const engine = args.find((a) => a.startsWith('--engine='))?.slice(9) ?? process.env.TTS_ENGINE ?? 'kokoro'
+const sarvam = engine === 'sarvam'
+const voice = args.find((a) => a.startsWith('--voice='))?.slice(8) ?? (sarvam ? (process.env.TTS_VOICE ?? 'shubh') : 'am_michael')
+const speed = Number(args.find((a) => a.startsWith('--speed='))?.slice(8) ?? (sarvam ? (process.env.TTS_PACE ?? 1) : 0.96))
 const ffmpeg = join(web, '../../node_modules/@remotion', process.platform === 'win32' ? 'compositor-win32-x64-msvc/ffmpeg.exe' : 'compositor-linux-x64-gnu/ffmpeg')
 const wanted = args.filter((a) => !a.startsWith('--'))
 const topics = wanted.length ? STATIC_TOPICS.filter((t) => wanted.includes(t.id)) : STATIC_TOPICS
 const manifestPath = join(web, 'src/learn/lessons.json')
+
+type Timings = Record<string, { duration: number; cues: { t: number; text: string }[] }>
+
+/** Kokoro in Python (apps/video/.venv): one WAV per chapter in out. */
+function voiceWithKokoro(chapters: ReturnType<typeof lessonChapters>, out: string, id: string): Timings {
+  const run = spawnSync(python, [join(video, 'scripts/lesson_speak.py'), '--voice', voice, '--speed', String(speed), '--out-dir', out], {
+    input: JSON.stringify({ chapters }),
+    encoding: 'utf8',
+    env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
+    stdio: ['pipe', 'pipe', 'inherit'],
+    maxBuffer: 64 * 1024 * 1024,
+  })
+  if (run.status !== 0) throw new Error(`Kokoro failed for ${id}`)
+  return JSON.parse(run.stdout.trim().split('\n').at(-1)!) as Timings
+}
+
+/** Sarvam Bulbul v3, sentence by sentence (cached), laid out like lesson_speak.py does. */
+async function voiceWithSarvam(chapters: ReturnType<typeof lessonChapters>, out: string): Promise<Timings> {
+  const { speak, encodeWav, SAMPLE_RATE } = await import(pathToFileURL(join(video, 'tts/sarvam.mjs')).href)
+  const GAP = 0.28 // silence between sentences, seconds, as in lesson_speak.py
+  const timings: Timings = {}
+  for (const chapter of chapters) {
+    const parts: Float32Array[] = []
+    const cues: { t: number; text: string }[] = []
+    let t = 0
+    for (const item of chapter.items) {
+      let silence: number
+      if ('pause' in item) silence = item.pause
+      else {
+        const audio: Float32Array = await speak(item.say, { speaker: voice, pace: speed, cacheDir: join(video, '.cache/sarvam') })
+        cues.push({ t: Math.round(t * 1000) / 1000, text: item.say })
+        parts.push(audio)
+        t += audio.length / SAMPLE_RATE
+        silence = GAP
+      }
+      const gap = new Float32Array(Math.round(silence * SAMPLE_RATE))
+      parts.push(gap)
+      t += gap.length / SAMPLE_RATE
+    }
+    const all = new Float32Array(parts.reduce((n, p) => n + p.length, 0) || 1)
+    let at = 0
+    for (const p of parts) {
+      all.set(p, at)
+      at += p.length
+    }
+    writeFileSync(join(out, `${chapter.id}.wav`), encodeWav(all, SAMPLE_RATE))
+    timings[chapter.id] = { duration: Math.round((all.length / SAMPLE_RATE) * 100) / 100, cues }
+    console.log(`  ${chapter.id.padEnd(14)} ${timings[chapter.id].duration.toFixed(1).padStart(6)}s`)
+  }
+  return timings
+}
 
 interface ChapterAudio {
   id: string
@@ -39,7 +95,7 @@ interface ChapterAudio {
 const manifest: { voice: string; speed?: number; topics: Record<string, { chapters: ChapterAudio[]; duration: number }> } = existsSync(manifestPath)
   ? JSON.parse(readFileSync(manifestPath, 'utf8'))
   : { voice, topics: {} }
-manifest.voice = voice
+manifest.voice = sarvam ? `sarvam:${voice}` : voice
 manifest.speed = speed
 
 for (const topic of topics) {
@@ -50,15 +106,7 @@ for (const topic of topics) {
   mkdirSync(out, { recursive: true })
   console.log(`\n${topic.title}`)
 
-  const run = spawnSync(python, [join(video, 'scripts/lesson_speak.py'), '--voice', voice, '--speed', String(speed), '--out-dir', out], {
-    input: JSON.stringify({ chapters }),
-    encoding: 'utf8',
-    env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
-    stdio: ['pipe', 'pipe', 'inherit'],
-    maxBuffer: 64 * 1024 * 1024,
-  })
-  if (run.status !== 0) throw new Error(`Kokoro failed for ${topic.id}`)
-  const timings = JSON.parse(run.stdout.trim().split('\n').at(-1)!) as Record<string, { duration: number; cues: ChapterAudio['cues'] }>
+  const timings = sarvam ? await voiceWithSarvam(chapters, out) : voiceWithKokoro(chapters, out, topic.id)
 
   const audio: ChapterAudio[] = []
   for (const [i, chapter] of chapters.entries()) {
