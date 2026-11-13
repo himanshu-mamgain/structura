@@ -5145,3 +5145,13 @@ button.roadmap-step-title:hover {
     display: inline;
   }
 }
+
+/* Long identifiers in inline code (a CodeDeploy config name, an ARN) wrap instead of
+   pushing the page wider than a phone. */
+.story p code,
+.story li code,
+.story blockquote code,
+.reader p code,
+.reader li code {
+  overflow-wrap: anywhere;
+}
