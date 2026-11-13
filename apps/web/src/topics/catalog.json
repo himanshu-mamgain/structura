@@ -1881,5 +1881,95 @@
    ]
   },
   "simulator": true
+ },
+ {
+  "id": "redis-basics",
+  "title": "Redis Basics: Data Types",
+  "blurb": "Strings, hashes, lists, sets and sorted sets, with TTLs and atomic commands, by real use case",
+  "difficulty": "Beginner",
+  "guides": [
+   "the-ultimate-redis-101",
+   "how-can-redis-be-used",
+   "why-is-redis-so-fast",
+   "memcached-vs-redis",
+   "scale-scaling-job-queue-with-redis-at-slack",
+   "scale-storing-hundreds-of-millions-of-simple-key-value-pairs-in-redis-at-ins"
+  ],
+  "explanation": {
+   "summary": "Redis is an in-memory data store. Instead of plain values, it stores data types (strings, hashes, lists, sets and sorted sets) with commands that change them in place, and it runs one command at a time, so each command is atomic. Keys can expire on their own.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "redis-persistence",
+  "title": "Redis Persistence and Replication",
+  "blurb": "RDB snapshots, the AOF, replicas, Sentinel failover and split brain: what each failure really loses",
+  "difficulty": "Advanced",
+  "guides": [
+   "how-does-redis-persist-data",
+   "how-do-big-keys-impact-redis-persistence",
+   "how-redis-architecture-evolve",
+   "scale-replication",
+   "scale-moving-persistent-data-out-of-redis-at-github",
+   "scale-redis-fleet-at-heroku"
+  ],
+  "explanation": {
+   "summary": "Redis keeps data in memory, so what survives a failure depends on two separate choices: persistence (RDB snapshots and the append-only file) decides what a restarted node still has, and replication with Sentinel decides whether another node takes over, and how fast. Replication is asynchronous, so failovers and network splits can lose acknowledged writes.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]

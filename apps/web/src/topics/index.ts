@@ -15,6 +15,8 @@ import { llmGateway } from './llm-gateway'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
 import { kafka } from './kafka'
+import { redisBasics } from './redis-basics'
+import { redisPersistence } from './redis-persistence'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { mint } from './mint'
@@ -81,6 +83,8 @@ const BASE_TOPICS: StaticTopic[] = [
   awsEcsFargate,
   awsEcsFullstack,
   loadBalancer,
+  redisBasics,
+  redisPersistence,
 ]
 
 /**
