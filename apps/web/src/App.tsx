@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { BookA, Boxes, Clapperboard, GraduationCap, Headphones, House, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { board } from './board/store'
 import { InstallButton } from './pwa/InstallButton'
+import { updateReady } from './pwa/updates'
 import { AppSwitcher } from './shell/AppSwitcher'
 import { Home } from './shell/Home'
 import { NotificationBell, useNotificationEngine } from './shell/Notifications'
@@ -112,6 +113,8 @@ export default function App() {
   function navigate(search: string) {
     const url = new URL(window.location.href)
     url.search = search
+    // A newer version took over while this page was open: load the next page fresh, in it.
+    if (updateReady()) return window.location.assign(url)
     window.history.pushState(null, '', url)
     setRoute(readRoute())
   }
