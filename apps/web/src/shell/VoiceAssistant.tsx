@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { AudioLines, Loader2, Mic, MicOff, Pause, Play, Send, Settings2, Sparkles, Square, X } from 'lucide-react'
-import { respond, type Reply } from '../learn/assistant'
+import type { Reply } from '../learn/assistant'
 import { useProgress } from '../learn/progress'
 import { pauseSpeaking, resumeSpeaking, speak, stopSpeaking, useNowSpeaking, useSpeechSettings } from '../learn/speech'
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
+import type { StaticTopic } from '../topics/types'
 import { VoiceSettings } from './VoiceGuide'
 
 // The voice assistant: always on screen as a floating orb, on every page. Ask
@@ -48,7 +49,7 @@ export function VoiceAssistant({
   openPage,
 }: {
   topic: StaticTopic | null
-  open: (topic: StaticTopic | null) => void
+  open: (topic: TopicMeta | null) => void
   openPage: (page: 'quiz' | 'glossary' | 'listen' | 'roadmap') => void
 }) {
   const [panel, setPanel] = useState(false)
@@ -67,11 +68,13 @@ export function VoiceAssistant({
     log.current?.scrollTo({ top: log.current.scrollHeight, behavior: 'smooth' })
   }, [turns, panel])
 
-  function ask(text: string) {
+  async function ask(text: string) {
     const question = text.trim()
     if (!question) return
     setDraft('')
     setHeard('')
+    // The assistant searches every topic's text, so it loads with the first question.
+    const { respond } = await import('../learn/assistant')
     const reply: Reply = respond(question, { topic, progress, open, openPage })
     setTurns((t) => [...t, { who: 'you', text: question }, ...(reply.say || reply.show ? [{ who: 'guide' as const, text: reply.show ?? reply.say, from: reply.from }] : [])])
     reply.act?.()
@@ -97,7 +100,7 @@ export function VoiceAssistant({
     }
     r.onend = () => {
       setListening(false)
-      if (final) ask(final)
+      if (final) void ask(final)
     }
     r.onerror = (e) => {
       setListening(false)
@@ -159,7 +162,7 @@ export function VoiceAssistant({
           </div>
           <div className="assistant-suggestions">
             {SUGGESTIONS.filter((s) => topic || !/walk|takeaway/i.test(s)).map((s) => (
-              <button key={s} type="button" onClick={() => ask(s)}>
+              <button key={s} type="button" onClick={() => void ask(s)}>
                 {s}
               </button>
             ))}
@@ -168,7 +171,7 @@ export function VoiceAssistant({
             className="assistant-input"
             onSubmit={(e) => {
               e.preventDefault()
-              ask(draft)
+              void ask(draft)
             }}
           >
             {Recognizer && (

@@ -1,0 +1,1885 @@
+[
+ {
+  "id": "url-shortener",
+  "title": "URL Shortener",
+  "blurb": "Read-heavy service: ID generation, caching, redirects, analytics",
+  "difficulty": "Beginner",
+  "video": "/videos/url-shortener.mp4",
+  "chapters": [
+   [
+    0,
+    "Introduction"
+   ],
+   [
+    4,
+    "Making a short link"
+   ],
+   [
+    25,
+    "Base62 encoding"
+   ],
+   [
+    41,
+    "Redirect and caching"
+   ],
+   [
+    68,
+    "Scaling for reads"
+   ],
+   [
+    83,
+    "Recap"
+   ]
+  ],
+  "guides": [
+   "primer-design-pastebincom-or-bitly",
+   "primer-cache",
+   "explaining-5-unique-id-generators-in-distributed-systems",
+   "unique-id-generator",
+   "top-5-caching-strategies",
+   "what-happens-when-you-type-a-url-into-your-browser",
+   "url-uri-urn-do-you-know-the-differences"
+  ],
+  "explanation": {
+   "summary": "Turns a long URL into a short code and redirects anyone who opens the code. It is a classic read-heavy system: one link is created once and opened many times, so the design is mostly about fast lookups.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Data model"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "loadTest": true,
+  "story": true
+ },
+ {
+  "id": "rbac",
+  "title": "Role-Based Access Control (RBAC)",
+  "blurb": "Authentication vs authorization, roles, permissions, JWT claims",
+  "difficulty": "Beginner",
+  "video": "/videos/rbac.mp4",
+  "chapters": [
+   [
+    0,
+    "Introduction"
+   ],
+   [
+    4,
+    "401 vs 403"
+   ],
+   [
+    23,
+    "Users, roles, permissions"
+   ],
+   [
+    39,
+    "Following a request"
+   ],
+   [
+    72,
+    "When access is refused"
+   ],
+   [
+    90,
+    "Recap"
+   ]
+  ],
+  "guides": [
+   "primer-security",
+   "jwt-101-key-to-stateless-authentication",
+   "what's-the-difference-between-session-based-authentication-and-jwts",
+   "oauth-2-explained-with-siple-terms",
+   "top-4-forms-of-authentication-mechanisms",
+   "how-to-design-secure-web-api-access-for-your-website"
+  ],
+  "explanation": {
+   "summary": "Instead of granting permissions to each user, you grant them to roles (admin, editor, viewer) and give users roles. Access checks become \"does any of this user's roles include this permission?\".",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Core model"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Where to enforce"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "loadTest": true
+ },
+ {
+  "id": "uber-surge",
+  "title": "Uber Surge Pricing & Artificial Scarcity",
+  "blurb": "Supply and demand per hexagon, gamed logouts, and how to price robustly",
+  "difficulty": "Advanced",
+  "video": "/videos/uber-surge.mp4",
+  "chapters": [
+   [
+    0,
+    "Introduction"
+   ],
+   [
+    4,
+    "How surge works"
+   ],
+   [
+    25,
+    "Gaming the surge"
+   ],
+   [
+    49,
+    "Fix 1: smooth the signal"
+   ],
+   [
+    63,
+    "Fixes 2–4"
+   ],
+   [
+    81,
+    "Under the hood"
+   ],
+   [
+    98,
+    "Recap"
+   ]
+  ],
+  "guides": [
+   "primer-asynchronism",
+   "primer-availability-vs-consistency",
+   "uber-tech-stack",
+   "evolution-of-uber's-api-layer",
+   "the-ultimate-kafka-101-you-cannot-miss",
+   "top-5-kafka-use-cases"
+  ],
+  "explanation": {
+   "summary": "Surge pricing raises the price where riders outnumber free drivers, to pull more drivers in. Because the price reacts to supply, drivers can fake a shortage by going offline together: artificial scarcity. A robust design prices from smoothed, sanity-checked supply and locks the price the rider sees.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "The problem: artificial scarcity"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Fixes"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "docker-vs-vm",
+  "title": "Docker vs Virtual Machines",
+  "blurb": "Hypervisors vs shared kernels, images, layers, and when to use which",
+  "difficulty": "Beginner",
+  "video": "/videos/docker-vs-vm.mp4",
+  "chapters": [
+   [
+    0,
+    "Introduction"
+   ],
+   [
+    4,
+    "The classic problem"
+   ],
+   [
+    11,
+    "Virtual machines"
+   ],
+   [
+    31,
+    "Containers"
+   ],
+   [
+    51,
+    "Side by side"
+   ],
+   [
+    65,
+    "When to use which"
+   ],
+   [
+    79,
+    "Dockerfile to container"
+   ],
+   [
+    89,
+    "Recap"
+   ]
+  ],
+  "guides": [
+   "ref-docker-curriculum",
+   "primer-application-layer",
+   "how-does-docker-work",
+   "top-8-must-know-docker-concepts",
+   "9-docker-best-practices-you-must-know",
+   "what-is-k8s-kubernetes"
+  ],
+  "explanation": {
+   "summary": "A virtual machine emulates a whole computer and boots its own operating system. A container is an isolated process that shares the host's kernel. VMs give stronger isolation; containers are far lighter and start in about a second.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "How containers isolate"
+    },
+    {
+     "heading": "Side by side"
+    },
+    {
+     "heading": "When to use which"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ],
+   "trace": true
+  }
+ },
+ {
+  "id": "twitter-timeline",
+  "title": "Twitter Timeline & Search",
+  "blurb": "Fan-out on write, celebrity merge at read time, caching and search",
+  "difficulty": "Intermediate",
+  "video": "/videos/twitter-timeline.mp4",
+  "chapters": [
+   [
+    3,
+    "Introduction"
+   ],
+   [
+    33,
+    "Step 1: Client → Web Server"
+   ],
+   [
+    45,
+    "Step 2: Write API → SQL Database"
+   ],
+   [
+    59,
+    "Step 3: Object Store"
+   ],
+   [
+    76,
+    "Step 4: Write API → Fan Out Service"
+   ],
+   [
+    90,
+    "Step 5: Fan-out on write"
+   ],
+   [
+    112,
+    "Step 6: Fan Out Service → Search Cluster"
+   ],
+   [
+    120,
+    "Step 7: Fan Out Service → Notification Service"
+   ],
+   [
+    134,
+    "Step 8: Write API → Client"
+   ],
+   [
+    145,
+    "Key takeaways"
+   ]
+  ],
+  "guides": [
+   "primer-design-the-twitter-timeline-and-search-or-facebook-feed-and-search",
+   "primer-cache",
+   "primer-asynchronism",
+   "twitter-architecture-2022-vs-2012",
+   "how-does-twitter-recommend-tweets"
+  ],
+  "explanation": {
+   "summary": "Users post tweets, read a home timeline built from everyone they follow, and search. Reads dwarf writes, so the home timeline is precomputed: each new tweet is pushed into followers' timelines in memory (fan-out on write), except for celebrities, whose tweets are merged in when a timeline is read.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "web-crawler",
+  "title": "Web Crawler & Search",
+  "blurb": "Priority frontier, duplicate detection, reverse index, freshness",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-design-a-web-crawler",
+   "primer-asynchronism",
+   "how-do-search-engines-work",
+   "how-to-avoid-crawling-duplicate-urls-at-google-scale"
+  ],
+  "explanation": {
+   "summary": "A crawler keeps a priority queue of links, fetches the most important page, skips it if a near-identical page was already crawled, and otherwise queues it for indexing. Search reads only the reverse index (word → pages) and the stored titles and snippets.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "kafka",
+  "title": "Kafka: Event Streaming",
+  "blurb": "Topics, partitions, consumer groups, replication and delivery guarantees",
+  "difficulty": "Intermediate",
+  "guides": [
+   "ref-apache-kafka-docs",
+   "ref-kafka-nodejs-tutorial",
+   "the-ultimate-kafka-101-you-cannot-miss",
+   "why-is-kafka-fast",
+   "can-kafka-lose-messages",
+   "top-5-kafka-use-cases",
+   "how-do-message-queue-architectures-evolve",
+   "primer-asynchronism"
+  ],
+  "explanation": {
+   "summary": "Kafka is a distributed, durable log. Producers append events to topics, which are split into partitions spread across brokers; consumers read them at their own pace and remember where they are with offsets. It decouples services, absorbs traffic spikes, and lets many systems react to the same events.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Core concepts"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "payment-idempotency",
+  "title": "Idempotent Payments",
+  "blurb": "\"Payment failed\" but money debited: lost responses, retries and idempotency keys",
+  "difficulty": "Intermediate",
+  "video": "/videos/payment-idempotency.mp4",
+  "chapters": [
+   [
+    0,
+    "The panic"
+   ],
+   [
+    10,
+    "What actually happened"
+   ],
+   [
+    20,
+    "The retry trap"
+   ],
+   [
+    28,
+    "The fix: idempotency keys"
+   ],
+   [
+    44,
+    "Edge cases"
+   ],
+   [
+    57,
+    "The takeaway"
+   ],
+   [
+    63,
+    "Try it"
+   ]
+  ],
+  "guides": [
+   "how-to-avoid-double-payment",
+   "top-6-cases-to-apply-idempotency",
+   "payment-system",
+   "reconciliation-in-payment",
+   "how-do-we-retry-on-failures",
+   "polling-vs-webhooks",
+   "unified-payments-interface-upi-in-india"
+  ],
+  "explanation": {
+   "summary": "A payment can succeed at the bank while its response is lost on the way back, so the app cannot tell success from failure. If it retries as a new request, the customer pays twice. The fix: the app sends an idempotency key, the server remembers the first result for that key and replays it, and a timeout is treated as \"pending\" and settled later by webhooks and reconciliation.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "mint",
+  "title": "Mint: Personal Finance Aggregator",
+  "blurb": "Pulling bank transactions through a queue, then categorizing and budgeting them",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-design-mintcom",
+   "primer-asynchronism",
+   "primer-cache"
+  ],
+  "explanation": {
+   "summary": "Mint connects to a user's bank accounts, pulls their transactions, sorts each one into a category, and warns them when a monthly budget is close to its limit. The hard part is the pipeline: many slow, unreliable bank connections feeding a steady flow of writes. An extraction service, a queue, and small services for categories and budgets keep the user-facing side fast.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "pastebin",
+  "title": "Pastebin",
+  "blurb": "Short keys, metadata in SQL, text in an object store, expiry and caching",
+  "difficulty": "Beginner",
+  "guides": [
+   "primer-design-pastebincom-or-bitly",
+   "primer-cache",
+   "primer-database",
+   "consistent-hashing"
+  ],
+  "explanation": {
+   "summary": "A user pastes text and gets a short link; anyone with the link can read it until it expires. The text sits in an object store, a small row in SQL records the key and expiry, a cache serves hot pastes, and a background job removes expired ones.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "key-value-store",
+  "title": "Key-Value Store (Dynamo-style)",
+  "blurb": "Hash ring, replication, quorum reads and writes, hinted handoff and LSM storage",
+  "difficulty": "Advanced",
+  "guides": [
+   "primer-design-a-key-value-store-for-a-search-engine",
+   "consistent-hashing",
+   "primer-availability-vs-consistency",
+   "primer-consistency-patterns",
+   "cap-theorem-one-of-the-most-misunderstood-terms",
+   "b-tree-vs",
+   "8-data-structures-that-power-your-databases",
+   "a-crash-course-in-database-sharding"
+  ],
+  "explanation": {
+   "summary": "A key-value store only offers get(key) and put(key, value), which lets it spread over many machines and keep working when some fail. Keys are placed on a hash ring, each key is copied to N nodes, and quorum rules (W acks to write, R replies to read) let you choose between speed and fresh reads.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "social-graph",
+  "title": "Social Network Graph",
+  "blurb": "Friend lists across Person Servers, a lookup service, and shortest-path search",
+  "difficulty": "Advanced",
+  "guides": [
+   "primer-design-the-data-structures-for-a-social-network",
+   "scale-tao-distributed-data-store-for-the-social-graph-at-facebook",
+   "primer-cache",
+   "scale-sharding"
+  ],
+  "explanation": {
+   "summary": "A social network is a graph of people and friendships. The key feature is finding the shortest path between two people. The friend lists are too big for one machine, so they are split across Person Servers, a Lookup Service says which server holds whom, and a breadth-first search walks the graph in batches.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "sales-rank",
+  "title": "Amazon's Sales Rank by Category",
+  "blurb": "Batch MapReduce over transaction logs, a ranked table, and a cache in front",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-design-amazons-sales-ranking-by-category-feature",
+   "primer-cache",
+   "primer-asynchronism",
+   "primer-database",
+   "top-5-caching-strategies"
+  ],
+  "explanation": {
+   "summary": "Each category shows its bestsellers for the past week. Purchases are appended to log files, a batch MapReduce job adds them up per category and product on a schedule, and the sorted result is stored in an analytics table and cached. Shoppers read the finished table, so reading is fast and the order path is untouched.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "query-cache",
+  "title": "Query Cache for a Search Engine",
+  "blurb": "LRU caching, sharded memory, TTLs and invalidation for hot searches",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-design-a-key-value-store-for-a-search-engine",
+   "primer-cache",
+   "most-popular-cache-eviction",
+   "top-8-cache-eviction-strategies",
+   "consistent-hashing",
+   "how-can-cache-systems-go-wrong"
+  ],
+  "explanation": {
+   "summary": "A search engine answers the same popular queries again and again. Computing each answer means reading posting lists and fetching documents, which is slow. So the Query API keeps the results of recent queries in a sharded in-memory cache with LRU eviction, and only searches the index on a miss.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "scaling-aws",
+  "title": "Scaling to Millions of Users on AWS",
+  "blurb": "From one server to a load-balanced, cached, sharded fleet, one bottleneck at a time",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-design-a-system-that-scales-to-millions-of-users-on-aws",
+   "primer-load-balancer",
+   "primer-cache",
+   "primer-database",
+   "primer-content-delivery-network",
+   "primer-asynchronism"
+  ],
+  "explanation": {
+   "summary": "No system starts at millions of users. This topic follows one app from a single server to a sharded fleet, adding one idea at each stage: split the database off, balance and cache, auto scale and go async, then shard. You add each piece only when a measured number runs out.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "rate-limiter",
+  "title": "Rate Limiter",
+  "blurb": "Token bucket, fixed and sliding windows, and what to do when the counter store is down",
+  "difficulty": "Intermediate",
+  "guides": [
+   "scale-rate-limiting",
+   "scale-scaling-api-with-rate-limiters-at-stripe",
+   "scale-rate-limiting-for-scaling-to-millions-of-domains-at-cloudflare",
+   "api-gateway-101",
+   "primer-cache"
+  ],
+  "explanation": {
+   "summary": "A rate limiter caps how many requests a caller can make in a period. It protects services from abuse and overload, keeps one noisy client from starving the rest, and enforces paid plans. The hard parts are choosing the counting algorithm, counting correctly across many servers, and deciding what happens when the counter store is down.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "consistent-hashing",
+  "title": "Consistent Hashing",
+  "blurb": "How a cache or database cluster adds and loses nodes without reshuffling every key",
+  "difficulty": "Intermediate",
+  "guides": [
+   "consistent-hashing",
+   "scale-consistent-hashing",
+   "scale-consistent-hashing-algorithmic-tradeoffs",
+   "scale-uniform-consistent-hashing-at-netflix",
+   "top-4-data-sharding-algorithms-explained",
+   "primer-load-balancer"
+  ],
+  "explanation": {
+   "summary": "Consistent hashing is a way to spread keys over a changing set of servers so that adding or removing a server moves only a small share of the keys. Servers and keys are hashed onto the same ring; a key belongs to the first server clockwise from it. It is used by caches, sharded databases, CDNs and load balancers.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "chat-system",
+  "title": "Chat System (WhatsApp-style)",
+  "blurb": "WebSockets, store-then-deliver, groups, presence and offline push",
+  "difficulty": "Intermediate",
+  "guides": [
+   "how-do-we-design-a-chat-application-like-whatsapp-facebook-messenger-or-discord",
+   "shortlong-polling-sse-websocket",
+   "how-does-a-typical-push-notification-system-work",
+   "how-discord-stores-trillions-of-messages",
+   "delivery-semantics",
+   "scale-real-time-presence-platform-at-linkedin"
+  ],
+  "explanation": {
+   "summary": "Users keep a WebSocket open to a gateway. A sent message is stored first, then delivered through a queue to the gateway holding the recipient's connection. Offline users get a push notification and catch up from their last message id when they return.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "cdn",
+  "title": "CDN: Content Delivery Network",
+  "blurb": "Edge caches, cache keys and TTLs, shielding the origin, purging and hit ratio",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-content-delivery-network",
+   "what-is-cdn-content-delivery-network",
+   "how-does-cnd-work",
+   "why-are-content-delivery-networks-cdn-so-popular",
+   "scale-http-caching-and-cdn",
+   "primer-cache",
+   "top-5-strategies-to-reduce-latency",
+   "which-latency-numbers-should-you-know"
+  ],
+  "explanation": {
+   "summary": "A CDN is a worldwide network of caches placed close to visitors. The first request for a file travels to your origin; the copy is kept at the edge, so later requests are answered a few kilometres away. It cuts latency, shields the origin from load and absorbs traffic spikes and attacks.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "notification-system",
+  "title": "Notification System",
+  "blurb": "Push, email and SMS at scale: dedup, preferences, queues, retries and dead letters",
+  "difficulty": "Intermediate",
+  "guides": [
+   "how-does-a-typical-push-notification-system-work",
+   "how-are-notifications-pushed-to-our-phones-or-pcs",
+   "scale-scaling-push-messaging-for-millions-of-devices-at-netflix",
+   "how-do-we-retry-on-failures",
+   "top-6-cases-to-apply-idempotency",
+   "primer-asynchronism",
+   "scale-reprocessing-and-dead-letter-queues-with-kafka-at-uber"
+  ],
+  "explanation": {
+   "summary": "A notification system turns events (\"your order shipped\") into messages on the right channel (push, email, SMS) without annoying people or losing important ones. The core design is: accept events fast, check preferences, put messages on per-channel queues, and let workers deliver them with retries.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "unique-id-generator",
+  "title": "Unique ID Generator (Snowflake)",
+  "blurb": "Time-sorted 64-bit ids from many machines, with no coordination and no duplicates",
+  "difficulty": "Intermediate",
+  "guides": [
+   "unique-id-generator",
+   "explaining-5-unique-id-generators-in-distributed-systems",
+   "scale-sharding--ids-at-instagram",
+   "top-4-data-sharding-algorithms-explained",
+   "scale-clock-skew-when-syncing-password-payloads-at-drobbox"
+  ],
+  "explanation": {
+   "summary": "Every row needs an id that nobody else will ever use, even when many servers create rows at the same time. A Snowflake-style generator packs the time, the machine and a counter into one 64-bit number, so each machine can make ids alone, with no database and no talking to the others.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "search-autocomplete",
+  "title": "Search Autocomplete (Typeahead)",
+  "blurb": "Prefix trie with precomputed top-k, layered caches, and a pipeline that learns from searches",
+  "difficulty": "Intermediate",
+  "guides": [
+   "scale-autocomplete-search-2-parts-at-traveloka",
+   "primer-cache",
+   "scale-distributed-caching",
+   "top-8-cache-eviction-strategies",
+   "most-popular-cache-eviction"
+  ],
+  "explanation": {
+   "summary": "Autocomplete shows likely searches as the user types. Each keystroke is a prefix lookup that must come back in roughly 100 ms, for billions of searches. The design has two halves: a fast serving path (caches in front of an in-memory trie that already knows the top suggestions for every prefix) and a slow learning path that turns the query log into a fresh trie.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "proximity-service",
+  "title": "Proximity Service (Nearby Places)",
+  "blurb": "Find places within a radius of you in milliseconds, using geohash cells instead of scanning every row",
+  "difficulty": "Intermediate",
+  "guides": [
+   "proximity-service",
+   "quadtree",
+   "scale-location-caching-with-quadtrees-at-yext",
+   "scale-geosharded-recommendations-3-parts-at-tinder",
+   "top-4-data-sharding-algorithms-explained"
+  ],
+  "explanation": {
+   "summary": "Apps like Yelp and Google Maps must answer \"what is near me?\" in milliseconds out of hundreds of millions of places. The trick is to cut the map into labelled cells (geohashes) and keep a list of places per cell, so a search reads a few small lists instead of scanning every row.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "video-streaming",
+  "title": "Video Streaming (YouTube-style)",
+  "blurb": "Chunked upload, transcoding into a bitrate ladder, adaptive streaming and CDN delivery",
+  "difficulty": "Intermediate",
+  "guides": [
+   "how-does-youtube-handle-massive-video-content-upload",
+   "scale-adaptive-video-streaming-at-youtube",
+   "live-streaming-explained",
+   "scale-netflix-what-happens-when-you-press-play",
+   "scale-optimizing-video-stream-for-low-bandwidth-with-dynamic-optimizer-at-ne",
+   "scale-hardware-assisted-video-transcoding-at-dailymotion",
+   "a-beginner's-guide-to-cdn-content-delivery-network",
+   "explain-the-top-6-use-cases-of-object-stores"
+  ],
+  "explanation": {
+   "summary": "A video platform has two jobs. The upload path accepts a huge file, converts it into many sizes and splits each into short segments. The playback path hands every viewer the right size, a few seconds at a time, from a cache close to them. Storage is cheap; delivering the bytes is the expensive part.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "file-sync",
+  "title": "File Sync (Dropbox-style)",
+  "blurb": "Block-level sync: chunk and hash files, upload only what changed, and tell other devices",
+  "difficulty": "Intermediate",
+  "guides": [
+   "scale-sync-engine-2-parts-at-dropbox",
+   "scale-magic-pocket-in-house-multi-exabyte-storage-system-at-dropbox",
+   "how-to-upload-a-large-file-to-s3",
+   "explain-the-top-6-use-cases-of-object-stores",
+   "scale-object-storage",
+   "shortlong-polling-sse-websocket",
+   "scale-stream-data-deduplication",
+   "primer-consistency-patterns"
+  ],
+  "explanation": {
+   "summary": "A sync service keeps the same folder identical on all of a person's devices. The trick is to never treat a file as one lump: cut it into blocks, name each block by a hash of its bytes, and send only the blocks the server does not already have. A small metadata record says which blocks make up each version of each file.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "leader-election",
+  "title": "Leader Election (Raft)",
+  "blurb": "How a cluster agrees on one leader: terms, votes, heartbeats and fencing",
+  "difficulty": "Advanced",
+  "guides": [
+   "scale-paxos-made-live--an-engineering-perspective",
+   "scale-chubby-lock-service-for-loosely-coupled-distributed-systems-at-google",
+   "scale-zookeeper-at-twitter",
+   "scale-building-and-deploying-mysql-raft-at-meta",
+   "scale-how-to-do-distributed-locking",
+   "why-do-we-need-to-use-a-distributed-lock",
+   "primer-availability-vs-consistency",
+   "scale-cap-theorem-and-trade-offs"
+  ],
+  "explanation": {
+   "summary": "Many systems need exactly one node in charge: the primary of a database, the owner of a shard, the holder of a lock. Leader election lets a group of nodes agree on that one node, and agree again quickly when it fails. Raft does it with terms, votes from a majority, and heartbeats.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "locking",
+  "title": "Locking: Redis & Database",
+  "blurb": "Shared, exclusive, update and intent locks, Redis locks with fencing, and when to use which",
+  "difficulty": "Intermediate",
+  "guides": [
+   "what-are-the-differences-among-database-locks",
+   "pessimistic-vs-optimistic-locking",
+   "what-are-database-isolation-levels",
+   "what-is-a-deadlock",
+   "why-do-we-need-to-use-a-distributed-lock",
+   "scale-how-to-do-distributed-locking",
+   "scale-distributed-locking-at-uber",
+   "scale-database-isolation-levels-and-effects-on-performance-and-scalability"
+  ],
+  "explanation": {
+   "summary": "When two requests read the same thing and then change it, both can act on a value that is already out of date. A lock makes them take turns. Databases lock rows and tables for you; Redis can lock anything by name across many servers, but only for a limited time.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Lock modes"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "distributed-cache",
+  "title": "Distributed Cache",
+  "blurb": "Cache-aside on a sharded Redis cluster: hash slots, eviction policies and cache stampedes",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-cache",
+   "top-8-cache-eviction-strategies",
+   "most-popular-cache-eviction",
+   "cache-miss-attack",
+   "how-can-cache-systems-go-wrong",
+   "memcached-vs-redis"
+  ],
+  "explanation": {
+   "summary": "A distributed cache keeps hot data in the memory of several servers, so most reads never touch the database. The hard parts are splitting keys across servers, choosing what to throw out when memory is full, keeping the cache from going stale, and not letting a burst of misses crush the database.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "database-sharding",
+  "title": "Database Sharding",
+  "blurb": "How to split one table over many databases, and why the choice of shard key decides everything",
+  "difficulty": "Intermediate",
+  "guides": [
+   "a-crash-course-in-database-sharding",
+   "key-concepts-to-understand-database-sharding",
+   "top-4-data-sharding-algorithms-explained",
+   "scale-how-sharding-works",
+   "consistent-hashing",
+   "vertical-partitioning-vs-horizontal-partitioning"
+  ],
+  "explanation": {
+   "summary": "Sharding splits one large table into pieces (shards) and puts each piece on its own database server. A shard key decides which shard owns a row, and a router sends each query to the right shard. It lets storage and write traffic grow beyond one machine, at the price of harder queries, joins and transactions.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "rag-pipeline",
+  "title": "RAG Pipeline",
+  "blurb": "Answering from your own documents: chunking, embeddings, hybrid search, reranking and citations",
+  "difficulty": "Intermediate",
+  "guides": [
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack",
+   "scale-genie-gen-ai-on-call-copilot-at-uber",
+   "scale-pintext-multitask-text-embedding-system-at-pinterest",
+   "what-is-an-ai-agent",
+   "data-pipelines-overview"
+  ],
+  "explanation": {
+   "summary": "A language model only knows its training data. Retrieval-augmented generation (RAG) finds the passages of your own documents that answer a question, puts them in the prompt, and asks the model to answer only from them, with citations.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "vector-database",
+  "title": "Vector Database",
+  "blurb": "Finding the nearest of 100 million embeddings in milliseconds: flat scans, HNSW, IVF-PQ, recall and filters",
+  "difficulty": "Advanced",
+  "guides": [
+   "scale-similarity-search-at-flickr",
+   "scale-similarity-engine-at-ebay",
+   "scale-pintext-multitask-text-embedding-system-at-pinterest",
+   "scale-modeling-user-journeys-via-semantic-embeddings-at-etsy",
+   "scale-similarity-clustering-to-catch-fraud-rings-at-stripe",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "An embedding model turns a photo or a sentence into a list of numbers that captures what it means. A vector database stores millions of these and finds the ones nearest to a query in milliseconds, by searching an approximate index instead of comparing with every vector.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "llm-gateway",
+  "title": "LLM Gateway",
+  "blurb": "One front door for every model: keys and budgets, routing, token limits, fallbacks, caching and guardrails",
+  "difficulty": "Intermediate",
+  "guides": [
+   "api-gateway-101",
+   "how-do-we-retry-on-failures",
+   "scale-circuit-breaker",
+   "scale-scaling-api-with-rate-limiters-at-stripe",
+   "scale-genie-gen-ai-on-call-copilot-at-uber",
+   "how-does-chatgpt-work"
+  ],
+  "explanation": {
+   "summary": "An LLM gateway sits between a company's apps and the model providers they call. It holds the real API keys, gives each team its own virtual key and budget, routes each request to a suitable model, caches safe answers, keeps calls under the providers' token limits, fails over when a provider is down, masks personal data and logs the cost of every call.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "ai-agent",
+  "title": "AI Agent with Tools",
+  "blurb": "A language model in a loop that calls tools: step limits, tool policy, prompt injection and idempotent actions",
+  "difficulty": "Advanced",
+  "guides": [
+   "what-is-an-ai-agent",
+   "how-does-chatgpt-work",
+   "top-6-cases-to-apply-idempotency",
+   "how-do-we-retry-on-failures",
+   "scale-genie-gen-ai-on-call-copilot-at-uber",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "An AI agent is a language model in a loop that can call tools: functions such as searching, booking or sending email. The model decides the next step; a runtime around it runs the tools, feeds the results back, and enforces what the model may do, how long it may run and which actions need a person.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "aws-vpc",
+  "title": "AWS VPC Networking",
+  "blurb": "Your own network in AWS: CIDR ranges, public and private subnets, route tables, NAT gateways and endpoints",
+  "difficulty": "Intermediate",
+  "guides": [
+   "tf-aws-vpc",
+   "tf-aws-vpc-simple",
+   "tf-aws-vpc-complete",
+   "tf-aws-vpc-endpoints",
+   "tf-aws-vpc-flow-log",
+   "aws-ecs-fullstack-infrastructure"
+  ],
+  "explanation": {
+   "summary": "A VPC (virtual private cloud) is a private network in an AWS region with an address range you choose. You split it into subnets in several availability zones, and route tables decide where traffic from each subnet can go: to the internet, through a NAT gateway, to an AWS service endpoint, or only inside the VPC.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "aws-alb",
+  "title": "Application Load Balancer",
+  "blurb": "One HTTPS entry point for many services: listeners, rules, target groups, health checks and routing algorithms",
+  "difficulty": "Intermediate",
+  "guides": [
+   "tf-aws-alb",
+   "tf-aws-alb-complete",
+   "tf-aws-alb-patterns",
+   "tf-aws-nlb-complete",
+   "what-are-the-differences-between-a-load-balancer-and-an-api-gateway",
+   "reverse-proxy-vs-api-gateway-vs-load-balancer"
+  ],
+  "explanation": {
+   "summary": "An Application Load Balancer (ALB) is AWS's HTTP load balancer. Listeners accept connections on a port and terminate TLS; rules match each request's host, path or headers and forward it to a target group; health checks keep broken targets out of rotation.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "aws-ecs-fargate",
+  "title": "ECS on Fargate",
+  "blurb": "Running containers without servers: task definitions, services, autoscaling on CPU and safe rolling deploys",
+  "difficulty": "Intermediate",
+  "guides": [
+   "tf-aws-ecs",
+   "tf-aws-ecs-fargate",
+   "tf-aws-ecs-service-module",
+   "tf-aws-ecs-container-definition",
+   "aws-ecs-fullstack-autoscaling",
+   "aws-containers-roadmap"
+  ],
+  "explanation": {
+   "summary": "Amazon ECS (Elastic Container Service) runs containers as tasks, kept at a desired count by a service and registered with a load balancer. On Fargate, AWS supplies a small VM per task, so there are no servers to manage; you choose CPU and memory per task and pay for them by the second.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "aws-ecs-fullstack",
+  "title": "Full-stack App on ECS",
+  "blurb": "A Vue client and Node API on ECS with DynamoDB and S3, shipped by CodePipeline with blue/green deploys",
+  "difficulty": "Advanced",
+  "guides": [
+   "aws-ecs-fullstack-sample",
+   "aws-ecs-fullstack-infrastructure",
+   "aws-ecs-fullstack-cicd",
+   "aws-ecs-fullstack-autoscaling",
+   "aws-ecs-fullstack-modules",
+   "aws-containers-roadmap-board"
+  ],
+  "explanation": {
+   "summary": "A complete AWS setup for a web app: a Vue.js client and a Node.js API as two ECS services behind their own load balancers, DynamoDB and S3 for data, and a CodePipeline that builds every commit with CodeBuild and releases it with CodeDeploy blue/green deployments, all described in Terraform.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
+ },
+ {
+  "id": "load-balancer",
+  "title": "Load Balancer",
+  "blurb": "Spreading requests over servers: algorithms, health checks and failover",
+  "difficulty": "Intermediate",
+  "guides": [
+   "primer-load-balancer",
+   "key-use-cases-for-load-balancers",
+   "what-are-the-differences-between-a-load-balancer-and-an-api-gateway",
+   "load-balancer-realistic-use-cases-you-may-not-know",
+   "cloud-load-balancer-cheat-sheet",
+   "reverse-proxy-vs-api-gateway-vs-load-balancer",
+   "how-do-we-detect-node-failures-in-distributed-systems",
+   "primer-availability-patterns"
+  ],
+  "explanation": {
+   "summary": "A load balancer sits in front of a group of identical servers and hands each request to one of them. It lets you add servers to handle more traffic, stops sending traffic to servers that have failed, and hides all of that behind a single address.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ }
+]

@@ -4,7 +4,7 @@ import course from '../learn/course.json'
 import { markRead, type NoticeKind, type NotifySettings, refresh, updateSettings, upcoming, useNotify } from '../learn/notify'
 import { ago, useProgress } from '../learn/progress'
 import { disablePush, enablePush, PushError, pushSupport, syncPush, testPush } from '../pwa/push'
-import { STATIC_TOPICS } from '../topics'
+import { TOPICS } from '../topics/catalog'
 
 // The bell in the app bar: reminders and news in the app, and the switch for
 // getting them as phone notifications too.
@@ -35,7 +35,7 @@ export function useNotificationEngine() {
   }, [])
 
   useEffect(() => {
-    const queue = refresh(STATIC_TOPICS, progress, Date.now(), course.quiz.length)
+    const queue = refresh(TOPICS, progress, Date.now(), course.quiz.length)
     if (!settings.push) return
     syncPush(queue, settings.newTopics)
       .then((subscribed) => !subscribed && updateSettings({ push: false }))
@@ -75,7 +75,7 @@ function PhoneNotifications() {
 
   const turnOn = () =>
     run(async () => {
-      await enablePush(upcoming(STATIC_TOPICS, progress, Date.now(), course.quiz.length), settings.newTopics)
+      await enablePush(upcoming(TOPICS, progress, Date.now(), course.quiz.length), settings.newTopics)
       updateSettings({ push: true })
     }, 'On. Reminders will arrive on this device at their time.')
 
@@ -180,7 +180,7 @@ export function NotifyPrompt() {
     setState('busy')
     setError(null)
     try {
-      await enablePush(upcoming(STATIC_TOPICS, progress, Date.now(), course.quiz.length), settings.newTopics)
+      await enablePush(upcoming(TOPICS, progress, Date.now(), course.quiz.length), settings.newTopics)
       updateSettings({ push: true })
       setState('done')
     } catch (e) {

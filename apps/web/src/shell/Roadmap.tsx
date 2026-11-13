@@ -1,13 +1,16 @@
-import { BookOpen, CheckCircle2, ChevronRight, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
 import { nextStep, partDone, ROADMAP, ROADMAP_STEPS, type RoadmapStep, stepDone, unplacedTopics } from '../learn/roadmap'
-import { STATIC_TOPICS, type StaticTopic } from '../topics'
-import { type Guide, LIBRARY, sourceOf } from '../topics/library'
+import { TOPICS, type TopicMeta } from '../topics/catalog'
+import type { Guide } from '../topics/library'
+import { useLibrary } from '../topics/useLibrary'
 import { topicIcon } from './topicIcons'
 
-const topicById = new Map(STATIC_TOPICS.map((t) => [t.id, t]))
-const guideBySlug = new Map(LIBRARY.guides.map((g) => [g.slug, g]))
-const guidesOf = (step: RoadmapStep): Guide[] => (step.guides ?? []).map((s) => guideBySlug.get(s)).filter((g): g is Guide => Boolean(g))
+const topicById = new Map(TOPICS.map((t) => [t.id, t]))
+type Library = NonNullable<ReturnType<typeof useLibrary>>
+// Readings appear once the library has loaded (it isn't part of the start-up bundle).
+const guidesOf = (step: RoadmapStep, lib: Library | null): Guide[] =>
+  lib ? (step.guides ?? []).map((s) => lib.LIBRARY.guides.find((g) => g.slug === s)).filter((g): g is Guide => Boolean(g)) : []
 
 const jump = (partId: string) => document.getElementById(`part-${partId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -17,11 +20,11 @@ function toggle(step: RoadmapStep) {
 }
 
 /** The roadmap page: every part in order, each step a topic or a reading, ticked off as you go. */
-export function Roadmap({ onOpen }: { onOpen: (topic: StaticTopic) => void }) {
+export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
   const progress = useProgress()
   const done = ROADMAP_STEPS.filter(({ step }) => stepDone(step, progress)).length
   const next = nextStep(progress)
-  const extra = unplacedTopics(STATIC_TOPICS)
+  const extra = unplacedTopics(TOPICS)
 
   return (
     <div className="roadmap">
@@ -115,9 +118,9 @@ export function Roadmap({ onOpen }: { onOpen: (topic: StaticTopic) => void }) {
   )
 }
 
-function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: RoadmapStep; onOpen: (topic: StaticTopic) => void }) {
+function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: RoadmapStep; onOpen: (topic: TopicMeta) => void }) {
   const topic = step.topic ? topicById.get(step.topic) : undefined
-  const guide = guidesOf(step)[0]
+  const guide = guidesOf(step, useLibrary())[0]
   return (
     <div className="roadmap-next">
       <span className="roadmap-next-label">
@@ -143,8 +146,9 @@ function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: 
   )
 }
 
-function Step({ step, isNext, onOpen }: { step: RoadmapStep; isNext: boolean; onOpen: (topic: StaticTopic) => void }) {
+function Step({ step, isNext, onOpen }: { step: RoadmapStep; isNext: boolean; onOpen: (topic: TopicMeta) => void }) {
   const progress = useProgress()
+  const lib = useLibrary()
   const topic = step.topic ? topicById.get(step.topic) : undefined
   const done = stepDone(step, progress)
   const Icon = topic ? topicIcon(topic.id) : null
@@ -181,37 +185,13 @@ function Step({ step, isNext, onOpen }: { step: RoadmapStep; isNext: boolean; on
               <Hammer size={13} aria-hidden /> Build it yourself
             </span>
           )}
-          {guidesOf(step).map((g) => (
-            <a key={g.slug} className="roadmap-guide" href={g.url} target="_blank" rel="noreferrer" title={`${g.title} (${sourceOf(g)?.name ?? g.source})`}>
+          {guidesOf(step, lib).map((g) => (
+            <a key={g.slug} className="roadmap-guide" href={g.url} target="_blank" rel="noreferrer" title={`${g.title} (${lib?.sourceOf(g)?.name ?? g.source})`}>
               <BookOpen size={13} aria-hidden /> {g.title} <ExternalLink size={11} aria-hidden />
             </a>
           ))}
         </div>
       </div>
     </li>
-  )
-}
-
-/** Home's and Explore's way in: how far along you are and what's next. */
-export function RoadmapCard({ onRoadmap }: { onRoadmap: () => void }) {
-  const progress = useProgress()
-  const done = ROADMAP_STEPS.filter(({ step }) => stepDone(step, progress)).length
-  const next = nextStep(progress)
-  return (
-    <button type="button" className="card roadmap-card" onClick={onRoadmap}>
-      <span className="roadmap-card-icon" aria-hidden>
-        <Route size={26} />
-      </span>
-      <span className="roadmap-card-text">
-        <strong>{done ? 'Your roadmap' : 'Where to start'}</strong>
-        <span>{ROADMAP.slice(0, 6).map((p) => p.title).join(' → ')}</span>
-        {next && (
-          <span className="roadmap-card-next">
-            {done ? `${done} of ${ROADMAP_STEPS.length} steps · next: ${next.step.title}` : `Step 1: ${next.step.title}`}
-          </span>
-        )}
-      </span>
-      <ChevronRight size={20} aria-hidden />
-    </button>
   )
 }

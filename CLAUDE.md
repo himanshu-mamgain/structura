@@ -34,6 +34,11 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
 - `apps/web`: the app.
   - `src/topics/`: one file per topic (`url-shortener.ts`, `twitter-timeline.ts`, …),
     registered in `src/topics/index.ts`. Types in `src/topics/types.ts`.
+  - `src/topics/catalog.json` (+ `catalog.ts`): what the app knows about each topic before it
+    opens (title, blurb, level, video, section headings, guides). Generated from the topics by
+    `npm run catalog`, and by `dev` and `build`; commit it. **Anything outside the topic page
+    reads `TOPICS` from `catalog.ts`, never `STATIC_TOPICS`**: importing `src/topics` there puts
+    every topic back into the start-up bundle. Full topics load on demand (`loadTopic(id)`).
   - `src/topics/library.json`: the syllabus (generated, see below). `library.ts` reads it.
   - `src/shell/`: app shell. `App.tsx` (routes via `?topic=`, `?page=explore|reels|listen|quiz|glossary|roadmap`,
     `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
@@ -146,7 +151,7 @@ The house voice is `am_michael` at 0.96 speed (~158 words a minute; see
 - **Topic videos (automatic):** every topic without a hand-made video gets one.
   After adding a topic: `npm run export:videos -w @structura/web`, then
   `npm run topics -w @structura/video` (voices, renders `public/videos/<id>.mp4`,
-  makes the thumbnail and chapters, and registers it in `src/topics/videos.json`).
+  makes the thumbnail, a small `<id>-sm.jpg` copy for tiles, and the chapters, and registers it in `src/topics/videos.json`).
   Rendering takes a few minutes per video; videos are committed.
 - **Commute-mode audio lessons:** `npm run lessons -w @structura/web -- <topic-id>`
   writes `public/lessons/<id>/*.m4a` and `src/learn/lessons.json`.

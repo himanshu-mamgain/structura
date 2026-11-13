@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 import { type Progress, readiness } from './progress'
 import { planToday } from './today'
 
@@ -101,7 +101,7 @@ export function updateSettings(patch: Partial<NotifySettings>) {
 }
 
 /** The reminders still to come, for push. */
-export const upcoming = (topics: StaticTopic[], progress: Progress, now: number, quizTotal: number) =>
+export const upcoming = (topics: TopicMeta[], progress: Progress, now: number, quizTotal: number) =>
   schedule(topics, progress, state.settings, now, quizTotal).filter((n) => n.at > now)
 
 export function markRead(id?: string) {
@@ -132,11 +132,11 @@ const list = (titles: string[]) =>
  * learner's progress and settings, at most one study reminder (daily or nudge)
  * and one review per day. New topics aren't scheduled: see newTopicsNotice.
  */
-export function schedule(topics: StaticTopic[], progress: Progress, settings: NotifySettings, now: number, quizTotal: number): Notice[] {
+export function schedule(topics: TopicMeta[], progress: Progress, settings: NotifySettings, now: number, quizTotal: number): Notice[] {
   const out: Notice[] = []
   const firstDay = now - STALE
   const lastDay = now + HORIZON_DAYS * DAY
-  const p = (t: StaticTopic) => progress.topics[t.id]
+  const p = (t: TopicMeta) => progress.topics[t.id]
 
   // Nudge: the most recently opened topic that isn't finished, once per absence.
   const nudgeDays = new Set<string>()
@@ -181,7 +181,7 @@ export function schedule(topics: StaticTopic[], progress: Progress, settings: No
 
   // Reviews: 1, 3 and 7 days after finishing a topic; same-day reviews share one reminder.
   if (settings.reviews) {
-    const byDay = new Map<string, { at: number; topics: StaticTopic[]; ids: string[] }>()
+    const byDay = new Map<string, { at: number; topics: TopicMeta[]; ids: string[] }>()
     for (const t of topics) {
       const done = p(t)?.completed ? p(t)?.completedAt : undefined
       if (!done) continue
@@ -212,7 +212,7 @@ export function schedule(topics: StaticTopic[], progress: Progress, settings: No
 }
 
 /** "New topics: …" for topics not seen before, or null. */
-export function newTopicsNotice(topics: StaticTopic[], known: string[] | null, now: number): Notice | null {
+export function newTopicsNotice(topics: TopicMeta[], known: string[] | null, now: number): Notice | null {
   if (!known) return null
   const fresh = topics.filter((t) => !known.includes(t.id))
   if (!fresh.length) return null
@@ -233,7 +233,7 @@ export function newTopicsNotice(topics: StaticTopic[], known: string[] | null, n
  * push). Run when the app opens, every minute while it's open, and when
  * progress changes.
  */
-export function refresh(topics: StaticTopic[], progress: Progress, now: number, quizTotal: number): Notice[] {
+export function refresh(topics: TopicMeta[], progress: Progress, now: number, quizTotal: number): Notice[] {
   const all = schedule(topics, progress, state.settings, now, quizTotal)
   const due = all.filter((n) => n.at <= now)
   const fresh = state.settings.newTopics ? newTopicsNotice(topics, state.known, now) : null

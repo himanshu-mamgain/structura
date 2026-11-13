@@ -1,5 +1,5 @@
 import data from './library.json'
-import type { StaticTopic } from './types'
+import type { TopicMeta } from './catalog'
 
 // The syllabus, from several open sources (see scripts/kb-sync.mjs): ByteByteGo's
 // System Design 101 (titles and links only), the System Design Primer (CC BY,
@@ -33,9 +33,9 @@ export const guideUrl = (slug: string) => bySlug.get(slug)?.url ?? '#'
 export const sourceOf = (guide: Guide): Source => LIBRARY.sources[guide.source]
 
 /** The library guides a topic links to for going deeper. */
-export const guidesFor = (topic: StaticTopic): Guide[] => (topic.guides ?? []).map((s) => bySlug.get(s)).filter((g): g is Guide => Boolean(g))
+export const guidesFor = (topic: TopicMeta): Guide[] => (topic.guides ?? []).map((s) => bySlug.get(s)).filter((g): g is Guide => Boolean(g))
 
 /** The Structura topic (of those given) that covers a guide, if any. */
-export const topicForGuide = (topics: StaticTopic[], slug: string): StaticTopic | undefined => topics.find((t) => t.guides?.includes(slug))
+export const topicForGuide = (topics: TopicMeta[], slug: string): TopicMeta | undefined => topics.find((t) => t.guides?.includes(slug))
 
 export const categoryTitle = (id: string) => LIBRARY.categories.find((c) => c.id === id)?.title ?? id

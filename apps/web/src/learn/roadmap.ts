@@ -1,4 +1,4 @@
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 import type { Progress } from './progress'
 
 // The learning roadmap: where to start and what comes next. Parts are in the
@@ -182,7 +182,7 @@ export function nextStep(progress: Progress) {
 }
 
 /** Topics no part mentions yet (new ones), so they still have a place to be read. */
-export function unplacedTopics(topics: StaticTopic[]): StaticTopic[] {
+export function unplacedTopics(topics: TopicMeta[]): TopicMeta[] {
   const placed = new Set(ROADMAP_STEPS.map(({ step }) => step.topic).filter(Boolean))
   return topics.filter((t) => !placed.has(t.id))
 }

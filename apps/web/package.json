@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build && tsx scripts/export-topics.ts && tsx scripts/notion.ts",
+    "dev": "tsx scripts/export-catalog.ts && vite",
+    "build": "tsx scripts/export-catalog.ts && tsc --noEmit && vite build && tsx scripts/export-topics.ts && tsx scripts/notion.ts",
     "notes": "tsx scripts/notion.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "export:videos": "tsx scripts/export-videos.ts",
     "lessons": "tsx scripts/lessons.ts",
-    "library": "node scripts/kb-sync.mjs"
+    "library": "node scripts/kb-sync.mjs",
+    "catalog": "tsx scripts/export-catalog.ts"
   },
   "dependencies": {
     "@structura/sim": "^0.0.0",

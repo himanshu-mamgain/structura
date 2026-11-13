@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { StaticTopic } from '../topics'
+import type { TopicMeta } from '../topics/catalog'
 
 // Learning progress, kept in this browser (localStorage). One small object per
 // topic; the shape is plain JSON so it can later sync to a backend as-is.
@@ -93,7 +93,7 @@ export const videoFraction = (p: TopicProgress | undefined) => (p?.videoDuration
  * walkthrough done (20), the video watched (20; its share goes to reading when
  * a topic has no video), and the topic marked complete (20).
  */
-export function readiness(topic: StaticTopic, p: TopicProgress | undefined): number {
+export function readiness(topic: TopicMeta, p: TopicProgress | undefined): number {
   if (!p) return 0
   const sections = topic.explanation.sections.length || 1
   const read = (p.sectionsRead?.length ?? 0) / sections

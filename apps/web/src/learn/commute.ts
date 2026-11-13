@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import { STATIC_TOPICS } from '../topics'
+import { TOPICS } from '../topics/catalog'
 import lessons from './lessons.json'
-import { lessonChapters } from './lesson'
 import { updateTopic } from './progress'
 import { stopSpeaking } from './speech'
 
@@ -21,7 +20,7 @@ export interface LessonChapterAudio {
 export const LESSONS = lessons as { voice: string; speed?: number; topics: Record<string, { chapters: LessonChapterAudio[]; duration: number }> }
 
 /** Topics that have an audio lesson, in course order. */
-export const lessonTopics = () => STATIC_TOPICS.filter((t) => LESSONS.topics[t.id])
+export const lessonTopics = () => TOPICS.filter((t) => LESSONS.topics[t.id])
 
 export interface CommuteState {
   topicId: string | null
@@ -84,7 +83,7 @@ export const useCommute = () =>
   )
 
 export const chaptersOf = (topicId: string | null) => (topicId ? (LESSONS.topics[topicId]?.chapters ?? []) : [])
-const topicTitle = (id: string) => STATIC_TOPICS.find((t) => t.id === id)?.title ?? id
+const topicTitle = (id: string) => TOPICS.find((t) => t.id === id)?.title ?? id
 
 // ─── The player ──────────────────────────────────────────────────────────
 
@@ -128,7 +127,7 @@ function player(): HTMLAudioElement {
 
 /** Listening counts toward interview readiness, like reading and walking through. */
 function countAsHeard() {
-  const topic = STATIC_TOPICS.find((t) => t.id === state.topicId)
+  const topic = TOPICS.find((t) => t.id === state.topicId)
   const chapter = chaptersOf(state.topicId)[state.chapter]
   if (!topic || !chapter) return
   if (chapter.id === 'walkthrough') updateTopic(topic.id, { walked: true })
@@ -294,8 +293,3 @@ export function cueAt(chapter: LessonChapterAudio | undefined, time: number): nu
   return i
 }
 
-/** Chapter titles for a topic as written (for topics without generated audio yet). */
-export const plannedChapters = (topicId: string) => {
-  const topic = STATIC_TOPICS.find((t) => t.id === topicId)
-  return topic ? lessonChapters(topic).map((c) => c.title) : []
-}
