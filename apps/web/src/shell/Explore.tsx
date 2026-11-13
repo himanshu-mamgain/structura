@@ -15,12 +15,14 @@ import { topicIcon } from './topicIcons'
  */
 export function Explore({
   onOpen,
+  onRead,
   onNote,
   category,
   onCategory,
   onRoadmap,
 }: {
   onOpen: (topic: TopicMeta) => void
+  onRead: (topic: TopicMeta) => void
   onNote: (id: string) => void
   category: string | null
   onCategory: (id: string | null) => void
@@ -31,7 +33,7 @@ export function Explore({
 
   return (
     <div className="explore">
-      <SearchBox inline onOpen={onOpen} onNote={onNote} query={query} onQuery={setQuery} />
+      <SearchBox inline onOpen={onOpen} onRead={onRead} onNote={onNote} query={query} onQuery={setQuery} />
       {!query.trim() && (
         <>
           <RoadmapCard onRoadmap={onRoadmap} />

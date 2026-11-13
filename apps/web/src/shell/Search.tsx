@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
+import { BookOpen, ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
 import { useNotes } from '../learn/notes'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { useLibrary } from '../topics/useLibrary'
@@ -19,7 +19,19 @@ export function search(query: string, library?: ReturnType<typeof useLibrary>) {
   }
 }
 
-function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t: TopicMeta) => void; onNote?: (id: string) => void; onDone: () => void }) {
+function Results({
+  query,
+  onOpen,
+  onRead,
+  onNote,
+  onDone,
+}: {
+  query: string
+  onOpen: (t: TopicMeta) => void
+  onRead?: (t: TopicMeta) => void
+  onNote?: (id: string) => void
+  onDone: () => void
+}) {
   // Only load the library once there is something to search for.
   const library = useLibrary(Boolean(query.trim()))
   const { topics, guides } = search(query, library)
@@ -31,7 +43,7 @@ function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t:
       {topics.map((t) => {
         const Icon = topicIcon(t.id)
         return (
-          <li key={t.id}>
+          <li key={t.id} className={onRead ? 'search-topic' : undefined}>
             <button type="button" onClick={() => onOpen(t)}>
               <span className="search-result-icon" aria-hidden>
                 <Icon size={18} />
@@ -43,6 +55,12 @@ function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t:
                 </span>
               </span>
             </button>
+            {/* Straight to the article, for when you'd rather read than click through the diagram. */}
+            {onRead && (
+              <button type="button" className="search-read" onClick={() => onRead(t)} aria-label={`Read ${t.title}`}>
+                <BookOpen size={15} aria-hidden /> Read
+              </button>
+            )}
           </li>
         )
       })}
@@ -88,6 +106,7 @@ function Results({ query, onOpen, onNote, onDone }: { query: string; onOpen: (t:
  */
 export function SearchBox({
   onOpen,
+  onRead,
   onNote,
   inline = false,
   query: controlled,
@@ -95,6 +114,7 @@ export function SearchBox({
   className = '',
 }: {
   onOpen: (t: TopicMeta) => void
+  onRead?: (t: TopicMeta) => void
   onNote?: (id: string) => void
   inline?: boolean
   query?: string
@@ -109,6 +129,12 @@ export function SearchBox({
     setQuery('')
     onOpen(t)
   }
+  const read = onRead
+    ? (t: TopicMeta) => {
+        setQuery('')
+        onRead(t)
+      }
+    : undefined
 
   return (
     <div className={`search${inline ? ' is-inline' : ''} ${className}`}>
@@ -131,7 +157,7 @@ export function SearchBox({
           </button>
         )}
       </div>
-      <Results query={query} onOpen={pick} onNote={onNote} onDone={() => setQuery('')} />
+      <Results query={query} onOpen={pick} onRead={read} onNote={onNote} onDone={() => setQuery('')} />
     </div>
   )
 }
