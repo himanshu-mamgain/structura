@@ -15,6 +15,7 @@ import { llmGateway } from './llm-gateway'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
 import { awsBasics } from './aws-basics'
+import { awsDisasterRecovery } from './aws-disaster-recovery'
 import { awsIam } from './aws-iam'
 import { kafka } from './kafka'
 import { redisBasics } from './redis-basics'
@@ -89,6 +90,7 @@ const BASE_TOPICS: StaticTopic[] = [
   redisPersistence,
   awsBasics,
   awsIam,
+  awsDisasterRecovery,
 ]
 
 /**

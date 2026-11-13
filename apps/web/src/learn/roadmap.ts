@@ -121,6 +121,7 @@ export const ROADMAP: RoadmapPart[] = [
       { id: 'aws-data', level: 'Intermediate', title: 'Data: RDS, DynamoDB, S3, ElastiCache and MSK', detail: 'Managed Postgres, a key-value database, object storage, and managed Redis and Kafka.', guides: ['understanding-database-types', 'what-happens-when-you-upload-a-file-to-amazon-s3', 'scale-sql-vs-nosql', 'db-storage'] },
       { id: 'aws-observe', level: 'Intermediate', title: 'CloudWatch: logs, metrics and alarms', detail: 'Know when something breaks before your users tell you.', guides: ['logging-tracing-metrics', 'cloud-monitoring-cheat-sheet'] },
       { id: 'aws-cicd', level: 'Advanced', title: 'CI/CD with blue/green deploys', detail: 'CodePipeline, CodeBuild and CodeDeploy, with an alarm that rolls back.', topic: 'aws-ecs-fullstack', guides: ['aws-ecs-fullstack-cicd', 'cicd-pipeline-explained-in-simple-terms'] },
+      { id: 'aws-dr', level: 'Advanced', title: 'Disaster recovery across regions', detail: 'RTO and RPO, the four strategies from backup and restore to active/active, and why replicas are not backups.', topic: 'aws-disaster-recovery', guides: ['cloud-disaster-recovery-strategies'] },
     ],
   },
   {

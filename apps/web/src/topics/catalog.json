@@ -2059,5 +2059,48 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "aws-disaster-recovery",
+  "title": "Disaster Recovery Across AWS Regions",
+  "blurb": "RTO and RPO, the four AWS strategies from backup-and-restore to active/active, and why replicas are not backups",
+  "difficulty": "Advanced",
+  "guides": [
+   "cloud-disaster-recovery-strategies",
+   "scale-aws-dos-and-donts",
+   "scale-on-efficiency-reliability-scaling---james-hamilton-vp-at-aws",
+   "hidden-costs-of-the-cloud"
+  ],
+  "explanation": {
+   "summary": "Disaster recovery (DR) is how a system comes back after losing a whole region or its data. Two targets drive the design: RTO, how long it may be down, and RPO, how much recent data it may lose. AWS describes four strategies, from backup-and-restore (cheap, hours) to multi-site active/active (costly, near zero), and none of them replaces point-in-time backups.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true,
+  "story": true
  }
 ]
