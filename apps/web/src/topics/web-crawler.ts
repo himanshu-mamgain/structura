@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design a web crawler" in the System Design Primer by Donne
@@ -192,7 +192,9 @@ export const webCrawler: StaticTopic = {
         body: '- How would you detect that two pages are the same article with different ads around it?\n- How do you avoid crawler traps, such as infinite calendar pages?\n- How would you decide which pages to re-crawl every hour?\n- How would you shard the reverse index, and what does a query cost in each case?\n- How would you add PageRank to the ranking?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Crawler loop',

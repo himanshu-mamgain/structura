@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written from scratch (no source text copied). The bitrate ladder, segment
@@ -314,7 +314,9 @@ export const videoStreaming: StaticTopic = {
         body: '- How would you resume an interrupted 5 GB upload?\n- How do you choose the bitrate ladder, and how do you cut encoding cost for videos nobody watches?\n- Why are segments cacheable by a plain CDN when a live stream is harder?\n- How would you add view counts without a database write for every view?\n- What changes for live streaming, where there is no upload-then-process delay?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Pick a rendition from measured bandwidth',

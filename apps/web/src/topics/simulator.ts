@@ -11,6 +11,22 @@ export interface Simulator {
   run(values: Record<string, string>): Trace
 }
 
+const defaults = new WeakMap<Simulator, Trace>()
+
+/**
+ * A topic's opening walkthrough, worked out the first time it's needed. Topics use it
+ * as a getter (get trace() { return defaultTrace(simulator) }) so that importing every
+ * topic at start-up doesn't run every simulator.
+ */
+export function defaultTrace(simulator: Simulator): Trace {
+  let trace = defaults.get(simulator)
+  if (!trace) {
+    trace = simulator.run(simulator.defaults)
+    defaults.set(simulator, trace)
+  }
+  return trace
+}
+
 /** base64url without padding, as used inside JWTs. */
 export function base64url(text: string): string {
   return btoa(unescape(encodeURIComponent(text))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')

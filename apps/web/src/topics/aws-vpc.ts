@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from terraform-aws-modules/terraform-aws-vpc (Apache License 2.0): the
@@ -367,7 +367,9 @@ Because the VPC was a /16, there was room to add new /20 private subnets (4,091 
         body: '- What actually makes a subnet public?\n- Why does a /24 subnet give you 251 usable addresses?\n- Your private tasks can\'t reach an outside API. What do you check, in order?\n- One NAT gateway or one per zone? What does each cost, and what fails?\n- How do you stop paying NAT charges for S3 traffic?\n- You need to connect this VPC to another company\'s network with an overlapping range. What now?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'The VPC with terraform-aws-vpc (HCL as bash)',

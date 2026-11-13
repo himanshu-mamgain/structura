@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Adapted from "Design the data structures for a social network" in the System
@@ -264,7 +264,9 @@ export const socialGraph: StaticTopic = {
         body: '- How would you find mutual friends of two people?\n- A person with 5 million friends is on one Person Server. What goes wrong?\n- How would you add friend suggestions (friends of friends)?\n- How would you keep the Lookup Service consistent when you move people?\n- When would you choose a graph database over sharded SQL?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Bidirectional breadth-first search',

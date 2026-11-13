@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written for Structura from general knowledge, not adapted from a source.
@@ -332,7 +332,9 @@ export const distributedCache: StaticTopic = {
         body: '- A product page is cached for 5 minutes but the price just changed. What do you do?\n- A key expires and 5,000 requests arrive at once. What happens to the database, and how do you stop it?\n- LRU or LFU for a site that is sometimes crawled by bots? Why?\n- How would you add a fourth shard without emptying the cache?\n- What is the difference between cache penetration, breakdown and avalanche?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Cache-aside with a TTL and jitter',

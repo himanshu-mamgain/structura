@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // A Snowflake-style ID service: 64 bits = 1 unused sign bit + 41 bits of
@@ -256,7 +256,9 @@ export const uniqueIdGenerator: StaticTopic = {
         body: '- What happens if the system clock goes backwards, and how do you stop duplicate ids?\n- How would you hand out machine ids without setting them by hand?\n- Why can\'t you sort strictly by id across workers to get the real order of events?\n- How would you change the bit layout for a system that needs 100,000 workers, or one that needs 50,000 ids per millisecond?\n- When would you pick UUID v7 or a ticket server over Snowflake?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Snowflake generator (TypeScript, BigInt)',

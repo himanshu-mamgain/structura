@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // "Find places near me" with a geohash index. A geohash turns a point into a short
@@ -361,7 +361,9 @@ export const proximityService: StaticTopic = {
         body: '- Why does a plain index on latitude and longitude not solve this?\n- What goes wrong when you search only the user\'s own geohash cell?\n- How would you handle a cell with 50,000 places in it?\n- Geohash or quadtree: when would you choose each?\n- How would the design change if places moved (drivers, delivery riders) instead of staying put?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Encode a geohash (TypeScript)',

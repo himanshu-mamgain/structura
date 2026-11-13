@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written for Structura from general knowledge, not adapted from a source.
@@ -401,7 +401,9 @@ export const rateLimiter: StaticTopic = {
         body: '- Why can a fixed window let through twice the limit?\n- How do you make the check atomic across ten gateways?\n- Your Redis shard is down. Do you fail open or closed, and does it depend on the endpoint?\n- How would you limit by IP and by user at the same time?\n- How do you give one enterprise customer a much higher limit without a code change?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Token bucket as one atomic Redis script',

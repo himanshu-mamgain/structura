@@ -59,22 +59,29 @@ function componentLines(topic: StaticTopic): { label: string; text: string }[] {
   })
 }
 
-const docs: Doc[] = [
-  ...STATIC_TOPICS.flatMap((t) => [
-    { id: `topic:${t.id}`, kind: 'topic' as const, title: t.title, text: `${t.blurb}. ${t.explanation.summary}`, topicId: t.id },
-    ...t.explanation.sections.map((s, i) => ({ id: `section:${t.id}:${i}`, kind: 'section' as const, title: `${t.title}: ${s.heading}`, text: s.body, topicId: t.id, index: i })),
-    ...componentLines(t).map((c) => ({ id: `component:${t.id}:${c.label}`, kind: 'component' as const, title: c.label, text: c.text, topicId: t.id })),
-  ]),
-  ...course.glossary.map((g) => ({ id: `term:${g.term}`, kind: 'term' as const, title: g.term, text: g.def })),
-]
-
-const index = new MiniSearch<Doc>({
-  fields: ['title', 'text'],
-  storeFields: ['kind', 'title', 'text', 'topicId', 'index'],
-  searchOptions: { boost: { title: 3 }, prefix: true, fuzzy: 0.2 },
-})
-// A duplicate id makes MiniSearch throw, which would blank the whole app; keep the first.
-index.addAll(docs.filter((d, i) => docs.findIndex((x) => x.id === d.id) === i))
+// Built on first use, not at start-up: indexing every topic takes a few hundred
+// milliseconds on a phone, and most visits never ask the assistant anything.
+let built: MiniSearch<Doc> | null = null
+function getIndex(): MiniSearch<Doc> {
+  if (built) return built
+  const docs: Doc[] = [
+    ...STATIC_TOPICS.flatMap((t) => [
+      { id: `topic:${t.id}`, kind: 'topic' as const, title: t.title, text: `${t.blurb}. ${t.explanation.summary}`, topicId: t.id },
+      ...t.explanation.sections.map((s, i) => ({ id: `section:${t.id}:${i}`, kind: 'section' as const, title: `${t.title}: ${s.heading}`, text: s.body, topicId: t.id, index: i })),
+      ...componentLines(t).map((c) => ({ id: `component:${t.id}:${c.label}`, kind: 'component' as const, title: c.label, text: c.text, topicId: t.id })),
+    ]),
+    ...course.glossary.map((g) => ({ id: `term:${g.term}`, kind: 'term' as const, title: g.term, text: g.def })),
+  ]
+  built = new MiniSearch<Doc>({
+    fields: ['title', 'text'],
+    storeFields: ['kind', 'title', 'text', 'topicId', 'index'],
+    searchOptions: { boost: { title: 3 }, prefix: true, fuzzy: 0.2 },
+  })
+  // A duplicate id makes MiniSearch throw, which would blank the whole app; keep the first.
+  const seen = new Set<string>()
+  built.addAll(docs.filter((d) => !seen.has(d.id) && seen.add(d.id)))
+  return built
+}
 
 const STOP = /\b(what|whats|is|are|the|a|an|does|do|how|why|explain|tell|me|about|please|can|you|in|of|to|work|works|mean|means)\b/g
 
@@ -82,7 +89,7 @@ const topicById = (id?: string) => STATIC_TOPICS.find((t) => t.id === id) ?? nul
 
 /** The topic whose name the learner said, if any. */
 function findTopic(phrase: string): StaticTopic | null {
-  const hit = index.search(phrase, { filter: (r) => r.kind === 'topic', combineWith: 'AND' })[0] ?? index.search(phrase, { filter: (r) => r.kind === 'topic' })[0]
+  const hit = getIndex().search(phrase, { filter: (r) => r.kind === 'topic', combineWith: 'AND' })[0] ?? getIndex().search(phrase, { filter: (r) => r.kind === 'topic' })[0]
   return hit && hit.score > 2 ? topicById(hit.topicId as string) : null
 }
 
@@ -174,7 +181,7 @@ export function respond(input: string, ctx: AssistantContext): Reply {
 
   // Anything else: search what Structura knows, preferring the topic on screen.
   const query = said.replace(STOP, ' ').replace(/\s+/g, ' ').trim() || said
-  const hits = index.search(query, {
+  const hits = getIndex().search(query, {
     boostDocument: (_id, _term, stored) => (stored?.topicId && stored.topicId === topic?.id ? 1.6 : 1) * (stored?.kind === 'component' || stored?.kind === 'term' ? 1.3 : 1),
   })
   const best = hits[0]

@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { base64url, json, type Simulator } from './simulator'
+import { base64url, defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 /** The example's role table: what each role may do. The code snippet uses the same one. */
@@ -240,7 +240,9 @@ export const rbac: StaticTopic = {
         body: '- A user\'s role is removed. How quickly does it take effect, and how would you make it immediate?\n- How would you let editors edit only their own articles?\n- How do you support role hierarchies, where admin inherits everything editor has?\n- Where do you store tokens in a browser, and how do you protect them from XSS and CSRF?\n- How would multi-tenant RBAC work, where roles differ per organization?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Permission middleware (Express)',

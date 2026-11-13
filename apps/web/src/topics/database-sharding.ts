@@ -1,6 +1,6 @@
 import type { Trace } from '@structura/shared'
 import { hash32 } from './consistent-hashing'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // An orders table split over 4 database shards. The simulator uses a fixed,
@@ -427,7 +427,9 @@ export const databaseSharding: StaticTopic = {
         body: '- How would you choose a shard key for a chat app, for a social network, for a multi-tenant SaaS?\n- Why is hash mod N a bad way to place keys when you add a shard?\n- What is a hot shard and how do you find and fix one?\n- How do you run a join or a transaction across two shards?\n- How do you add shards with no downtime?\n- When would you not shard at all?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Route a key with fixed buckets (TypeScript)',

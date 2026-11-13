@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Leader election the Raft way: a small cluster where one node leads and the rest
@@ -302,7 +302,9 @@ export const leaderElection: StaticTopic = {
         body: '- Why are the election timeouts random?\n- Why does a leader need a majority, and why can two never be elected in the same term?\n- A leader is partitioned from the rest. What does it do, and what happens to its writes?\n- How would you stop an old leader from corrupting a shared database or file?\n- Why choose 5 nodes instead of 4, and what do you give up with 5 instead of 3?\n- When would you use a lock service like ZooKeeper instead of building election into your service?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Follower: election timeout and candidacy (TypeScript)',

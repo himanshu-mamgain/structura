@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written from scratch (no source text copied). The 4 MB block size and the
@@ -294,7 +294,9 @@ export const fileSync: StaticTopic = {
         body: '- How would you detect and resolve a conflict when a laptop edits a file while offline?\n- Why is deduplication across different users a privacy risk, and how can it be limited?\n- How would you add end-to-end encryption without losing deduplication?\n- How would you do version history and "restore this file to Tuesday"?\n- What changes when the shared folder has 10,000 members?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Cut a file into 4 MB blocks and hash each one',

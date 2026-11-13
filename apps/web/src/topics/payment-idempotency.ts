@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written for Structura, not adapted from a source. Amounts are in paise, as
@@ -482,7 +482,9 @@ export const paymentIdempotency: StaticTopic = {
         body: '- The app is killed mid-payment and reopened. How does it find the key it used?\n- The client reuses a key with a different amount. What do you return, and why not just replay?\n- A retry arrives after the key has expired. What happens, and how long should keys live?\n- The webhook says SUCCESS but the status API says FAILED. Which do you trust?\n- How is "exactly once" different from "at least once, plus idempotency"?\n- Two devices of the same user pay the same order at once. What stops a double debit?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Idempotent POST /v1/payments',

@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Written from scratch for Structura (no third-party text). Capacity numbers
@@ -211,7 +211,9 @@ export const chatSystem: StaticTopic = {
         body: '- How would you support the same account on a phone and a laptop?\n- How do read receipts work, and what do they cost in a 500-member group?\n- Would you pick a message queue or direct gateway-to-gateway RPC for delivery, and why?\n- How would end-to-end encryption change the server\'s job?\n- How do you keep message order if two servers assign ids in the same millisecond?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Gateway: receive, store, ack',

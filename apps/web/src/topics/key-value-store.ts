@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // A Dynamo-style key-value store: four nodes on a hash ring, every key stored on
@@ -271,7 +271,9 @@ export const keyValueStore: StaticTopic = {
         body: '- With N = 3, what do W = 2 and R = 2 guarantee, and what do they not?\n- How does the store behave during a network partition? Which side accepts writes?\n- Last-write-wins loses data when two clients update at once. How do vector clocks help?\n- Why does adding a node with a plain hash(key) mod nodes scheme move almost every key, and how does the ring avoid that?\n- How would you add secondary indexes or range scans on top?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Find the replicas on a hash ring',

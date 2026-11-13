@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import { json, stableHash, type Simulator } from './simulator'
+import { defaultTrace, json, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
 
 // A notification service for a shopping app: 20M daily users, ~5 notifications each.
@@ -307,7 +307,9 @@ export const notificationSystem: StaticTopic = {
         body: '- How do you make sure a user never gets the same notification twice?\n- A campaign goes to 5 million users at 9am. How do you avoid overloading providers and delaying login codes?\n- How do you handle a user with three devices, or a token that has expired?\n- What would you change to guarantee delivery of a payment alert?\n- How would you let a user say "no marketing at night" and enforce it everywhere?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Accept an event: dedup, preferences, queue (TypeScript)',

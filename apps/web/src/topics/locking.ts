@@ -1,5 +1,5 @@
 import type { Trace } from '@structura/shared'
-import type { Simulator } from './simulator'
+import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
 // Two buyers race for the last seat. The simulator plays the race under each
@@ -487,7 +487,9 @@ export const locking: StaticTopic = {
         body: '- Why do databases need intent locks, and what would a whole-table lock cost without them?\n- What deadlock does an update (U) lock prevent?\n- Does SELECT … FOR UPDATE block a plain SELECT in Postgres? Why not?\n- You use a Redis lock to stop double booking. A server pauses longer than the TTL. What happens, and how do fencing tokens fix it?\n- When is Redlock good enough, and when would you use etcd, ZooKeeper or the database instead?\n- 200,000 buyers and 5,000 seats in one minute: where do you lock, and how many database connections would waiting cost?',
       },
     ],
-    trace: simulator.run(simulator.defaults),
+    get trace() {
+      return defaultTrace(simulator)
+    },
     code: [
       {
         title: 'Redis lock with a fencing token (Node.js)',
