@@ -24,6 +24,8 @@ export interface TopicProgress {
 export interface Progress {
   topics: Record<string, TopicProgress>
   quizBest?: number
+  /** Roadmap steps without a topic, ticked off by hand: step id → when. */
+  roadmap?: Record<string, number>
 }
 
 const KEY = 'structura:progress:v1'
@@ -54,6 +56,14 @@ export function updateTopic(id: string, patch: Partial<TopicProgress> | ((p: Top
   const current = state.topics[id] ?? {}
   const change = typeof patch === 'function' ? patch(current) : patch
   save({ ...state, topics: { ...state.topics, [id]: { ...current, ...change } } })
+}
+
+/** Tick a hand-checked roadmap step on or off. */
+export function toggleRoadmapStep(id: string) {
+  const roadmap = { ...state.roadmap }
+  if (roadmap[id]) delete roadmap[id]
+  else roadmap[id] = Date.now()
+  save({ ...state, roadmap })
 }
 
 export function recordQuiz(score: number) {

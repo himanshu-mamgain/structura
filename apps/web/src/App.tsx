@@ -10,13 +10,14 @@ import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { Glossary, Quiz } from './shell/Practice'
 import { Commute, MiniPlayer } from './shell/Commute'
 import { Reels } from './shell/Reels'
+import { Roadmap } from './shell/Roadmap'
 import { SearchBox } from './shell/Search'
 import { TopicView } from './shell/TopicView'
 import { VoiceAssistant } from './shell/VoiceAssistant'
 import { STATIC_TOPICS, type StaticTopic } from './topics'
 
-type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels'
-const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels']
+type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels' | 'roadmap'
+const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels', 'roadmap']
 
 /** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…), so links can be shared. */
 function readRoute() {
@@ -162,8 +163,10 @@ export default function App() {
             </>
           ) : route.page === 'listen' ? (
             <Commute />
+          ) : route.page === 'roadmap' ? (
+            <Roadmap onOpen={open} />
           ) : route.page === 'explore' ? (
-            <Explore onOpen={open} onNote={openNote} category={route.category} onCategory={openCategory} />
+            <Explore onOpen={open} onNote={openNote} category={route.category} onCategory={openCategory} onRoadmap={() => openPage('roadmap')} />
           ) : reels ? (
             <Reels start={route.reel} onOpen={open} />
           ) : (

@@ -4,6 +4,7 @@ import { useProgress } from '../learn/progress'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY, sourceOf, topicForGuide } from '../topics/library'
 import { NotesShelf } from './Notes'
+import { RoadmapCard } from './Roadmap'
 import { SearchBox } from './Search'
 import { topicIcon } from './topicIcons'
 
@@ -17,11 +18,13 @@ export function Explore({
   onNote,
   category,
   onCategory,
+  onRoadmap,
 }: {
   onOpen: (topic: StaticTopic) => void
   onNote: (id: string) => void
   category: string | null
   onCategory: (id: string | null) => void
+  onRoadmap: () => void
 }) {
   const [query, setQuery] = useState('')
   const progress = useProgress()
@@ -31,6 +34,7 @@ export function Explore({
       <SearchBox inline onOpen={onOpen} onNote={onNote} query={query} onQuery={setQuery} />
       {!query.trim() && (
         <>
+          <RoadmapCard onRoadmap={onRoadmap} />
           <NotesShelf onNote={onNote} />
           <h2 className="explore-title">
             <Shapes size={19} aria-hidden /> Topics

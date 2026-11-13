@@ -4,6 +4,7 @@ import type { Progress } from './progress'
 import { lessonTopics, LESSONS, next as nextChapter, playTopic, toggle as toggleLesson } from './commute'
 import { planToday } from './today'
 import { STATIC_TOPICS, type StaticTopic } from '../topics'
+import { nextStep, ROADMAP } from './roadmap'
 
 // The voice assistant's "brain", with no AI: a few commands it recognises by
 // their words, and otherwise a full-text search (MiniSearch) over everything
@@ -15,7 +16,7 @@ export interface AssistantContext {
   topic: StaticTopic | null
   progress: Progress
   open: (topic: StaticTopic | null) => void
-  openPage: (page: 'quiz' | 'glossary' | 'listen') => void
+  openPage: (page: 'quiz' | 'glossary' | 'listen' | 'roadmap') => void
 }
 
 export interface Reply {
@@ -97,7 +98,7 @@ const brief = (text: string, sentences = 3) =>
 // ─── Commands ────────────────────────────────────────────────────────────
 
 const HELP =
-  'You can say: open URL shortener. What should I learn today? What is a load balancer? Start the walkthrough, next, back, or step three. Give me the takeaways. Quiz me.'
+  'You can say: open URL shortener. Where do I start? What should I learn today? What is a load balancer? Start the walkthrough, next, back, or step three. Give me the takeaways. Quiz me.'
 
 const NUMBERS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 }
 
@@ -109,6 +110,11 @@ export function respond(input: string, ctx: AssistantContext): Reply {
   if (/\b(help|what can you do|commands)\b/.test(said)) return { say: HELP }
   if (/\b(stop|quiet|shut up|enough)\b/.test(said) && said.split(' ').length <= 3) return { say: 'Okay.', act: () => sendWalk({ cmd: 'stop' }) }
   if (/\b(home|main page)\b/.test(said)) return { say: 'Going home.', act: () => ctx.open(null) }
+
+  if (/\b(roadmap|learning path|where (do|should) i (start|begin))\b/.test(said)) {
+    const next = nextStep(ctx.progress)
+    return { say: next ? `Here's your roadmap. Next up, part ${ROADMAP.indexOf(next.part) + 1}, ${next.part.title}: ${next.step.title}.` : "Here's your roadmap. You've finished every step.", act: () => ctx.openPage('roadmap') }
+  }
 
   if (/\b(today|what should i (learn|study|do|pick)|plan)\b/.test(said)) {
     const plan = planToday(STATIC_TOPICS, ctx.progress, course.quiz.length)

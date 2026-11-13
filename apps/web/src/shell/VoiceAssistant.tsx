@@ -49,7 +49,7 @@ export function VoiceAssistant({
 }: {
   topic: StaticTopic | null
   open: (topic: StaticTopic | null) => void
-  openPage: (page: 'quiz' | 'glossary' | 'listen') => void
+  openPage: (page: 'quiz' | 'glossary' | 'listen' | 'roadmap') => void
 }) {
   const [panel, setPanel] = useState(false)
   const [settings, setSettings] = useState(false)

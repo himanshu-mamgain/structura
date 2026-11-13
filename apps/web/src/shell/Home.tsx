@@ -6,6 +6,7 @@ import { STATIC_TOPICS, type StaticTopic } from '../topics'
 import { LIBRARY } from '../topics/library'
 import { NotifyPrompt } from './Notifications'
 import { ReelsRow } from './Reels'
+import { RoadmapCard } from './Roadmap'
 import { topicIcon } from './topicIcons'
 import { TodayCard } from './VoiceGuide'
 import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
@@ -22,7 +23,7 @@ export function Home({
   onReel,
 }: {
   onOpen: (topic: StaticTopic) => void
-  onPage: (page: 'quiz' | 'glossary' | 'listen' | 'reels' | 'explore') => void
+  onPage: (page: 'quiz' | 'glossary' | 'listen' | 'reels' | 'explore' | 'roadmap') => void
   onReel: (id: string) => void
 }) {
   const progress = useProgress()
@@ -56,8 +57,9 @@ export function Home({
           see what breaks, and put load on it in 3D. Narrated videos, code and interview questions included.
         </p>
         <div className="hero-actions">
-          <button type="button" className="btn btn-primary" onClick={() => onOpen(recent[0] ?? STATIC_TOPICS[0])}>
-            <Play size={16} fill="currentColor" /> {recent[0] ? `Continue ${recent[0].title}` : `Start with ${STATIC_TOPICS[0].title}`}
+          {/* New learners start with the roadmap; everyone else carries on where they were. */}
+          <button type="button" className="btn btn-primary" onClick={() => (recent[0] ? onOpen(recent[0]) : onPage('roadmap'))}>
+            <Play size={16} fill="currentColor" /> {recent[0] ? `Continue ${recent[0].title}` : 'Start the roadmap'}
           </button>
           <button type="button" className="btn" onClick={() => onPage('quiz')}>
             <GraduationCap size={17} /> Test yourself
@@ -81,6 +83,7 @@ export function Home({
         </dl>
       </section>
 
+      <RoadmapCard onRoadmap={() => onPage('roadmap')} />
       <TodayCard onOpen={onOpen} />
       <NotifyPrompt />
       <CommuteCard onPage={onPage} />
