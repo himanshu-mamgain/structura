@@ -59,7 +59,7 @@ function useNarrow() {
  * the narrated video with chapters, the explanation with a walkthrough, code
  * and data model, and the key takeaways. Mounted fresh for each topic.
  */
-export function TopicView({ topic, board, openLoad = false, onNote }: { topic: StaticTopic; board: Board; openLoad?: boolean; onNote?: (id: string) => void }) {
+export function TopicView({ topic, board, openLoad = false, onNote, onRead }: { topic: StaticTopic; board: Board; openLoad?: boolean; onNote?: (id: string) => void; onRead?: () => void }) {
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
   const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
@@ -312,6 +312,11 @@ export function TopicView({ topic, board, openLoad = false, onNote }: { topic: S
           )}
         </div>
         <div className="topic-actions">
+          {onRead && (
+            <button type="button" className="btn" onClick={onRead} title="Read the whole topic as one article">
+              <BookOpen size={17} /> Read
+            </button>
+          )}
           {speechSupported && (
             <>
               <button type="button" className={`btn${tour !== 'off' ? ' is-on' : ''}`} onClick={() => void startTour()}>
