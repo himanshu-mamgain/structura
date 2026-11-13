@@ -102,6 +102,13 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
    - `takeaways`: 5 or 6 one-sentence points.
    - `guides`: related slugs from `library.json` (search it by title).
    - `adaptedFrom`: required when the topic is adapted from a CC BY source.
+   - **Deep notes** (`src/topics/notes/<id>.md`, recommended): the article read mode shows
+     instead of the explanation, written like the owner's Notion study notes. `# Title`, then a
+     `> 💡 **TL;DR**` callout, then `##` sections: an at-a-glance table, how it works underneath,
+     real code, a "How to choose" guide, `## ⚠️ Critical Mistakes`, `## Interview Q&As`
+     (`**Q: …**` then `A: …`), related topics (`/?topic=<id>&read` links), sources and
+     `## Why This Matters`. `docker-vs-vm.md` is the model; `src/learn/markdown.ts` lists the
+     Markdown it reads (tables, code fences, callouts, nested lists).
 2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`), and **give it a step in the roadmap**
    (`src/learn/roadmap.ts`) in the part where it belongs. Unplaced topics still show, under "More topics".
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon).

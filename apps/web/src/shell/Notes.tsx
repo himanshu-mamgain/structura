@@ -309,7 +309,7 @@ export function NoteView({ id, onNote, onOpen }: { id: string; onNote: (id: stri
   )
 }
 
-function Text({ r, index, onNote }: { r: Rich[]; index: NotesIndex; onNote: (id: string) => void }) {
+function Text({ r, index, onNote }: { r: Rich[]; index?: NotesIndex; onNote: (id: string) => void }) {
   return (
     <>
       {r.map(([text, marks = '', href], i) => {
@@ -319,8 +319,10 @@ function Text({ r, index, onNote }: { r: Rich[]; index: NotesIndex; onNote: (id:
         if (marks.includes('i')) el = <em>{el}</em>
         if (marks.includes('s')) el = <s>{el}</s>
         if (marks.includes('u')) el = <u>{el}</u>
-        if (href) {
-          const target = noteIdIn(href, index)
+        // Links to /?topic=… stay in the app (read mode handles the click).
+        if (href?.startsWith('/?')) el = <a href={href}>{el}</a>
+        else if (href) {
+          const target = index ? noteIdIn(href, index) : null
           el = target ? (
             <a
               href={`/?note=${target}`}
@@ -343,7 +345,7 @@ function Text({ r, index, onNote }: { r: Rich[]; index: NotesIndex; onNote: (id:
   )
 }
 
-function NoteImage({ src, caption, index, onNote }: { src: string; caption?: Rich[]; index: NotesIndex; onNote: (id: string) => void }) {
+function NoteImage({ src, caption, index, onNote }: { src: string; caption?: Rich[]; index?: NotesIndex; onNote: (id: string) => void }) {
   const [url, setUrl] = useState<string | null>(null)
   useEffect(() => {
     let live = true
@@ -375,7 +377,8 @@ const host = (url: string) => {
   }
 }
 
-function Blocks({ blocks, index, onNote }: { blocks: Block[]; index: NotesIndex; onNote: (id: string) => void }) {
+/** Note blocks, as Notion notes and topics' deep notes both use them. */
+export function Blocks({ blocks, index, onNote = () => {} }: { blocks: Block[]; index?: NotesIndex; onNote?: (id: string) => void }) {
   const sub = (c?: Block[]) => (c?.length ? <Blocks blocks={c} index={index} onNote={onNote} /> : null)
   const text = (r: Rich[]) => <Text r={r} index={index} onNote={onNote} />
   return (
@@ -504,7 +507,7 @@ function Blocks({ blocks, index, onNote }: { blocks: Block[]; index: NotesIndex;
               </a>
             )
           case 'page': {
-            const target = index.notes.find((n) => n.id === b.id)
+            const target = index?.notes.find((n) => n.id === b.id)
             return target ? (
               <button key={i} type="button" className="note-page-link" onClick={() => onNote(target.id)}>
                 <NoteIcon note={target} size={16} /> {target.title}

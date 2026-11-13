@@ -210,7 +210,7 @@ export default function App() {
               topic ? (
                 <Suspense fallback={<TopicLoading meta={meta} />}>
                   {route.read ? (
-                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} />
+                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} onOpen={open} />
                   ) : (
                     <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} onRead={() => openRead(meta)} />
                   )}
