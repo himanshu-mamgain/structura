@@ -171,7 +171,7 @@ export function Commute() {
               <WifiOff size={14} /> All saved for offline
             </span>
           ) : (
-            <button type="button" className="btn btn-primary" disabled={Boolean(s.saving)} onClick={() => void saveOffline(topics.map((t) => t.id))}>
+            <button type="button" className="btn btn-primary btn-wrap" disabled={Boolean(s.saving)} onClick={() => void saveOffline(topics.map((t) => t.id))}>
               {s.saving ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
               {s.saving ? `Saving ${TOPICS.find((t) => t.id === s.saving!.topicId)?.title} (${s.saving.done}/${s.saving.total})` : 'Save all for offline'}
             </button>

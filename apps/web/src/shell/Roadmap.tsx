@@ -142,11 +142,11 @@ function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: 
       <span>{step.detail}</span>
       <div className="roadmap-next-actions">
         {topic ? (
-          <button type="button" className="btn btn-primary" onClick={() => onOpen(topic)}>
+          <button type="button" className="btn btn-primary btn-wrap" onClick={() => onOpen(topic)}>
             <Play size={15} fill="currentColor" /> Open {topic.title}
           </button>
         ) : guide ? (
-          <a className="btn btn-primary" href={guide.url} target="_blank" rel="noreferrer">
+          <a className="btn btn-primary btn-wrap" href={guide.url} target="_blank" rel="noreferrer">
             <BookOpen size={15} /> Read: {guide.title}
           </a>
         ) : null}
