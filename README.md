@@ -64,6 +64,8 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | ECS on Fargate | Intermediate | | | |
 | Full-stack App on ECS | Advanced | | | |
 | Load Balancer | Intermediate | | | |
+| Redis Basics: Data Types | Beginner | | | |
+| Redis Persistence and Replication | Advanced | | | |
 
 ## Getting started
 

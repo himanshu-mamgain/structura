@@ -1,6 +1,6 @@
 import { BookOpen, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
-import { nextStep, partDone, ROADMAP, ROADMAP_STEPS, type RoadmapStep, stepDone, unplacedTopics } from '../learn/roadmap'
+import { LEVEL_TAGLINE, levelGroups, nextStep, partDone, ROADMAP, ROADMAP_STEPS, type RoadmapStep, stepDone, unplacedTopics } from '../learn/roadmap'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import type { Guide } from '../topics/library'
 import { useLibrary } from '../topics/useLibrary'
@@ -87,11 +87,23 @@ export function Roadmap({ onOpen }: { onOpen: (topic: TopicMeta) => void }) {
               <span className="progress-bar" aria-hidden>
                 <span style={{ width: `${(d / part.steps.length) * 100}%` }} />
               </span>
-              <ol className="roadmap-steps">
-                {part.steps.map((step) => (
-                  <Step key={step.id} step={step} isNext={next?.step.id === step.id} onOpen={onOpen} />
-                ))}
-              </ol>
+              {levelGroups(part).map((group) => (
+                <section key={group.steps[0].id} className={group.level ? 'roadmap-level' : undefined}>
+                  {group.level && (
+                    <h3>
+                      {group.level} <span>{LEVEL_TAGLINE[group.level]}</span>
+                      <small>
+                        {group.steps.filter((s) => stepDone(s, progress)).length}/{group.steps.length}
+                      </small>
+                    </h3>
+                  )}
+                  <ol className="roadmap-steps">
+                    {group.steps.map((step) => (
+                      <Step key={step.id} step={step} isNext={next?.step.id === step.id} onOpen={onOpen} />
+                    ))}
+                  </ol>
+                </section>
+              ))}
             </li>
           )
         })}

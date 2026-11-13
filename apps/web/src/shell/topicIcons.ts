@@ -1,4 +1,4 @@
-import { Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Container, Crown, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Container, Crown, DatabaseBackup, DatabaseZap, Earth, FingerprintPattern, FolderSync, Gauge, IndianRupee, Layers, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -38,6 +38,8 @@ const ICONS: Record<string, LucideIcon> = {
   'aws-alb': Split,
   'aws-ecs-fargate': Boxes,
   'aws-ecs-fullstack': Ship,
+  'redis-basics': Layers,
+  'redis-persistence': DatabaseBackup,
   'load-balancer': Scale,
 }
 

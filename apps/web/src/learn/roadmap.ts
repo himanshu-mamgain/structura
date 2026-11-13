@@ -10,6 +10,14 @@ import type { Progress } from './progress'
 // When you add a topic, give it a step here. Topics without one still appear,
 // at the end, under "More topics".
 
+export type RoadmapLevel = 'Basics' | 'Intermediate' | 'Advanced'
+
+export const LEVEL_TAGLINE: Record<RoadmapLevel, string> = {
+  Basics: 'Start here',
+  Intermediate: 'Using it in real systems',
+  Advanced: 'When it breaks, and at scale',
+}
+
 export interface RoadmapStep {
   /** Stable id: progress for hand-ticked steps is stored under it. */
   id: string
@@ -22,6 +30,8 @@ export interface RoadmapStep {
   guides?: string[]
   /** Something to build yourself. */
   practice?: boolean
+  /** Where it sits in its track. Consecutive steps with the same level are shown under one heading. */
+  level?: RoadmapLevel
 }
 
 export interface RoadmapPart {
@@ -53,13 +63,15 @@ export const ROADMAP: RoadmapPart[] = [
     tagline: 'Caching and coordination',
     why: 'The first thing most systems add when one database is not fast enough.',
     steps: [
-      { id: 'redis-types', title: 'Data types', detail: 'Strings, hashes, lists, sets and sorted sets, and which problem each one solves.', guides: ['the-ultimate-redis-101', 'how-can-redis-be-used', 'why-is-redis-so-fast'] },
-      { id: 'redis-cache', title: 'Caching patterns', detail: 'Cache-aside, TTLs and invalidation, and what happens on a miss storm.', topic: 'query-cache', guides: ['top-5-caching-strategies'] },
-      { id: 'redis-distributed', title: 'A cache across many nodes', detail: 'Sharding keys, replication and eviction when one Redis is not enough.', topic: 'distributed-cache', guides: ['memcached-vs-redis'] },
-      { id: 'redis-rate-limit', title: 'Rate limiting with Redis', detail: 'Token buckets and sliding windows with atomic counters.', topic: 'rate-limiter' },
-      { id: 'redis-locks', title: 'Distributed locks and their pitfalls', detail: 'SET NX with a TTL, fencing tokens, and when the database should hold the lock instead.', topic: 'locking' },
-      { id: 'redis-persist', title: 'Persistence and pub/sub', detail: 'RDB snapshots vs the append-only file, and publishing messages to subscribers.', guides: ['how-does-redis-persist-data', 'build-a-simple-chat-application'] },
-      { id: 'redis-practice', title: 'Add caching and a rate limiter to your Dockerised app', detail: 'Redis in the compose file, cache-aside on one slow endpoint, a limit on the login route.', practice: true },
+      { id: 'redis-types', level: 'Basics', title: 'Data types and commands', detail: 'Strings, hashes, lists, sets and sorted sets, TTLs, and why every command is atomic.', topic: 'redis-basics', guides: ['the-ultimate-redis-101', 'how-can-redis-be-used', 'why-is-redis-so-fast'] },
+      { id: 'redis-cache', level: 'Intermediate', title: 'Caching patterns', detail: 'Cache-aside, TTLs and invalidation, and what happens on a miss storm.', topic: 'query-cache', guides: ['top-5-caching-strategies'] },
+      { id: 'redis-distributed', level: 'Intermediate', title: 'A cache across many nodes', detail: 'Sharding keys, replication and eviction when one Redis is not enough.', topic: 'distributed-cache', guides: ['memcached-vs-redis'] },
+      { id: 'redis-rate-limit', level: 'Intermediate', title: 'Rate limiting with Redis', detail: 'Token buckets and sliding windows with atomic counters.', topic: 'rate-limiter' },
+      { id: 'redis-locks', level: 'Intermediate', title: 'Distributed locks and their pitfalls', detail: 'SET NX with a TTL, fencing tokens, and when the database should hold the lock instead.', topic: 'locking' },
+      { id: 'redis-pubsub', level: 'Intermediate', title: 'Pub/sub', detail: 'Publishing messages to subscribers, and why a subscriber that was offline never sees them.', guides: ['build-a-simple-chat-application'] },
+      { id: 'redis-practice', level: 'Intermediate', title: 'Add caching and a rate limiter to your Dockerised app', detail: 'Redis in the compose file, cache-aside on one slow endpoint, a limit on the login route.', practice: true },
+      { id: 'redis-persist', level: 'Advanced', title: 'Persistence, replication and failover', detail: 'RDB vs the AOF, replicas and Sentinel, and what each kind of failure really loses.', topic: 'redis-persistence', guides: ['how-does-redis-persist-data', 'how-redis-architecture-evolve'] },
+      { id: 'redis-practice-failover', level: 'Advanced', title: 'Kill the primary on purpose', detail: 'Run a primary, a replica and three Sentinels in Docker Compose, stop the primary, and time the failover.', practice: true },
     ],
   },
   {
@@ -167,6 +179,17 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
 ]
+
+/** A part's steps in runs of the same level, for the headings on the roadmap page. */
+export function levelGroups(part: RoadmapPart): { level?: RoadmapLevel; steps: RoadmapStep[] }[] {
+  const groups: { level?: RoadmapLevel; steps: RoadmapStep[] }[] = []
+  for (const step of part.steps) {
+    const last = groups[groups.length - 1]
+    if (last && last.level === step.level) last.steps.push(step)
+    else groups.push({ level: step.level, steps: [step] })
+  }
+  return groups
+}
 
 export const ROADMAP_STEPS = ROADMAP.flatMap((part) => part.steps.map((step) => ({ part, step })))
 

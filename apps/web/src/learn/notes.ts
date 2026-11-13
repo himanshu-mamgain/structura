@@ -197,6 +197,8 @@ const ALIASES: Record<string, string[]> = {
   'llm-gateway': ['llm gateway', 'ai gateway', 'model routing', 'litellm', 'token limit'],
   'ai-agent': ['agent', 'tool call', 'function calling', 'prompt injection', 'mcp'],
   'vector-database': ['vector', 'embedding', 'similarity search', 'nearest neighbo', 'hnsw', 'pgvector'],
+  'redis-basics': ['redis', 'data type', 'sorted set', 'leaderboard', 'ttl'],
+  'redis-persistence': ['persistence', 'replication', 'sentinel', 'append-only', 'snapshot', 'failover', 'split brain', 'split-brain'],
   locking: ['lock', 'redlock', 'mvcc', 'transaction', 'isolation level', 'concurrency control', 'deadlock'],
 }
 
