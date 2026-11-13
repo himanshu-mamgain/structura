@@ -8,6 +8,9 @@
 // - Donne Martin's System Design Primer (github.com/donnemartin/system-design-primer),
 //   CC BY 4.0: its concept chapters and worked designs, linked by section. Being
 //   CC BY, Structura topics may be adapted from it, with credit.
+// - PingCAP's Awesome Database Learning (github.com/pingcap/awesome-database-learning):
+//   no licence given, so only its section headings are kept, each linked to that
+//   section of its README. Its curated list itself is not copied.
 //
 //   node scripts/kb-sync.mjs
 import { writeFileSync } from 'node:fs'
@@ -167,6 +170,27 @@ for (const line of scalabilityReadme.split(/\r?\n/)) {
   }
 }
 
+// ─── Awesome Database Learning (no licence): linked by section only ───
+
+const DB_LEARNING = 'https://github.com/pingcap/awesome-database-learning'
+const dbReadme = await text('https://raw.githubusercontent.com/pingcap/awesome-database-learning/master/README.md')
+const dbLinks = []
+let dbSection = null
+for (const line of dbReadme.split(/\r?\n/)) {
+  const heading = line.match(/^(##|###) (.+)$/)
+  if (!heading) continue
+  const title = heading[2].trim()
+  if (heading[1] === '##') dbSection = title === 'Table of Contents' ? null : title
+  if (!dbSection) continue
+  dbLinks.push({
+    slug: `db-${anchor(title).replace(/-+/g, '-')}`,
+    title: heading[1] === '##' ? `Database internals: ${title}` : `Database internals: ${dbSection} › ${title}`,
+    categories: ['db-learning'],
+    tags: ['Databases'],
+    url: `${DB_LEARNING}#${anchor(title)}`,
+  })
+}
+
 // ─── Projects and tutorials worth knowing (linked; licences noted) ───
 
 const references = [
@@ -176,6 +200,7 @@ const references = [
   { slug: 'ref-docker-curriculum', title: 'Docker for beginners: a comprehensive tutorial', url: 'https://docker-curriculum.com/', tags: ['Docker', 'MIT'] },
   { slug: 'ref-awesome-system-design-resources', title: 'Awesome system design resources (free interview prep)', url: 'https://github.com/ashishps1/awesome-system-design-resources', tags: ['Interviews', 'GPL-3.0'] },
   { slug: 'ref-awesome-scalability', title: 'Awesome Scalability: patterns of large-scale systems', url: SCALABILITY, tags: ['Scalability', 'MIT'] },
+  { slug: 'ref-awesome-database-learning', title: 'Awesome Database Learning: papers, courses and talks on database internals', url: DB_LEARNING, tags: ['Databases', 'Link only'] },
 ].map((r) => ({ ...r, categories: ['references'], source: 'references' }))
 
 // ─── AWS containers on Terraform (adaptable with credit; the roadmap is linked only) ───
@@ -228,6 +253,7 @@ writeFileSync(
         diagrams: { name: 'System design diagrams (Chaki34)', repo: DIAGRAMS, license: 'No licence given: linked only.' },
         scalability: { name: 'Awesome Scalability (Binh Nguyen)', repo: SCALABILITY, license: 'MIT: the curated list of titles and links; each article belongs to its author.' },
         aws: { name: 'AWS containers on Terraform', repo: ECS_SAMPLE, license: 'aws-samples full-stack app MIT-0 and terraform-aws-modules Apache 2.0: topics adapted from them credit them. containers-roadmap CC BY-SA 4.0: linked only.' },
+        databases: { name: 'Awesome Database Learning (PingCAP)', repo: DB_LEARNING, license: 'No licence given: its sections are linked only; nothing is copied.' },
         references: { name: 'Projects and tutorials', repo: 'https://kafka.apache.org/', license: 'Linked; each keeps its own licence (Kafka Apache 2.0, docker-curriculum MIT, awesome-system-design-resources GPL-3.0, link only).' },
       },
       categories: [
@@ -238,6 +264,7 @@ writeFileSync(
         { id: 'aws-sample', title: 'AWS: full-stack app on ECS (sample)', sort: 8000, source: 'aws' },
         { id: 'aws-terraform', title: 'AWS: Terraform modules (ECS, VPC, ALB)', sort: 8001, source: 'aws' },
         { id: 'aws-roadmap', title: 'AWS: containers roadmap', sort: 8002, source: 'aws' },
+        { id: 'db-learning', title: 'Database internals (Awesome Database Learning)', sort: 8500, source: 'databases' },
         { id: 'references', title: 'Projects and tutorials', sort: 9000, source: 'references' },
         { id: 'community-diagrams', title: 'Community diagrams', sort: 9999, source: 'diagrams' },
       ],
@@ -248,6 +275,7 @@ writeFileSync(
         ...references,
         ...aws,
         ...scalabilityLinks.map((g) => ({ ...g, source: 'scalability' })),
+        ...dbLinks.map((g) => ({ ...g, source: 'databases' })),
         ...diagrams.map((g) => ({ ...g, source: 'diagrams' })),
       ],
     },
@@ -255,4 +283,4 @@ writeFileSync(
     1,
   )}\n`,
 )
-console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${references.length} references, ${aws.length} AWS links, ${diagrams.length} diagram sets → src/topics/library.json`)
+console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${dbLinks.length} database sections, ${references.length} references, ${aws.length} AWS links, ${diagrams.length} diagram sets → src/topics/library.json`)
