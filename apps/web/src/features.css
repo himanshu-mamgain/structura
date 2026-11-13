@@ -2020,6 +2020,12 @@ html {
   color: #a5b4fc;
 }
 
+/* The text column may shrink, and long words wrap, so larger phone text sizes still fit. */
+.fact > span:last-child {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 .fact strong {
   display: block;
   font-size: 14.5px;
@@ -2028,6 +2034,22 @@ html {
 .fact small {
   color: var(--muted);
   font-size: 12.5px;
+}
+
+/* Two narrow cards side by side on a phone: put the icon above the text so the text
+   gets the card's full width. */
+@media (max-width: 599px) {
+  .fact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .fact-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
 }
 
 @media (min-width: 900px) {
