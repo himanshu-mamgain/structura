@@ -5230,3 +5230,257 @@ button.roadmap-step-title:hover {
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ─── Areas: Development, Infra, Databases, AI (src/topics/areas.ts) ─── */
+
+.area-is-development {
+  --area: #a5b4fc;
+  --area-soft: rgba(129, 140, 248, 0.16);
+  --area-line: rgba(129, 140, 248, 0.42);
+}
+
+.area-is-infra {
+  --area: #fdba74;
+  --area-soft: rgba(251, 146, 60, 0.15);
+  --area-line: rgba(251, 146, 60, 0.42);
+}
+
+.area-is-databases {
+  --area: #67e8f9;
+  --area-soft: rgba(34, 211, 238, 0.14);
+  --area-line: rgba(34, 211, 238, 0.4);
+}
+
+.area-is-ai {
+  --area: #f9a8d4;
+  --area-soft: rgba(244, 114, 182, 0.15);
+  --area-line: rgba(244, 114, 182, 0.42);
+}
+
+/* Filter chips: one row, scrolls sideways on narrow screens. */
+.area-chips {
+  display: flex;
+  gap: 8px;
+  margin: 14px -4px 0;
+  padding: 2px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.area-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.area-chips button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.area-chips button svg {
+  color: var(--area, var(--muted));
+}
+
+.area-chips button small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.area-chips button[aria-pressed='true'] {
+  border-color: var(--area-line, rgba(109, 106, 248, 0.6));
+  background: var(--area-soft, var(--primary-soft));
+}
+
+.home-section .area-chips {
+  margin: 0 -4px 14px;
+}
+
+/* Home: the four areas as cards, two by two on phones. */
+.area-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 900px) {
+  .area-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.area-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border-color: var(--area-line);
+  background: linear-gradient(160deg, var(--area-soft), transparent 70%), var(--card);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.area-card strong {
+  font-size: 17px;
+}
+
+.area-card-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--area-soft);
+  color: var(--area);
+}
+
+.area-card-tagline {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.area-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--area);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* A topic's area, next to its level. */
+.area-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border: 1px solid var(--area-line);
+  border-radius: 999px;
+  background: var(--area-soft);
+  color: var(--area);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+button.area-tag {
+  cursor: pointer;
+}
+
+/* Explore: each area's tiles under its own heading. */
+.explore-area-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.explore-area .explore-title svg {
+  color: var(--area);
+}
+
+.explore-area .explore-title small {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.explore-area-tagline {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.area-intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 14px;
+  margin-top: 14px;
+  padding: 16px;
+  border-color: var(--area-line);
+  background: linear-gradient(160deg, var(--area-soft), transparent 70%), var(--card);
+}
+
+.area-intro h1 {
+  margin: 0 0 4px;
+  font-size: 26px;
+}
+
+.area-intro p {
+  margin: 0;
+  color: #c7cde0;
+}
+
+.area-intro .area-intro-count {
+  margin-top: 6px;
+  color: var(--area);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.area-intro-roadmap {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Roadmap: where each area's track starts, and its colour on the part. */
+.roadmap-area-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--area, var(--text));
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roadmap-area-head .link-btn {
+  margin-left: auto;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.roadmap-part[class*='area-is-'] {
+  border-top: 3px solid var(--area-line);
+}
+
+.roadmap-part[class*='area-is-'] .roadmap-num {
+  background: var(--area-soft);
+  color: var(--area);
+}
+
+.roadmap-nav button[class*='area-is-'] .roadmap-nav-num {
+  background: var(--area-soft);
+  color: var(--area);
+}
+
+.roadmap > .area-chips {
+  margin-top: 0;
+}

@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Bookmark, CheckCircle2, Footprints, GraduationCap, Headphones, Play, Sparkles, Video, WifiOff, Zap } from 'lucide-react'
 import { ago, readiness, type TopicProgress, useProgress, videoFraction } from '../learn/progress'
 import course from '../learn/course.json'
+import { AREA_OF, type AreaId } from '../topics/areas'
 import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
+import { AreaCards, AreaChips } from './Areas'
 import { NotifyPrompt } from './Notifications'
 import { ReelsRow } from './Reels'
 import { RoadmapCard } from './RoadmapCard'
@@ -20,13 +22,16 @@ export function Home({
   onOpen,
   onPage,
   onReel,
+  onArea,
 }: {
   onOpen: (topic: TopicMeta) => void
   onPage: (page: 'quiz' | 'glossary' | 'listen' | 'reels' | 'explore' | 'roadmap') => void
   onReel: (id: string) => void
+  onArea: (area: AreaId) => void
 }) {
   const progress = useProgress()
   const [filter, setFilter] = useState<Filter>('all')
+  const [area, setArea] = useState<AreaId | null>(null)
   const p = (t: TopicMeta): TopicProgress | undefined => progress.topics[t.id]
 
   const recent = TOPICS.filter((t) => p(t)?.lastOpenedAt)
@@ -36,6 +41,7 @@ export function Home({
   const completed = TOPICS.filter((t) => p(t)?.completed).length
   const shown = TOPICS.filter((t) => {
     const tp = p(t)
+    if (area && AREA_OF[t.id] !== area) return false
     if (filter === 'bookmarked') return tp?.bookmarked
     if (filter === 'completed') return tp?.completed
     if (filter === 'in-progress') return tp?.lastOpenedAt && !tp.completed
@@ -83,6 +89,7 @@ export function Home({
       </section>
 
       <RoadmapCard onRoadmap={() => onPage('roadmap')} />
+      <AreaCards onArea={onArea} />
       <TodayCard onOpen={onOpen} />
       <NotifyPrompt />
       <CommuteCard onPage={onPage} />
@@ -137,6 +144,7 @@ export function Home({
             ))}
           </div>
         </div>
+        <AreaChips value={area} onChange={setArea} label="Show topics in" />
         <div className="topic-cards">
           {shown.map((t) => {
             const Icon = topicIcon(t.id)

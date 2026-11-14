@@ -14,6 +14,8 @@ import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { hasDeepNote, loadDeepNote } from '../topics/deepNotes'
 import { guidesFor, sourceOf } from '../topics/library'
 import type { StaticTopic } from '../topics/types'
+import type { AreaId } from '../topics/areas'
+import { AreaTag } from './Areas'
 import { Blocks } from './Notes'
 import { topicIcon } from './topicIcons'
 
@@ -70,11 +72,13 @@ export function Reader({
   onExit,
   onRead,
   onOpen,
+  onArea,
 }: {
   topic: StaticTopic
   onExit: () => void
   onRead: (next: TopicMeta) => void
   onOpen: (next: TopicMeta) => void
+  onArea?: (area: AreaId) => void
 }) {
   const progress = useProgress().topics[topic.id]
   const commute = useCommute()
@@ -236,7 +240,8 @@ export function Reader({
 
       <header className="reader-head">
         <p className="reader-kicker">
-          <Icon size={16} aria-hidden /> <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span>
+          <Icon size={16} aria-hidden /> <AreaTag topicId={topic.id} onArea={onArea} />{' '}
+          <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span>
           {deep && <span className="reader-kind">Deep notes</span>} · {minutes} min read
         </p>
         <h1>{note?.title ?? topic.title}</h1>

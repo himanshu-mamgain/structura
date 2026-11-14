@@ -1,14 +1,15 @@
+import { AREA_OF, AREAS, type AreaId } from '../topics/areas'
 import type { TopicMeta } from '../topics/catalog'
 import type { Progress } from './progress'
 
-// The learning roadmap: where to start and what comes next. Parts are in the
-// order they build on each other (containers first, then the tools that run in
-// them, then the cloud, then infrastructure as code). A step either opens a
-// Structura topic (done when the topic is marked complete) or points at
+// The learning roadmap: where to start and what comes next. It has a track per area
+// (Development, Infra, Databases, AI, in that order), each made of parts in the order
+// they build on each other, and a final project that uses all of them. A step either
+// opens a Structura topic (done when the topic is marked complete) or points at
 // readings from the library and is ticked off by hand.
 //
-// When you add a topic, give it a step here. Topics without one still appear,
-// at the end, under "More topics".
+// When you add a topic, give it a step here, in a part of its area. Topics without one
+// still appear, at the end of their area, under "More topics".
 
 export type RoadmapLevel = 'Basics' | 'Intermediate' | 'Advanced'
 
@@ -36,6 +37,8 @@ export interface RoadmapStep {
 
 export interface RoadmapPart {
   id: string
+  /** The track it belongs to; null for the final project, which spans them all. */
+  area: AreaId | null
   title: string
   tagline: string
   why: string
@@ -45,7 +48,42 @@ export interface RoadmapPart {
 
 export const ROADMAP: RoadmapPart[] = [
   {
+    id: 'building-blocks',
+    area: 'development',
+    title: 'Building blocks',
+    tagline: 'Patterns every app reuses',
+    why: 'IDs, notifications, chat and feeds: the pieces that turn up inside almost every larger design.',
+    steps: [
+      { id: 'sd-ids', title: 'Unique IDs at scale', detail: 'Snowflake IDs: sortable, unique and generated without coordination.', topic: 'unique-id-generator' },
+      { id: 'sd-notifications', title: 'A notification system', detail: 'Queues, retries and fan-out to push, email and SMS.', topic: 'notification-system' },
+      { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
+      { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
+    ],
+  },
+  {
+    id: 'classics',
+    area: 'development',
+    title: 'Classic designs',
+    tagline: 'Interview practice',
+    why: 'Whole systems that combine the building blocks. Any order works; start with the beginner ones.',
+    steps: [
+      { id: 'cl-url', title: 'URL shortener', detail: 'Base62 codes, read-heavy caching and redirects.', topic: 'url-shortener' },
+      { id: 'cl-paste', title: 'Pastebin', detail: 'Object storage for content, metadata in a database.', topic: 'pastebin' },
+      { id: 'cl-rbac', title: 'Role-based access control', detail: 'Users, roles and permissions, checked on every request.', topic: 'rbac' },
+      { id: 'cl-crawler', title: 'Web crawler', detail: 'A frontier queue, politeness and deduplication.', topic: 'web-crawler' },
+      { id: 'cl-autocomplete', title: 'Search autocomplete', detail: 'Tries, top-k suggestions and precomputation.', topic: 'search-autocomplete' },
+      { id: 'cl-proximity', title: 'Proximity service', detail: 'Geohashes and finding what is nearby.', topic: 'proximity-service' },
+      { id: 'cl-video', title: 'Video streaming', detail: 'Transcoding, adaptive bitrate and CDNs.', topic: 'video-streaming' },
+      { id: 'cl-sync', title: 'File sync', detail: 'Chunking, deduplication and conflict handling.', topic: 'file-sync' },
+      { id: 'cl-graph', title: 'Social graph', detail: 'Friends of friends across shards.', topic: 'social-graph' },
+      { id: 'cl-rank', title: 'Sales rank by category', detail: 'Batch aggregation with MapReduce-style jobs.', topic: 'sales-rank' },
+      { id: 'cl-mint', title: 'Personal finance aggregator', detail: 'Pulling bank data on a schedule and categorising it.', topic: 'mint' },
+      { id: 'cl-surge', title: 'Surge pricing', detail: 'Supply, demand and real-time pricing by area.', topic: 'uber-surge' },
+    ],
+  },
+  {
     id: 'docker',
+    area: 'infra',
     title: 'Docker',
     tagline: 'The foundation',
     why: 'Everything later runs in containers, so start here.',
@@ -58,24 +96,19 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
-    id: 'redis',
-    title: 'Redis',
-    tagline: 'Caching and coordination',
-    why: 'The first thing most systems add when one database is not fast enough.',
+    id: 'traffic',
+    area: 'infra',
+    title: 'Serving traffic',
+    tagline: 'Load balancers and CDNs',
+    why: 'How requests reach your containers: spread across servers, and cached close to users.',
     steps: [
-      { id: 'redis-types', level: 'Basics', title: 'Data types and commands', detail: 'Strings, hashes, lists, sets and sorted sets, TTLs, and why every command is atomic.', topic: 'redis-basics', guides: ['the-ultimate-redis-101', 'how-can-redis-be-used', 'why-is-redis-so-fast'] },
-      { id: 'redis-cache', level: 'Intermediate', title: 'Caching patterns', detail: 'Cache-aside, TTLs and invalidation, and what happens on a miss storm.', topic: 'query-cache', guides: ['top-5-caching-strategies'] },
-      { id: 'redis-distributed', level: 'Intermediate', title: 'A cache across many nodes', detail: 'Sharding keys, replication and eviction when one Redis is not enough.', topic: 'distributed-cache', guides: ['memcached-vs-redis'] },
-      { id: 'redis-rate-limit', level: 'Intermediate', title: 'Rate limiting with Redis', detail: 'Token buckets and sliding windows with atomic counters.', topic: 'rate-limiter' },
-      { id: 'redis-locks', level: 'Intermediate', title: 'Distributed locks and their pitfalls', detail: 'SET NX with a TTL, fencing tokens, and when the database should hold the lock instead.', topic: 'locking', guides: ['db-isolation-levels'] },
-      { id: 'redis-pubsub', level: 'Intermediate', title: 'Pub/sub', detail: 'Publishing messages to subscribers, and why a subscriber that was offline never sees them.', guides: ['build-a-simple-chat-application'] },
-      { id: 'redis-practice', level: 'Intermediate', title: 'Add caching and a rate limiter to your Dockerised app', detail: 'Redis in the compose file, cache-aside on one slow endpoint, a limit on the login route.', practice: true },
-      { id: 'redis-persist', level: 'Advanced', title: 'Persistence, replication and failover', detail: 'RDB vs the AOF, replicas and Sentinel, and what each kind of failure really loses.', topic: 'redis-persistence', guides: ['how-does-redis-persist-data', 'how-redis-architecture-evolve'] },
-      { id: 'redis-practice-failover', level: 'Advanced', title: 'Kill the primary on purpose', detail: 'Run a primary, a replica and three Sentinels in Docker Compose, stop the primary, and time the failover.', practice: true },
+      { id: 'sd-load-balancer', title: 'Load balancing', detail: 'Spreading requests, health checks, and layer 4 vs layer 7.', topic: 'load-balancer' },
+      { id: 'sd-cdn', title: 'CDNs', detail: 'Caching at the edge, close to users.', topic: 'cdn' },
     ],
   },
   {
     id: 'kafka',
+    area: 'infra',
     title: 'Kafka',
     tagline: 'Event streaming',
     why: 'How services talk without waiting for each other, and replay what happened.',
@@ -89,26 +122,8 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
-    id: 'essentials',
-    title: 'System design essentials',
-    tagline: 'The ideas that tie it together',
-    why: 'The building blocks every design reuses, before running them in the cloud.',
-    steps: [
-      { id: 'sd-load-balancer', title: 'Load balancing', detail: 'Spreading requests, health checks, and layer 4 vs layer 7.', topic: 'load-balancer' },
-      { id: 'sd-hashing', title: 'Consistent hashing', detail: 'Adding a server without moving every key.', topic: 'consistent-hashing' },
-      { id: 'sd-db-internals', title: 'How a database works inside', detail: 'B-trees and LSM-trees, transactions and isolation levels, and how a query is planned: the reading list behind every database choice.', guides: ['ref-awesome-database-learning', 'db-b-tree', 'db-lsm-tree', 'db-isolation-levels', 'db-query-optimizer'] },
-      { id: 'sd-sharding', title: 'Sharding a database', detail: 'Choosing a shard key, hot shards and resharding.', topic: 'database-sharding', guides: ['db-data-partitioning'] },
-      { id: 'sd-kv', title: 'A key-value store, Dynamo-style', detail: 'Replication, quorums and what CAP means in practice.', topic: 'key-value-store', guides: ['db-replication-consistency'] },
-      { id: 'sd-ids', title: 'Unique IDs at scale', detail: 'Snowflake IDs: sortable, unique and generated without coordination.', topic: 'unique-id-generator' },
-      { id: 'sd-leader', title: 'Leader election', detail: 'How Raft picks one leader and keeps a log in agreement.', topic: 'leader-election', guides: ['db-consensus'] },
-      { id: 'sd-cdn', title: 'CDNs', detail: 'Caching at the edge, close to users.', topic: 'cdn' },
-      { id: 'sd-notifications', title: 'A notification system', detail: 'Queues, retries and fan-out to push, email and SMS.', topic: 'notification-system' },
-      { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
-      { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
-    ],
-  },
-  {
     id: 'aws',
+    area: 'infra',
     title: 'AWS',
     tagline: 'Running it in the cloud',
     why: 'The same pieces, run for you: learn them in this order, each building on the last.',
@@ -128,6 +143,7 @@ export const ROADMAP: RoadmapPart[] = [
   },
   {
     id: 'terraform',
+    area: 'infra',
     title: 'Terraform',
     tagline: 'Infrastructure as code',
     why: 'Learn it after you\'ve clicked through AWS once, so you know what you\'re describing.',
@@ -139,31 +155,43 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
-    id: 'classics',
-    title: 'Classic designs',
-    tagline: 'Interview practice',
-    why: 'Whole systems that combine everything above. Any order works; start with the beginner ones.',
+    id: 'redis',
+    area: 'databases',
+    title: 'Redis',
+    tagline: 'Caching and coordination',
+    why: 'The first thing most systems add when one database is not fast enough.',
     steps: [
-      { id: 'cl-url', title: 'URL shortener', detail: 'Base62 codes, read-heavy caching and redirects.', topic: 'url-shortener' },
-      { id: 'cl-paste', title: 'Pastebin', detail: 'Object storage for content, metadata in a database.', topic: 'pastebin' },
-      { id: 'cl-rbac', title: 'Role-based access control', detail: 'Users, roles and permissions, checked on every request.', topic: 'rbac' },
-      { id: 'cl-crawler', title: 'Web crawler', detail: 'A frontier queue, politeness and deduplication.', topic: 'web-crawler' },
-      { id: 'cl-autocomplete', title: 'Search autocomplete', detail: 'Tries, top-k suggestions and precomputation.', topic: 'search-autocomplete' },
-      { id: 'cl-proximity', title: 'Proximity service', detail: 'Geohashes and finding what is nearby.', topic: 'proximity-service' },
-      { id: 'cl-video', title: 'Video streaming', detail: 'Transcoding, adaptive bitrate and CDNs.', topic: 'video-streaming' },
-      { id: 'cl-sync', title: 'File sync', detail: 'Chunking, deduplication and conflict handling.', topic: 'file-sync' },
-      { id: 'cl-graph', title: 'Social graph', detail: 'Friends of friends across shards.', topic: 'social-graph' },
-      { id: 'cl-rank', title: 'Sales rank by category', detail: 'Batch aggregation with MapReduce-style jobs.', topic: 'sales-rank' },
-      { id: 'cl-mint', title: 'Personal finance aggregator', detail: 'Pulling bank data on a schedule and categorising it.', topic: 'mint' },
-      { id: 'cl-surge', title: 'Surge pricing', detail: 'Supply, demand and real-time pricing by area.', topic: 'uber-surge' },
+      { id: 'redis-types', level: 'Basics', title: 'Data types and commands', detail: 'Strings, hashes, lists, sets and sorted sets, TTLs, and why every command is atomic.', topic: 'redis-basics', guides: ['the-ultimate-redis-101', 'how-can-redis-be-used', 'why-is-redis-so-fast'] },
+      { id: 'redis-cache', level: 'Intermediate', title: 'Caching patterns', detail: 'Cache-aside, TTLs and invalidation, and what happens on a miss storm.', topic: 'query-cache', guides: ['top-5-caching-strategies'] },
+      { id: 'redis-distributed', level: 'Intermediate', title: 'A cache across many nodes', detail: 'Sharding keys, replication and eviction when one Redis is not enough.', topic: 'distributed-cache', guides: ['memcached-vs-redis'] },
+      { id: 'redis-rate-limit', level: 'Intermediate', title: 'Rate limiting with Redis', detail: 'Token buckets and sliding windows with atomic counters.', topic: 'rate-limiter' },
+      { id: 'redis-locks', level: 'Intermediate', title: 'Distributed locks and their pitfalls', detail: 'SET NX with a TTL, fencing tokens, and when the database should hold the lock instead.', topic: 'locking', guides: ['db-isolation-levels'] },
+      { id: 'redis-pubsub', level: 'Intermediate', title: 'Pub/sub', detail: 'Publishing messages to subscribers, and why a subscriber that was offline never sees them.', guides: ['build-a-simple-chat-application'] },
+      { id: 'redis-practice', level: 'Intermediate', title: 'Add caching and a rate limiter to your Dockerised app', detail: 'Redis in the compose file, cache-aside on one slow endpoint, a limit on the login route.', practice: true },
+      { id: 'redis-persist', level: 'Advanced', title: 'Persistence, replication and failover', detail: 'RDB vs the AOF, replicas and Sentinel, and what each kind of failure really loses.', topic: 'redis-persistence', guides: ['how-does-redis-persist-data', 'how-redis-architecture-evolve'] },
+      { id: 'redis-practice-failover', level: 'Advanced', title: 'Kill the primary on purpose', detail: 'Run a primary, a replica and three Sentinels in Docker Compose, stop the primary, and time the failover.', practice: true },
+    ],
+  },
+  {
+    id: 'distributed-data',
+    area: 'databases',
+    title: 'Distributed databases',
+    tagline: 'Sharding, replication and consensus',
+    why: 'What happens when one database is no longer enough: how data is split, copied and kept in agreement.',
+    steps: [
+      { id: 'sd-db-internals', title: 'How a database works inside', detail: 'B-trees and LSM-trees, transactions and isolation levels, and how a query is planned: the reading list behind every database choice.', guides: ['ref-awesome-database-learning', 'db-b-tree', 'db-lsm-tree', 'db-isolation-levels', 'db-query-optimizer'] },
+      { id: 'sd-hashing', title: 'Consistent hashing', detail: 'Adding a server without moving every key.', topic: 'consistent-hashing' },
+      { id: 'sd-sharding', title: 'Sharding a database', detail: 'Choosing a shard key, hot shards and resharding.', topic: 'database-sharding', guides: ['db-data-partitioning'] },
+      { id: 'sd-kv', title: 'A key-value store, Dynamo-style', detail: 'Replication, quorums and what CAP means in practice.', topic: 'key-value-store', guides: ['db-replication-consistency'] },
+      { id: 'sd-leader', title: 'Leader election', detail: 'How Raft picks one leader and keeps a log in agreement.', topic: 'leader-election', guides: ['db-consensus'] },
     ],
   },
   {
     id: 'ai',
+    area: 'ai',
     title: 'AI systems',
-    tagline: 'After the rest',
+    tagline: 'LLM apps',
     why: 'Systems built around language models, using everything you learned above.',
-    optional: true,
     steps: [
       { id: 'ai-rag', title: 'RAG pipeline', detail: 'Chunking, embeddings, hybrid search and citations.', topic: 'rag-pipeline' },
       { id: 'ai-vector', title: 'Vector database', detail: 'HNSW, IVF-PQ, recall and filtered search.', topic: 'vector-database' },
@@ -173,6 +201,7 @@ export const ROADMAP: RoadmapPart[] = [
   },
   {
     id: 'project',
+    area: null,
     title: 'Final project',
     tagline: 'Put it all together',
     why: 'One app, the whole path: this is what proves you can do it.',
@@ -204,13 +233,32 @@ export function stepDone(step: RoadmapStep, progress: Progress): boolean {
 
 export const partDone = (part: RoadmapPart, progress: Progress) => part.steps.filter((s) => stepDone(s, progress)).length
 
-/** The first step not done yet, in order, or null when everything is. */
-export function nextStep(progress: Progress) {
-  return ROADMAP_STEPS.find(({ step }) => !stepDone(step, progress)) ?? null
+/** An area's parts, in order; the final project belongs to none. */
+export const partsOf = (area: AreaId | null) => ROADMAP.filter((part) => part.area === area)
+
+/**
+ * The first step not done yet, in order, or null when everything is. Given an area,
+ * only that track counts.
+ */
+export function nextStep(progress: Progress, area?: AreaId) {
+  return ROADMAP_STEPS.find(({ part, step }) => (!area || part.area === area) && !stepDone(step, progress)) ?? null
+}
+
+/**
+ * The track you're on: the area of the topic you opened most recently, or the first
+ * area if you haven't opened one yet.
+ */
+export function currentArea(progress: Progress): AreaId {
+  let latest: { at: number; area: AreaId } | null = null
+  for (const [id, p] of Object.entries(progress.topics)) {
+    const area = AREA_OF[id]
+    if (area && p.lastOpenedAt && (!latest || p.lastOpenedAt > latest.at)) latest = { at: p.lastOpenedAt, area }
+  }
+  return latest?.area ?? AREAS[0].id
 }
 
 /** Topics no part mentions yet (new ones), so they still have a place to be read. */
-export function unplacedTopics(topics: TopicMeta[]): TopicMeta[] {
+export function unplacedTopics(topics: TopicMeta[], area?: AreaId): TopicMeta[] {
   const placed = new Set(ROADMAP_STEPS.map(({ step }) => step.topic).filter(Boolean))
-  return topics.filter((t) => !placed.has(t.id))
+  return topics.filter((t) => !placed.has(t.id) && (!area || AREA_OF[t.id] === area))
 }
