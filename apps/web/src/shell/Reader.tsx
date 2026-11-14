@@ -8,7 +8,7 @@ import { erdToSql } from '../learn/ddl'
 import { type Markdown, plainText } from '../learn/markdown'
 import type { Block } from '../learn/notesFormat'
 import { updateTopic, useProgress } from '../learn/progress'
-import { ROADMAP } from '../learn/roadmap'
+import { nextTopicAfter } from '../learn/roadmap'
 import { StoryView } from '../learn/story'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { hasDeepNote, loadDeepNote } from '../topics/deepNotes'
@@ -56,15 +56,10 @@ function sectionsOf(note: Markdown) {
   return { intro, sections }
 }
 
-/** The next topic after this one in its roadmap part, to keep reading in order. */
+/** The next topic after this one in its area's roadmap track, to keep reading in order. */
 function nextInRoadmap(id: string): TopicMeta | null {
-  for (const part of ROADMAP) {
-    const at = part.steps.findIndex((s) => s.topic === id)
-    if (at < 0) continue
-    const next = part.steps.slice(at + 1).find((s) => s.topic)
-    return next?.topic ? (TOPICS.find((t) => t.id === next.topic) ?? null) : null
-  }
-  return null
+  const next = nextTopicAfter(id)
+  return next ? (TOPICS.find((t) => t.id === next) ?? null) : null
 }
 
 export function Reader({

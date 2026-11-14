@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { CheckCircle2, ChevronRight, Clapperboard, ExternalLink, Library, Route } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Clapperboard, Database, ExternalLink, Library, Route } from 'lucide-react'
+import { ECOSYSTEM } from '../ecosystem'
 import { useProgress } from '../learn/progress'
 import { partsOf } from '../learn/roadmap'
 import { areaById, AREAS, type AreaId, LIBRARY_AREAS } from '../topics/areas'
@@ -61,6 +62,8 @@ export function Explore({
   )
 }
 
+const schemata = ECOSYSTEM.find((app) => app.id === 'schemata')
+
 /** The top of an area's page: what's in it, how far you are, and its roadmap track. */
 function AreaIntro({ area, onRoadmap }: { area: AreaId; onRoadmap: () => void }) {
   const progress = useProgress()
@@ -83,8 +86,14 @@ function AreaIntro({ area, onRoadmap }: { area: AreaId; onRoadmap: () => void })
       </div>
       {parts.length > 0 && (
         <button type="button" className="btn btn-wrap area-intro-roadmap" onClick={onRoadmap}>
-          <Route size={16} aria-hidden /> {a.title} roadmap: {parts.map((p) => p.title).join(' → ')} <ChevronRight size={16} aria-hidden />
+          <Route size={16} aria-hidden /> {a.title} roadmap: {parts.length} modules, Foundations to {parts.at(-1)?.stage} <ChevronRight size={16} aria-hidden />
         </button>
+      )}
+      {area === 'databases' && schemata && (
+        // SQL itself is taught in Schemata, the owner's databases app, with a real Postgres.
+        <a className="btn btn-wrap area-intro-roadmap" href={`${schemata.url}/?page=roadmap`} target="_blank" rel="noreferrer">
+          <Database size={16} aria-hidden /> Learn SQL in {schemata.name}: real Postgres in your browser, with interview questions <ExternalLink size={14} aria-hidden />
+        </a>
       )}
     </header>
   )

@@ -36,6 +36,8 @@ function readRoute() {
   const category = query.get('library')
   const area = query.get('area')
   return {
+    // One roadmap module (?page=roadmap&part=docker).
+    partId: query.get('part'),
     // Explore and the roadmap can show one area: Development, Infra, Databases or AI.
     area: isArea(area) ? area : null,
     topicId: query.get('topic'),
@@ -246,7 +248,17 @@ export default function App() {
             ) : route.page === 'listen' ? (
               <Commute />
             ) : route.page === 'roadmap' ? (
-              <Roadmap area={route.area} onArea={(area) => openArea(area, 'roadmap')} onOpen={open} onRead={openRead} />
+              <Roadmap
+                area={route.area}
+                partId={route.partId}
+                onArea={(area) => openArea(area, 'roadmap')}
+                onPart={(id) => {
+                  navigate(`?page=roadmap&part=${id}`)
+                  window.scrollTo({ top: 0 })
+                }}
+                onOpen={open}
+                onRead={openRead}
+              />
             ) : route.page === 'explore' ? (
               <Explore
                 onOpen={open}

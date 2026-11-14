@@ -1,24 +1,31 @@
-import { BookOpen, BookOpenText, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, BookOpenText, CheckCircle2, ChevronRight, Circle, Database, ExternalLink, Hammer, Sparkles } from 'lucide-react'
+import { ECOSYSTEM } from '../ecosystem'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
 import {
   currentArea,
-  LEVEL_TAGLINE,
-  levelGroups,
+  nextPart,
   nextStep,
+  partById,
   partDone,
   partsOf,
   ROADMAP,
   type RoadmapPart,
   type RoadmapStep,
+  STAGES,
   stepDone,
   unplacedTopics,
 } from '../learn/roadmap'
 import { areaById, AREAS, type AreaId } from '../topics/areas'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
-import { AREA_ICON, AreaChips } from './Areas'
 import type { Guide } from '../topics/library'
 import { useLibrary } from '../topics/useLibrary'
+import { AREA_ICON, AreaChips } from './Areas'
 import { topicIcon } from './topicIcons'
+
+// The roadmap, laid out like Schemata's: each area's track in four stages
+// (Foundations → Intermediate → Advanced → Expert), each stage a few small module
+// cards with a step count. A card opens its module (?page=roadmap&part=<id>): the
+// steps, each a topic or a reading, ticked off as you go.
 
 const topicById = new Map(TOPICS.map((t) => [t.id, t]))
 type Library = NonNullable<ReturnType<typeof useLibrary>>
@@ -26,201 +33,262 @@ type Library = NonNullable<ReturnType<typeof useLibrary>>
 const guidesOf = (step: RoadmapStep, lib: Library | null): Guide[] =>
   lib ? (step.guides ?? []).map((s) => lib.LIBRARY.guides.find((g) => g.slug === s)).filter((g): g is Guide => Boolean(g)) : []
 
-const jump = (partId: string) => document.getElementById(`part-${partId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
-/** "Infra · Part 2", or "Final project" for the part that spans every area. */
-function partLabel(part: RoadmapPart): string {
-  if (!part.area) return part.title
-  return `${areaById(part.area).title} · Part ${partsOf(part.area).indexOf(part) + 1}`
-}
+const schemata = ECOSYSTEM.find((a) => a.id === 'schemata')
 
 function toggle(step: RoadmapStep) {
   if (step.topic) updateTopic(step.topic, (p) => ({ completed: !p.completed, completedAt: p.completed ? undefined : Date.now() }))
   else toggleRoadmapStep(step.id)
 }
 
-/**
- * The roadmap page: a track per area (Development, Infra, Databases, AI) and a final
- * project. All shows every track in turn; picking an area shows only its track.
- */
+/** "Infra · Foundations", or "Final project". */
+const placeOf = (part: RoadmapPart) => (part.area ? `${areaById(part.area).title} · ${part.stage}` : 'Final project')
+
 export function Roadmap({
   area,
+  partId,
   onArea,
+  onPart,
+  onOpen,
+  onRead,
+}: {
+  area: AreaId | null
+  partId: string | null
+  onArea: (area: AreaId | null) => void
+  onPart: (id: string) => void
+  onOpen: (topic: TopicMeta) => void
+  onRead: (topic: TopicMeta) => void
+}) {
+  const part = partById(partId)
+  if (part) return <Module part={part} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} />
+  return <Overview area={area} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} />
+}
+
+/** Every track (or one), stage by stage, as cards. */
+function Overview({
+  area,
+  onArea,
+  onPart,
   onOpen,
   onRead,
 }: {
   area: AreaId | null
   onArea: (area: AreaId | null) => void
+  onPart: (id: string) => void
   onOpen: (topic: TopicMeta) => void
   onRead: (topic: TopicMeta) => void
 }) {
   const progress = useProgress()
+  const a = area ? areaById(area) : null
   const parts = area ? partsOf(area) : ROADMAP
-  const steps = parts.flatMap((part) => part.steps)
-  const done = steps.filter((step) => stepDone(step, progress)).length
+  const steps = parts.flatMap((p) => p.steps)
+  const done = steps.filter((s) => stepDone(s, progress)).length
   // On All, "next" is the next step in the track you're on, then anything left anywhere.
   const next = area ? nextStep(progress, area) : (nextStep(progress, currentArea(progress)) ?? nextStep(progress))
   const extra = unplacedTopics(TOPICS, area ?? undefined)
-  const a = area ? areaById(area) : null
-  // On All, each area's parts start under the area's own heading.
-  const startsArea = (part: RoadmapPart, i: number) => !area && part.area !== (i > 0 ? parts[i - 1].area : undefined)
+  const tracks = area ? [area] : AREAS.map((x) => x.id)
 
   return (
     <div className="roadmap">
-      <AreaChips value={area} onChange={onArea} label="Tracks" />
-      <header className="card roadmap-head">
-        <p className="eyebrow">
-          <Route size={15} aria-hidden /> Roadmap
+      <header className="roadmap-intro">
+        <h1>{a ? `${a.title} roadmap` : 'Roadmap'}</h1>
+        <p>
+          {a
+            ? `${a.tagline}, from Foundations to Expert. Open a card for its steps.`
+            : 'Development, Infra, Databases and AI, each from Foundations to Expert. Open a card for its steps; each step is a topic or a reading.'}
         </p>
-        <h1>{a ? `${a.title} roadmap` : 'Where to start'}</h1>
-        {a ? (
-          <p>
-            {a.tagline}. {parts.length} {parts.length === 1 ? 'part' : 'parts'} in the order they build on each other: {parts.map((p) => p.title).join(' → ')}. Each step
-            opens a topic or a reading. Tick it off when you're done; a topic counts once you mark it complete.
-          </p>
-        ) : (
-          <p>
-            Four tracks, one per area: {AREAS.map((x) => x.title).join(', ')}, then a final project that uses them all. Each track is in the order
-            its parts build on each other, from Basics to Advanced where it applies. Follow the track you're on, or pick one below. Each step opens a
-            topic or a reading; tick it off when you're done.
-          </p>
-        )}
-        <div className="roadmap-total">
-          <span className="progress-bar" aria-hidden>
-            <span style={{ width: `${steps.length ? (done / steps.length) * 100 : 0}%` }} />
-          </span>
-          <span>
-            {done} of {steps.length} steps
-          </span>
-        </div>
-        {next ? (
-          <NextUp part={next.part} step={next.step} onOpen={onOpen} />
-        ) : (
-          <p className="roadmap-finished">
-            <Sparkles size={16} aria-hidden /> You've finished {a ? `the ${a.title} track` : 'the whole roadmap'}.
-          </p>
-        )}
       </header>
 
-      <nav className="roadmap-nav" aria-label="Parts">
-        {parts.map((part) => {
-          const d = partDone(part, progress)
-          const Icon = part.area ? AREA_ICON[part.area] : Hammer
-          return (
-            <button key={part.id} type="button" className={`${part.area ? `area-is-${part.area}` : ''}${d === part.steps.length ? ' is-done' : ''}`} onClick={() => jump(part.id)}>
-              <span className="roadmap-nav-num">{d === part.steps.length ? <CheckCircle2 size={14} aria-label="Done" /> : <Icon size={14} aria-hidden />}</span>
-              {part.title}
-              <small>
-                {d}/{part.steps.length}
-              </small>
-            </button>
-          )
-        })}
-      </nav>
+      <AreaChips value={area} onChange={onArea} label="Tracks" />
 
-      <ol className="roadmap-parts">
-        {parts.map((part, i) => {
-          const d = partDone(part, progress)
-          const AreaIcon = part.area ? AREA_ICON[part.area] : Hammer
-          const number = part.area ? partsOf(part.area).indexOf(part) + 1 : null
-          return (
-            <li key={part.id} id={`part-${part.id}`} className={`card roadmap-part${part.area ? ` area-is-${part.area}` : ''}${d === part.steps.length ? ' is-done' : ''}`}>
-              {startsArea(part, i) && (
-                <p className="roadmap-area-head">
-                  <AreaIcon size={16} aria-hidden /> {part.area ? `${areaById(part.area).title} track` : 'Putting it together'}
-                  {part.area && (
-                    <button type="button" className="link-btn" onClick={() => onArea(part.area)}>
-                      Only {areaById(part.area).title}
-                    </button>
-                  )}
-                </p>
-              )}
-              <header>
-                <span className="roadmap-num" aria-hidden>
-                  {number ?? <Hammer size={18} />}
-                </span>
-                <div>
-                  <p className="roadmap-tagline">
-                    {partLabel(part)} · {part.tagline}
-                    {part.optional && <span className="roadmap-optional">Optional</span>}
-                  </p>
-                  <h2>{part.title}</h2>
-                </div>
-                <span className="roadmap-count">
-                  {d}/{part.steps.length}
-                </span>
-              </header>
-              <p className="roadmap-why">{part.why}</p>
-              <span className="progress-bar" aria-hidden>
-                <span style={{ width: `${(d / part.steps.length) * 100}%` }} />
-              </span>
-              {levelGroups(part).map((group) => (
-                <section key={group.steps[0].id} className={group.level ? 'roadmap-level' : undefined}>
-                  {group.level && (
-                    <h3>
-                      {group.level} <span>{LEVEL_TAGLINE[group.level]}</span>
-                      <small>
-                        {group.steps.filter((s) => stepDone(s, progress)).length}/{group.steps.length}
-                      </small>
-                    </h3>
-                  )}
-                  <ol className="roadmap-steps">
-                    {group.steps.map((step) => (
-                      <Step key={step.id} step={step} isNext={next?.step.id === step.id} onOpen={onOpen} onRead={onRead} />
-                    ))}
-                  </ol>
-                </section>
-              ))}
-            </li>
-          )
-        })}
-        {extra.length > 0 && (
-          <li id="part-more" className="card roadmap-part">
-            <header>
-              <span className="roadmap-num" aria-hidden>
-                +
-              </span>
-              <div>
-                <p className="roadmap-tagline">New since the roadmap was written</p>
-                <h2>More topics</h2>
-              </div>
-            </header>
-            <ol className="roadmap-steps">
-              {extra.map((t) => (
-                <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} onRead={onRead} />
-              ))}
-            </ol>
-          </li>
-        )}
-      </ol>
+      <div className="roadmap-summary">
+        <span className="progress-bar" aria-hidden>
+          <span style={{ width: `${steps.length ? (done / steps.length) * 100 : 0}%` }} />
+        </span>
+        <span>
+          {done} of {steps.length} steps
+        </span>
+      </div>
+
+      {next ? (
+        <button type="button" className="card roadmap-continue" onClick={() => onPart(next.part.id)}>
+          <span className="roadmap-continue-label">Next up · {placeOf(next.part)}</span>
+          <strong>{next.step.title}</strong>
+          <span>{next.part.title}</span>
+          <ChevronRight size={18} aria-hidden />
+        </button>
+      ) : (
+        <p className="roadmap-finished">
+          <Sparkles size={16} aria-hidden /> You've finished {a ? `the ${a.title} track` : 'the whole roadmap'}.
+        </p>
+      )}
+
+      {tracks.map((id) => (
+        <Track key={id} area={id} titled={!area} nextId={next?.part.id} onPart={onPart} onArea={onArea} />
+      ))}
+
+      {!area && (
+        <section className="roadmap-track">
+          <h2 className="roadmap-track-title">
+            <Hammer size={18} aria-hidden /> Final project
+          </h2>
+          <div className="roadmap-cards">
+            {partsOf(null).map((p) => (
+              <ModuleCard key={p.id} part={p} isNext={next?.part.id === p.id} onPart={onPart} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {extra.length > 0 && (
+        <section className="roadmap-track">
+          <h2 className="roadmap-track-title">More topics</h2>
+          <p className="roadmap-track-note">New since the roadmap was written.</p>
+          <ol className="card roadmap-steps">
+            {extra.map((t) => (
+              <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} onRead={onRead} />
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   )
 }
 
-function NextUp({ part, step, onOpen }: { part: RoadmapPart; step: RoadmapStep; onOpen: (topic: TopicMeta) => void }) {
-  const topic = step.topic ? topicById.get(step.topic) : undefined
-  const guide = guidesOf(step, useLibrary())[0]
+/** One area's stages and their cards. */
+function Track({
+  area,
+  titled,
+  nextId,
+  onPart,
+  onArea,
+}: {
+  area: AreaId
+  titled: boolean
+  nextId?: string
+  onPart: (id: string) => void
+  onArea: (area: AreaId) => void
+}) {
+  const progress = useProgress()
+  const a = areaById(area)
+  const Icon = AREA_ICON[area]
+  const parts = partsOf(area)
+  const steps = parts.flatMap((p) => p.steps)
+  const done = steps.filter((s) => stepDone(s, progress)).length
   return (
-    <div className="roadmap-next">
-      <span className="roadmap-next-label">
-        Next up · {partLabel(part)}: {part.title}
-      </span>
-      <strong>{step.title}</strong>
-      <span>{step.detail}</span>
-      <div className="roadmap-next-actions">
-        {topic ? (
-          <button type="button" className="btn btn-primary btn-wrap" onClick={() => onOpen(topic)}>
-            <Play size={15} fill="currentColor" /> Open {topic.title}
+    <section className={`roadmap-track area-is-${area}`} aria-label={`${a.title} track`}>
+      {titled && (
+        <div className="roadmap-track-head">
+          <h2 className="roadmap-track-title">
+            <Icon size={19} aria-hidden /> {a.title}
+            <small>
+              {done}/{steps.length}
+            </small>
+          </h2>
+          <button type="button" className="link-btn" onClick={() => onArea(area)}>
+            Only {a.title}
           </button>
-        ) : guide ? (
-          <a className="btn btn-primary btn-wrap" href={guide.url} target="_blank" rel="noreferrer">
-            <BookOpen size={15} /> Read: {guide.title}
-          </a>
-        ) : null}
-        <button type="button" className="btn" onClick={() => jump(part.id)}>
-          Go to {part.title}
+        </div>
+      )}
+      {STAGES.map((stage) => {
+        const inStage = parts.filter((p) => p.stage === stage)
+        if (!inStage.length) return null
+        return (
+          <div key={stage} className="roadmap-stage">
+            <h3>{stage}</h3>
+            <div className="roadmap-cards">
+              {inStage.map((p) => (
+                <ModuleCard key={p.id} part={p} isNext={nextId === p.id} onPart={onPart} />
+              ))}
+            </div>
+          </div>
+        )
+      })}
+      {area === 'databases' && schemata && (
+        <a className="card roadmap-schemata" href={`${schemata.url}/?page=roadmap`} target="_blank" rel="noreferrer">
+          <Database size={20} aria-hidden />
+          <span>
+            <strong>SQL, from your first query to window functions</strong>
+            <span>Practise it in {schemata.name}: real Postgres in your browser, with interview questions.</span>
+          </span>
+          <ExternalLink size={15} aria-hidden />
+        </a>
+      )}
+    </section>
+  )
+}
+
+/** A module as a small card: title, one line, how many of its steps are done. */
+function ModuleCard({ part, isNext, onPart }: { part: RoadmapPart; isNext: boolean; onPart: (id: string) => void }) {
+  const progress = useProgress()
+  const d = partDone(part, progress)
+  const all = d === part.steps.length
+  return (
+    <button type="button" className={`roadmap-card-module${all ? ' is-done' : ''}${isNext ? ' is-next' : ''}`} onClick={() => onPart(part.id)}>
+      <strong>
+        {part.title}
+        {all && <CheckCircle2 size={16} aria-label="Done" />}
+        {isNext && !all && <span className="roadmap-next-tag">Next</span>}
+      </strong>
+      <span>{part.why}</span>
+      <small>
+        {d}/{part.steps.length} {part.steps.length === 1 ? 'step' : 'steps'}
+      </small>
+    </button>
+  )
+}
+
+/** One module: its steps, ticked off as you go, and the way on to the next. */
+function Module({
+  part,
+  onArea,
+  onPart,
+  onOpen,
+  onRead,
+}: {
+  part: RoadmapPart
+  onArea: (area: AreaId | null) => void
+  onPart: (id: string) => void
+  onOpen: (topic: TopicMeta) => void
+  onRead: (topic: TopicMeta) => void
+}) {
+  const progress = useProgress()
+  const d = partDone(part, progress)
+  const firstUndone = part.steps.find((s) => !stepDone(s, progress))
+  const after = nextPart(part)
+  const Icon = part.area ? AREA_ICON[part.area] : Hammer
+  return (
+    <div className={`roadmap roadmap-module${part.area ? ` area-is-${part.area}` : ''}`}>
+      <button type="button" className="btn btn-ghost roadmap-back" onClick={() => onArea(part.area)}>
+        <ArrowLeft size={16} aria-hidden /> {part.area ? `${areaById(part.area).title} roadmap` : 'Roadmap'}
+      </button>
+      <header className="roadmap-intro">
+        <p className="roadmap-module-place">
+          <Icon size={15} aria-hidden /> {placeOf(part)}
+        </p>
+        <h1>{part.title}</h1>
+        <p>{part.why}</p>
+        <div className="roadmap-summary">
+          <span className="progress-bar" aria-hidden>
+            <span style={{ width: `${(d / part.steps.length) * 100}%` }} />
+          </span>
+          <span>
+            {d} of {part.steps.length} {part.steps.length === 1 ? 'step' : 'steps'}
+          </span>
+        </div>
+      </header>
+      <ol className="card roadmap-steps">
+        {part.steps.map((step) => (
+          <Step key={step.id} step={step} isNext={firstUndone?.id === step.id} onOpen={onOpen} onRead={onRead} />
+        ))}
+      </ol>
+      {after && (
+        <button type="button" className="card roadmap-continue" onClick={() => onPart(after.id)}>
+          <span className="roadmap-continue-label">Next module · {placeOf(after)}</span>
+          <strong>{after.title}</strong>
+          <span>{after.why}</span>
+          <ArrowRight size={18} aria-hidden />
         </button>
-      </div>
+      )}
     </div>
   )
 }

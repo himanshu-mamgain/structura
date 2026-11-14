@@ -48,14 +48,17 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
     phones and in the top bar from 1024px), `Home.tsx` (reels row first), `Explore.tsx`
     (search, topic grid, library), `Reels.tsx` (full-screen video feed), `Search.tsx`,
-    `TopicView.tsx`, `Practice.tsx`, `Roadmap.tsx` (where to start: the parts in
-    `src/learn/roadmap.ts`, step by step), `topicIcons.ts`. There's no sidebar: anything fixed
+    `TopicView.tsx`, `Practice.tsx`, `Roadmap.tsx` (where to start: each area's track in four
+    stages, Foundations → Intermediate → Advanced → Expert, of small module cards from
+    `src/learn/roadmap.ts`; a card opens its steps at `?page=roadmap&part=<id>`), `topicIcons.ts`. There's no sidebar: anything fixed
     to the bottom of the screen sits above the tab bar (`bottom: calc(… + var(--tabbar))`).
   - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), box icons (`icons.ts`),
     component inspector logic (`inspect.ts`).
   - `src/board/`: the 3D city (`scene.ts`), ELK layout (`layout.ts`), load test panel.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
   - CSS: `index.css` (panel internals), `shell.css` (layout), `features.css` (newer features).
+  - `src/ecosystem.ts`: the owner's other apps (DSA Atlas, Schemata for SQL and databases), in the
+    app switcher; the Databases area and roadmap track link to Schemata.
   - Links to other sites use `target="_blank" rel="noreferrer"`. In the installed app,
     `src/pwa/externalLinks.ts` opens them in the app's own window instead, so learners stay
     in Structura (Android and desktop show a bar with an ✕ back; iPhone shows a Safari sheet).
@@ -115,8 +118,8 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      Markdown it reads (tables, code fences, callouts, nested lists).
 2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`), **give it an area** in `AREA_OF`
    (`src/topics/areas.ts`: `development`, `infra`, `databases` or `ai`; the build stops without one),
-   and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a part of the same area. Unplaced
-   topics still show, at the end of their area, under "More topics".
+   and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a module of the same area and the
+   right stage (a new module is fine). Unplaced topics still show, at the end of their area, under "More topics".
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
 5. **Make its video and audio lesson** (see below) if the Kokoro setup is available.
