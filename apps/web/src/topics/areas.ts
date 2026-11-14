@@ -43,6 +43,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'social-graph': 'development',
   'sales-rank': 'development',
   mint: 'development',
+  'metrics-monitoring': 'development',
   'uber-surge': 'development',
 
   // Infra: where and how it runs

@@ -1271,6 +1271,49 @@
   "simulator": true
  },
  {
+  "id": "metrics-monitoring",
+  "title": "Metrics & Monitoring System",
+  "blurb": "Collecting millions of samples a second, storing them as compressed time series, and alerting without false pages",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "push-vs-pull-in-metrics-collecting-systems",
+   "choose-the-right-database-for-metric-collecting-system",
+   "logging-tracing-metrics",
+   "cloud-monitoring-cheat-sheet"
+  ],
+  "explanation": {
+   "summary": "A monitoring system collects numbers from every server (CPU, requests, errors, latency), stores them as time series, draws them on dashboards and wakes someone when something is wrong. The write load is huge and steady, reads are mostly recent data, and the alerting path must keep working exactly when everything else is on fire.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "file-sync",
   "title": "File Sync (Dropbox-style)",
   "blurb": "Block-level sync: chunk and hash files, upload only what changed, and tell other devices",

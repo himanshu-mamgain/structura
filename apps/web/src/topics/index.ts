@@ -24,6 +24,7 @@ import { redisBasics } from './redis-basics'
 import { redisPersistence } from './redis-persistence'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
+import { metricsMonitoring } from './metrics-monitoring'
 import { mint } from './mint'
 import { notificationSystem } from './notification-system'
 import { pastebin } from './pastebin'
@@ -77,6 +78,7 @@ const BASE_TOPICS: StaticTopic[] = [
   searchAutocomplete,
   proximityService,
   videoStreaming,
+  metricsMonitoring,
   fileSync,
   leaderElection,
   locking,
