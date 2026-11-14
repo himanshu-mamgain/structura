@@ -1,12 +1,15 @@
 import { ChevronRight, Route } from 'lucide-react'
 import { useProgress } from '../learn/progress'
-import { nextStep, ROADMAP, ROADMAP_STEPS, stepDone } from '../learn/roadmap'
+import { currentArea, nextStep, ROADMAP_STEPS, stepDone } from '../learn/roadmap'
+import { areaById, AREAS } from '../topics/areas'
 
 /** Home's and Explore's way in: how far along you are and what's next. */
 export function RoadmapCard({ onRoadmap }: { onRoadmap: () => void }) {
   const progress = useProgress()
   const done = ROADMAP_STEPS.filter(({ step }) => stepDone(step, progress)).length
-  const next = nextStep(progress)
+  // The next step in the track you're on (the area of the topic you opened last).
+  const area = currentArea(progress)
+  const next = nextStep(progress, area) ?? nextStep(progress)
   return (
     <button type="button" className="card roadmap-card" onClick={onRoadmap}>
       <span className="roadmap-card-icon" aria-hidden>
@@ -14,10 +17,10 @@ export function RoadmapCard({ onRoadmap }: { onRoadmap: () => void }) {
       </span>
       <span className="roadmap-card-text">
         <strong>{done ? 'Your roadmap' : 'Where to start'}</strong>
-        <span>{ROADMAP.slice(0, 6).map((p) => p.title).join(' → ')}</span>
+        <span>{AREAS.map((a) => a.title).join(' · ')}: a track for each</span>
         {next && (
           <span className="roadmap-card-next">
-            {done ? `${done} of ${ROADMAP_STEPS.length} steps · next: ${next.step.title}` : `Step 1: ${next.step.title}`}
+            {done ? `${done} of ${ROADMAP_STEPS.length} steps · ` : ''}next in {next.part.area ? areaById(next.part.area).title : 'the final project'}: {next.step.title}
           </span>
         )}
       </span>

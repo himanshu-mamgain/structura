@@ -40,6 +40,10 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     reads `TOPICS` from `catalog.ts`, never `STATIC_TOPICS`**: importing `src/topics` there puts
     every topic back into the start-up bundle. Full topics load on demand (`loadTopic(id)`).
   - `src/topics/library.json`: the syllabus (generated, see below). `library.ts` reads it.
+  - `src/topics/areas.ts`: the four areas, **Development, Infra, Databases and AI**, each topic's area
+    (`AREA_OF`) and the library categories that belong to each. Explore (`?page=explore&area=infra`),
+    Home's area cards, search, the topic page's tag and the roadmap's tracks (`?page=roadmap&area=…`)
+    are all organised by them; `src/shell/Areas.tsx` has the chips, cards and tag.
   - `src/shell/`: app shell. `App.tsx` (routes via `?topic=`, `?page=explore|reels|listen|quiz|glossary|roadmap`,
     `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
     phones and in the top bar from 1024px), `Home.tsx` (reels row first), `Explore.tsx`
@@ -109,8 +113,10 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      (`**Q: …**` then `A: …`), related topics (`/?topic=<id>&read` links), sources and
      `## Why This Matters`. `docker-vs-vm.md` is the model; `src/learn/markdown.ts` lists the
      Markdown it reads (tables, code fences, callouts, nested lists).
-2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`), and **give it a step in the roadmap**
-   (`src/learn/roadmap.ts`) in the part where it belongs. Unplaced topics still show, under "More topics".
+2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`), **give it an area** in `AREA_OF`
+   (`src/topics/areas.ts`: `development`, `infra`, `databases` or `ai`; the build stops without one),
+   and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a part of the same area. Unplaced
+   topics still show, at the end of their area, under "More topics".
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
 5. **Make its video and audio lesson** (see below) if the Kokoro setup is available.

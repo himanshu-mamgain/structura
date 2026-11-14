@@ -10,6 +10,7 @@ import { MiniPlayer } from './shell/MiniPlayer'
 import { Reels } from './shell/Reels'
 import { focusSearchNext, SearchBox } from './shell/Search'
 import { VoiceAssistant } from './shell/VoiceAssistant'
+import { type AreaId, isArea } from './topics/areas'
 import { loadTopic, topicMeta, type TopicMeta } from './topics/catalog'
 import type { StaticTopic } from './topics/types'
 
@@ -28,12 +29,15 @@ const Roadmap = lazy(() => import('./shell/Roadmap').then((m) => ({ default: m.R
 type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels' | 'roadmap'
 const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels', 'roadmap']
 
-/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…), so links can be shared. */
+/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…, ?area=…), so links can be shared. */
 function readRoute() {
   const query = new URLSearchParams(window.location.search)
   const page = query.get('page') as Page | null
   const category = query.get('library')
+  const area = query.get('area')
   return {
+    // Explore and the roadmap can show one area: Development, Infra, Databases or AI.
+    area: isArea(area) ? area : null,
     topicId: query.get('topic'),
     category,
     // The library lives in Explore, so its links open there.
@@ -143,8 +147,15 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  /** Explore, or the roadmap, showing one area (or all of them). */
+  function openArea(area: AreaId | null, page: 'explore' | 'roadmap' = 'explore') {
+    navigate(`?page=${page}${area ? `&area=${area}` : ''}`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openCategory(id: string | null) {
-    navigate(id ? `?library=${id}` : '?page=explore')
+    const area = route.area ? `&area=${route.area}` : ''
+    navigate(id ? `?library=${id}${area}` : `?page=explore${area}`)
     requestAnimationFrame(() => document.getElementById('library')?.scrollIntoView({ behavior: 'smooth' }))
   }
 
@@ -210,9 +221,9 @@ export default function App() {
               topic ? (
                 <Suspense fallback={<TopicLoading meta={meta} />}>
                   {route.read ? (
-                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} onOpen={open} />
+                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} onOpen={open} onArea={openArea} />
                   ) : (
-                    <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} onRead={() => openRead(meta)} />
+                    <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} onRead={() => openRead(meta)} onArea={openArea} />
                   )}
                 </Suspense>
               ) : (
@@ -235,13 +246,22 @@ export default function App() {
             ) : route.page === 'listen' ? (
               <Commute />
             ) : route.page === 'roadmap' ? (
-              <Roadmap onOpen={open} onRead={openRead} />
+              <Roadmap area={route.area} onArea={(area) => openArea(area, 'roadmap')} onOpen={open} onRead={openRead} />
             ) : route.page === 'explore' ? (
-              <Explore onOpen={open} onRead={openRead} onNote={openNote} category={route.category} onCategory={openCategory} onRoadmap={() => openPage('roadmap')} />
+              <Explore
+                onOpen={open}
+                onRead={openRead}
+                onNote={openNote}
+                area={route.area}
+                onArea={(area) => openArea(area)}
+                category={route.category}
+                onCategory={openCategory}
+                onRoadmap={(area) => openArea(area ?? null, 'roadmap')}
+              />
             ) : reels ? (
               <Reels start={route.reel} onOpen={open} />
             ) : (
-              <Home onOpen={open} onPage={openPage} onReel={openReel} />
+              <Home onOpen={open} onPage={openPage} onReel={openReel} onArea={(area) => openArea(area)} />
             )}
           </Suspense>
         </main>

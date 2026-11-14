@@ -1,7 +1,21 @@
 import { BookOpen, BookOpenText, CheckCircle2, Circle, ExternalLink, Hammer, Play, Route, Sparkles } from 'lucide-react'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
-import { LEVEL_TAGLINE, levelGroups, nextStep, partDone, ROADMAP, ROADMAP_STEPS, type RoadmapStep, stepDone, unplacedTopics } from '../learn/roadmap'
+import {
+  currentArea,
+  LEVEL_TAGLINE,
+  levelGroups,
+  nextStep,
+  partDone,
+  partsOf,
+  ROADMAP,
+  type RoadmapPart,
+  type RoadmapStep,
+  stepDone,
+  unplacedTopics,
+} from '../learn/roadmap'
+import { areaById, AREAS, type AreaId } from '../topics/areas'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
+import { AREA_ICON, AreaChips } from './Areas'
 import type { Guide } from '../topics/library'
 import { useLibrary } from '../topics/useLibrary'
 import { topicIcon } from './topicIcons'
@@ -14,46 +28,87 @@ const guidesOf = (step: RoadmapStep, lib: Library | null): Guide[] =>
 
 const jump = (partId: string) => document.getElementById(`part-${partId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
+/** "Infra · Part 2", or "Final project" for the part that spans every area. */
+function partLabel(part: RoadmapPart): string {
+  if (!part.area) return part.title
+  return `${areaById(part.area).title} · Part ${partsOf(part.area).indexOf(part) + 1}`
+}
+
 function toggle(step: RoadmapStep) {
   if (step.topic) updateTopic(step.topic, (p) => ({ completed: !p.completed, completedAt: p.completed ? undefined : Date.now() }))
   else toggleRoadmapStep(step.id)
 }
 
-/** The roadmap page: every part in order, each step a topic or a reading, ticked off as you go. */
-export function Roadmap({ onOpen, onRead }: { onOpen: (topic: TopicMeta) => void; onRead: (topic: TopicMeta) => void }) {
+/**
+ * The roadmap page: a track per area (Development, Infra, Databases, AI) and a final
+ * project. All shows every track in turn; picking an area shows only its track.
+ */
+export function Roadmap({
+  area,
+  onArea,
+  onOpen,
+  onRead,
+}: {
+  area: AreaId | null
+  onArea: (area: AreaId | null) => void
+  onOpen: (topic: TopicMeta) => void
+  onRead: (topic: TopicMeta) => void
+}) {
   const progress = useProgress()
-  const done = ROADMAP_STEPS.filter(({ step }) => stepDone(step, progress)).length
-  const next = nextStep(progress)
-  const extra = unplacedTopics(TOPICS)
+  const parts = area ? partsOf(area) : ROADMAP
+  const steps = parts.flatMap((part) => part.steps)
+  const done = steps.filter((step) => stepDone(step, progress)).length
+  // On All, "next" is the next step in the track you're on, then anything left anywhere.
+  const next = area ? nextStep(progress, area) : (nextStep(progress, currentArea(progress)) ?? nextStep(progress))
+  const extra = unplacedTopics(TOPICS, area ?? undefined)
+  const a = area ? areaById(area) : null
+  // On All, each area's parts start under the area's own heading.
+  const startsArea = (part: RoadmapPart, i: number) => !area && part.area !== (i > 0 ? parts[i - 1].area : undefined)
 
   return (
     <div className="roadmap">
+      <AreaChips value={area} onChange={onArea} label="Tracks" />
       <header className="card roadmap-head">
         <p className="eyebrow">
           <Route size={15} aria-hidden /> Roadmap
         </p>
-        <h1>Where to start</h1>
-        <p>
-          Docker first, then Redis and Kafka, the system design essentials, AWS and Terraform: {ROADMAP.length} parts in the order they build on
-          each other. Redis, Kafka, AWS and Terraform each go from Basics to Advanced. Each step opens a topic or a reading. Tick it off when you're done; a topic counts once you mark it complete.
-        </p>
+        <h1>{a ? `${a.title} roadmap` : 'Where to start'}</h1>
+        {a ? (
+          <p>
+            {a.tagline}. {parts.length} {parts.length === 1 ? 'part' : 'parts'} in the order they build on each other: {parts.map((p) => p.title).join(' → ')}. Each step
+            opens a topic or a reading. Tick it off when you're done; a topic counts once you mark it complete.
+          </p>
+        ) : (
+          <p>
+            Four tracks, one per area: {AREAS.map((x) => x.title).join(', ')}, then a final project that uses them all. Each track is in the order
+            its parts build on each other, from Basics to Advanced where it applies. Follow the track you're on, or pick one below. Each step opens a
+            topic or a reading; tick it off when you're done.
+          </p>
+        )}
         <div className="roadmap-total">
           <span className="progress-bar" aria-hidden>
-            <span style={{ width: `${(done / ROADMAP_STEPS.length) * 100}%` }} />
+            <span style={{ width: `${steps.length ? (done / steps.length) * 100 : 0}%` }} />
           </span>
           <span>
-            {done} of {ROADMAP_STEPS.length} steps
+            {done} of {steps.length} steps
           </span>
         </div>
-        {next ? <NextUp part={next.part} step={next.step} onOpen={onOpen} /> : <p className="roadmap-finished"><Sparkles size={16} aria-hidden /> You've finished the whole roadmap.</p>}
+        {next ? (
+          <NextUp part={next.part} step={next.step} onOpen={onOpen} />
+        ) : (
+          <p className="roadmap-finished">
+            <Sparkles size={16} aria-hidden /> You've finished {a ? `the ${a.title} track` : 'the whole roadmap'}.
+          </p>
+        )}
       </header>
 
       <nav className="roadmap-nav" aria-label="Parts">
-        {ROADMAP.map((part, i) => {
+        {parts.map((part) => {
           const d = partDone(part, progress)
+          const Icon = part.area ? AREA_ICON[part.area] : Hammer
           return (
-            <button key={part.id} type="button" className={d === part.steps.length ? 'is-done' : ''} onClick={() => jump(part.id)}>
-              <span className="roadmap-nav-num">{d === part.steps.length ? <CheckCircle2 size={14} aria-label="Done" /> : i + 1}</span>
+            <button key={part.id} type="button" className={`${part.area ? `area-is-${part.area}` : ''}${d === part.steps.length ? ' is-done' : ''}`} onClick={() => jump(part.id)}>
+              <span className="roadmap-nav-num">{d === part.steps.length ? <CheckCircle2 size={14} aria-label="Done" /> : <Icon size={14} aria-hidden />}</span>
               {part.title}
               <small>
                 {d}/{part.steps.length}
@@ -64,17 +119,29 @@ export function Roadmap({ onOpen, onRead }: { onOpen: (topic: TopicMeta) => void
       </nav>
 
       <ol className="roadmap-parts">
-        {ROADMAP.map((part, i) => {
+        {parts.map((part, i) => {
           const d = partDone(part, progress)
+          const AreaIcon = part.area ? AREA_ICON[part.area] : Hammer
+          const number = part.area ? partsOf(part.area).indexOf(part) + 1 : null
           return (
-            <li key={part.id} id={`part-${part.id}`} className={`card roadmap-part${d === part.steps.length ? ' is-done' : ''}`}>
+            <li key={part.id} id={`part-${part.id}`} className={`card roadmap-part${part.area ? ` area-is-${part.area}` : ''}${d === part.steps.length ? ' is-done' : ''}`}>
+              {startsArea(part, i) && (
+                <p className="roadmap-area-head">
+                  <AreaIcon size={16} aria-hidden /> {part.area ? `${areaById(part.area).title} track` : 'Putting it together'}
+                  {part.area && (
+                    <button type="button" className="link-btn" onClick={() => onArea(part.area)}>
+                      Only {areaById(part.area).title}
+                    </button>
+                  )}
+                </p>
+              )}
               <header>
                 <span className="roadmap-num" aria-hidden>
-                  {i + 1}
+                  {number ?? <Hammer size={18} />}
                 </span>
                 <div>
                   <p className="roadmap-tagline">
-                    Part {i + 1} · {part.tagline}
+                    {partLabel(part)} · {part.tagline}
                     {part.optional && <span className="roadmap-optional">Optional</span>}
                   </p>
                   <h2>{part.title}</h2>
@@ -130,13 +197,13 @@ export function Roadmap({ onOpen, onRead }: { onOpen: (topic: TopicMeta) => void
   )
 }
 
-function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: RoadmapStep; onOpen: (topic: TopicMeta) => void }) {
+function NextUp({ part, step, onOpen }: { part: RoadmapPart; step: RoadmapStep; onOpen: (topic: TopicMeta) => void }) {
   const topic = step.topic ? topicById.get(step.topic) : undefined
   const guide = guidesOf(step, useLibrary())[0]
   return (
     <div className="roadmap-next">
       <span className="roadmap-next-label">
-        Next up · Part {ROADMAP.indexOf(part) + 1}: {part.title}
+        Next up · {partLabel(part)}: {part.title}
       </span>
       <strong>{step.title}</strong>
       <span>{step.detail}</span>
@@ -151,7 +218,7 @@ function NextUp({ part, step, onOpen }: { part: (typeof ROADMAP)[number]; step: 
           </a>
         ) : null}
         <button type="button" className="btn" onClick={() => jump(part.id)}>
-          Go to Part {ROADMAP.indexOf(part) + 1}
+          Go to {part.title}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BookOpen, ExternalLink, NotebookPen, Search as SearchIcon, X } from 'lucide-react'
 import { useNotes } from '../learn/notes'
+import { AREA_OF, areaById } from '../topics/areas'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { useLibrary } from '../topics/useLibrary'
 import { searchNotes } from './Notes'
@@ -13,7 +14,8 @@ export function search(query: string, library?: ReturnType<typeof useLibrary>) {
   const q = query.trim().toLowerCase()
   if (!q) return { topics: [], guides: [] }
   return {
-    topics: TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty}`.toLowerCase().includes(q)),
+    // An area's name finds its topics too: "infra", "databases", "ai".
+    topics: TOPICS.filter((t) => `${t.title} ${t.blurb} ${t.difficulty} ${AREA_OF[t.id] ? areaById(AREA_OF[t.id]).title : ''}`.toLowerCase().includes(q)),
     // Guides join the results as soon as the library has loaded.
     guides: library ? library.LIBRARY.guides.filter((g) => `${g.title} ${g.tags.join(' ')}`.toLowerCase().includes(q)).slice(0, 8) : [],
   }
@@ -51,7 +53,7 @@ function Results({
               <span className="search-result-text">
                 <strong>{t.title}</strong>
                 <span>
-                  Interactive topic · {t.difficulty} · {t.blurb}
+                  {AREA_OF[t.id] ? areaById(AREA_OF[t.id]).title : 'Topic'} · {t.difficulty} · {t.blurb}
                 </span>
               </span>
             </button>

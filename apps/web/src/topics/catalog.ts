@@ -1,3 +1,4 @@
+import type { AreaId } from './areas'
 import data from './catalog.json'
 import type { StaticTopic } from './types'
 
@@ -11,6 +12,8 @@ export interface TopicMeta {
   title: string
   blurb: string
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
+  /** Development, Infra, Databases or AI (src/topics/areas.ts). Full topics don't carry it: use AREA_OF. */
+  area?: AreaId
   video?: string
   chapters?: [number, string][]
   guides?: string[]

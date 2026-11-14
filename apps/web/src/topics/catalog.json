@@ -4,6 +4,7 @@
   "title": "URL Shortener",
   "blurb": "Read-heavy service: ID generation, caching, redirects, analytics",
   "difficulty": "Beginner",
+  "area": "development",
   "video": "/videos/url-shortener.mp4",
   "chapters": [
    [
@@ -81,6 +82,7 @@
   "title": "Role-Based Access Control (RBAC)",
   "blurb": "Authentication vs authorization, roles, permissions, JWT claims",
   "difficulty": "Beginner",
+  "area": "development",
   "video": "/videos/rbac.mp4",
   "chapters": [
    [
@@ -153,6 +155,7 @@
   "title": "Uber Surge Pricing & Artificial Scarcity",
   "blurb": "Supply and demand per hexagon, gamed logouts, and how to price robustly",
   "difficulty": "Advanced",
+  "area": "development",
   "video": "/videos/uber-surge.mp4",
   "chapters": [
    [
@@ -228,6 +231,7 @@
   "title": "Docker vs Virtual Machines",
   "blurb": "Hypervisors vs shared kernels, images, layers, and when to use which",
   "difficulty": "Beginner",
+  "area": "infra",
   "video": "/videos/docker-vs-vm.mp4",
   "chapters": [
    [
@@ -301,6 +305,7 @@
   "title": "Twitter Timeline & Search",
   "blurb": "Fan-out on write, celebrity merge at read time, caching and search",
   "difficulty": "Intermediate",
+  "area": "development",
   "video": "/videos/twitter-timeline.mp4",
   "chapters": [
    [
@@ -388,6 +393,7 @@
   "title": "Web Crawler & Search",
   "blurb": "Priority frontier, duplicate detection, reverse index, freshness",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "primer-design-a-web-crawler",
    "primer-asynchronism",
@@ -430,6 +436,7 @@
   "title": "Kafka: Event Streaming",
   "blurb": "Topics, partitions, consumer groups, replication and delivery guarantees",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "ref-apache-kafka-docs",
    "ref-kafka-nodejs-tutorial",
@@ -476,6 +483,7 @@
   "title": "Idempotent Payments",
   "blurb": "\"Payment failed\" but money debited: lost responses, retries and idempotency keys",
   "difficulty": "Intermediate",
+  "area": "development",
   "video": "/videos/payment-idempotency.mp4",
   "chapters": [
    [
@@ -552,6 +560,7 @@
   "title": "Mint: Personal Finance Aggregator",
   "blurb": "Pulling bank transactions through a queue, then categorizing and budgeting them",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "primer-design-mintcom",
    "primer-asynchronism",
@@ -593,6 +602,7 @@
   "title": "Pastebin",
   "blurb": "Short keys, metadata in SQL, text in an object store, expiry and caching",
   "difficulty": "Beginner",
+  "area": "development",
   "guides": [
    "primer-design-pastebincom-or-bitly",
    "primer-cache",
@@ -635,6 +645,7 @@
   "title": "Key-Value Store (Dynamo-style)",
   "blurb": "Hash ring, replication, quorum reads and writes, hinted handoff and LSM storage",
   "difficulty": "Advanced",
+  "area": "databases",
   "guides": [
    "primer-design-a-key-value-store-for-a-search-engine",
    "consistent-hashing",
@@ -681,6 +692,7 @@
   "title": "Social Network Graph",
   "blurb": "Friend lists across Person Servers, a lookup service, and shortest-path search",
   "difficulty": "Advanced",
+  "area": "development",
   "guides": [
    "primer-design-the-data-structures-for-a-social-network",
    "scale-tao-distributed-data-store-for-the-social-graph-at-facebook",
@@ -723,6 +735,7 @@
   "title": "Amazon's Sales Rank by Category",
   "blurb": "Batch MapReduce over transaction logs, a ranked table, and a cache in front",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "primer-design-amazons-sales-ranking-by-category-feature",
    "primer-cache",
@@ -766,6 +779,7 @@
   "title": "Query Cache for a Search Engine",
   "blurb": "LRU caching, sharded memory, TTLs and invalidation for hot searches",
   "difficulty": "Intermediate",
+  "area": "databases",
   "guides": [
    "primer-design-a-key-value-store-for-a-search-engine",
    "primer-cache",
@@ -810,6 +824,7 @@
   "title": "Scaling to Millions of Users on AWS",
   "blurb": "From one server to a load-balanced, cached, sharded fleet, one bottleneck at a time",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "primer-design-a-system-that-scales-to-millions-of-users-on-aws",
    "primer-load-balancer",
@@ -854,6 +869,7 @@
   "title": "Rate Limiter",
   "blurb": "Token bucket, fixed and sliding windows, and what to do when the counter store is down",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "scale-rate-limiting",
    "scale-scaling-api-with-rate-limiters-at-stripe",
@@ -897,6 +913,7 @@
   "title": "Consistent Hashing",
   "blurb": "How a cache or database cluster adds and loses nodes without reshuffling every key",
   "difficulty": "Intermediate",
+  "area": "databases",
   "guides": [
    "consistent-hashing",
    "scale-consistent-hashing",
@@ -941,6 +958,7 @@
   "title": "Chat System (WhatsApp-style)",
   "blurb": "WebSockets, store-then-deliver, groups, presence and offline push",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "how-do-we-design-a-chat-application-like-whatsapp-facebook-messenger-or-discord",
    "shortlong-polling-sse-websocket",
@@ -985,6 +1003,7 @@
   "title": "CDN: Content Delivery Network",
   "blurb": "Edge caches, cache keys and TTLs, shielding the origin, purging and hit ratio",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "primer-content-delivery-network",
    "what-is-cdn-content-delivery-network",
@@ -1031,6 +1050,7 @@
   "title": "Notification System",
   "blurb": "Push, email and SMS at scale: dedup, preferences, queues, retries and dead letters",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "how-does-a-typical-push-notification-system-work",
    "how-are-notifications-pushed-to-our-phones-or-pcs",
@@ -1076,6 +1096,7 @@
   "title": "Unique ID Generator (Snowflake)",
   "blurb": "Time-sorted 64-bit ids from many machines, with no coordination and no duplicates",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "unique-id-generator",
    "explaining-5-unique-id-generators-in-distributed-systems",
@@ -1119,6 +1140,7 @@
   "title": "Search Autocomplete (Typeahead)",
   "blurb": "Prefix trie with precomputed top-k, layered caches, and a pipeline that learns from searches",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "scale-autocomplete-search-2-parts-at-traveloka",
    "primer-cache",
@@ -1162,6 +1184,7 @@
   "title": "Proximity Service (Nearby Places)",
   "blurb": "Find places within a radius of you in milliseconds, using geohash cells instead of scanning every row",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "proximity-service",
    "quadtree",
@@ -1205,6 +1228,7 @@
   "title": "Video Streaming (YouTube-style)",
   "blurb": "Chunked upload, transcoding into a bitrate ladder, adaptive streaming and CDN delivery",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "how-does-youtube-handle-massive-video-content-upload",
    "scale-adaptive-video-streaming-at-youtube",
@@ -1251,6 +1275,7 @@
   "title": "Metrics & Monitoring System",
   "blurb": "Collecting millions of samples a second, storing them as compressed time series, and alerting without false pages",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "push-vs-pull-in-metrics-collecting-systems",
    "choose-the-right-database-for-metric-collecting-system",
@@ -1293,6 +1318,7 @@
   "title": "File Sync (Dropbox-style)",
   "blurb": "Block-level sync: chunk and hash files, upload only what changed, and tell other devices",
   "difficulty": "Intermediate",
+  "area": "development",
   "guides": [
    "scale-sync-engine-2-parts-at-dropbox",
    "scale-magic-pocket-in-house-multi-exabyte-storage-system-at-dropbox",
@@ -1339,6 +1365,7 @@
   "title": "Leader Election (Raft)",
   "blurb": "How a cluster agrees on one leader: terms, votes, heartbeats and fencing",
   "difficulty": "Advanced",
+  "area": "databases",
   "guides": [
    "scale-paxos-made-live--an-engineering-perspective",
    "scale-chubby-lock-service-for-loosely-coupled-distributed-systems-at-google",
@@ -1385,6 +1412,7 @@
   "title": "Locking: Redis & Database",
   "blurb": "Shared, exclusive, update and intent locks, Redis locks with fencing, and when to use which",
   "difficulty": "Intermediate",
+  "area": "databases",
   "guides": [
    "what-are-the-differences-among-database-locks",
    "pessimistic-vs-optimistic-locking",
@@ -1435,6 +1463,7 @@
   "title": "Distributed Cache",
   "blurb": "Cache-aside on a sharded Redis cluster: hash slots, eviction policies and cache stampedes",
   "difficulty": "Intermediate",
+  "area": "databases",
   "guides": [
    "primer-cache",
    "top-8-cache-eviction-strategies",
@@ -1479,6 +1508,7 @@
   "title": "Database Sharding",
   "blurb": "How to split one table over many databases, and why the choice of shard key decides everything",
   "difficulty": "Intermediate",
+  "area": "databases",
   "guides": [
    "a-crash-course-in-database-sharding",
    "key-concepts-to-understand-database-sharding",
@@ -1523,6 +1553,7 @@
   "title": "RAG Pipeline",
   "blurb": "Answering from your own documents: chunking, embeddings, hybrid search, reranking and citations",
   "difficulty": "Intermediate",
+  "area": "ai",
   "guides": [
    "how-does-chatgpt-work",
    "the-open-source-ai-stack",
@@ -1568,6 +1599,7 @@
   "title": "Vector Database",
   "blurb": "Finding the nearest of 100 million embeddings in milliseconds: flat scans, HNSW, IVF-PQ, recall and filters",
   "difficulty": "Advanced",
+  "area": "ai",
   "guides": [
    "scale-similarity-search-at-flickr",
    "scale-similarity-engine-at-ebay",
@@ -1613,6 +1645,7 @@
   "title": "LLM Gateway",
   "blurb": "One front door for every model: keys and budgets, routing, token limits, fallbacks, caching and guardrails",
   "difficulty": "Intermediate",
+  "area": "ai",
   "guides": [
    "api-gateway-101",
    "how-do-we-retry-on-failures",
@@ -1658,6 +1691,7 @@
   "title": "AI Agent with Tools",
   "blurb": "A language model in a loop that calls tools: step limits, tool policy, prompt injection and idempotent actions",
   "difficulty": "Advanced",
+  "area": "ai",
   "guides": [
    "what-is-an-ai-agent",
    "how-does-chatgpt-work",
@@ -1703,6 +1737,7 @@
   "title": "AWS VPC Networking",
   "blurb": "Your own network in AWS: CIDR ranges, public and private subnets, route tables, NAT gateways and endpoints",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "tf-aws-vpc",
    "tf-aws-vpc-simple",
@@ -1748,6 +1783,7 @@
   "title": "Application Load Balancer",
   "blurb": "One HTTPS entry point for many services: listeners, rules, target groups, health checks and routing algorithms",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "tf-aws-alb",
    "tf-aws-alb-complete",
@@ -1793,6 +1829,7 @@
   "title": "ECS on Fargate",
   "blurb": "Running containers without servers: task definitions, services, autoscaling on CPU and safe rolling deploys",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "tf-aws-ecs",
    "tf-aws-ecs-fargate",
@@ -1838,6 +1875,7 @@
   "title": "Full-stack App on ECS",
   "blurb": "A Vue client and Node API on ECS with DynamoDB and S3, shipped by CodePipeline with blue/green deploys",
   "difficulty": "Advanced",
+  "area": "infra",
   "guides": [
    "aws-ecs-fullstack-sample",
    "aws-ecs-fullstack-infrastructure",
@@ -1883,6 +1921,7 @@
   "title": "Load Balancer",
   "blurb": "Spreading requests over servers: algorithms, health checks and failover",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "primer-load-balancer",
    "key-use-cases-for-load-balancers",
@@ -1929,6 +1968,7 @@
   "title": "Redis Basics: Data Types",
   "blurb": "Strings, hashes, lists, sets and sorted sets, with TTLs and atomic commands, by real use case",
   "difficulty": "Beginner",
+  "area": "databases",
   "guides": [
    "the-ultimate-redis-101",
    "how-can-redis-be-used",
@@ -1974,6 +2014,7 @@
   "title": "Redis Persistence and Replication",
   "blurb": "RDB snapshots, the AOF, replicas, Sentinel failover and split brain: what each failure really loses",
   "difficulty": "Advanced",
+  "area": "databases",
   "guides": [
    "how-does-redis-persist-data",
    "how-do-big-keys-impact-redis-persistence",
@@ -2019,6 +2060,7 @@
   "title": "AWS Basics: What the Cloud Is and Why",
   "blurb": "Buying servers vs renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each costs",
   "difficulty": "Beginner",
+  "area": "infra",
   "guides": [
    "what-are-the-most-important-aws-services-to-learn",
    "aws-services-cheat-sheet",
@@ -2064,6 +2106,7 @@
   "title": "AWS IAM: Who Can Do What",
   "blurb": "Users, roles and JSON policies, and how AWS decides: explicit deny, SCPs, resource policies and permissions boundaries",
   "difficulty": "Beginner",
+  "area": "infra",
   "guides": [
    "scale-scalable-iam-architecture-to-secure-access-to-100-aws-accounts-at-segm",
    "scale-aardvark-and-repokid-aws-least-privilege-for-distributed-high-velocity",
@@ -2107,6 +2150,7 @@
   "title": "Disaster Recovery Across AWS Regions",
   "blurb": "RTO and RPO, the four AWS strategies from backup-and-restore to active/active, and why replicas are not backups",
   "difficulty": "Advanced",
+  "area": "infra",
   "guides": [
    "cloud-disaster-recovery-strategies",
    "scale-aws-dos-and-donts",
@@ -2150,6 +2194,7 @@
   "title": "Kafka Basics: Topics, Partitions, Groups",
   "blurb": "Events in an append-only log: keys pick partitions, consumer groups share them, offsets let anyone replay",
   "difficulty": "Beginner",
+  "area": "infra",
   "guides": [
    "the-ultimate-kafka-101-you-cannot-miss",
    "why-is-kafka-fast",
@@ -2195,6 +2240,7 @@
   "title": "Kafka Reliability: Durability, Exactly-Once",
   "blurb": "ISR, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances",
   "difficulty": "Advanced",
+  "area": "infra",
   "guides": [
    "can-kafka-lose-messages",
    "ref-apache-kafka-docs",
@@ -2238,6 +2284,7 @@
   "title": "Terraform Basics: Plan, Apply, State",
   "blurb": "Infrastructure as code: resources, the dependency graph, in-place vs replace, drift, and why the state file matters",
   "difficulty": "Beginner",
+  "area": "infra",
   "guides": [
    "how-does-terraform-turn-code-into-cloud",
    "a-cheatsheet-on-infrastructure-as-code-landscape",
@@ -2281,6 +2328,7 @@
   "title": "Terraform Remote State and Locking",
   "blurb": "Why state lives in S3, how a lock stops two applies colliding, and what orphans and stale locks look like",
   "difficulty": "Intermediate",
+  "area": "infra",
   "guides": [
    "how-does-terraform-turn-code-into-cloud",
    "aws-ecs-fullstack-modules",
@@ -2324,6 +2372,7 @@
   "title": "Terraform Modules and Environments",
   "blurb": "Copy-paste vs workspaces vs versioned modules: blast radius, promotion from dev to prod, and guarding against destroy",
   "difficulty": "Advanced",
+  "area": "infra",
   "guides": [
    "tf-aws-ecs-service-module",
    "tf-aws-vpc",

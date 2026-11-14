@@ -21,6 +21,8 @@ import { NoteBox, TopicNotes } from './Notes'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
+import type { AreaId } from '../topics/areas'
+import { AreaTag } from './Areas'
 import { topicIcon } from './topicIcons'
 import { ecoLinks } from '../ecosystem'
 
@@ -59,7 +61,21 @@ function useNarrow() {
  * the narrated video with chapters, the explanation with a walkthrough, code
  * and data model, and the key takeaways. Mounted fresh for each topic.
  */
-export function TopicView({ topic, board, openLoad = false, onNote, onRead }: { topic: StaticTopic; board: Board; openLoad?: boolean; onNote?: (id: string) => void; onRead?: () => void }) {
+export function TopicView({
+  topic,
+  board,
+  openLoad = false,
+  onNote,
+  onRead,
+  onArea,
+}: {
+  topic: StaticTopic
+  board: Board
+  openLoad?: boolean
+  onNote?: (id: string) => void
+  onRead?: () => void
+  onArea?: (area: AreaId) => void
+}) {
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
   const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
@@ -278,6 +294,7 @@ export function TopicView({ topic, board, openLoad = false, onNote, onRead }: { 
         <div className="topic-heading">
           <h1>{topic.title}</h1>
           <div className="topic-meta">
+            <AreaTag topicId={topic.id} onArea={onArea} />
             <span className={`level is-${topic.difficulty.toLowerCase()}`}>{topic.difficulty}</span>
             <span className="readiness" title="Interview readiness: sections read, walkthrough, video and completion">
               <span className="readiness-bar">
