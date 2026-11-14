@@ -5484,3 +5484,251 @@ button.area-tag {
 .roadmap > .area-chips {
   margin-top: 0;
 }
+
+/* ─── Roadmap, Schemata-style: stages of small module cards (src/shell/Roadmap.tsx) ─── */
+
+.roadmap-intro h1 {
+  margin: 4px 0 6px;
+  font-size: clamp(28px, 6vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.roadmap-intro p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+.roadmap-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.roadmap-summary .progress-bar {
+  flex: 1;
+}
+
+.roadmap-intro .roadmap-summary {
+  margin-top: 14px;
+}
+
+.roadmap-continue {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  border-color: rgba(212, 255, 63, 0.35);
+  background: linear-gradient(110deg, rgba(212, 255, 63, 0.07), transparent 60%), var(--card);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roadmap-continue-label {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roadmap-continue strong {
+  font-size: 16.5px;
+}
+
+.roadmap-continue > span:not(.roadmap-continue-label) {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.roadmap-continue > svg {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  color: var(--muted);
+  transform: translateY(-50%);
+}
+
+.roadmap-track {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.roadmap-track-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.roadmap-track-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 22px;
+}
+
+.roadmap-track-title svg {
+  color: var(--area, var(--text));
+}
+
+.roadmap-track-title small {
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.roadmap-track-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.roadmap-stage h3 {
+  margin: 18px 0 10px;
+  color: var(--area, #38bdf8);
+  font-size: 18px;
+  font-weight: 750;
+}
+
+/* Two cards a row from tablet width, one on phones, like Schemata's. */
+.roadmap-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .roadmap-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.roadmap-card-module {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roadmap-card-module:hover {
+  border-color: var(--area-line, rgba(148, 163, 184, 0.4));
+}
+
+.roadmap-card-module strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15.5px;
+}
+
+.roadmap-card-module strong svg {
+  color: var(--ok);
+}
+
+.roadmap-card-module strong .roadmap-next-tag {
+  margin-left: auto;
+}
+
+.roadmap-card-module > span {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.roadmap-card-module small {
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--area, #38bdf8);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.roadmap-card-module.is-next {
+  border-color: rgba(212, 255, 63, 0.45);
+}
+
+.roadmap-card-module.is-done {
+  opacity: 0.75;
+}
+
+.roadmap-schemata {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.roadmap-schemata > svg:first-child {
+  flex: none;
+  color: #38bdf8;
+}
+
+.roadmap-schemata > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.roadmap-schemata > span > span {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.roadmap-schemata > svg:last-child {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+/* A module's own page */
+.roadmap-back {
+  align-self: flex-start;
+}
+
+.roadmap-module-place {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--area, var(--brand)) !important;
+  font-size: 13px !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.roadmap-module > .roadmap-steps {
+  margin: 0;
+  padding: 4px 16px;
+}
+
+.roadmap-module > .roadmap-steps > .roadmap-step:first-child {
+  border-top: 0;
+}
+
+.roadmap-track > .roadmap-steps {
+  padding: 4px 16px;
+}

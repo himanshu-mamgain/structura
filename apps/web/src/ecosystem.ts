@@ -5,7 +5,7 @@
  * (see its docs/ecosystem.md). Keep the links stable: the other app builds them.
  */
 
-export type EcoAppId = 'structura' | 'dsa-atlas'
+export type EcoAppId = 'structura' | 'dsa-atlas' | 'schemata'
 
 export interface EcoApp {
   id: EcoAppId
@@ -19,6 +19,7 @@ export interface EcoApp {
 export const ECOSYSTEM: EcoApp[] = [
   { id: 'structura', name: 'Structura', url: 'https://structura-web.netlify.app', tagline: 'System design you can see working', color: '#a78bfa' },
   { id: 'dsa-atlas', name: 'DSA Atlas', url: 'https://dsa-atz.netlify.app', tagline: 'DSA notes: brute force → optimal, complexity, revision', color: '#34d399' },
+  { id: 'schemata', name: 'Schemata', url: 'https://schemata-web.netlify.app', tagline: 'Databases: real SQL in your browser, interview questions, a roadmap', color: '#38bdf8' },
 ]
 
 const urlOf = (id: EcoAppId) => ECOSYSTEM.find((a) => a.id === id)!.url
