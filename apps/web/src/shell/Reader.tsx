@@ -26,7 +26,7 @@ import { topicIcon } from './topicIcons'
 // with deep notes (src/topics/notes/<id>.md) reads those instead of its explanation
 // and code: the notes go further and carry their own code.
 
-const SIZES = [16, 17.5, 19, 21] as const
+const SIZES = [16, 17.5, 19, 21, 23, 25] as const
 const SIZE_KEY = 'structura:reader-size'
 const WORDS_A_MINUTE = 220
 
