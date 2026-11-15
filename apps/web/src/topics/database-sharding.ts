@@ -453,6 +453,42 @@ export function shardFor(userId) {
 // Adding a shard only changes entries in bucketToShard; no key is ever re-hashed.`,
         versions: [
           {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public class BucketRouter {
+  static final int BUCKETS = 1024; // far more buckets than shards, fixed for the life of the system
+
+  // bucket -> shard id, loaded from the shard map and refreshed when its version changes.
+  private volatile int[] bucketToShard = new int[BUCKETS];
+
+  public BucketRouter() {
+    for (int b = 0; b < BUCKETS; b++) bucketToShard[b] = b % 4;
+  }
+
+  static int bucketOf(long userId) {
+    try {
+      byte[] digest = MessageDigest.getInstance("MD5").digest(Long.toString(userId).getBytes(StandardCharsets.UTF_8));
+      return (int) (Integer.toUnsignedLong(ByteBuffer.wrap(digest).getInt()) % BUCKETS);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public int shardFor(long userId) {
+    return bucketToShard[bucketOf(userId)];
+  }
+
+  public static void main(String[] args) {
+    System.out.println(bucketOf(42) + " -> shard " + new BucketRouter().shardFor(42));
+  }
+}
+
+// Adding a shard only changes entries in bucketToShard; no key is ever re-hashed.`,
+          },
+          {
             language: 'typescript',
             source: `import { createHash } from 'node:crypto'
 
@@ -496,6 +532,53 @@ export function shardFor(userId: number): number {
     .slice(0, limit)
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import javax.sql.DataSource;
+
+public class Orders {
+  public record Order(long id, String status, Instant createdAt) {}
+
+  static final String SQL = "SELECT id, status, created_at FROM orders WHERE status = 'shipped' "
+      + "ORDER BY created_at DESC LIMIT ?";
+
+  public static List<Order> newestShipped(List<DataSource> shards, int limit) {
+    // Ask every shard for its own newest rows, in parallel.
+    List<CompletableFuture<List<Order>>> parts = shards.stream()
+        .map(shard -> CompletableFuture.supplyAsync(() -> query(shard, limit)))
+        .toList();
+    // At most shards × limit rows come back, so a plain sort is cheap.
+    // Keep the global newest \`limit\`.
+    return parts.stream()
+        .flatMap(part -> part.join().stream())
+        .sorted(Comparator.comparing(Order::createdAt).reversed())
+        .limit(limit)
+        .toList();
+  }
+
+  static List<Order> query(DataSource shard, int limit) {
+    try (Connection c = shard.getConnection(); PreparedStatement st = c.prepareStatement(SQL)) {
+      st.setInt(1, limit);
+      List<Order> rows = new ArrayList<>();
+      ResultSet rs = st.executeQuery();
+      while (rs.next()) {
+        rows.add(new Order(rs.getLong("id"), rs.getString("status"), rs.getTimestamp("created_at").toInstant()));
+      }
+      return rows;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import asyncio, heapq

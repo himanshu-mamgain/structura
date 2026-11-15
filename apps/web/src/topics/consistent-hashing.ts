@@ -337,6 +337,54 @@ export class Ring {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Map;
+import java.util.TreeMap;
+
+public final class Ring {
+  // First 4 bytes of MD5 as a position on a ring of 2^32. Any well-mixed hash works,
+  // but every client must use the same one.
+  static long pos(String s) {
+    try {
+      byte[] digest = MessageDigest.getInstance("MD5").digest(s.getBytes(StandardCharsets.UTF_8));
+      return Integer.toUnsignedLong(ByteBuffer.wrap(digest).getInt());
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private final TreeMap<Long, String> tokens = new TreeMap<>(); // position -> node, kept sorted
+  private final int vnodes;
+
+  public Ring(Iterable<String> nodes, int vnodes) {
+    this.vnodes = vnodes;
+    for (String n : nodes) add(n);
+  }
+
+  public void add(String node) {
+    for (int i = 0; i < vnodes; i++) tokens.put(pos(node + "#" + i), node);
+  }
+
+  public void remove(String node) {
+    tokens.values().removeIf(node::equals);
+  }
+
+  /** First token clockwise from the key; the TreeMap finds it in O(log n). */
+  public String get(String key) {
+    Map.Entry<Long, String> e = tokens.ceilingEntry(pos(key));
+    return (e != null ? e : tokens.firstEntry()).getValue(); // wrap past the top
+  }
+
+  public static void main(String[] args) {
+    Ring ring = new Ring(java.util.List.of("A", "B", "C", "D"), 100);
+    System.out.println(ring.get("user:42"));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { createHash } from 'node:crypto'
 
@@ -404,6 +452,51 @@ moved = keys.filter((k) => owner(before, k) !== owner(after, k)).length
 console.log(\`ring: \${share(moved)} of keys moved\`) // about 20%`,
         versions: [
           {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.IntStream;
+
+public class KeyMoves {
+  static long h(String s) {
+    try {
+      byte[] digest = MessageDigest.getInstance("MD5").digest(s.getBytes(StandardCharsets.UTF_8));
+      return Integer.toUnsignedLong(ByteBuffer.wrap(digest).getInt());
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  static TreeMap<Long, String> ring(List<String> nodes) {
+    TreeMap<Long, String> tokens = new TreeMap<>();
+    for (String n : nodes) for (int i = 0; i < 100; i++) tokens.put(h(n + "#" + i), n);
+    return tokens;
+  }
+
+  static String owner(TreeMap<Long, String> tokens, String key) {
+    Map.Entry<Long, String> e = tokens.ceilingEntry(h(key));
+    return (e != null ? e : tokens.firstEntry()).getValue();
+  }
+
+  public static void main(String[] args) {
+    List<String> keys = IntStream.range(0, 10_000).mapToObj(i -> "user:" + i).toList();
+
+    // Hash mod N: 4 nodes -> 5 nodes
+    long moved = keys.stream().filter(k -> h(k) % 4 != h(k) % 5).count();
+    System.out.printf("mod N: %d%% of keys moved%n", Math.round(moved * 100.0 / keys.size())); // about 80%
+
+    TreeMap<Long, String> before = ring(List.of("A", "B", "C", "D"));
+    TreeMap<Long, String> after = ring(List.of("A", "B", "C", "D", "E"));
+    moved = keys.stream().filter(k -> !owner(before, k).equals(owner(after, k))).count();
+    System.out.printf("ring: %d%% of keys moved%n", Math.round(moved * 100.0 / keys.size())); // about 20%
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `import hashlib
 
@@ -446,6 +539,27 @@ export function replicas(tokens, start, r = 3) {
   return [...picked]
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+public class Replicas {
+  public record Token(long pos, String node) {}
+
+  // Store each key on R different nodes. Walk the ring and skip tokens
+  // that belong to a node we already picked (virtual nodes repeat).
+  static List<String> replicas(List<Token> tokens, int start, int r) {
+    Set<String> picked = new LinkedHashSet<>();
+    for (int i = 0; picked.size() < r && i < tokens.size(); i++) {
+      picked.add(tokens.get((start + i) % tokens.size()).node());
+    }
+    return new ArrayList<>(picked);
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `// Store each key on R different nodes. Walk the ring and skip tokens

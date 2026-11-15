@@ -522,6 +522,45 @@ export async function withSeatLock(seatKey, ttlMs, work) {
     await redis.eval(RELEASE, 1, \`lock:\${seatKey}\`, owner)
   }
 }`,
+        versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.UUID;
+import java.util.function.LongFunction;
+import redis.clients.jedis.RedisClient;
+
+public class SeatLock {
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+
+  // Grant the lock and the token in one atomic step, or a late INCR could
+  // hand an old holder a bigger number than the new one.
+  private static final String ACQUIRE = """
+      if redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2], 'NX') then
+        return redis.call('INCR', KEYS[2])
+      end
+      return 0""";
+
+  // Delete the lock only if it is still ours (it may have expired and moved on).
+  private static final String RELEASE = """
+      if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) end
+      return 0""";
+
+  /** Runs work while holding the seat's lock and returns its result, or null if the seat is busy. */
+  public static <T> T withSeatLock(String seatKey, long ttlMs, LongFunction<T> work) {
+    String owner = UUID.randomUUID().toString();
+    long token = (Long) redis.eval(ACQUIRE,
+        List.of("lock:" + seatKey, "fence:" + seatKey), List.of(owner, Long.toString(ttlMs)));
+    if (token == 0) return null; // busy
+    try {
+      return work.apply(token); // pass the token to every write
+    } finally {
+      redis.eval(RELEASE, List.of("lock:" + seatKey), List.of(owner));
+    }
+  }
+}`,
+          },
+        ],
       },
       {
         title: 'Let the database have the final word (SQL)',

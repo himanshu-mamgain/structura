@@ -299,6 +299,50 @@ export function replicas(key, n = 3) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+
+public class HashRing {
+  // 64-bit position on the ring from the first 8 bytes of MD5, compared as unsigned.
+  static long pos(String s) {
+    try {
+      byte[] digest = MessageDigest.getInstance("MD5").digest(s.getBytes(StandardCharsets.UTF_8));
+      return ByteBuffer.wrap(digest).getLong();
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  // Each node owns several tokens (virtual nodes) so load evens out.
+  static final TreeMap<Long, String> RING = new TreeMap<>(Long::compareUnsigned);
+
+  static {
+    for (String node : List.of("A", "B", "C", "D")) {
+      for (int i = 0; i < 64; i++) RING.put(pos(node + "#" + i), node);
+    }
+  }
+
+  static List<String> replicas(String key, int n) {
+    Set<String> out = new LinkedHashSet<>();
+    // Walk clockwise from the key, skipping tokens of nodes we already chose; then wrap around.
+    for (String node : RING.tailMap(pos(key), true).values()) if (out.size() < n) out.add(node);
+    for (String node : RING.values()) if (out.size() < n) out.add(node);
+    return new ArrayList<>(out);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(replicas("user:42", 3));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { createHash } from 'node:crypto'
 
@@ -341,6 +385,36 @@ export function replicas(key: string, n = 3): string[] {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class Coordinator {
+  public interface Replica {
+    CompletableFuture<Void> put(String key, String value, long ts);
+  }
+
+  public static CompletableFuture<Void> quorumPut(List<Replica> replicas, String key, String value, int w) {
+    long ts = System.currentTimeMillis();
+    CompletableFuture<Void> done = new CompletableFuture<>();
+    AtomicInteger acks = new AtomicInteger();
+    AtomicInteger failures = new AtomicInteger();
+    for (Replica r : replicas) {
+      r.put(key, value, ts).whenComplete((ok, err) -> {
+        if (err == null) {
+          if (acks.incrementAndGet() >= w) done.complete(null);
+        } else if (failures.incrementAndGet() > replicas.size() - w) {
+          // Fail fast once W acks are impossible. Slower replicas still finish in the background.
+          done.completeExceptionally(new IllegalStateException("only " + acks.get() + " acks, needed " + w));
+        }
+      });
+    }
+    return done;
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Replica = { put(key: string, value: string, ts: number): Promise<void> }
 
@@ -373,6 +447,29 @@ export async function quorumGet(replies, put) {
   return newest.value
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.Comparator;
+import java.util.List;
+
+public class ReadRepair {
+  public record Reply(String replica, String value, long ts) {}
+
+  public interface Writer {
+    void put(String replica, String value, long ts);
+  }
+
+  // replies: from the first R replicas.
+  static String quorumGet(List<Reply> replies, Writer writer) {
+    Reply newest = replies.stream().max(Comparator.comparingLong(Reply::ts)).orElseThrow();
+    for (Reply r : replies) {
+      // Read repair: bring the stale one up to date.
+      if (r.ts() < newest.ts()) writer.put(r.replica(), newest.value(), newest.ts());
+    }
+    return newest.value();
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def quorum_get(replies, put):
@@ -417,6 +514,47 @@ export class Store {
   }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+public class Store {
+  private final FileOutputStream wal;
+  private final int limit;
+  private TreeMap<String, String> mem = new TreeMap<>(); // stays sorted, so a flush needs no sort
+  private final Deque<SortedMap<String, String>> sstables = new ArrayDeque<>(); // newest first
+
+  public Store(String walPath, int limit) throws IOException {
+    this.wal = new FileOutputStream(walPath, true);
+    this.limit = limit;
+  }
+
+  public void put(String key, String value) throws IOException {
+    wal.write((key + "\\t" + value + "\\n").getBytes(StandardCharsets.UTF_8)); // durable first
+    wal.getFD().sync();
+    mem.put(key, value); // then memory
+    if (mem.size() >= limit) {
+      sstables.addFirst(Collections.unmodifiableSortedMap(mem)); // flush as a sorted, immutable table
+      mem = new TreeMap<>();
+    }
+  }
+
+  public String get(String key) {
+    if (mem.containsKey(key)) return mem.get(key);
+    for (SortedMap<String, String> table : sstables) {
+      if (table.containsKey(key)) return table.get(key); // newest first
+    }
+    return null;
+  }
+}`,
+          },
           {
             language: 'python',
             source: `class Store:

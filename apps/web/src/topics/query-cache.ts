@@ -289,6 +289,36 @@ export class LruCache {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.LinkedHashMap;
+import java.util.Map;
+
+// Java's LinkedHashMap is the hash map and the linked list in one. With
+// accessOrder = true, every get moves a key to the end, so the first key is least recently used.
+public class LruCache<K, V> extends LinkedHashMap<K, V> {
+  private final int capacity;
+
+  public LruCache(int capacity) {
+    super(16, 0.75f, true);
+    this.capacity = capacity;
+  }
+
+  @Override
+  protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+    return size() > capacity; // evict the least recently used
+  }
+
+  public static void main(String[] args) {
+    LruCache<String, String> cache = new LruCache<>(2);
+    cache.put("q:kafka", "...");
+    cache.put("q:redis", "...");
+    cache.get("q:kafka");
+    cache.put("q:raft", "..."); // evicts q:redis
+    System.out.println(cache.keySet()); // [q:kafka, q:raft]
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `// A JavaScript Map remembers insertion order, so it is the
 // hash map and the "linked list" in one: first key = least recently used.
@@ -371,6 +401,70 @@ export class LruCache {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.HashMap;
+import java.util.Map;
+
+public class LinkedLru<K, V> {
+  private static class Node<K, V> {
+    final K key;
+    V value;
+    Node<K, V> prev;
+    Node<K, V> next;
+
+    Node(K key, V value) {
+      this.key = key;
+      this.value = value;
+    }
+  }
+
+  private final int capacity;
+  private final Map<K, Node<K, V>> table = new HashMap<>(); // key -> node, O(1) lookup
+  private final Node<K, V> head = new Node<>(null, null); // sentinels
+  private final Node<K, V> tail = new Node<>(null, null);
+
+  public LinkedLru(int capacity) {
+    this.capacity = capacity;
+    head.next = tail;
+    tail.prev = head;
+  }
+
+  private void unlink(Node<K, V> node) {
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+  }
+
+  private void pushFront(Node<K, V> node) {
+    node.next = head.next;
+    node.prev = head;
+    head.next.prev = node;
+    head.next = node;
+  }
+
+  public V get(K key) {
+    Node<K, V> node = table.get(key);
+    if (node == null) return null;
+    unlink(node); // O(1) because the list is doubly linked
+    pushFront(node);
+    return node.value;
+  }
+
+  public void set(K key, V value) {
+    Node<K, V> old = table.get(key);
+    if (old != null) {
+      unlink(old);
+    } else if (table.size() >= capacity) {
+      Node<K, V> lru = tail.prev; // least recently used
+      unlink(lru);
+      table.remove(lru.key);
+    }
+    Node<K, V> node = new Node<>(key, value);
+    table.put(key, node);
+    pushFront(node);
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `class Node:
     def __init__(self, key, value):
@@ -445,6 +539,50 @@ export async function search(raw, searchIndex) {
   return results
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+import redis.clients.jedis.RedisClient;
+
+public class QueryCache {
+  private static final List<RedisClient> SHARDS = List.of("cache-0", "cache-1", "cache-2", "cache-3")
+      .stream().map(host -> RedisClient.create(host, 6379)).toList();
+  private static final int TTL_SECONDS = 300;
+
+  static String normalize(String q) {
+    return q.toLowerCase(Locale.ROOT).replaceAll("[^\\\\p{L}\\\\p{N}\\\\s]", " ").replaceAll("\\\\s+", " ").trim();
+  }
+
+  /** FNV-1a: a small, fast, stable hash. */
+  static long fnv1a(String text) {
+    int h = 0x811c9dc5;
+    for (int i = 0; i < text.length(); i++) h = (h ^ text.charAt(i)) * 16777619;
+    return Integer.toUnsignedLong(h);
+  }
+
+  public static String search(String raw, Function<String, String> searchIndex) {
+    String query = normalize(raw);
+    long hash = fnv1a(query);
+    RedisClient redis = SHARDS.get((int) (hash % SHARDS.size())); // which shard owns this key
+    String key = String.format("q:%08x", hash);
+    try {
+      String cached = redis.get(key);
+      if (cached != null) return cached;
+    } catch (Exception deadShard) {
+      // a dead shard is just a miss
+    }
+    String results = searchIndex.apply(query); // slow path
+    try {
+      redis.setex(key, TTL_SECONDS, results);
+    } catch (Exception deadShard) {
+      // the next request tries again
+    }
+    return results;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import Redis from 'ioredis'

@@ -581,6 +581,30 @@ export async function readSession(id) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+import redis.clients.jedis.RedisClient;
+
+public class Sessions {
+  private static final RedisClient redis = RedisClient.create(System.getenv("REDIS_URL"));
+  private static final long THIRTY_MINUTES = 30 * 60;
+
+  public static void save(String id, long userId, String name) {
+    String key = "session:" + id;
+    redis.hset(key, Map.of("user_id", Long.toString(userId), "name", name, "cart_items", "0"));
+    redis.expire(key, THIRTY_MINUTES); // Redis deletes it if nobody renews it
+  }
+
+  public static Map<String, String> read(String id) {
+    String key = "session:" + id;
+    Map<String, String> session = redis.hgetAll(key);
+    if (session.isEmpty()) return null; // expired or never existed
+    redis.expire(key, THIRTY_MINUTES); // activity renews it
+    return session;
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { createClient } from 'redis'
 
@@ -627,6 +651,35 @@ export async function rankOf(player) {
   return rank === null ? null : rank + 1
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.time.YearMonth;
+import java.util.List;
+import redis.clients.jedis.RedisClient;
+import redis.clients.jedis.resps.Tuple;
+
+public class Leaderboard {
+  private static final RedisClient redis = RedisClient.create(System.getenv("REDIS_URL"));
+
+  static String board() {
+    return "leaderboard:" + YearMonth.now(); // leaderboard:2026-11
+  }
+
+  public static double addPoints(String player, int points) {
+    return redis.zincrby(board(), points, player);
+  }
+
+  // Highest first, with scores: [chen 1610.0, asha 1495.0, ...]
+  public static List<Tuple> top(int n) {
+    return redis.zrevrangeWithScores(board(), 0, n - 1);
+  }
+
+  public static Long rankOf(String player) {
+    Long rank = redis.zrevrank(board(), player); // 0 = first place
+    return rank == null ? null : rank + 1;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import { createClient } from 'redis'
@@ -675,6 +728,34 @@ export async function workForever(send) {
   }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.function.Consumer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import redis.clients.jedis.RedisClient;
+import redis.clients.jedis.args.ListDirection;
+
+public class EmailQueue {
+  private static final ObjectMapper json = new ObjectMapper();
+  // A pooled client: a blocking BLMOVE holds one connection, others stay free.
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+
+  public static void enqueue(String to) {
+    redis.lpush("jobs:email", "{\\"to\\":\\"" + to + "\\",\\"template\\":\\"welcome\\"}");
+  }
+
+  public static void workForever(Consumer<JsonNode> send) throws Exception {
+    while (true) {
+      // Take the oldest job and park it in one atomic step; wait up to 5 s for one.
+      String job = redis.blmove("jobs:email", "jobs:email:processing", ListDirection.RIGHT, ListDirection.LEFT, 5);
+      if (job == null) continue;
+      send.accept(json.readTree(job));
+      redis.lrem("jobs:email:processing", 1, job); // only now is it really done
+    }
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import json

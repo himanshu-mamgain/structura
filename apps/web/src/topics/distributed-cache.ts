@@ -355,6 +355,35 @@ export async function getProduct(id) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.concurrent.ThreadLocalRandom;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.RedisClusterClient;
+
+public class ProductCache {
+  private static final ObjectMapper json = new ObjectMapper();
+  private final RedisClusterClient cache = RedisClusterClient.create(new HostAndPort("cache-1", 6379));
+  private final ProductRepository db;
+
+  public ProductCache(ProductRepository db) {
+    this.db = db;
+  }
+
+  public Product getProduct(long id) throws Exception {
+    String key = "product:" + id;
+    String hit = cache.get(key);
+    if (hit != null) return json.readValue(hit, Product.class);
+
+    Product row = db.findById(id); // SELECT * FROM products WHERE product_id = ?
+    // 5 minutes plus up to 30 s of jitter, so keys cached together don't expire together
+    int ttl = 300 + ThreadLocalRandom.current().nextInt(30);
+    cache.setex(key, ttl, json.writeValueAsString(row));
+    return row;
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import Redis from 'ioredis'
 const cache = new Redis.Cluster([{ host: 'cache-1', port: 6379 }])
@@ -389,6 +418,30 @@ export function singleFlight(key, load) {
 // Across servers, also take a Redis lock: SET lock:product:42 1 NX PX 5000`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
+public class SingleFlight<T> {
+  private final ConcurrentHashMap<String, CompletableFuture<T>> inFlight = new ConcurrentHashMap<>();
+
+  // In one app server, all callers for the same key share one database query.
+  public CompletableFuture<T> get(String key, Supplier<CompletableFuture<T>> load) {
+    CompletableFuture<T> mine = new CompletableFuture<>();
+    CompletableFuture<T> running = inFlight.putIfAbsent(key, mine); // atomic: one caller wins
+    if (running != null) return running;
+    load.get().whenComplete((value, err) -> {
+      inFlight.remove(key);
+      if (err != null) mine.completeExceptionally(err);
+      else mine.complete(value);
+    });
+    return mine;
+  }
+}
+// Across servers, also take a Redis lock: SET lock:product:42 1 NX PX 5000`,
+          },
+          {
             language: 'typescript',
             source: `const inFlight = new Map<string, Promise<unknown>>()
 
@@ -421,6 +474,28 @@ const slot = crc16(Buffer.from('product:42')) % 16384 // 12456
 const shard = slot <= 5460 ? 1 : slot <= 10922 ? 2 : 3
 console.log(slot, shard) // 12456 3`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.nio.charset.StandardCharsets;
+
+public class HashSlot {
+  // CRC16/XMODEM, as Redis Cluster uses
+  static int crc16(byte[] data) {
+    int crc = 0;
+    for (byte b : data) {
+      crc ^= (b & 0xff) << 8;
+      for (int i = 0; i < 8; i++) crc = (crc & 0x8000) != 0 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    }
+    return crc;
+  }
+
+  public static void main(String[] args) {
+    int slot = crc16("product:42".getBytes(StandardCharsets.UTF_8)) % 16384; // 12456
+    int shard = slot <= 5460 ? 1 : slot <= 10922 ? 2 : 3;
+    System.out.println(slot + " " + shard); // 12456 3
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def crc16(data: bytes) -> int:           # CRC16/XMODEM, as Redis Cluster uses
