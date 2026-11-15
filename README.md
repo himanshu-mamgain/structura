@@ -47,6 +47,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Chat System (WhatsApp-style) | Intermediate | | | |
 | CDN: Content Delivery Network | Intermediate | | | |
 | Notification System | Intermediate | | | |
+| Distributed Message Queue | Intermediate | | | |
 | Unique ID Generator (Snowflake) | Intermediate | | | |
 | Search Autocomplete (Typeahead) | Intermediate | | | |
 | Proximity Service (Nearby Places) | Intermediate | | | |
