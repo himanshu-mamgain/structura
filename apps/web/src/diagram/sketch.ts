@@ -149,11 +149,11 @@ export function groupSketch(id: string, x: number, y: number, w: number, h: numb
   return toPaths(
     gen.path(roundedRectPath(x, y, w, h, 18), {
       seed: seedOf(id),
-      stroke: 'rgba(148, 163, 184, 0.5)',
+      stroke: 'rgba(41, 45, 50, 0.38)',
       strokeWidth: 1.4,
       strokeLineDash: [9, 8],
       roughness: 1.4,
-      fill: 'rgba(148, 163, 184, 0.05)',
+      fill: 'rgba(41, 45, 50, 0.03)',
       fillStyle: 'solid',
     }),
     'stroke',

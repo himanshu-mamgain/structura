@@ -4,17 +4,22 @@
    two columns (1200px+). */
 
 :root {
-  --bg: #0a0e1a;
-  --bg-2: #0d1222;
-  --card: #10172a;
-  --card-2: #141c33;
-  --line: rgba(148, 163, 184, 0.14);
-  --text: #e6e9f2;
-  --muted: #94a0b8;
-  --primary: #6d6af8;
-  --primary-2: #8b5cf6;
-  --primary-soft: rgba(109, 106, 248, 0.16);
-  --ok: #34d399;
+  /* Warm Paper: paper-like and comfortable for long reading. */
+  --bg: #f7f5ef;
+  --bg-2: #efebe1;
+  --card: #fffdf8;
+  --card-2: #f1ede4;
+  --line: rgba(41, 45, 50, 0.12);
+  --text: #292d32;
+  /* Secondary text: darker than muted, for long passages. */
+  --ink-2: #4a4e55;
+  --muted: #77736b;
+  --primary: #557c72;
+  --primary-2: #46685f;
+  --primary-soft: rgba(85, 124, 114, 0.13);
+  /* The accent as text (links, highlighted words): a little darker, for contrast on paper. */
+  --accent-ink: #426a60;
+  --ok: #2f7a55;
   --radius: 16px;
 }
 
@@ -80,7 +85,7 @@ button {
   border: 0;
   background: linear-gradient(135deg, var(--primary), var(--primary-2));
   color: #fff;
-  box-shadow: 0 8px 24px rgba(109, 106, 248, 0.35);
+  box-shadow: 0 8px 24px rgba(85, 124, 114, 0.35);
 }
 
 .btn-ghost {
@@ -145,7 +150,7 @@ button {
   gap: 10px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
-  background: rgba(10, 14, 26, 0.88);
+  background: rgba(247, 245, 239, 0.88);
   backdrop-filter: blur(12px);
 }
 
@@ -217,7 +222,7 @@ button {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--card);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 40px rgba(41, 45, 50, 0.14);
 }
 
 .search.is-inline .search-results {
@@ -257,7 +262,7 @@ button {
   height: 38px;
   border-radius: 50%;
   background: var(--primary-soft);
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 .search-result-icon.is-guide {
@@ -318,10 +323,10 @@ button {
 
 .badge {
   padding: 3px 10px;
-  border: 1px solid rgba(109, 106, 248, 0.4);
+  border: 1px solid rgba(85, 124, 114, 0.4);
   border-radius: 999px;
   background: var(--primary-soft);
-  color: #a5b4fc;
+  color: var(--accent-ink);
   font-size: 12px;
   font-weight: 600;
 }
@@ -353,7 +358,7 @@ button {
 .seg button[aria-pressed='true'] {
   background: var(--primary-soft);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px rgba(109, 106, 248, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(85, 124, 114, 0.5);
 }
 
 .seg button:disabled {
@@ -396,7 +401,7 @@ button {
 }
 
 .topic-card:hover {
-  border-color: rgba(109, 106, 248, 0.6);
+  border-color: rgba(85, 124, 114, 0.6);
   transform: translateY(-2px);
 }
 
@@ -422,7 +427,7 @@ button {
   gap: 5px;
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(41, 45, 50, 0.06);
   color: var(--muted);
   font-size: 12px;
   font-weight: 600;
@@ -442,10 +447,10 @@ button {
   place-items: center;
   width: 52px;
   height: 52px;
-  border: 1px solid rgba(109, 106, 248, 0.4);
+  border: 1px solid rgba(85, 124, 114, 0.4);
   border-radius: 14px;
   background: var(--primary-soft);
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 .topic-heading h1 {
@@ -506,9 +511,9 @@ button {
   overflow: hidden;
   border-radius: 0 0 var(--radius) var(--radius);
   background:
-    radial-gradient(circle at 50% 40%, rgba(109, 106, 248, 0.08), transparent 60%),
-    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px) 0 0 / 28px 28px,
-    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px) 0 0 / 28px 28px;
+    radial-gradient(circle at 50% 40%, rgba(85, 124, 114, 0.08), transparent 60%),
+    linear-gradient(rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px;
 }
 
 .diagram-body .board {
@@ -533,10 +538,10 @@ button {
   gap: 4px 12px;
   align-items: start;
   padding: 12px 14px;
-  border: 1px solid rgba(109, 106, 248, 0.45);
+  border: 1px solid rgba(85, 124, 114, 0.45);
   border-radius: 14px;
-  background: rgba(13, 18, 34, 0.95);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  background: rgba(255, 253, 248, 0.95);
+  box-shadow: 0 12px 30px rgba(41, 45, 50, 0.14);
 }
 
 .walk-count {
@@ -622,7 +627,7 @@ button {
   padding: 3px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(13, 18, 34, 0.9);
+  background: rgba(255, 253, 248, 0.9);
   color: var(--muted);
   font-size: 13px;
 }
@@ -644,8 +649,8 @@ button {
 }
 
 .d2-group rect {
-  fill: rgba(148, 163, 184, 0.04);
-  stroke: rgba(148, 163, 184, 0.28);
+  fill: rgba(119, 115, 107, 0.04);
+  stroke: rgba(119, 115, 107, 0.28);
   stroke-dasharray: 6 6;
 }
 
@@ -656,7 +661,7 @@ button {
 }
 
 .d2-edge {
-  color: #8f9bb8;
+  color: var(--muted);
   transition: opacity 0.3s;
 }
 
@@ -671,17 +676,17 @@ button {
 }
 
 .d2-edge rect {
-  fill: #0d1222;
-  stroke: rgba(148, 163, 184, 0.25);
+  fill: var(--bg-2);
+  stroke: rgba(119, 115, 107, 0.25);
 }
 
 .d2-edge text {
-  fill: #cbd2e1;
+  fill: var(--ink-2);
   font: 500 12.5px Inter, system-ui, sans-serif;
 }
 
 .d2-edge.is-lit {
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 .d2-edge.is-lit path {
@@ -736,7 +741,7 @@ button {
 
 .d2-node.is-lit .d2-box,
 .d2-node.is-lit .d2-table {
-  box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.6), 0 0 28px rgba(109, 106, 248, 0.6);
+  box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.6), 0 0 28px rgba(85, 124, 114, 0.6);
 }
 
 .d2-table {
@@ -745,7 +750,7 @@ button {
   overflow: hidden;
   border: 2px solid;
   border-radius: 12px;
-  background: #0d1222;
+  background: var(--bg-2);
 }
 
 .d2-table strong {
@@ -810,12 +815,12 @@ button {
 }
 
 .chapters button.is-current {
-  border-color: rgba(109, 106, 248, 0.5);
+  border-color: rgba(85, 124, 114, 0.5);
   background: var(--primary-soft);
 }
 
 .chapters button.is-current time {
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 /* Load test inside the side column */
@@ -887,7 +892,7 @@ button {
   height: 28px;
   border-radius: 50%;
   background: var(--primary-soft);
-  color: #a5b4fc;
+  color: var(--accent-ink);
   font-size: 14px;
 }
 
@@ -918,7 +923,7 @@ button {
 }
 
 .trace li.is-current .trace-step {
-  color: #c7d2fe;
+  color: var(--accent-ink);
 }
 
 .related {
@@ -942,7 +947,7 @@ button {
 }
 
 .takeaways h2 svg {
-  color: #facc15;
+  color: #8a6100;
 }
 
 .takeaways > ol {
@@ -1070,7 +1075,7 @@ button {
 }
 
 .library-head a {
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 .library-cats {
@@ -1125,7 +1130,7 @@ button {
 }
 
 .guide a:hover {
-  color: #c7d2fe;
+  color: var(--accent-ink);
 }
 
 .guide a svg {
@@ -1176,7 +1181,7 @@ button {
 }
 
 .deeper a {
-  color: #a5b4fc;
+  color: var(--accent-ink);
   font-size: 14px;
   text-decoration: none;
 }
@@ -1199,7 +1204,7 @@ button {
 }
 
 .topic-heading .credit a {
-  color: #a5b4fc;
+  color: var(--accent-ink);
 }
 
 /* Topics without a video: the diagram takes the full width. */
@@ -1272,7 +1277,7 @@ button {
   width: min(300px, calc(100vw - 24px));
   box-sizing: border-box;
   padding: 14px 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 24px 60px rgba(41, 45, 50, 0.16);
   font-size: 14px;
 }
 
