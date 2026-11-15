@@ -240,8 +240,35 @@ export const urlShortener: StaticTopic = {
     code: [
       {
         title: 'Base62 encode and decode',
-        language: 'typescript',
+        language: 'javascript',
         source: `const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+// The short code is just the row's numeric ID, written in base 62.
+export function encode(id) {
+  if (id === 0n) return ALPHABET[0]
+  let code = ''
+  while (id > 0n) {
+    code = ALPHABET[Number(id % 62n)] + code
+    id /= 62n
+  }
+  return code
+}
+
+export function decode(code) {
+  let id = 0n
+  for (const ch of code) {
+    const digit = ALPHABET.indexOf(ch)
+    if (digit < 0) throw new Error(\`invalid character: \${ch}\`)
+    id = id * 62n + BigInt(digit)
+  }
+  return id
+}
+
+// encode(125_000_000_000n) === '2crtgcg', and decode('2crtgcg') === 125_000_000_000n`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 // The short code is just the row's numeric ID, written in base 62.
 export function encode(id: bigint): string {
@@ -265,11 +292,45 @@ export function decode(code: string): bigint {
 }
 
 // encode(125_000_000_000n) === '2crtgcg', and decode('2crtgcg') === 125_000_000_000n`,
+          },
+        ],
       },
       {
         title: 'Redirect with cache-aside',
-        language: 'typescript',
+        language: 'javascript',
         source: `import express from 'express'
+import { createClient } from 'redis'
+import pg from 'pg'
+
+const app = express()
+const db = new pg.Pool()
+const redis = createClient()
+await redis.connect()
+
+app.get('/:code', async (req, res) => {
+  const { code } = req.params
+  // 1. Cache first: most redirects end here.
+  let url = await redis.get(\`url:\${code}\`)
+  if (!url) {
+    // 2. Miss: read the source of truth (uses the UNIQUE index on short_code).
+    const { rows } = await db.query(
+      \`SELECT long_url FROM urls
+       WHERE short_code = $1 AND (expires_at IS NULL OR expires_at > now())\`,
+      [code],
+    )
+    if (rows.length === 0) return res.status(404).send('Link not found')
+    url = rows[0].long_url
+    // 3. Fill the cache for the next visitor.
+    await redis.set(\`url:\${code}\`, url, { EX: 86_400 })
+  }
+  // 4. Count the click without delaying the redirect.
+  void publishClick({ code, at: new Date().toISOString(), referrer: req.get('referer') ?? null })
+  res.redirect(302, url)
+})`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import express from 'express'
 import { createClient } from 'redis'
 import pg from 'pg'
 
@@ -300,11 +361,39 @@ app.get('/:code', async (req, res) => {
   void publishClick({ code, at: new Date().toISOString(), referrer: req.get('referer') ?? null })
   res.redirect(302, url)
 })`,
+          },
+        ],
       },
       {
         title: 'IDs in blocks, no per-request coordination',
-        language: 'typescript',
-        source: `import type pg from 'pg'
+        language: 'javascript',
+        source: `// Each server reserves 1,000 IDs at a time from a shared Postgres sequence,
+// so most links get their ID from memory with no network call.
+const BLOCK = 1000n
+let next = 0n
+let end = 0n
+let refill = null
+
+export async function nextId(db) {
+  while (next === end) {
+    // Concurrent callers share one refill instead of each reserving a block.
+    refill ??= db
+      .query(\`SELECT nextval('url_id_blocks') AS block\`)
+      .then(({ rows }) => {
+        next = BigInt(rows[0].block) * BLOCK
+        end = next + BLOCK
+      })
+      .finally(() => {
+        refill = null
+      })
+    await refill
+  }
+  return next++
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import type pg from 'pg'
 
 // Each server reserves 1,000 IDs at a time from a shared Postgres sequence,
 // so most links get their ID from memory with no network call.
@@ -329,6 +418,8 @@ export async function nextId(db: pg.Pool): Promise<bigint> {
   }
   return next++
 }`,
+          },
+        ],
       },
     ],
     related: ['Consistent hashing', 'Cache-aside pattern', 'Rate limiter', 'Base62 encoding', 'Database sharding'],

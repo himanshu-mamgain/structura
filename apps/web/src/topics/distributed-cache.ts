@@ -338,8 +338,25 @@ export const distributedCache: StaticTopic = {
     code: [
       {
         title: 'Cache-aside with a TTL and jitter',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+const cache = new Redis.Cluster([{ host: 'cache-1', port: 6379 }])
+
+export async function getProduct(id) {
+  const key = \`product:\${id}\`
+  const hit = await cache.get(key)
+  if (hit) return JSON.parse(hit)
+
+  const row = await db.query('SELECT * FROM products WHERE product_id = $1', [id])
+  // 5 minutes plus up to 30 s of jitter, so keys cached together don't expire together
+  const ttl = 300 + Math.floor(Math.random() * 30)
+  await cache.set(key, JSON.stringify(row), 'EX', ttl)
+  return row
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 const cache = new Redis.Cluster([{ host: 'cache-1', port: 6379 }])
 
 export async function getProduct(id: number) {
@@ -353,11 +370,27 @@ export async function getProduct(id: number) {
   await cache.set(key, JSON.stringify(row), 'EX', ttl)
   return row
 }`,
+          },
+        ],
       },
       {
         title: 'Single-flight: one rebuild per key',
-        language: 'typescript',
-        source: `const inFlight = new Map<string, Promise<unknown>>()
+        language: 'javascript',
+        source: `const inFlight = new Map()
+
+// In one app server, all callers for the same key share one database query.
+export function singleFlight(key, load) {
+  const running = inFlight.get(key)
+  if (running) return running
+  const p = load().finally(() => inFlight.delete(key))
+  inFlight.set(key, p)
+  return p
+}
+// Across servers, also take a Redis lock: SET lock:product:42 1 NX PX 5000`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const inFlight = new Map<string, Promise<unknown>>()
 
 // In one app server, all callers for the same key share one database query.
 export function singleFlight<T>(key: string, load: () => Promise<T>): Promise<T> {
@@ -368,11 +401,29 @@ export function singleFlight<T>(key: string, load: () => Promise<T>): Promise<T>
   return p
 }
 // Across servers, also take a Redis lock: SET lock:product:42 1 NX PX 5000`,
+          },
+        ],
       },
       {
         title: 'Which shard owns a key (Redis hash slot)',
-        language: 'python',
-        source: `def crc16(data: bytes) -> int:           # CRC16/XMODEM, as Redis Cluster uses
+        language: 'javascript',
+        source: `// CRC16/XMODEM, as Redis Cluster uses
+export function crc16(data) {
+  let crc = 0
+  for (const b of data) {
+    crc ^= b << 8
+    for (let i = 0; i < 8; i++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff
+  }
+  return crc
+}
+
+const slot = crc16(Buffer.from('product:42')) % 16384 // 12456
+const shard = slot <= 5460 ? 1 : slot <= 10922 ? 2 : 3
+console.log(slot, shard) // 12456 3`,
+        versions: [
+          {
+            language: 'python',
+            source: `def crc16(data: bytes) -> int:           # CRC16/XMODEM, as Redis Cluster uses
     crc = 0
     for b in data:
         crc ^= b << 8
@@ -383,6 +434,8 @@ export function singleFlight<T>(key: string, load: () => Promise<T>): Promise<T>
 slot = crc16(b"product:42") % 16384        # 12456
 shard = 1 if slot <= 5460 else 2 if slot <= 10922 else 3
 print(slot, shard)                         # 12456 3`,
+          },
+        ],
       },
       {
         title: 'Delete on write, not update',

@@ -798,9 +798,35 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
     },
     code: [
       {
-        title: 'Exact top k by cosine similarity (TypeScript)',
-        language: 'typescript',
+        title: 'Exact top k by cosine similarity',
+        language: 'javascript',
         source: `// Brute force: exact, simple, and fine up to about 100,000 vectors.
+export function normalise(v) {
+  let n = 0
+  for (const x of v) n += x * x
+  n = Math.sqrt(n)
+  return v.map((x) => x / n)
+}
+
+// On unit vectors, cosine similarity is just the dot product.
+function dot(a, b) {
+  let s = 0
+  for (let i = 0; i < a.length; i++) s += a[i] * b[i]
+  return s
+}
+
+// Items are stored normalised, so each comparison is one dot product.
+export function topK(query, items, k = 10) {
+  const q = normalise(query)
+  return items
+    .map((it) => ({ id: it.id, score: dot(q, it.vector) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, k)
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// Brute force: exact, simple, and fine up to about 100,000 vectors.
 export function normalise(v: Float32Array): Float32Array {
   let n = 0
   for (const x of v) n += x * x
@@ -823,6 +849,8 @@ export function topK(query: Float32Array, items: { id: string; vector: Float32Ar
     .sort((a, b) => b.score - a.score)
     .slice(0, k)
 }`,
+          },
+        ],
       },
       {
         title: 'Filtered HNSW search with pgvector (SQL)',
@@ -851,9 +879,34 @@ ORDER BY e.embedding <=> $1
 LIMIT 10;`,
       },
       {
-        title: 'IVF-PQ with re-ranking in FAISS (Python)',
-        language: 'python',
-        source: `import faiss
+        title: 'IVF-PQ with re-ranking',
+        language: 'javascript',
+        source: `// FAISS has no full JavaScript binding; LanceDB builds the same kind of index from Node.
+import * as lancedb from '@lancedb/lancedb'
+
+const db = await lancedb.connect('data/listings')
+const table = await db.openTable('listings') // 1,000,000 rows, each with a 768-number vector
+
+await table.createIndex('vector', {
+  config: lancedb.Index.ivfPq({
+    distanceType: 'cosine',
+    numPartitions: 4000, // clusters: about 4 × √1,000,000
+    numSubVectors: 96, // 96 pieces × 8 bits = 96 bytes a vector
+  }),
+})
+
+export async function search(queryVector) {
+  return table
+    .vectorSearch(queryVector)
+    .nprobes(64) // clusters searched per query
+    .refineFactor(5) // re-rank the best 50 with the full vectors to return 10
+    .limit(10)
+    .toArray()
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import faiss
 import numpy as np
 
 d = 768
@@ -874,11 +927,44 @@ index.k_factor = 5   # re-rank the best 50 to return 10
 xq = np.load("query_vectors.npy").astype("float32")
 faiss.normalize_L2(xq)
 scores, ids = index.search(xq, 10)`,
+          },
+        ],
       },
       {
-        title: 'Measuring recall@10 of an HNSW index (Python)',
-        language: 'python',
-        source: `import hnswlib
+        title: 'Measuring recall@10 of an HNSW index',
+        language: 'javascript',
+        source: `import { readFileSync } from 'node:fs'
+import { BruteforceSearch, HierarchicalNSW } from 'hnswlib-node'
+
+const DIM = 768
+// listing_vectors.f32: every vector's 768 float32s, one vector after another.
+const raw = new Float32Array(readFileSync('listing_vectors.f32').buffer)
+const count = raw.length / DIM
+const vector = (i) => Array.from(raw.subarray(i * DIM, (i + 1) * DIM))
+
+const index = new HierarchicalNSW('cosine', DIM)
+index.initIndex(count, 16, 200) // M = 16 links a node, efConstruction = 200
+const exact = new BruteforceSearch('cosine', DIM) // ground truth: a full scan
+exact.initIndex(count)
+for (let i = 0; i < count; i++) {
+  const v = vector(i)
+  index.addPoint(v, i)
+  exact.addPoint(v, i)
+}
+
+const queries = Array.from({ length: 100 }, () => vector(Math.floor(Math.random() * count)))
+const truth = queries.map((q) => new Set(exact.searchKnn(q, 10).neighbors))
+
+for (const ef of [10, 64, 200]) {
+  index.setEf(ef) // search width: higher finds more, slower
+  const found = queries.map((q, i) => index.searchKnn(q, 10).neighbors.filter((id) => truth[i].has(id)).length)
+  const recall = found.reduce((a, b) => a + b, 0) / (queries.length * 10)
+  console.log(\`ef=\${ef}: recall@10 = \${recall.toFixed(3)}\`)
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import hnswlib
 import numpy as np
 
 vectors = np.load("listing_vectors.npy").astype("float32")
@@ -896,6 +982,8 @@ for ef in (10, 64, 200):
     approx, _ = index.knn_query(queries, k=10)
     recall = np.mean([len(set(a) & set(e)) / 10 for a, e in zip(approx, exact)])
     print(f"ef={ef}: recall@10 = {recall:.3f}")`,
+          },
+        ],
       },
     ],
     related: ['RAG pipeline', 'Embeddings', 'Database sharding', 'Distributed cache', 'Consistent hashing', 'Full-text search'],

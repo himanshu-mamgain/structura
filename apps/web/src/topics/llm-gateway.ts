@@ -635,9 +635,34 @@ A normal minute now costs $6.41 instead of $10.22, 37% less, with no wrong cache
     },
     code: [
       {
-        title: 'Token limiter with Redis (TypeScript)',
-        language: 'typescript',
+        title: 'Token limiter with Redis',
+        language: 'javascript',
         source: `import { Redis } from 'ioredis'
+
+const redis = new Redis()
+
+// Reserve tokens for this minute before calling the model. Input tokens are
+// known; the output is capped by max_tokens, so reserve that and correct later.
+export async function reserve(key, limitPerMinute, input, maxOutput) {
+  const bucket = \`tpm:\${key}:\${Math.floor(Date.now() / 60_000)}\`
+  const want = input + maxOutput
+  const used = await redis.incrby(bucket, want)
+  if (used === want) await redis.expire(bucket, 120)
+  if (used > limitPerMinute) {
+    await redis.decrby(bucket, want) // give it back: this request won't run
+    return { ok: false, retryAfterSeconds: 60 - (Math.floor(Date.now() / 1000) % 60) }
+  }
+  return { ok: true, bucket, reserved: want }
+}
+
+// After the call: return what the model didn't use.
+export async function settle(bucket, reserved, actualTokens) {
+  if (reserved > actualTokens) await redis.decrby(bucket, reserved - actualTokens)
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Redis } from 'ioredis'
 
 const redis = new Redis()
 
@@ -659,11 +684,52 @@ export async function reserve(key: string, limitPerMinute: number, input: number
 export async function settle(bucket: string, reserved: number, actualTokens: number) {
   if (reserved > actualTokens) await redis.decrby(bucket, reserved - actualTokens)
 }`,
+          },
+        ],
       },
       {
-        title: 'Circuit breaker with failover (TypeScript)',
-        language: 'typescript',
-        source: `type Call = (prompt: string) => Promise<string>
+        title: 'Circuit breaker with failover',
+        language: 'javascript',
+        source: `class Breaker {
+  failures = 0
+  openUntil = 0
+  constructor(threshold = 5, coolDownMs = 30_000) {
+    this.threshold = threshold
+    this.coolDownMs = coolDownMs
+  }
+
+  get open() {
+    return Date.now() < this.openUntil
+  }
+  success() {
+    this.failures = 0
+  }
+  failure() {
+    // After enough failures in a row, stop calling for a while instead of waiting on timeouts.
+    if (++this.failures >= this.threshold) this.openUntil = Date.now() + this.coolDownMs
+  }
+}
+
+const breakers = new Map()
+
+export async function complete(prompt, providers) {
+  for (const p of providers) {
+    const b = breakers.get(p.name) ?? breakers.set(p.name, new Breaker()).get(p.name)
+    if (b.open) continue
+    try {
+      const text = await p.call(prompt)
+      b.success()
+      return { text, provider: p.name }
+    } catch {
+      b.failure() // try the next provider
+    }
+  }
+  throw new Error('All providers are unavailable')
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Call = (prompt: string) => Promise<string>
 
 class Breaker {
   private failures = 0
@@ -698,11 +764,37 @@ export async function complete(prompt: string, providers: { name: string; call: 
   }
   throw new Error('All providers are unavailable')
 }`,
+          },
+        ],
       },
       {
-        title: 'A cache key that can\'t mix up answers (Python)',
-        language: 'python',
-        source: `import hashlib
+        title: "A cache key that can't mix up answers",
+        language: 'javascript',
+        source: `import { createHash } from 'node:crypto'
+
+const EMAIL = /[\\w.+-]+@[\\w-]+\\.[\\w.]+/
+const PHONE = /\\b[6-9]\\d{4}\\s?\\d{5}\\b/
+
+// Lower-case, drop punctuation, squeeze spaces. \\p{L} keeps letters in any language.
+const normalise = (prompt) =>
+  prompt.toLowerCase().replace(/[^\\p{L}\\p{M}\\p{N}_\\s#-]/gu, '').replace(/\\s+/g, ' ').trim()
+
+export function cacheKey(app, model, promptVersion, prompt) {
+  // Answers about one person's data are never shared.
+  if (EMAIL.test(prompt) || PHONE.test(prompt)) return null
+  // Same app, model and system prompt, and the same words: only then is it the same question.
+  const raw = [app, model, promptVersion, normalise(prompt)].join('|')
+  return createHash('sha256').update(raw).digest('hex')
+}
+
+console.log(
+  cacheKey('support', 'small-a', 'v7', 'How do I reset my password?') ===
+    cacheKey('support', 'small-a', 'v7', 'how do I reset my password'),
+) // true`,
+        versions: [
+          {
+            language: 'python',
+            source: `import hashlib
 import re
 
 EMAIL = re.compile(r"[\\w.+-]+@[\\w-]+\\.[\\w.]+")
@@ -722,6 +814,8 @@ def cache_key(app: str, model: str, prompt_version: str, prompt: str) -> str | N
 
 print(cache_key("support", "small-a", "v7", "How do I reset my password?")
       == cache_key("support", "small-a", "v7", "how do I reset my password"))  # True`,
+          },
+        ],
       },
       {
         title: 'Calling the gateway (bash)',

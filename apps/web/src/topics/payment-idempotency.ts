@@ -488,8 +488,48 @@ export const paymentIdempotency: StaticTopic = {
     code: [
       {
         title: 'Idempotent POST /v1/payments',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { createHash, randomBytes } from 'node:crypto'
+import pg from 'pg'
+
+const db = new pg.Pool()
+
+/** Repeating this with the same Idempotency-Key never debits twice. */
+export async function createPayment(bank, userId, key, body) {
+  const hash = createHash('sha256').update(JSON.stringify(body)).digest()
+  const paymentId = 'pay_' + randomBytes(9).toString('base64url')
+  try {
+    // One statement: the payment and its key are saved together or not at all.
+    await db.query(
+      \`WITH p AS (INSERT INTO payments (payment_id, user_id, merchant_id, amount_paise, status)
+                  VALUES ($3, $1, $5, $6, 'PENDING'))
+       INSERT INTO idempotency_keys (user_id, idempotency_key, request_hash, payment_id) VALUES ($1, $2, $4, $3)\`,
+      [userId, key, paymentId, hash, body.merchant_id, body.amount_paise],
+    )
+  } catch (err) {
+    if (err.code !== '23505') throw err // 23505 = unique_violation: key seen before
+    const { rows: [seen] } = await db.query(
+      'SELECT request_hash, response_code, response_body FROM idempotency_keys WHERE user_id = $1 AND idempotency_key = $2',
+      [userId, key],
+    )
+    if (!hash.equals(seen.request_hash)) return { status: 422, body: { error: 'Key reused for a different payment' } }
+    if (seen.response_code === null) return { status: 409, body: { error: 'Still processing, retry shortly' } }
+    return { status: seen.response_code, body: seen.response_body } // replay: the bank is not called again
+  }
+  // Our payment id is the bank's idempotency key, so retrying this call is safe too.
+  const status = await bank.debit(paymentId, body.amount_paise).catch(() => 'PENDING') // timeout ≠ failed
+  const response = { status: status === 'PENDING' ? 202 : 200, body: { payment_id: paymentId, status } }
+  await db.query(
+    \`WITH p AS (UPDATE payments SET status = $4, updated_at = now() WHERE payment_id = $3 AND status = 'PENDING')
+     UPDATE idempotency_keys SET response_code = $5, response_body = $6 WHERE user_id = $1 AND idempotency_key = $2\`,
+    [userId, key, paymentId, status, response.status, response.body],
+  )
+  return response
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createHash, randomBytes } from 'node:crypto'
 import pg from 'pg'
 
 const db = new pg.Pool()
@@ -528,11 +568,43 @@ export async function createPayment(bank: Bank, userId: string, key: string, bod
   )
   return response
 }`,
+          },
+        ],
       },
       {
         title: 'Client: one key, safe retries',
-        language: 'typescript',
+        language: 'javascript',
         source: `/**
+ * Make the key when the checkout opens and keep it, even across app restarts:
+ * every attempt for this checkout must send the same one.
+ */
+export async function pay(key, order) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (attempt > 0) {
+      const backoff = 1000 * 2 ** (attempt - 1) // 1 s, 2 s, 4 s, 8 s
+      // Jitter: thousands of phones that lost signal together shouldn't retry together.
+      await new Promise((resolve) => setTimeout(resolve, backoff / 2 + (Math.random() * backoff) / 2))
+    }
+    try {
+      const res = await fetch('/v1/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key },
+        body: JSON.stringify({ ...order, currency: 'INR', method: 'upi' }),
+        signal: AbortSignal.timeout(15_000),
+      })
+      // 200 paid, 202 processing, other 4xx a definite no. 409 and 5xx: ask again.
+      if (res.status !== 409 && res.status < 500) return { status: res.status, body: await res.json() }
+    } catch {
+      // Timeout or dropped connection: the payment may have happened. Never show "failed" here.
+    }
+  }
+  // Show "checking status". Calling pay() again later with the same key is the status check.
+  return { status: 0, body: { status: 'UNKNOWN' } }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `/**
  * Make the key when the checkout opens and keep it, even across app restarts:
  * every attempt for this checkout must send the same one.
  */
@@ -559,6 +631,8 @@ export async function pay(key: string, order: { merchant_id: string; amount_pais
   // Show "checking status". Calling pay() again later with the same key is the status check.
   return { status: 0, body: { status: 'UNKNOWN' } }
 }`,
+          },
+        ],
       },
       {
         title: 'The idempotency_keys table',

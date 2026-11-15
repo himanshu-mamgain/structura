@@ -557,9 +557,32 @@ For tens of millions of visitors, even a set gets big. Redis has a **HyperLogLog
     },
     code: [
       {
-        title: 'Sessions in a hash with a TTL (TypeScript)',
-        language: 'typescript',
+        title: 'Sessions in a hash with a TTL',
+        language: 'javascript',
         source: `import { createClient } from 'redis'
+
+const redis = createClient({ url: process.env.REDIS_URL })
+await redis.connect()
+
+const THIRTY_MINUTES = 30 * 60
+
+export async function saveSession(id, user) {
+  const key = \`session:\${id}\`
+  await redis.hSet(key, { user_id: String(user.id), name: user.name, cart_items: '0' })
+  await redis.expire(key, THIRTY_MINUTES) // Redis deletes it if nobody renews it
+}
+
+export async function readSession(id) {
+  const key = \`session:\${id}\`
+  const session = await redis.hGetAll(key)
+  if (!Object.keys(session).length) return null // expired or never existed
+  await redis.expire(key, THIRTY_MINUTES) // activity renews it
+  return session
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createClient } from 'redis'
 
 const redis = createClient({ url: process.env.REDIS_URL })
 await redis.connect()
@@ -579,11 +602,34 @@ export async function readSession(id: string) {
   await redis.expire(key, THIRTY_MINUTES) // activity renews it
   return session
 }`,
+          },
+        ],
       },
       {
-        title: 'A monthly leaderboard (TypeScript)',
-        language: 'typescript',
+        title: 'A monthly leaderboard',
+        language: 'javascript',
         source: `import { createClient } from 'redis'
+
+const redis = createClient({ url: process.env.REDIS_URL })
+await redis.connect()
+
+const board = () => \`leaderboard:\${new Date().toISOString().slice(0, 7)}\` // leaderboard:2026-11
+
+export const addPoints = (player, points) => redis.zIncrBy(board(), points, player)
+
+export async function top(n = 10) {
+  // Highest first, with scores: [{ value: 'chen', score: 1610 }, ...]
+  return redis.zRangeWithScores(board(), 0, n - 1, { REV: true })
+}
+
+export async function rankOf(player) {
+  const rank = await redis.zRevRank(board(), player) // 0 = first place
+  return rank === null ? null : rank + 1
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createClient } from 'redis'
 
 const redis = createClient({ url: process.env.REDIS_URL })
 await redis.connect()
@@ -601,11 +647,37 @@ export async function rankOf(player: string) {
   const rank = await redis.zRevRank(board(), player) // 0 = first place
   return rank === null ? null : rank + 1
 }`,
+          },
+        ],
       },
       {
-        title: 'A queue that survives a crashed worker (Python)',
-        language: 'python',
-        source: `import json
+        title: 'A queue that survives a crashed worker',
+        language: 'javascript',
+        source: `import { createClient } from 'redis'
+
+const redis = createClient({ url: 'redis://localhost:6379' })
+await redis.connect()
+
+export async function enqueue(to) {
+  await redis.lPush('jobs:email', JSON.stringify({ to, template: 'welcome' }))
+}
+
+export async function workForever(send) {
+  // A blocking command holds its connection, so the worker gets its own.
+  const worker = redis.duplicate()
+  await worker.connect()
+  for (;;) {
+    // Take the oldest job and park it in one atomic step; wait up to 5 s for one.
+    const job = await worker.blMove('jobs:email', 'jobs:email:processing', 'RIGHT', 'LEFT', 5)
+    if (job === null) continue
+    await send(JSON.parse(job))
+    await worker.lRem('jobs:email:processing', 1, job) // only now is it really done
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import json
 import redis
 
 r = redis.Redis.from_url("redis://localhost:6379", decode_responses=True)
@@ -621,6 +693,8 @@ def work_forever(send) -> None:
             continue
         send(json.loads(job))
         r.lrem("jobs:email:processing", 1, job)  # only now is it really done`,
+          },
+        ],
       },
       {
         title: 'Trying it in redis-cli (bash)',

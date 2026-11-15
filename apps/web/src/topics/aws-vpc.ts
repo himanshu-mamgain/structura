@@ -396,9 +396,27 @@ EOF
 terraform init && terraform plan`,
       },
       {
-        title: 'Subnet maths like cidrsubnet() (TypeScript)',
-        language: 'typescript',
-        source: `const toInt = (ip: string) => ip.split('.').reduce((n, o) => n * 256 + Number(o), 0)
+        title: 'Subnet maths like cidrsubnet()',
+        language: 'javascript',
+        source: `const toInt = (ip) => ip.split('.').reduce((n, o) => n * 256 + Number(o), 0)
+const toIp = (n) => [3, 2, 1, 0].map((i) => Math.floor(n / 256 ** i) % 256).join('.')
+
+// cidrsubnet("10.0.0.0/16", 8, 3) = "10.0.3.0/24"
+export function cidrsubnet(cidr, newBits, index) {
+  const [ip, bits] = cidr.split('/')
+  const prefix = Number(bits) + newBits
+  if (index >= 2 ** newBits) throw new Error('index out of range')
+  return \`\${toIp(toInt(ip) + index * 2 ** (32 - prefix))}/\${prefix}\`
+}
+
+// AWS keeps the first four addresses and the last one in every subnet.
+export const usable = (prefix) => 2 ** (32 - prefix) - 5
+
+console.log(cidrsubnet('10.0.0.0/16', 8, 3), usable(24)) // 10.0.3.0/24 251`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const toInt = (ip: string) => ip.split('.').reduce((n, o) => n * 256 + Number(o), 0)
 const toIp = (n: number) => [3, 2, 1, 0].map((i) => Math.floor(n / 256 ** i) % 256).join('.')
 
 // cidrsubnet("10.0.0.0/16", 8, 3) = "10.0.3.0/24"
@@ -413,6 +431,8 @@ export function cidrsubnet(cidr: string, newBits: number, index: number): string
 export const usable = (prefix: number) => 2 ** (32 - prefix) - 5
 
 console.log(cidrsubnet('10.0.0.0/16', 8, 3), usable(24)) // 10.0.3.0/24 251`,
+          },
+        ],
       },
       {
         title: 'S3 gateway endpoint (Terraform)',

@@ -327,7 +327,7 @@ export const metricsMonitoring: StaticTopic = {
     code: [
       {
         title: 'Expose metrics in the text format a scraper reads',
-        language: 'typescript',
+        language: 'javascript',
         source: `import http from 'node:http'
 
 let requests = 0 // a counter only ever goes up; the database computes rates
@@ -347,11 +347,53 @@ http.createServer((req, res) => {
   requests++
   res.end('ok')
 }).listen(9100)`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import http from 'node:http'
+
+let requests = 0 // a counter only ever goes up; the database computes rates
+
+http.createServer((req, res) => {
+  if (req.url === '/metrics') {
+    const cpu = 35 // in real code: read from the OS
+    res.setHeader('Content-Type', 'text/plain; version=0.0.4')
+    res.end(
+      '# TYPE http_requests_total counter\\n' +
+      \`http_requests_total{service="checkout",code="200"} \${requests}\\n\` +
+      '# TYPE cpu_usage_percent gauge\\n' +
+      \`cpu_usage_percent{service="checkout"} \${cpu}\\n\`,
+    )
+    return
+  }
+  requests++
+  res.end('ok')
+}).listen(9100)`,
+          },
+        ],
       },
       {
         title: 'A "for" duration: pending, then firing',
-        language: 'python',
-        source: `def evaluate(samples, threshold=90, hold_seconds=300):
+        language: 'javascript',
+        source: `// samples: [[timeInSeconds, value], ...], oldest first.
+export function evaluate(samples, threshold = 90, holdSeconds = 300) {
+  let pendingSince = null
+  for (const [t, value] of samples) {
+    if (value > threshold) {
+      pendingSince ??= t
+      if (t - pendingSince >= holdSeconds) return ['firing', t]
+    } else {
+      pendingSince = null // one good sample resets the timer
+    }
+  }
+  return [pendingSince !== null ? 'pending' : 'inactive', null]
+}
+
+// 95% from t=60 to t=540 (every 15 s): fires at t=360, 300 s after it first held.`,
+        versions: [
+          {
+            language: 'python',
+            source: `def evaluate(samples, threshold=90, hold_seconds=300):
     """samples: list of (time_in_seconds, value), oldest first."""
     pending_since = None
     for t, value in samples:
@@ -364,6 +406,8 @@ http.createServer((req, res) => {
     return "pending" if pending_since is not None else "inactive", None
 
 # 95% from t=60 to t=540 (every 15 s): fires at t=360, 300 s after it first held.`,
+          },
+        ],
       },
       {
         title: 'Roll raw samples up to 5-minute average and max',
@@ -380,14 +424,27 @@ GROUP BY series_id, bucket;`,
       },
       {
         title: 'Why timestamps compress so well',
-        language: 'python',
-        source: `def delta_of_delta(timestamps):
+        language: 'javascript',
+        source: `export function deltaOfDelta(timestamps) {
+  const deltas = timestamps.slice(1).map((t, i) => t - timestamps[i])
+  return deltas.slice(1).map((d, i) => d - deltas[i])
+}
+
+const ts = [1700000000, 1700000015, 1700000030, 1700000045, 1700000060]
+console.log(deltaOfDelta(ts)) // [0, 0, 0]: steady 15 s steps cost about 1 bit each
+// A late scrape (1700000046 instead of 1700000045) gives [0, 1, -1]: still tiny.`,
+        versions: [
+          {
+            language: 'python',
+            source: `def delta_of_delta(timestamps):
     deltas = [b - a for a, b in zip(timestamps, timestamps[1:])]
     return [b - a for a, b in zip(deltas, deltas[1:])]
 
 ts = [1700000000, 1700000015, 1700000030, 1700000045, 1700000060]
 print(delta_of_delta(ts))  # [0, 0, 0]: steady 15 s steps cost about 1 bit each
 # A late scrape (1700000046 instead of 1700000045) gives [0, 1, -1]: still tiny.`,
+          },
+        ],
       },
     ],
     related: ['Time-series database', 'Pull vs push', 'Cardinality', 'Alert fatigue', 'Downsampling', 'SLOs and error budgets'],

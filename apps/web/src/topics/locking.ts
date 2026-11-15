@@ -492,7 +492,7 @@ export const locking: StaticTopic = {
     },
     code: [
       {
-        title: 'Redis lock with a fencing token (Node.js)',
+        title: 'Redis lock with a fencing token',
         language: 'javascript',
         source: `import Redis from 'ioredis'
 import { randomUUID } from 'node:crypto'

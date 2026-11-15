@@ -246,8 +246,44 @@ export const rbac: StaticTopic = {
     code: [
       {
         title: 'Permission middleware (Express)',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { createRemoteJWKSet, jwtVerify } from 'jose'
+
+// The Identity Provider's public keys; jose caches them and picks up rotations.
+const JWKS = createRemoteJWKSet(new URL('https://auth.example.com/.well-known/jwks.json'))
+
+// Role → permissions, loaded from role_permissions and cached (it changes rarely).
+const ROLE_PERMISSIONS = {
+${roleTable}
+}
+
+export function requirePermission(permission) {
+  return async (req, res, next) => {
+    const token = req.get('authorization')?.replace(/^Bearer /, '')
+    if (!token) return res.status(401).json({ error: 'missing token' })
+
+    let roles
+    try {
+      // Checks signature, expiry and issuer in one call.
+      const { payload } = await jwtVerify(token, JWKS, { issuer: 'https://auth.example.com' })
+      roles = payload.roles ?? []
+    } catch {
+      return res.status(401).json({ error: 'invalid or expired token' }) // who are you?
+    }
+
+    // Deny by default: allowed only if one of the user's roles grants it.
+    if (!roles.some((role) => ROLE_PERMISSIONS[role]?.includes(permission))) {
+      return res.status(403).json({ error: \`missing permission \${permission}\` }) // not allowed
+    }
+    next()
+  }
+}
+
+// app.delete('/articles/:id', requirePermission('article:delete'), deleteArticle)`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { NextFunction, Request, Response } from 'express'
 
 // The Identity Provider's public keys; jose caches them and picks up rotations.
@@ -281,11 +317,30 @@ export function requirePermission(permission: string) {
 }
 
 // app.delete('/articles/:id', requirePermission('article:delete'), deleteArticle)`,
+          },
+        ],
       },
       {
         title: 'Issuing the token at login',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { importPKCS8, SignJWT } from 'jose'
+
+const privateKey = await importPKCS8(process.env.JWT_PRIVATE_KEY, 'RS256')
+
+export function issueAccessToken(userId, roles) {
+  return new SignJWT({ roles })
+    .setProtectedHeader({ alg: 'RS256', kid: 'key-2026-10' })
+    .setSubject(userId)
+    .setIssuer('https://auth.example.com')
+    .setIssuedAt()
+    // Short-lived: a removed role stops working within 15 minutes.
+    .setExpirationTime('15m')
+    .sign(privateKey)
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { importPKCS8, SignJWT } from 'jose'
 
 const privateKey = await importPKCS8(process.env.JWT_PRIVATE_KEY!, 'RS256')
 
@@ -299,6 +354,8 @@ export function issueAccessToken(userId: string, roles: string[]): Promise<strin
     .setExpirationTime('15m')
     .sign(privateKey)
 }`,
+          },
+        ],
       },
       {
         title: 'Effective permissions in SQL',

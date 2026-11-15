@@ -304,8 +304,49 @@ export const messageQueue: StaticTopic = {
     code: [
       {
         title: 'A queue with a visibility timeout (in memory)',
-        language: 'typescript',
-        source: `type Msg = { id: string; body: string; receives: number; visibleAt: number }
+        language: 'javascript',
+        source: `export class Queue {
+  msgs = new Map()
+  dlq = []
+  constructor(visibilityMs = 30_000, maxReceives = 3) {
+    this.visibilityMs = visibilityMs
+    this.maxReceives = maxReceives
+  }
+
+  send(id, body) {
+    this.msgs.set(id, { id, body, receives: 0, visibleAt: 0 })
+  }
+
+  receive(now = Date.now()) {
+    for (const m of this.msgs.values()) {
+      if (m.visibleAt > now) continue                    // hidden: someone is working on it
+      if (m.receives >= this.maxReceives) {              // tried enough: park it
+        this.msgs.delete(m.id)
+        this.dlq.push(m)
+        continue
+      }
+      m.receives++
+      m.visibleAt = now + this.visibilityMs              // hide it, don't delete it
+      return { id: m.id, body: m.body, receipt: \`\${m.id}:\${m.receives}\` }
+    }
+  }
+
+  delete(receipt) {
+    const [id, n] = receipt.split(':')
+    const m = this.msgs.get(id)
+    if (m && m.receives === Number(n)) this.msgs.delete(id) // a stale receipt does nothing
+  }
+}
+
+const q = new Queue(30_000)
+q.send('m-7f3a21', 'charge order-1042')
+console.log(q.receive(0))        // worker A gets it at t=0
+console.log(q.receive(10_000))   // undefined: still hidden
+console.log(q.receive(30_000))   // worker B gets it: A never deleted it`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Msg = { id: string; body: string; receives: number; visibleAt: number }
 
 export class Queue {
   private msgs = new Map<string, Msg>()
@@ -342,11 +383,41 @@ q.send('m-7f3a21', 'charge order-1042')
 console.log(q.receive(0))        // worker A gets it at t=0
 console.log(q.receive(10_000))   // undefined: still hidden
 console.log(q.receive(30_000))   // worker B gets it: A never deleted it`,
+          },
+        ],
       },
       {
         title: 'An idempotent handler (message id in the same transaction)',
-        language: 'python',
-        source: `import sqlite3
+        language: 'javascript',
+        source: `import { DatabaseSync } from 'node:sqlite'
+
+const db = new DatabaseSync(':memory:')
+db.exec(\`
+CREATE TABLE processed_messages (message_id TEXT PRIMARY KEY);
+CREATE TABLE charges (order_id TEXT, amount_cents INT);
+\`)
+
+export function handle(messageId, orderId, amountCents) {
+  db.exec('BEGIN') // one transaction: both rows commit or neither does
+  try {
+    db.prepare('INSERT INTO processed_messages VALUES (?)').run(messageId)
+    db.prepare('INSERT INTO charges VALUES (?, ?)').run(orderId, amountCents)
+    db.exec('COMMIT')
+    return 'charged'
+  } catch (err) {
+    db.exec('ROLLBACK')
+    if (err.errstr === 'constraint failed') return 'duplicate, skipped' // already done: safe to ack
+    throw err
+  }
+}
+
+console.log(handle('m-7f3a21', 'order-1042', 4900)) // charged
+console.log(handle('m-7f3a21', 'order-1042', 4900)) // duplicate, skipped (redelivery)
+console.log(db.prepare('SELECT COUNT(*) AS n FROM charges').get().n) // 1`,
+        versions: [
+          {
+            language: 'python',
+            source: `import sqlite3
 
 db = sqlite3.connect(":memory:")
 db.executescript("""
@@ -366,6 +437,8 @@ def handle(message_id: str, order_id: str, amount_cents: int) -> str:
 print(handle("m-7f3a21", "order-1042", 4900))  # charged
 print(handle("m-7f3a21", "order-1042", 4900))  # duplicate, skipped (redelivery)
 print(db.execute("SELECT COUNT(*) FROM charges").fetchone()[0])  # 1`,
+          },
+        ],
       },
       {
         title: 'Taking the next message in SQL',

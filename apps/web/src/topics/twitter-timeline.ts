@@ -267,8 +267,31 @@ export const twitterTimeline: StaticTopic = {
     code: [
       {
         title: 'Fan-out worker (Redis)',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+
+const redis = new Redis()
+const CELEBRITY = 1_000_000 // above this, followers merge at read time
+const TIMELINE_LENGTH = 800 // keep only the newest entries in memory
+
+export async function fanOut(tweet, followers) {
+  if (followers.length >= CELEBRITY) return // too many: skip, merged on read
+
+  const entry = \`\${tweet.id}:\${tweet.userId}:0\` // tweet_id:user_id:meta
+  // Batch the O(n) writes: one round trip per 1,000 followers.
+  for (let i = 0; i < followers.length; i += 1000) {
+    const batch = redis.pipeline()
+    for (const follower of followers.slice(i, i + 1000)) {
+      batch.lpush(\`home:\${follower}\`, entry)
+      batch.ltrim(\`home:\${follower}\`, 0, TIMELINE_LENGTH - 1)
+    }
+    await batch.exec()
+  }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 
 const redis = new Redis()
 const CELEBRITY = 1_000_000 // above this, followers merge at read time
@@ -288,11 +311,34 @@ export async function fanOut(tweet: { id: string; userId: string }, followers: s
     await batch.exec()
   }
 }`,
+          },
+        ],
       },
       {
         title: 'Reading the home timeline',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+
+const redis = new Redis()
+
+/** Newest 20 tweet ids for a user, with followed celebrities merged in. */
+export async function homeTimeline(userId, celebrityTweets) {
+  const cached = await redis.lrange(\`home:\${userId}\`, 0, 19) // O(1) to find, O(20) to read
+  const fromCache = cached.map((e) => {
+    const [id] = e.split(':')
+    return { id, at: snowflakeTime(id) }
+  })
+  const merged = [...fromCache, ...(await celebrityTweets())]
+  merged.sort((a, b) => b.at - a.at) // re-order at serve time
+  return merged.slice(0, 20).map((t) => t.id)
+}
+
+/** Snowflake-style ids carry their creation time in the top bits. */
+const snowflakeTime = (id) => Number(BigInt(id) >> 22n)`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 
 const redis = new Redis()
 
@@ -310,6 +356,8 @@ export async function homeTimeline(userId: string, celebrityTweets: () => Promis
 
 /** Snowflake-style ids carry their creation time in the top bits. */
 const snowflakeTime = (id: string) => Number(BigInt(id) >> 22n)`,
+          },
+        ],
       },
       {
         title: 'User timeline and fan-out targets',

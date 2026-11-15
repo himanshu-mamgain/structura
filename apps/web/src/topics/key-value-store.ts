@@ -277,8 +277,30 @@ export const keyValueStore: StaticTopic = {
     code: [
       {
         title: 'Find the replicas on a hash ring',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { createHash } from 'node:crypto'
+
+// 64-bit position on the ring from the first 8 bytes of MD5.
+const pos = (s) => createHash('md5').update(s).digest().readBigUInt64BE(0)
+
+// Each node owns several tokens (virtual nodes) so load evens out.
+const ring = ['A', 'B', 'C', 'D']
+  .flatMap((n) => Array.from({ length: 64 }, (_, i) => ({ node: n, token: pos(\`\${n}#\${i}\`) })))
+  .sort((x, y) => (x.token < y.token ? -1 : 1))
+
+export function replicas(key, n = 3) {
+  const p = pos(key)
+  let i = ring.findIndex((t) => t.token >= p)
+  if (i < 0) i = 0 // wrap around
+  const out = new Set()
+  // Walk clockwise, skipping tokens of nodes we already chose.
+  for (let k = 0; out.size < n; k++) out.add(ring[(i + k) % ring.length].node)
+  return [...out]
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createHash } from 'node:crypto'
 
 // 64-bit position on the ring from the first 8 bytes of MD5.
 const pos = (s: string) => createHash('md5').update(s).digest().readBigUInt64BE(0)
@@ -297,11 +319,30 @@ export function replicas(key: string, n = 3): string[] {
   for (let k = 0; out.size < n; k++) out.add(ring[(i + k) % ring.length].node)
   return [...out]
 }`,
+          },
+        ],
       },
       {
         title: 'Coordinator: quorum write',
-        language: 'typescript',
-        source: `type Replica = { put(key: string, value: string, ts: number): Promise<void> }
+        language: 'javascript',
+        source: `export async function quorumPut(replicas, key, value, w) {
+  const ts = Date.now()
+  let acks = 0
+  let failures = 0
+  await new Promise((resolve, reject) => {
+    for (const r of replicas) {
+      r.put(key, value, ts).then(
+        () => ++acks >= w && resolve(),
+        // Fail fast once W acks are impossible. Slower replicas still finish in the background.
+        () => ++failures > replicas.length - w && reject(new Error(\`only \${acks} acks, needed \${w}\`)),
+      )
+    }
+  })
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Replica = { put(key: string, value: string, ts: number): Promise<void> }
 
 export async function quorumPut(replicas: Replica[], key: string, value: string, w: number) {
   const ts = Date.now()
@@ -317,22 +358,68 @@ export async function quorumPut(replicas: Replica[], key: string, value: string,
     }
   })
 }`,
+          },
+        ],
       },
       {
         title: 'Newest version wins, then repair the stale replicas',
-        language: 'python',
-        source: `def quorum_get(replies, put):
+        language: 'javascript',
+        source: `// replies: [{ replica, value, ts }] from the first R replicas.
+export async function quorumGet(replies, put) {
+  const newest = replies.reduce((a, b) => (b.ts > a.ts ? b : a))
+  for (const { replica, ts } of replies) {
+    if (ts < newest.ts) await put(replica, newest.value, newest.ts) // read repair: bring the stale one up to date
+  }
+  return newest.value
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `def quorum_get(replies, put):
     """replies: list of (replica, value, timestamp_ms) from the first R replicas."""
     newest = max(replies, key=lambda r: r[2])
     for replica, _value, ts in replies:
         if ts < newest[2]:
             put(replica, newest[1], newest[2])  # read repair: bring the stale one up to date
     return newest[1]`,
+          },
+        ],
       },
       {
         title: 'Tiny LSM write path',
-        language: 'python',
-        source: `class Store:
+        language: 'javascript',
+        source: `import { fsyncSync, openSync, writeSync } from 'node:fs'
+
+export class Store {
+  constructor(walPath, limit = 4096) {
+    this.wal = openSync(walPath, 'a')
+    this.mem = new Map()
+    this.sstables = [] // newest first
+    this.limit = limit
+  }
+
+  put(key, value) {
+    writeSync(this.wal, \`\${key}\\t\${value}\\n\`) // durable first
+    fsyncSync(this.wal)
+    this.mem.set(key, value) // then memory
+    if (this.mem.size >= this.limit) {
+      // flush as a sorted, immutable table
+      const sorted = [...this.mem].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      this.sstables.unshift(new Map(sorted))
+      this.mem = new Map()
+    }
+  }
+
+  get(key) {
+    if (this.mem.has(key)) return this.mem.get(key)
+    for (const table of this.sstables) if (table.has(key)) return table.get(key) // newest first
+    return undefined
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `class Store:
     def __init__(self, wal, limit=4096):
         self.wal, self.mem, self.sstables, self.limit = wal, {}, [], limit
 
@@ -349,6 +436,8 @@ export async function quorumPut(replicas: Replica[], key: string, value: string,
         for table in self.sstables:                                 # newest first
             if key in table:
                 return table[key]`,
+          },
+        ],
       },
     ],
     related: ['Consistent hashing', 'Quorum', 'CAP theorem', 'LSM trees', 'Vector clocks', 'Merkle trees', 'Gossip protocol'],

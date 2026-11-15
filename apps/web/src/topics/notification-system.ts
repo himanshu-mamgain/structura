@@ -312,9 +312,9 @@ export const notificationSystem: StaticTopic = {
     },
     code: [
       {
-        title: 'Accept an event: dedup, preferences, queue (TypeScript)',
-        language: 'typescript',
-        source: `export async function accept(e: { event: string; user_id: string; idempotency_key: string }) {
+        title: 'Accept an event: dedup, preferences, queue',
+        language: 'javascript',
+        source: `export async function accept(e) {
   // SET NX: only the first caller within 24h gets "OK".
   const first = await redis.set(\`dedup:\${e.idempotency_key}\`, '1', { NX: true, EX: 86_400 })
   if (!first) return { status: 'duplicate' }
@@ -328,11 +328,47 @@ export const notificationSystem: StaticTopic = {
   await kafka.send({ topic, messages: [{ key: e.user_id, value: JSON.stringify({ id, ...e }) }] })
   return { status: 'QUEUED', id } // 202: delivery happens later
 }`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `export async function accept(e: { event: string; user_id: string; idempotency_key: string }) {
+  // SET NX: only the first caller within 24h gets "OK".
+  const first = await redis.set(\`dedup:\${e.idempotency_key}\`, '1', { NX: true, EX: 86_400 })
+  if (!first) return { status: 'duplicate' }
+
+  const prefs = await prefsService.get(e.user_id)
+  const type = TYPES[e.event]
+  if (type.kind === 'marketing' && !prefs.marketingOptIn) return suppress(e, 'OPT_OUT')
+
+  const id = await log.insert({ ...e, status: 'QUEUED' })
+  const topic = type.kind === 'urgent' ? 'notif.push.high' : \`notif.\${type.channel}.normal\`
+  await kafka.send({ topic, messages: [{ key: e.user_id, value: JSON.stringify({ id, ...e }) }] })
+  return { status: 'QUEUED', id } // 202: delivery happens later
+}`,
+          },
+        ],
       },
       {
-        title: 'Retry with exponential backoff and jitter (Python)',
-        language: 'python',
-        source: `import random
+        title: 'Retry with exponential backoff and jitter',
+        language: 'javascript',
+        source: `const MAX_ATTEMPTS = 5
+
+// attempt 1 -> ~2s, 2 -> ~4s, 3 -> ~8s ... plus up to 1s of jitter
+export const nextDelay = (attempt) => 2 * 2 ** (attempt - 1) + Math.random()
+
+export async function deliver(msg, send) {
+  try {
+    await send(msg)
+  } catch (err) {
+    if (err.name !== 'TimeoutError') throw err
+    if (msg.attempts + 1 >= MAX_ATTEMPTS) await deadLetter(msg) // alert, keep for replay
+    else await retryQueue.put(msg, { delaySeconds: nextDelay(msg.attempts + 1) })
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import random
 
 MAX_ATTEMPTS = 5
 
@@ -348,6 +384,8 @@ def deliver(msg, send):
             dead_letter(msg)  # alert, keep for replay
         else:
             retry_queue.put(msg, delay=next_delay(msg.attempts + 1))`,
+          },
+        ],
       },
       {
         title: 'Log table and the "why no notification?" query (SQL)',

@@ -320,8 +320,17 @@ export const videoStreaming: StaticTopic = {
     code: [
       {
         title: 'Pick a rendition from measured bandwidth',
-        language: 'typescript',
-        source: `type Rung = { height: number; kbps: number }
+        language: 'javascript',
+        source: `// Best rendition whose bitrate fits in 80% of the bandwidth; else the lowest.
+export function pickRung(rungs, bandwidthKbps) {
+  const budget = bandwidthKbps * 0.8 // leave headroom for jitter
+  const fits = rungs.filter((r) => r.kbps <= budget)
+  return fits.length ? fits[fits.length - 1] : rungs[0] // rungs sorted low → high
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Rung = { height: number; kbps: number }
 
 // Best rendition whose bitrate fits in 80% of the bandwidth; else the lowest.
 export function pickRung(rungs: Rung[], bandwidthKbps: number): Rung {
@@ -329,6 +338,8 @@ export function pickRung(rungs: Rung[], bandwidthKbps: number): Rung {
   const fits = rungs.filter((r) => r.kbps <= budget)
   return fits.length ? fits[fits.length - 1] : rungs[0] // rungs sorted low → high
 }`,
+          },
+        ],
       },
       {
         title: 'A manifest (HLS master playlist)',

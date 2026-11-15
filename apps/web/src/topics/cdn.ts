@@ -374,7 +374,7 @@ export const cdn: StaticTopic = {
     code: [
       {
         title: 'Origin: headers that tell the CDN what to do (Express)',
-        language: 'typescript',
+        language: 'javascript',
         source: `import express from 'express'
 
 const app = express()
@@ -398,6 +398,34 @@ app.get('/account', (_req, res) => {
   res.set('Cache-Control', 'private, no-store')
   res.send(renderAccount())
 })`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import express from 'express'
+
+const app = express()
+
+// Fingerprinted files: the name changes when the content does, so cache for a year.
+app.use('/assets', express.static('dist/assets', {
+  immutable: true,
+  maxAge: '365d',
+  etag: true,
+}))
+
+// Data that changes: one minute fresh, then serve stale for 30 s while refreshing.
+app.get('/api/prices.json', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=30')
+  res.set('Surrogate-Key', 'prices') // lets you purge every price file with one call
+  res.json(loadPrices())
+})
+
+// Personal pages: never store them in a shared cache.
+app.get('/account', (_req, res) => {
+  res.set('Cache-Control', 'private, no-store')
+  res.send(renderAccount())
+})`,
+          },
+        ],
       },
       {
         title: 'Conditional request: how a cache revalidates (bash)',
@@ -410,9 +438,34 @@ curl -s -o /dev/null -w '%{http_code}\\n' \\
   -H 'If-None-Match: "8f3c1a"' https://cdn.shop.example/api/prices.json`,
       },
       {
-        title: 'Edge cache with TTL and LRU eviction (python)',
-        language: 'python',
-        source: `import time
+        title: 'Edge cache with TTL and LRU eviction',
+        language: 'javascript',
+        source: `export class EdgeCache {
+  constructor(capacity) {
+    this.capacity = capacity
+    this.items = new Map() // key -> { body, expiresAt }; Map order = recency
+  }
+
+  get(key) {
+    const entry = this.items.get(key)
+    if (!entry) return { body: null, status: 'MISS' }
+    if (Date.now() >= entry.expiresAt) return { body: entry.body, status: 'EXPIRED' } // caller revalidates with If-None-Match
+    this.items.delete(key) // most recently used goes last
+    this.items.set(key, entry)
+    return { body: entry.body, status: 'HIT' }
+  }
+
+  put(key, body, ttlSeconds) {
+    this.items.delete(key)
+    this.items.set(key, { body, expiresAt: Date.now() + ttlSeconds * 1000 })
+    // Evict the least recently used: the first key in the Map.
+    if (this.items.size > this.capacity) this.items.delete(this.items.keys().next().value)
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import time
 from collections import OrderedDict
 
 class EdgeCache:
@@ -435,6 +488,8 @@ class EdgeCache:
         self.items.move_to_end(key)
         if len(self.items) > self.capacity:
             self.items.popitem(last=False)  # evict the least recently used`,
+          },
+        ],
       },
       {
         title: 'Purge by tag when content changes (bash)',

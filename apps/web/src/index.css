@@ -336,6 +336,7 @@ body,
   background: var(--assistant-input);
   font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   white-space: pre;
+  tab-size: 4;
 }
 
 .simulate {
@@ -400,6 +401,33 @@ body,
 .code-lang {
   color: var(--assistant-muted);
   font-weight: 400;
+}
+
+.code-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.code-tabs button {
+  flex: none;
+  padding: 3px 10px;
+  border: 1px solid var(--assistant-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--assistant-muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.code-tabs button.is-on {
+  border-color: var(--assistant-fg);
+  background: var(--assistant-fg);
+  color: var(--assistant-bg);
 }
 
 .code figcaption button {

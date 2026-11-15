@@ -261,8 +261,36 @@ export const queryCache: StaticTopic = {
     code: [
       {
         title: 'LRU cache with a Map',
-        language: 'typescript',
+        language: 'javascript',
         source: `// A JavaScript Map remembers insertion order, so it is the
+// hash map and the "linked list" in one: first key = least recently used.
+export class LruCache {
+  map = new Map()
+  constructor(capacity) {
+    this.capacity = capacity
+  }
+
+  get(key) {
+    const value = this.map.get(key)
+    if (value === undefined) return undefined
+    this.map.delete(key) // re-insert to mark as most recently used
+    this.map.set(key, value)
+    return value
+  }
+
+  set(key, value) {
+    this.map.delete(key)
+    if (this.map.size >= this.capacity) {
+      const oldest = this.map.keys().next().value
+      this.map.delete(oldest) // evict the least recently used
+    }
+    this.map.set(key, value)
+  }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// A JavaScript Map remembers insertion order, so it is the
 // hash map and the "linked list" in one: first key = least recently used.
 export class LruCache<V> {
   private map = new Map<string, V>()
@@ -285,11 +313,66 @@ export class LruCache<V> {
     this.map.set(key, value)
   }
 }`,
+          },
+        ],
       },
       {
         title: 'LRU with a linked list (the primer design)',
-        language: 'python',
-        source: `class Node:
+        language: 'javascript',
+        source: `class Node {
+  constructor(key, value) {
+    this.key = key
+    this.value = value
+    this.prev = this.next = null
+  }
+}
+
+export class LruCache {
+  constructor(capacity) {
+    this.capacity = capacity
+    this.table = new Map() // key -> node, O(1) lookup
+    this.head = new Node(null, null) // sentinels
+    this.tail = new Node(null, null)
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  unlink(node) {
+    node.prev.next = node.next
+    node.next.prev = node.prev
+  }
+
+  pushFront(node) {
+    node.next = this.head.next
+    node.prev = this.head
+    this.head.next.prev = node
+    this.head.next = node
+  }
+
+  get(key) {
+    const node = this.table.get(key)
+    if (!node) return undefined
+    this.unlink(node) // O(1) because the list is doubly linked
+    this.pushFront(node)
+    return node.value
+  }
+
+  set(key, value) {
+    if (this.table.has(key)) this.unlink(this.table.get(key))
+    else if (this.table.size >= this.capacity) {
+      const lru = this.tail.prev // least recently used
+      this.unlink(lru)
+      this.table.delete(lru.key)
+    }
+    const node = new Node(key, value)
+    this.table.set(key, node)
+    this.pushFront(node)
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `class Node:
     def __init__(self, key, value):
         self.key, self.value = key, value
         self.prev = self.next = None
@@ -326,11 +409,45 @@ class LruCache:
             del self.table[lru.key]
         node = self.table[key] = Node(key, value)
         self._push_front(node)`,
+          },
+        ],
       },
       {
         title: 'Cache-aside lookup and shard router',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+
+const shards = ['cache-0:6379', 'cache-1:6379', 'cache-2:6379', 'cache-3:6379'].map(
+  (addr) => new Redis(\`redis://\${addr}\`),
+)
+const TTL_SECONDS = 300
+
+const normalize = (q) =>
+  q.toLowerCase().replace(/[^\\p{L}\\p{N}\\s]/gu, ' ').replace(/\\s+/g, ' ').trim()
+
+/** FNV-1a: a small, fast, stable hash. */
+function fnv1a(text) {
+  let h = 2166136261
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619)
+  return h >>> 0
+}
+
+export async function search(raw, searchIndex) {
+  const query = normalize(raw)
+  const redis = shards[fnv1a(query) % shards.length] // which shard owns this key
+  const key = \`q:\${fnv1a(query).toString(16).padStart(8, '0')}\`
+
+  const cached = await redis.get(key).catch(() => null) // a dead shard is just a miss
+  if (cached) return cached
+
+  const results = await searchIndex(query) // slow path
+  await redis.set(key, results, 'EX', TTL_SECONDS).catch(() => {})
+  return results
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 
 const shards = ['cache-0:6379', 'cache-1:6379', 'cache-2:6379', 'cache-3:6379'].map(
   (addr) => new Redis(\`redis://\${addr}\`),
@@ -359,6 +476,8 @@ export async function search(raw: string, searchIndex: (q: string) => Promise<st
   await redis.set(key, results, 'EX', TTL_SECONDS).catch(() => {})
   return results
 }`,
+          },
+        ],
       },
       {
         title: 'Redis as an LRU cache',

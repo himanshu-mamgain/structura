@@ -272,8 +272,28 @@ export const uberSurge: StaticTopic = {
     code: [
       {
         title: 'Robust surge multiplier',
-        language: 'typescript',
-        source: `interface CellWindow {
+        language: 'javascript',
+        source: `const surge = (riders, drivers) =>
+  Math.min(3, Math.max(1, 1 + (riders / Math.max(1, drivers) - 1) * 0.4))
+
+export function multiplier(cell) {
+  // 1. Coordinated drop-off: many drivers, one cell, two minutes.
+  const coordinated =
+    cell.wentOfflineLast2Min >= 5 && cell.wentOfflineLast2Min / cell.usualDrivers >= 0.3
+  const recent = coordinated
+    ? cell.driversPerMinute.map((d) => Math.max(d, cell.usualDrivers)) // ignore the fake dip
+    : cell.driversPerMinute
+
+  // 2. Smooth over time (10-minute average) and space (neighbouring cells).
+  const average = recent.reduce((a, b) => a + b, 0) / recent.length
+  const supply = 0.5 * average + 0.5 * cell.neighbourDrivers
+
+  return Math.round(surge(cell.riders, supply) * 10) / 10
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `interface CellWindow {
   riders: number
   usualDrivers: number // typical supply for this cell and hour
   driversPerMinute: number[] // online drivers, last 10 minutes
@@ -298,6 +318,8 @@ export function multiplier(cell: CellWindow): number {
 
   return Math.round(surge(cell.riders, supply) * 10) / 10
 }`,
+          },
+        ],
       },
       {
         title: 'Spot coordinated drop-offs',

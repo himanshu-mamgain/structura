@@ -527,9 +527,19 @@ aws autoscaling put-scheduled-update-group-action \\
   --recurrence "0 22 * * *" --time-zone "Asia/Kolkata" --min-size 2`,
       },
       {
-        title: 'The same endpoint as a Lambda (TypeScript)',
-        language: 'typescript',
-        source: `import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda'
+        title: 'The same endpoint as a Lambda',
+        language: 'javascript',
+        source: `// AWS runs one copy per request in flight and bills per request and per millisecond.
+export async function handler(event) {
+  const restaurantId = event.pathParameters?.id
+  if (!restaurantId) return { statusCode: 400, body: 'missing restaurant id' }
+  const menu = await loadMenu(restaurantId) // reads from RDS or DynamoDB
+  return { statusCode: 200, headers: { 'content-type': 'application/json' }, body: JSON.stringify(menu) }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda'
 
 // AWS runs one copy per request in flight and bills per request and per millisecond.
 export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
@@ -540,6 +550,8 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
 }
 
 declare function loadMenu(id: string): Promise<unknown>`,
+          },
+        ],
       },
     ],
     related: ['IAM', 'VPC networking', 'Application Load Balancer', 'ECS on Fargate', 'Scaling to millions of users'],

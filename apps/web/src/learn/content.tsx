@@ -1,5 +1,5 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
-import type { CodeSnippet } from '@structura/shared'
+import { useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react'
+import type { CodeLanguage, CodeSnippet } from '@structura/shared'
 import type { Simulator } from '../topics/simulator'
 
 // Building blocks for a topic's written content: section text, code blocks and
@@ -29,11 +29,54 @@ export function Body({ text }: { text: string }) {
   return <>{blocks}</>
 }
 
+// The language a learner picked on any code block. Every block on the page follows it,
+// so choosing Java once shows Java everywhere it exists.
+const LANGUAGE_KEY = 'structura:code-language'
+const ORDER: CodeLanguage[] = ['javascript', 'java', 'typescript', 'python', 'go', 'sql', 'bash']
+const NAMES: Record<CodeLanguage, string> = {
+  javascript: 'JavaScript',
+  java: 'Java',
+  typescript: 'TypeScript',
+  python: 'Python',
+  go: 'Go',
+  sql: 'SQL',
+  bash: 'Bash',
+}
+const listeners = new Set<() => void>()
+let picked: CodeLanguage = (() => {
+  try {
+    const saved = localStorage.getItem(LANGUAGE_KEY) as CodeLanguage | null
+    return saved && ORDER.includes(saved) ? saved : 'javascript'
+  } catch {
+    return 'javascript'
+  }
+})()
+
+function pickLanguage(language: CodeLanguage) {
+  picked = language
+  try {
+    localStorage.setItem(LANGUAGE_KEY, language)
+  } catch {
+    // Private mode: the choice lasts until the page closes.
+  }
+  listeners.forEach((listener) => listener())
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
 export function CodeBlock({ snippet }: { snippet: CodeSnippet }) {
   const [copied, setCopied] = useState(false)
+  const preferred = useSyncExternalStore(subscribe, () => picked, () => picked)
+  const versions = [{ language: snippet.language, source: snippet.source }, ...(snippet.versions ?? [])].sort(
+    (a, b) => ORDER.indexOf(a.language) - ORDER.indexOf(b.language),
+  )
+  const shown = versions.find((v) => v.language === preferred) ?? versions[0]
   async function copy() {
     try {
-      await navigator.clipboard.writeText(snippet.source)
+      await navigator.clipboard.writeText(shown.source)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
@@ -44,13 +87,29 @@ export function CodeBlock({ snippet }: { snippet: CodeSnippet }) {
     <figure className="code">
       <figcaption>
         <span>{snippet.title}</span>
-        <span className="code-lang">{snippet.language}</span>
+        {versions.length === 1 && <span className="code-lang">{NAMES[shown.language]}</span>}
         <button type="button" onClick={() => void copy()}>
           {copied ? 'Copied' : 'Copy'}
         </button>
       </figcaption>
+      {versions.length > 1 && (
+        <div className="code-tabs" role="tablist" aria-label={`${snippet.title}: language`}>
+          {versions.map((v) => (
+            <button
+              key={v.language}
+              type="button"
+              role="tab"
+              aria-selected={v === shown}
+              className={v === shown ? 'is-on' : undefined}
+              onClick={() => pickLanguage(v.language)}
+            >
+              {NAMES[v.language]}
+            </button>
+          ))}
+        </div>
+      )}
       <pre>
-        <code>{snippet.source}</code>
+        <code>{shown.source}</code>
       </pre>
     </figure>
   )

@@ -378,9 +378,29 @@ module "alb" {
 EOF`,
       },
       {
-        title: 'How rules are evaluated (TypeScript)',
-        language: 'typescript',
-        source: `interface Rule {
+        title: 'How rules are evaluated',
+        language: 'javascript',
+        source: `// ALB path patterns: * matches any run of characters, ? exactly one.
+function glob(p, s) {
+  if (!p) return !s
+  if (p[0] === '*') return glob(p.slice(1), s) || (s.length > 0 && glob(p, s.slice(1)))
+  return s.length > 0 && (p[0] === '?' || p[0] === s[0]) && glob(p.slice(1), s.slice(1))
+}
+
+// Lowest priority number first; the first rule whose conditions all match wins.
+export function route(rules, host, path, fallback = 'web') {
+  for (const r of [...rules].sort((a, b) => a.priority - b.priority)) {
+    if ((!r.host || r.host === host) && (!r.path || glob(r.path, path))) return r.target
+  }
+  return fallback
+}
+
+route([{ priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/api/orders/42') // 'api'
+route([{ priority: 1, path: '/*', target: 'web' }, { priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/api/orders/42') // 'web'`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `interface Rule {
   priority: number
   host?: string
   path?: string // * matches anything, ? one character
@@ -404,9 +424,11 @@ export function route(rules: Rule[], host: string, path: string, fallback = 'web
 
 route([{ priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/api/orders/42') // 'api'
 route([{ priority: 1, path: '/*', target: 'web' }, { priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/api/orders/42') // 'web'`,
+          },
+        ],
       },
       {
-        title: 'A shallow health check (JavaScript)',
+        title: 'A shallow health check',
         language: 'javascript',
         source: `import express from 'express'
 

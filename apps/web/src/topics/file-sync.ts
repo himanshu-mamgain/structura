@@ -300,8 +300,30 @@ export const fileSync: StaticTopic = {
     code: [
       {
         title: 'Cut a file into 4 MB blocks and hash each one',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { createHash } from 'node:crypto'
+import { createReadStream } from 'node:fs'
+
+const BLOCK = 4 * 1024 * 1024
+
+// Returns one SHA-256 per fixed 4 MB block (the last may be shorter).
+export async function blockHashes(path) {
+  const hashes = []
+  let pending = Buffer.alloc(0)
+  for await (const chunk of createReadStream(path)) {
+    pending = Buffer.concat([pending, chunk])
+    while (pending.length >= BLOCK) {
+      hashes.push(createHash('sha256').update(pending.subarray(0, BLOCK)).digest('hex'))
+      pending = pending.subarray(BLOCK)
+    }
+  }
+  if (pending.length) hashes.push(createHash('sha256').update(pending).digest('hex'))
+  return hashes
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createHash } from 'node:crypto'
 import { createReadStream } from 'node:fs'
 
 const BLOCK = 4 * 1024 * 1024
@@ -320,11 +342,48 @@ export async function blockHashes(path: string): Promise<string[]> {
   if (pending.length) hashes.push(createHash('sha256').update(pending).digest('hex'))
   return hashes
 }`,
+          },
+        ],
       },
       {
         title: 'Content-defined chunking with a rolling hash',
-        language: 'python',
-        source: `import hashlib, random
+        language: 'javascript',
+        source: `import { createHash, randomBytes } from 'node:crypto'
+
+// One fixed random number per byte value. Every device builds the same table,
+// so they all cut a file in the same places.
+const GEAR = Array.from({ length: 256 }, (_, i) =>
+  createHash('sha256').update(\`gear:\${i}\`).digest().readUInt32BE(0),
+)
+const MASK = (1 << 20) - 1 // cut when the low 20 bits are zero: ~1 MB average
+const MIN = 256 * 1024
+const MAX = 4 * 1024 * 1024
+
+export function* chunks(data) {
+  let start = 0
+  let h = 0
+  for (let i = 0; i < data.length; i++) {
+    h = ((h << 1) + GEAR[data[i]]) >>> 0 // keep 32 bits: old bytes shift out after 32 steps
+    const size = i - start + 1
+    if ((size >= MIN && (h & MASK) === 0) || size >= MAX) {
+      yield data.subarray(start, i + 1)
+      start = i + 1
+      h = 0
+    }
+  }
+  if (start < data.length) yield data.subarray(start)
+}
+
+// Insert one byte at the start: only the first chunk's hash changes.
+const short = (c) => createHash('sha256').update(c).digest('hex').slice(0, 8)
+const a = randomBytes(8_000_000)
+const before = [...chunks(a)].map(short)
+const after = [...chunks(Buffer.concat([Buffer.from('x'), a]))].map(short)
+console.log(before.length, 'chunks;', new Set(after.filter((h) => !before.includes(h))).size, 'new after an insert')`,
+        versions: [
+          {
+            language: 'python',
+            source: `import hashlib, random
 
 random.seed(7)
 GEAR = [random.getrandbits(32) for _ in range(256)]  # one random number per byte value
@@ -347,6 +406,8 @@ a = bytes(random.getrandbits(8) for _ in range(8_000_000))
 before = [hashlib.sha256(c).hexdigest()[:8] for c in chunks(a)]
 after = [hashlib.sha256(c).hexdigest()[:8] for c in chunks(b"x" + a)]
 print(len(before), "chunks;", len(set(after) - set(before)), "new after an insert")`,
+          },
+        ],
       },
       {
         title: 'Which blocks does the server still need?',
