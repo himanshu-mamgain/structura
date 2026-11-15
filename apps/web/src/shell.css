@@ -271,6 +271,11 @@ button {
   color: var(--muted);
 }
 
+.search-result-icon.is-roadmap {
+  background: var(--primary-soft);
+  color: var(--accent-ink);
+}
+
 .search-result-text {
   display: flex;
   flex-direction: column;
