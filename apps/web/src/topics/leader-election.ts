@@ -343,6 +343,61 @@ export const leaderElection: StaticTopic = {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+class RaftNode {
+  enum Role { FOLLOWER, CANDIDATE, LEADER }
+
+  private final ScheduledExecutorService clock = Executors.newSingleThreadScheduledExecutor();
+  private final int id;
+  private final List<Peer> peers;
+  private final Disk disk;
+  private Role role = Role.FOLLOWER;
+  private long term = 0;
+  private Integer votedFor = null;
+  private ScheduledFuture<?> timer;
+
+  RaftNode(int id, List<Peer> peers, Disk disk) {
+    this.id = id;
+    this.peers = peers;
+    this.disk = disk;
+  }
+
+  // A fresh random timeout each time makes simultaneous candidates unlikely.
+  synchronized void resetTimer() {
+    if (timer != null) timer.cancel(false);
+    long ms = ThreadLocalRandom.current().nextLong(150, 300);
+    timer = clock.schedule(this::startElection, ms, TimeUnit.MILLISECONDS);
+  }
+
+  synchronized void startElection() {
+    role = Role.CANDIDATE;
+    term += 1;
+    votedFor = id;
+    disk.save(term, votedFor); // persist before asking
+    resetTimer(); // if this round splits, try again
+    AtomicInteger votes = new AtomicInteger(1);
+    long electionTerm = term;
+    for (Peer p : peers) {
+      p.requestVote(new VoteRequest(electionTerm, id, lastLogIndex(), lastLogTerm())).thenAccept(r -> {
+        synchronized (this) {
+          if (r.term() > term) stepDown(r.term());
+          else if (r.granted() && role == Role.CANDIDATE && term == electionTerm
+              && votes.incrementAndGet() > (peers.size() + 1) / 2) becomeLeader();
+        }
+      });
+    }
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Role = 'follower' | 'candidate' | 'leader'
 
@@ -399,6 +454,25 @@ class RaftNode {
   return { term: this.term, granted: false }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `synchronized VoteReply requestVote(VoteRequest req) {
+  if (req.term() < term) return new VoteReply(term, false); // stale candidate
+  if (req.term() > term) stepDown(req.term()); // newer term: become follower, clear the vote
+
+  // Candidate's log must be at least as up to date as ours.
+  boolean upToDate = req.lastLogTerm() > lastLogTerm()
+      || (req.lastLogTerm() == lastLogTerm() && req.lastLogIndex() >= lastLogIndex());
+
+  if ((votedFor == null || votedFor == req.candidateId()) && upToDate) {
+    votedFor = req.candidateId();
+    disk.save(term, votedFor); // fsync before replying
+    resetTimer();
+    return new VoteReply(term, true);
+  }
+  return new VoteReply(term, false);
+}`,
+          },
           {
             language: 'typescript',
             source: `async requestVote(req: { term: number; candidateId: number; lastLogIndex: number; lastLogTerm: number }) {

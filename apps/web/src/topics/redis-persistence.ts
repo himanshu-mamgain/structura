@@ -568,6 +568,27 @@ export async function addToCart(cartId, sku) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Set;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.RedisSentinelClient;
+
+public class Carts {
+  // The client asks the Sentinels where the primary is, and asks again after a failover.
+  private static final RedisSentinelClient redis = RedisSentinelClient.builder()
+      .masterName("mymaster")
+      .sentinels(Set.of(
+          new HostAndPort("10.0.3.21", 26379),
+          new HostAndPort("10.0.3.22", 26379),
+          new HostAndPort("10.0.3.23", 26379)))
+      .build();
+
+  public static long addToCart(String cartId, String sku) {
+    return redis.hincrBy("cart:" + cartId, sku, 1);
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import Redis from 'ioredis'
 
@@ -603,6 +624,24 @@ export async function placeOrderHold(orderId, cartId) {
   return acked >= 1
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.Map;
+import redis.clients.jedis.RedisClient;
+
+public class OrderHolds {
+  private static final RedisClient redis = RedisClient.create("10.0.1.11", 6379);
+
+  public static boolean placeOrderHold(String orderId, String cartId) {
+    String key = "hold:" + orderId;
+    redis.hset(key, Map.of("cart", cartId, "status", "held"));
+    // Block up to 100 ms until at least one replica has the write.
+    // It narrows the async window; it isn't a guarantee.
+    long acked = redis.waitReplicas(key, 1, 100);
+    return acked >= 1;
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import redis
