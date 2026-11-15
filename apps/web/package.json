@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "tsx scripts/export-catalog.ts && vite",
-    "build": "tsx scripts/export-catalog.ts && tsc --noEmit && vite build && tsx scripts/export-topics.ts && tsx scripts/notion.ts",
+    "build": "tsx scripts/export-catalog.ts && tsc --noEmit && vite build && tsx scripts/export-topics.ts && tsx scripts/prerender.tsx && tsx scripts/notion.ts",
     "notes": "tsx scripts/notion.ts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "export:videos": "tsx scripts/export-videos.ts",
     "lessons": "tsx scripts/lessons.ts",
     "library": "node scripts/kb-sync.mjs",
-    "catalog": "tsx scripts/export-catalog.ts"
+    "catalog": "tsx scripts/export-catalog.ts",
+    "og": "tsx scripts/og-images.tsx"
   },
   "dependencies": {
     "@structura/sim": "^0.0.0",

@@ -32,7 +32,27 @@ const Prep = lazy(() => import('./shell/Prep').then((m) => ({ default: m.Prep })
 type Page = 'quiz' | 'glossary' | 'prep' | 'listen' | 'explore' | 'reels' | 'roadmap'
 const PAGES: Page[] = ['quiz', 'glossary', 'prep', 'listen', 'explore', 'reels', 'roadmap']
 
-/** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…, ?area=…), so links can be shared. */
+// A topic has its own address, /topic/<id>/, which the build also writes as a ready-made page
+// (scripts/prerender.tsx) for search engines and link previews. Older ?topic=<id> links still work.
+const TOPIC_PATH = /^\/topic\/([a-z0-9-]+)\/?$/
+
+/**
+ * The address for a route written as a query (?topic=x&read, ?page=explore…): topics move into
+ * the path, everything else stays on /.
+ */
+function urlFor(search: string): URL {
+  const url = new URL(window.location.href)
+  const query = new URLSearchParams(search)
+  const topic = query.get('topic')
+  query.delete('topic')
+  url.pathname = topic ? `/topic/${topic}/` : '/'
+  // ?read, not ?read=
+  url.search = query.toString().replace(/=(?=&|$)/g, '')
+  url.hash = ''
+  return url
+}
+
+/** Where the learner is lives in the URL (/topic/<id>/, ?page=reels&reel=…, ?note=…, ?library=…, ?area=…), so links can be shared. */
 function readRoute() {
   const query = new URLSearchParams(window.location.search)
   const page = query.get('page') as Page | null
@@ -43,7 +63,7 @@ function readRoute() {
     partId: query.get('part'),
     // Explore and the roadmap can show one area: Development, Infra, Databases or AI.
     area: isArea(area) ? area : null,
-    topicId: query.get('topic'),
+    topicId: query.get('topic') ?? window.location.pathname.match(TOPIC_PATH)?.[1] ?? null,
     category,
     // The library lives in Explore, so its links open there.
     page: page && PAGES.includes(page) ? page : category ? 'explore' : null,
@@ -114,6 +134,11 @@ export default function App() {
   // ?topic=…&load opens the topic with its load test running.
   const [openLoad] = useState(() => new URLSearchParams(window.location.search).has('load'))
 
+  // An old ?topic=<id> link: show the topic's own address instead.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('topic')) window.history.replaceState(null, '', urlFor(window.location.search))
+  }, [])
+
   useEffect(() => {
     const onPop = () => setRoute(readRoute())
     window.addEventListener('popstate', onPop)
@@ -121,8 +146,7 @@ export default function App() {
   }, [])
 
   function navigate(search: string) {
-    const url = new URL(window.location.href)
-    url.search = search
+    const url = urlFor(search)
     // A newer version took over while this page was open: load the next page fresh, in it.
     if (updateReady()) return window.location.assign(url)
     window.history.pushState(null, '', url)

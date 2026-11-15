@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointer
 import { motion } from 'motion/react'
 import { layout, type Layout, type LayoutDiagram, type Placed } from '../board/layout'
 import { iconFor } from './icons'
-import { edgeSketch, groupSketch, type NodeShape, nodeSketch, roundedRectPath, shapePath, type SketchPath } from './sketch'
+import { edgeSketch, groupSketch, INK, nodeSketch, roundedRectPath, shapeOf, shapePath, type SketchPath } from './sketch'
 
 // A hand-drawn drawing of a diagram, like a whiteboard sketch (rough.js): the same
 // ELK layout the 3D view uses, with sketchy boxes (icon, name, one-line role) whose
@@ -10,22 +10,6 @@ import { edgeSketch, groupSketch, type NodeShape, nodeSketch, roundedRectPath, s
 // cloud) joined by hand-drawn arrows. Pans with a drag, zooms with the buttons or
 // ctrl + wheel, and dims everything but the boxes in focus, where a packet travels.
 
-// Marker-pen inks that read well on the warm paper background.
-const COLORS: Record<string, string> = {
-  black: '#4a4e55',
-  grey: '#77736b',
-  'light-violet': '#8a6fc4',
-  violet: '#6b4fb3',
-  blue: '#2e63b8',
-  'light-blue': '#2a7fa3',
-  yellow: '#a37a00',
-  orange: '#b8611f',
-  green: '#2f7a55',
-  'light-green': '#4f9a6c',
-  'light-red': '#c0605a',
-  red: '#b4443a',
-  white: '#4a4e55',
-}
 
 const PAD = 40
 /** Never zoom out further than this on its own: past it, labels get too small to read. */
@@ -59,8 +43,6 @@ function curve(from: { x: number; y: number }, to: { x: number; y: number }, hor
 }
 
 /** What a box is drawn as: data stores (green) as cylinders, the rest by their shape. */
-const shapeOf = (shape: string, color: string): NodeShape =>
-  shape === 'rectangle' && color === 'green' ? 'cylinder' : (['ellipse', 'diamond', 'hexagon', 'cloud'].includes(shape) ? shape : 'rectangle') as NodeShape
 
 function Sketch({ paths }: { paths: SketchPath[] }) {
   return (
@@ -238,7 +220,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     for (const n of diagram.nodes) {
       const p = placed.nodes.get(n.id)
       if (!p) continue
-      const color = COLORS[n.color] ?? COLORS.grey
+      const color = INK[n.color] ?? INK.grey
       nodes.set(n.id, n.table ? nodeSketch(n.id, 'rectangle', p.x, p.y, p.w, p.h, color) : nodeSketch(n.id, shapeOf(n.shape, n.color), p.x, p.y, p.w, p.h, color))
     }
     // Arrows: drawn red and dashed when either end is down.
@@ -250,7 +232,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
       const broken = Boolean(failed?.has(edge.from) || failed?.has(edge.to))
       const { from: p, to: q, horizontal } = sides(a, b)
       const { d, mid, c2 } = curve(p, q, horizontal)
-      const color = broken ? '#b4443a' : (COLORS[from?.color ?? 'grey'] ?? COLORS.grey)
+      const color = broken ? '#b4443a' : (INK[from?.color ?? 'grey'] ?? INK.grey)
       return { d, mid, color, broken, paths: edgeSketch(`${edge.from}>${edge.to}#${i}`, d, q, c2, color, Boolean(edge.dashed || broken)) }
     })
     return { groups, nodes, edges }
@@ -328,7 +310,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
             {diagram.nodes.map((node, index) => {
               const p = placed.nodes.get(node.id)
               if (!p) return null
-              const color = COLORS[node.color] ?? COLORS.grey
+              const color = INK[node.color] ?? INK.grey
               const lit = nodeFocused(node.label, node.table?.lines[0])
               const cls = `d2-node${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${selected === node.id ? ' is-selected' : ''}${failed?.has(node.id) ? ' is-failed' : ''}`
               if (node.table) {

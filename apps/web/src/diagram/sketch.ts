@@ -60,6 +60,27 @@ function cloudPath(x: number, y: number, w: number, h: number): string {
 
 export type NodeShape = 'rectangle' | 'ellipse' | 'diamond' | 'hexagon' | 'cloud' | 'cylinder'
 
+// Marker-pen inks that read well on the warm paper background.
+export const INK: Record<string, string> = {
+  black: '#4a4e55',
+  grey: '#77736b',
+  'light-violet': '#8a6fc4',
+  violet: '#6b4fb3',
+  blue: '#2e63b8',
+  'light-blue': '#2a7fa3',
+  yellow: '#a37a00',
+  orange: '#b8611f',
+  green: '#2f7a55',
+  'light-green': '#4f9a6c',
+  'light-red': '#c0605a',
+  red: '#b4443a',
+  white: '#4a4e55',
+}
+
+/** A diagram node's drawn shape: green rectangles are data stores, so they become cylinders. */
+export const shapeOf = (shape: string, color: string): NodeShape =>
+  shape === 'rectangle' && color === 'green' ? 'cylinder' : (['ellipse', 'diamond', 'hexagon', 'cloud'].includes(shape) ? shape : 'rectangle') as NodeShape
+
 /** The same shape as nodeSketch draws, smooth, for the solid fill under it. */
 export function shapePath(shape: NodeShape, x: number, y: number, w: number, h: number): string {
   switch (shape) {

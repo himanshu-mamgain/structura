@@ -120,6 +120,7 @@ button {
   border: 0;
   background: none;
   color: var(--text);
+  text-decoration: none;
   cursor: pointer;
 }
 

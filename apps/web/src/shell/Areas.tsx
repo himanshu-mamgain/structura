@@ -1,18 +1,14 @@
-import { BrainCircuit, ChevronRight, Cloud, CodeXml, Database, LayoutGrid, type LucideIcon } from 'lucide-react'
+import { ChevronRight, LayoutGrid } from 'lucide-react'
 import { useProgress } from '../learn/progress'
 import { ROADMAP_STEPS } from '../learn/roadmap'
 import { AREA_OF, AREAS, areaById, type AreaId } from '../topics/areas'
 import { TOPICS } from '../topics/catalog'
+import { AREA_ICON } from './areaIcons'
 
 // The four areas in the app shell: filter chips, the cards on Home, and the small tag
 // on a topic. Colours live in CSS (.area-is-<id>).
 
-export const AREA_ICON: Record<AreaId, LucideIcon> = {
-  development: CodeXml,
-  infra: Cloud,
-  databases: Database,
-  ai: BrainCircuit,
-}
+export { AREA_ICON }
 
 // Topics in the order the roadmap teaches them; any it doesn't mention yet go last.
 const roadmapOrder = new Map<string, number>()
