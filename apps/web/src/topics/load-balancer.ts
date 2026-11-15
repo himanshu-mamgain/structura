@@ -142,7 +142,7 @@ export const loadBalancer: StaticTopic = {
   kind: 'static',
   id: 'load-balancer',
   title: 'Load Balancer',
-  blurb: 'Spreading requests over servers: algorithms, health checks and failover',
+  blurb: 'Sharing requests across servers: how it picks one, health checks, and what happens when something fails',
   difficulty: 'Intermediate',
   guides: [
     'primer-load-balancer',
@@ -155,12 +155,12 @@ export const loadBalancer: StaticTopic = {
     'primer-availability-patterns',
   ],
   takeaways: [
-    'A load balancer spreads requests over many servers so no single one is the limit, and so one can fail without an outage.',
-    'Round robin is simple but blind to load; least connections adapts to slow servers; hashing keeps a client on one server.',
-    'Health checks remove a dead server from the pool within seconds: 3 failed probes 5 seconds apart is 15 seconds.',
-    'Keep servers stateless (sessions in Redis or a signed cookie), so any server can serve any request.',
-    'The load balancer must not be a single point of failure: run an active and a standby pair, or a managed service.',
-    'Plain hash mod N moves about two thirds of clients when a server leaves (3 to 2); consistent hashing moves only the share that server held.',
+    'A load balancer shares requests across many servers, so no single one is the limit and one can fail without an outage.',
+    'Round robin is simple but blind to load; least connections copes with slow servers; hashing keeps a client on one server.',
+    'Health checks remove a dead server within seconds: 3 failed checks 5 seconds apart is 15 seconds.',
+    'Keep servers stateless, with sessions in Redis or a signed cookie, so any server can answer any request.',
+    'The load balancer must not be the weak spot: run an active and a standby pair, or use a managed service.',
+    'With plain hash mod N, removing one of 3 servers moves about two thirds of the clients; consistent hashing moves only that server\'s share.',
   ],
   architecture: {
     replace: false,
@@ -231,39 +231,39 @@ export const loadBalancer: StaticTopic = {
   explanation: {
     title: 'Load Balancer',
     summary:
-      'A load balancer sits in front of a group of identical servers and hands each request to one of them. It lets you add servers to handle more traffic, stops sending traffic to servers that have failed, and hides all of that behind a single address.',
+      'A load balancer sits in front of a group of identical servers and hands each request to one of them. You can add servers when traffic grows, broken servers stop getting requests, and users only ever see one address.',
     sections: [
       {
         heading: 'Overview',
-        body: 'One server has a ceiling: its CPU, memory and network card. Scaling up (a bigger machine) gets expensive and still leaves one point of failure. Scaling out means running many copies of the app, and then something has to decide which copy gets each request. That is the load balancer.\n\nThere are two common layers. A layer 4 balancer works on TCP connections and is very fast; it does not read the request. A layer 7 balancer reads HTTP, so it can route by path or header, end TLS (decrypt HTTPS once, at the edge) and add headers.',
+        body: 'One server has a ceiling: at some point its CPU, memory or network runs out. A bigger machine ("scaling up") gets expensive and is still one machine that can fail. Running many copies of the app ("scaling out") is better, but then something has to decide which copy gets each request. That is the load balancer.\n\nThere are two common kinds. A layer 4 load balancer passes TCP connections along without reading them, so it\'s very fast. A layer 7 load balancer reads the HTTP request, so it can choose by path or header, add headers, and end TLS (it decrypts HTTPS once, at the front, so the servers behind don\'t have to).',
       },
       {
         heading: 'Requirements',
-        body: '- Spread traffic so no server is overloaded.\n- Stop sending requests to a server that is down, within seconds.\n- Let operators add and remove servers without downtime.\n- Not become a single point of failure itself.\n- Add very little latency (well under a millisecond for layer 4, a few for layer 7).',
+        body: '- Share the traffic so that no server is overloaded.\n- Stop sending requests to a server that is down, within seconds.\n- Let the team add and remove servers without any downtime.\n- Not become the one thing whose failure takes the site down.\n- Add very little delay: well under a millisecond at layer 4, a few milliseconds at layer 7.',
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example shop: 20,000 requests per second at peak, 50 ms average, 50 KB response.\n- Concurrent requests (Little\'s law, rate × time): 20,000 × 0.05 s = 1,000 in flight at once.\n- Bandwidth out: 20,000 × 50 KB = 1 GB/s = 8 Gbit/s, so the load balancer needs more than one 10 Gbit link of headroom.\n- If one server handles 2,500 requests per second, 8 servers are the bare minimum. Planning for 75% load at peak gives 8 / 0.75 = 10.7, so 11 servers (each at 1,818 requests per second, 73%).\n- If one of the 11 dies, the other 10 each take 2,000 per second (80%): still fine. With only 8, losing one means overload.\n- Health probes: 11 servers every 5 seconds is about 2 probes per second. Cheap.',
+        body: 'An example shop at its busiest: 20,000 requests a second, each taking 50 ms and returning 50 KB.\n- Requests in progress at any moment (rate × time): 20,000 × 0.05 s = 1,000.\n- Data going out: 20,000 × 50 KB = 1 GB a second = 8 Gbit/s, so one 10 Gbit link leaves too little room.\n- If one server handles 2,500 requests a second, 8 servers is the bare minimum. To run them at 75% at the peak: 8 ÷ 0.75 = 10.7, so 11 servers, each at 1,818 requests a second (73%).\n- If one of the 11 dies, the other 10 take 2,000 a second each (80%): still fine. With only 8, losing one overloads the rest.\n- Health checks: 11 servers checked every 5 seconds is about 2 checks a second. Cheap.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Client (Browser) asks DNS (round-robin records) for the site\'s address and gets the load balancers.\n2. The Client (Browser) sends the request to the Load Balancer (active).\n3. The Health Checker keeps the list of healthy servers up to date by probing App Server 1, App Server 2 and App Server 3.\n4. The Algorithm (picks a server) chooses one healthy server.\n5. The Load Balancer (active) forwards the request, adding X-Forwarded-For with the real client address.\n6. The chosen app server reads the user\'s session from the Session Store (Redis).\n7. The response goes back through the load balancer to the browser.\n8. Counters flow to Metrics & Logs, and the Load Balancer (standby) watches the active one\'s heartbeat, ready to take over.',
+        body: '1. The Client (Browser) asks DNS (round-robin records) for the site\'s address and gets the load balancers\' addresses.\n2. The Client (Browser) sends its request to the Load Balancer (active).\n3. The Health Checker keeps the list of healthy servers up to date by checking App Server 1, App Server 2 and App Server 3.\n4. The Algorithm (picks a server) chooses one healthy server.\n5. The Load Balancer (active) passes the request on, adding an X-Forwarded-For header with the user\'s real address.\n6. The chosen server reads the user\'s session from the Session Store (Redis).\n7. The answer goes back through the load balancer to the browser.\n8. Counts and timings go to Metrics & Logs, and the Load Balancer (standby) listens for the active one\'s heartbeat, ready to take over.',
       },
       {
         heading: 'Components',
-        body: '- Client (Browser): sends HTTPS requests to one public address.\n- DNS (round-robin records): returns the addresses of several load balancers; a short TTL lets you move traffic quickly.\n- Load Balancer (active): accepts connections, ends TLS and forwards requests to a chosen server.\n- Load Balancer (standby): an identical copy that takes over the shared virtual IP when the active one stops sending heartbeats.\n- Algorithm (picks a server): the rule that picks the server: round robin, least connections, weighted or a hash of the client.\n- Health Checker: probes every server (GET /healthz every 5 s) and removes one after 3 failures, adding it back after 2 successes.\n- App Server 1: a stateless copy of the application.\n- App Server 2: another identical copy; any request can go to any of them.\n- App Server 3: a third copy, so that losing one still leaves two.\n- Session Store (Redis): keeps sessions outside the servers so they stay interchangeable.\n- Metrics & Logs: request counts, errors and latency per server, used for alerts and for deciding when to add servers.',
+        body: '- Client (Browser): sends HTTPS requests to one public address.\n- DNS (round-robin records): returns the addresses of several load balancers; a short TTL (how long the answer may be cached) lets you move traffic quickly.\n- Load Balancer (active): accepts connections, decrypts HTTPS and passes each request to a chosen server.\n- Load Balancer (standby): an identical copy that takes over the shared address when the active one stops sending heartbeats.\n- Algorithm (picks a server): the rule for choosing: round robin, least connections, weighted, or a hash of the client.\n- Health Checker: calls GET /healthz on every server every 5 seconds; removes a server after 3 failures and lets it back after 2 successes.\n- App Server 1: one stateless copy of the app (it keeps nothing about users in its own memory).\n- App Server 2: another identical copy; any request can go to any of them.\n- App Server 3: a third copy, so losing one still leaves two.\n- Session Store (Redis): keeps sessions outside the servers, so the servers stay interchangeable.\n- Metrics & Logs: requests, errors and response times per server, for alerts and for knowing when to add servers.',
       },
       {
         heading: 'Key decisions',
-        body: '- Round robin: simplest and fair when requests cost about the same. It does not notice a slow server.\n- Least connections: sends work to the server with the fewest open connections; better when requests vary a lot (some take 10 ms, some 2 s).\n- Weighted: give bigger machines a bigger share, for example weight 2 for a server with twice the CPU.\n- IP or key hash: the same client reaches the same server, which helps local caches. Plain hash mod N reshuffles most clients when the pool changes; use consistent hashing instead.\n- Sticky sessions (the balancer remembers a client\'s server) are a shortcut for stateful servers, but they unbalance load and lose the session when that server dies. Prefer stateless servers.\n- Layer 4 vs layer 7: layer 4 is faster and simpler; layer 7 allows path routing, retries and header rewriting.',
+        body: '- Round robin: takes turns. Simple and fair when requests cost about the same, but it doesn\'t notice a slow server.\n- Least connections: picks the server with the fewest open connections. Better when requests vary a lot, say 10 ms for some and 2 seconds for others.\n- Weighted: gives bigger machines a bigger share, for example weight 2 for a server with twice the CPU.\n- Hash of the client or a key: the same client always reaches the same server, which helps local caches. A plain "hash mod N" reshuffles most clients when a server is added or removed; consistent hashing avoids that.\n- Sticky sessions (the load balancer remembers each client\'s server) are a shortcut for servers that keep state. But they make the load uneven, and the session is lost when that server dies. Prefer stateless servers.\n- Layer 4 or layer 7: layer 4 is faster and simpler; layer 7 can route by path, retry, and change headers.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- A dead server: 3 failed probes × 5 s = 15 s until it is removed. Faster detection (1 s probes) catches failures sooner but adds probe load and false alarms.\n- A slow but alive server passes health checks. Least connections and outlier detection (eject a server whose error rate stands out) handle this.\n- The load balancer itself: run two with a shared virtual IP (VRRP) or use a managed one (a cloud load balancer scales for you).\n- Draining: before deploying, mark a server "draining" so it finishes its current requests and gets no new ones.\n- Retries: retry only idempotent requests, and never to the same failing server; add a limit so retries do not multiply the load.\n- Very large sites add a layer of DNS or anycast in front, to spread traffic between regions.',
+        body: '- A dead server: 3 failed checks × 5 seconds = 15 seconds before it\'s removed. Checking every second finds failures sooner, but adds load and false alarms.\n- A slow but working server still passes its health checks. Least connections helps, and so does removing any server whose error rate stands out from the rest.\n- The load balancer itself: run two that share one address, or use a managed cloud load balancer, which scales for you.\n- Draining: before a deploy, mark a server "draining", so it finishes the requests it has and gets no new ones.\n- Retries: retry only requests that are safe to repeat, never on the same failing server, and with a limit, so retries don\'t multiply the load.\n- Very large sites add DNS or anycast routing in front, to share traffic between regions.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is the difference between a load balancer, a reverse proxy and an API gateway?\n- How do you avoid the load balancer being a single point of failure?\n- A server is up but very slow. What happens with round robin, and what would you change?\n- How do you deploy a new version with no downtime?\n- When would you choose layer 4 over layer 7?',
+        body: '- What\'s the difference between a load balancer, a reverse proxy and an API gateway?\n- How do you stop the load balancer from being a single point of failure?\n- One server is up but very slow. What happens with round robin, and what would you change?\n- How do you ship a new version with no downtime?\n- When would you choose layer 4 over layer 7?',
       },
     ],
     get trace() {

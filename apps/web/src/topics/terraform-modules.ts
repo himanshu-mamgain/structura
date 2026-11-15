@@ -219,7 +219,7 @@ export const terraformModules: StaticTopic = {
   difficulty: 'Advanced',
   id: 'terraform-modules',
   title: 'Terraform Modules and Environments',
-  blurb: 'Copy-paste vs workspaces vs versioned modules: blast radius, promotion from dev to prod, and guarding against destroy',
+  blurb: 'Copied folders vs workspaces vs versioned modules: limiting damage, moving changes from dev to prod, and guarding against deletes',
   guides: ['tf-aws-ecs-service-module', 'tf-aws-vpc', 'tf-aws-alb', 'aws-ecs-fullstack-modules', 'tf-aws-ecs', 'how-does-terraform-turn-code-into-cloud'],
   story: {
     title: 'Three environments, one mistake',
@@ -265,12 +265,12 @@ The same slip, \`terraform destroy\` in the prod folder, now ended in an error m
     ],
   },
   takeaways: [
-    'A module is a reusable folder of Terraform with input variables and outputs; write a component once and call it per environment.',
-    'Pin module versions (git tags or registry versions) and promote them dev → staging → prod.',
-    'Copy-pasted environments drift; workspaces share one code version, so changes reach every environment on its next apply.',
-    'Give each environment its own root configuration, state and credentials to limit the blast radius.',
-    'prevent_destroy and CI-only access to prod state turn dangerous mistakes into errors.',
-    'Reuse well-tested public modules (terraform-aws-modules) instead of rewriting VPCs and load balancers.',
+    'A module is a reusable folder of Terraform with inputs and outputs: write a part once and use it in every environment.',
+    'Pin module versions (git tags or registry versions) and move them forward: dev → staging → prod.',
+    'Copied environments drift apart; workspaces share one code version, so a change reaches every environment on its next apply.',
+    'Give each environment its own root configuration, state and credentials, so a mistake stays small.',
+    'prevent_destroy and letting only CI touch prod\'s state turn dangerous mistakes into errors.',
+    'Reuse well-tested public modules (terraform-aws-modules) instead of writing VPCs and load balancers again.',
   ],
   architecture: {
     replace: false,
@@ -316,39 +316,39 @@ The same slip, \`terraform destroy\` in the prod folder, now ended in an error m
   explanation: {
     title: 'Terraform Modules and Environments',
     summary:
-      'Terraform modules package resources behind input variables and outputs, so one component can be reused across environments. How you lay out environments decides the blast radius of every change: copied folders drift, workspaces share one code version, and versioned modules with a root configuration and state per environment let changes be promoted and mistakes contained.',
+      'A Terraform module packs resources behind inputs and outputs, so one part can be reused in every environment. How you lay out your environments decides how much one change can break. Copied folders drift apart, and workspaces all run the same code version. Versioned modules, with a separate configuration and state for each environment, let you move a change forward step by step and keep mistakes small.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Module: a folder of .tf files called with module "name" { source = … } and its inputs.\n- Variables and outputs: a module\'s inputs and the values it returns (a URL, an ARN).\n- Root module: the configuration you run terraform in; it calls child modules.\n- Source and version: a local path, a git URL with ?ref=<tag>, or a registry address with a version constraint.\n- Workspaces: several states for one configuration, chosen with terraform workspace select.\n- Promotion: moving a module version from dev to staging to prod.\n\nThe simulator takes one change through dev, staging and prod under three layouts and reports which environments it reached, when, and which it harmed.',
+        body: '- Module: a folder of .tf files, used with module "name" { source = … } and its inputs.\n- Variables and outputs: a module\'s inputs, and the values it gives back (a URL, an ARN).\n- Root module: the configuration you run Terraform in; it calls other modules.\n- Source and version: a local folder, a git URL with ?ref=<tag>, or a registry address with a version rule.\n- Workspaces: several states for one configuration, chosen with terraform workspace select.\n- Promotion: moving a module version from dev, to staging, to prod.\n\nThe simulator takes one change through dev, staging and prod with three different layouts, and reports which environments it reached, when, and which ones it broke.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Dev, staging and prod built from the same definition, with deliberate differences (sizes, counts, domains).\n- A change can be tested in dev before it reaches prod.\n\nNon-functional:\n- One change, or one mistake, touches as little as possible.\n- Prod can only be changed by the pipeline.\n- The difference between environments is readable in a few lines.',
+        body: 'What it must do:\n- Build dev, staging and prod from the same definition, with planned differences (sizes, counts, domains).\n- Let a change be tried in dev before it reaches prod.\n\nHow well it must do it:\n- One change, or one mistake, touches as little as possible.\n- Only the pipeline can change prod.\n- The differences between environments fit in a few readable lines.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 14 resources per environment, 3 environments: 42 resources, in 3 states.\n- Copied folders: about 420 lines × 3; every shared change is typed 3 times.\n- Versioned module: the module once, plus about 15 lines per environment.\n- A promotion over 3 days (dev Monday, staging Tuesday, prod Wednesday) gives each version a day of real use before prod.',
+        body: '- 14 resources per environment, 3 environments: 42 resources, in 3 states.\n- Copied folders: about 420 lines × 3, and every shared change is typed 3 times.\n- A versioned module: the module once, plus about 15 lines per environment.\n- Promoting over 3 days (dev on Monday, staging Tuesday, prod Wednesday) gives each version a day of real use before prod.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Engineer changes the Service Module once and tags a new version in Module Versions.\n2. The Engineer bumps Dev Config to the new version; dev plans and applies to Dev State and Dev Stack.\n3. When dev looks good, Staging Config is bumped and applied to Staging State and Staging Stack.\n4. Last, Prod Config is bumped and the CI Pipeline, the only identity allowed, applies it to Prod State and Prod Stack.\n5. Until then prod stays pinned to the old version, whatever else is applied there.',
+        body: '1. The Engineer changes the Service Module once and tags a new version in Module Versions.\n2. The Engineer moves Dev Config to the new version; dev plans and applies, updating Dev State and Dev Stack.\n3. When dev looks good, Staging Config is moved to it and applied, updating Staging State and Staging Stack.\n4. Last, Prod Config is moved, and the CI Pipeline, the only identity allowed, applies it to Prod State and Prod Stack.\n5. Until then, prod stays pinned to the old version, whatever else is applied there.',
       },
       {
         heading: 'Components',
-        body: '- Engineer: writes module changes and bumps versions.\n- CI Pipeline: plans every change and is the only writer of prod.\n- Service Module: the reusable definition of network, load balancer, ECS service and database.\n- Module Versions: git tags (or registry versions) of the module.\n- Dev Config: the dev root configuration: module version and dev inputs.\n- Dev State: dev\'s own state file.\n- Dev Stack: dev\'s real resources.\n- Staging Config: staging\'s root configuration.\n- Staging State: staging\'s own state file.\n- Staging Stack: staging\'s real resources.\n- Prod Config: prod\'s root configuration, pinned to a tested version.\n- Prod State: prod\'s state, writable only by CI.\n- Prod Stack: prod\'s real resources.',
+        body: '- Engineer: changes the module and moves environments to new versions.\n- CI Pipeline: plans every change, and is the only thing that can change prod.\n- Service Module: the reusable definition of the network, load balancer, ECS service and database.\n- Module Versions: git tags (or registry versions) of the module.\n- Dev Config: dev\'s root configuration: the module version and dev\'s inputs.\n- Dev State: dev\'s own state file.\n- Dev Stack: dev\'s real resources.\n- Staging Config: staging\'s root configuration.\n- Staging State: staging\'s own state file.\n- Staging Stack: staging\'s real resources.\n- Prod Config: prod\'s root configuration, pinned to a tested version.\n- Prod State: prod\'s state, which only CI can write.\n- Prod Stack: prod\'s real resources.',
       },
       {
         heading: 'Key decisions',
-        body: '- Root configuration and state per environment (and per component, for big systems); workspaces for throwaway copies of one environment, such as a stack per pull request.\n- Pin every module and provider version; never point at a branch.\n- Keep module interfaces small: a handful of inputs with sensible defaults, and outputs for what callers need.\n- Prefer well-maintained public modules (terraform-aws-modules for VPC, ALB, ECS) to writing your own.\n- Separate AWS accounts per environment, with prod changed only by CI.\n- prevent_destroy on data stores; deletion protection on the database itself as well.',
+        body: '- A root configuration and state for each environment (and for each part, in big systems). Use workspaces for throwaway copies of one environment, such as a stack per pull request.\n- Pin every module and provider version, and never point at a branch.\n- Keep a module\'s inputs few, with sensible defaults, and output what callers need.\n- Prefer well-kept public modules (terraform-aws-modules for VPC, ALB and ECS) to writing your own.\n- A separate AWS account for each environment, with prod changed only by CI.\n- prevent_destroy on data stores, and deletion protection on the database itself as well.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Many environments or regions: tools like Terragrunt or Terraform Stacks reduce repetition across roots.\n- Breaking module changes: bump the major version and document the migration; use moved blocks so renamed resources aren\'t destroyed and recreated.\n- Drift between environments: compare the pinned versions and inputs, which are short, instead of whole folders.\n- Cross-environment dependencies: pass outputs through remote state data sources or parameters, never by copying IDs.\n- A bad release: roll back by pinning the previous tag and applying.',
+        body: '- Many environments or regions: tools such as Terragrunt or Terraform Stacks cut the repetition between roots.\n- Breaking changes to a module: raise the major version and write down how to move; use moved blocks so renamed resources aren\'t destroyed and created again.\n- Environments drifting apart: compare their pinned versions and inputs, which are short, instead of whole folders.\n- One environment needing another\'s values: pass outputs through remote state data sources or parameters, never by copying IDs.\n- A bad release: go back by pinning the previous tag and applying.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is a Terraform module, and what makes a good module interface?\n- Workspaces or separate root configurations for environments? Why?\n- How do you test an infrastructure change before it reaches prod?\n- How would you stop someone destroying production by accident?\n- How do you rename a resource inside a module without recreating it?\n- When would you use a public module instead of writing your own?',
+        body: '- What is a Terraform module, and what makes its inputs and outputs good?\n- Workspaces or separate root configurations for environments? Why?\n- How do you test an infrastructure change before it reaches prod?\n- How would you stop someone deleting production by accident?\n- How do you rename a resource inside a module without creating it again?\n- When would you use a public module instead of writing your own?',
       },
     ],
     get trace() {

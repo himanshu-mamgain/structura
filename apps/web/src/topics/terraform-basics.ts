@@ -280,7 +280,7 @@ export const terraformBasics: StaticTopic = {
   difficulty: 'Beginner',
   id: 'terraform-basics',
   title: 'Terraform Basics: Plan, Apply, State',
-  blurb: 'Infrastructure as code: resources, the dependency graph, in-place vs replace, drift, and why the state file matters',
+  blurb: 'Infrastructure as code: resources, the order Terraform works in, updating vs replacing, drift, and why the state file matters',
   guides: ['how-does-terraform-turn-code-into-cloud', 'a-cheatsheet-on-infrastructure-as-code-landscape', 'tf-aws-vpc-simple', 'aws-ecs-fullstack-modules'],
   story: {
     title: 'The servers nobody could rebuild',
@@ -326,12 +326,12 @@ They cleaned up the copies and brought the originals back under Terraform with \
     ],
   },
   takeaways: [
-    'Terraform describes infrastructure as code; plan shows the changes, apply makes them, and running it again changes nothing.',
-    'The state file maps each resource in the code to a real ID; without it, Terraform thinks nothing exists.',
-    'References between resources form a dependency graph, which sets the order of creates and destroys.',
-    'Some changes are in-place (~), others force a replacement (-/+) that destroys the old resource first; read the plan.',
-    'Changes made in the console are drift, and the next apply undoes them.',
-    'Recover unmanaged or orphaned resources with terraform import instead of creating them again.',
+    'Terraform describes infrastructure as code: plan shows the changes, apply makes them, and running it again changes nothing.',
+    'The state file links each resource in the code to a real ID; without it, Terraform thinks nothing exists.',
+    'References between resources form a dependency graph, which sets the order of creating and destroying.',
+    'Some changes happen in place (~); others force a replacement (-/+) that deletes the old resource; read the plan.',
+    'Changes made by hand in the console are drift, and the next apply undoes them.',
+    'Bring unmanaged or forgotten resources in with terraform import instead of creating them again.',
   ],
   architecture: {
     replace: false,
@@ -378,39 +378,39 @@ They cleaned up the copies and brought the originals back under Terraform with \
   explanation: {
     title: 'Terraform Basics: Plan, Apply, State',
     summary:
-      'Terraform turns .tf files describing the infrastructure you want into API calls that make it so. It keeps a state file mapping each resource in the code to a real one, refreshes it, diffs the code against it, and shows a plan: create, update in place, replace or destroy. Apply follows the dependency graph and writes the new state.',
+      'Terraform turns .tf files that describe the infrastructure you want into the API calls that build it. It keeps a state file that links each resource in your code to a real one. It checks that state against the real world, compares it with your code, and shows a plan: create, update in place, replace or destroy. Apply carries out the plan in the right order and saves the new state.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Provider: a plugin that talks to an API (AWS, Cloudflare, GitHub…); terraform init downloads it.\n- Resource: something to manage, like aws_instance.api, with arguments.\n- Variable and output: inputs to a configuration, and values it reports (a URL, an ID).\n- Reference: aws_subnet.app.id inside another resource; it creates a dependency.\n- State: terraform.tfstate, the record of what Terraform manages and the real IDs.\n- Plan: the difference between the code and the refreshed state; apply carries it out.\n- Drift: real resources changed outside Terraform.\n\nThe simulator keeps the code, the state and the real resources apart, refreshes, diffs attribute by attribute using which attributes force replacement, prints the plan in Terraform\'s format, and applies it in dependency waves.',
+        body: '- Provider: a plugin that talks to one API (AWS, Cloudflare, GitHub…); "terraform init" downloads it.\n- Resource: one thing to manage, such as aws_instance.api, with its settings.\n- Variable and output: inputs to a configuration, and values it reports back (a URL, an ID).\n- Reference: using another resource\'s value, like aws_subnet.app.id; this makes the first one wait for the second.\n- State: terraform.tfstate, the record of what Terraform manages and their real IDs.\n- Plan: the difference between your code and the checked state; "apply" carries it out.\n- Drift: real resources that someone changed outside Terraform.\n\nThe simulator keeps the code, the state and the real resources apart. It refreshes, compares setting by setting (knowing which settings force a replacement), prints the plan the way Terraform does, and applies it in waves, in dependency order.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Recreate the orders app\'s infrastructure (VPC, subnet, security group, server, bucket, cache) from code.\n- Show every change before it happens.\n- Make staging an exact copy of production.\n\nNon-functional:\n- Running it twice changes nothing (idempotent).\n- Changes are reviewed like code.\n- The team shares one record of what exists.',
+        body: 'What it must do:\n- Rebuild the orders app\'s infrastructure from code: VPC, subnet, security group, server, bucket and cache.\n- Show every change before it happens.\n- Make staging an exact copy of production.\n\nHow well it must do it:\n- Running it twice changes nothing the second time.\n- Changes are reviewed like code.\n- The team shares one record of what exists.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 6 resources in 3 dependency waves: VPC and bucket; subnet and security group; server and cache.\n- Terraform runs up to 10 operations in parallel (-parallelism=10), so waves, not resources, set the time: about 7 minutes here, almost all of it the ElastiCache cluster.\n- An instance type change: stop, modify, start, about a minute. An AMI change: destroy (41 s) then create (13 s).\n- A duplicate m6i.large from a lost state file: $0.101 × 720 h ≈ $73 a month until someone notices.',
+        body: '- 6 resources in 3 waves: first the VPC and the bucket; then the subnet and the security group; then the server and the cache.\n- Terraform runs up to 10 operations at once (-parallelism=10), so the waves, not the number of resources, decide the time: about 7 minutes here, almost all of it the ElastiCache cluster.\n- Changing the server\'s size: stop, change, start, about a minute. Changing its machine image (AMI): destroy (41 s), then create (13 s).\n- A second m6i.large server created because the state file was lost: $0.101 × 720 hours ≈ $73 a month, until someone notices.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Engineer edits Your .tf Files and runs terraform plan.\n2. Terraform Core reads the State File and refreshes it through the AWS Provider and the AWS APIs.\n3. It builds the Dependency Graph from references and diffs the code against the refreshed state.\n4. It prints the Plan: + create, ~ update in place, -/+ replace, - destroy.\n5. terraform apply executes the plan in graph order, calling the AWS APIs for the VPC, Subnet, Security Group, EC2 Instance, S3 Bucket and ElastiCache Cluster.\n6. Terraform Core writes the new State File.',
+        body: '1. The Engineer edits Your .tf Files and runs "terraform plan".\n2. Terraform Core reads the State File and refreshes it through the AWS Provider and the AWS APIs.\n3. It builds the Dependency Graph from the references, and compares the code with the refreshed state.\n4. It prints the Plan: + create, ~ update in place, -/+ replace, - destroy.\n5. "terraform apply" carries out the plan in graph order, calling the AWS APIs for the VPC, Subnet, Security Group, EC2 Instance, S3 Bucket and ElastiCache Cluster.\n6. Terraform Core writes the new State File.',
       },
       {
         heading: 'Components',
-        body: '- Engineer: writes the code and reviews the plan.\n- Your .tf Files: the configuration, in HCL.\n- Terraform Core: reads code and state, plans and applies.\n- Dependency Graph: the order implied by references between resources.\n- Plan: the list of actions, shown before anything changes.\n- State File: the record of managed resources and their real IDs.\n- AWS Provider: the plugin that turns resources into AWS API calls.\n- AWS APIs: the AWS endpoints that do the work.\n- VPC: the private network.\n- Subnet: an address range in one Availability Zone.\n- Security Group: the server\'s firewall rules.\n- EC2 Instance: the API server.\n- S3 Bucket: the menu photos; its name is global and can\'t be changed in place.\n- ElastiCache Cluster: the Redis cache for sessions.',
+        body: '- Engineer: writes the code and reviews the plan.\n- Your .tf Files: the configuration, written in HCL, Terraform\'s language.\n- Terraform Core: reads the code and the state, plans and applies.\n- Dependency Graph: the order that the references between resources imply.\n- Plan: the list of actions, shown before anything changes.\n- State File: the record of managed resources and their real IDs.\n- AWS Provider: the plugin that turns resources into AWS API calls.\n- AWS APIs: the AWS services that do the work.\n- VPC: the private network.\n- Subnet: a range of addresses in one Availability Zone.\n- Security Group: the server\'s firewall rules.\n- EC2 Instance: the API server.\n- S3 Bucket: the menu photos; its name is unique worldwide and can\'t be changed in place.\n- ElastiCache Cluster: the Redis cache for sessions.',
       },
       {
         heading: 'Key decisions',
-        body: '- Always read the plan; in CI, save it (terraform plan -out=tfplan) and apply exactly that file.\n- Pin provider versions (required_providers with a version constraint) and commit the .terraform.lock.hcl file.\n- Use lifecycle blocks deliberately: create_before_destroy for zero-downtime replacement, prevent_destroy on data you can\'t lose.\n- Keep state out of Git and off laptops: a remote, locked backend (next topic).\n- Adopt existing resources with import blocks instead of recreating them.\n- Variables for what differs between environments; everything else stays in code.',
+        body: '- Always read the plan. In CI, save it (terraform plan -out=tfplan) and apply exactly that file.\n- Pin provider versions (required_providers with a version rule), and commit the .terraform.lock.hcl file.\n- Use lifecycle blocks on purpose: create_before_destroy to replace something with no downtime, prevent_destroy on data you can\'t lose.\n- Keep state out of Git and off laptops, in a shared backend with a lock (the next topic).\n- Bring existing resources in with import blocks instead of creating them again.\n- Use variables for what differs between environments, and keep everything else in code.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- A failed apply leaves partial changes: the state records what succeeded, and the next plan continues from there.\n- Large configurations get slow to refresh; split them into smaller root configurations by lifetime or team.\n- Drift detection: run terraform plan on a schedule and alert on changes.\n- Secrets in state: state can contain passwords and keys, so encrypt it and restrict who can read it.\n- Provider upgrades can change defaults; upgrade deliberately and read the plan.',
+        body: '- A failed apply leaves some changes made: the state records what worked, and the next plan carries on from there.\n- Big configurations get slow to refresh. Split them into smaller ones, by how long things live or by team.\n- Spotting drift: run "terraform plan" on a schedule and alert when it shows changes.\n- Secrets in state: the state can hold passwords and keys, so encrypt it and limit who can read it.\n- New provider versions can change defaults: upgrade on purpose, and read the plan.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is Terraform state and why does it exist?\n- What is the difference between an in-place update and a replacement?\n- How does Terraform decide the order of operations?\n- What happens if someone changes a resource in the console?\n- How would you bring existing infrastructure under Terraform?\n- Why commit the dependency lock file?',
+        body: '- What is Terraform state, and why does it exist?\n- What\'s the difference between an update in place and a replacement?\n- How does Terraform decide the order of operations?\n- What happens if someone changes a resource in the console?\n- How would you bring existing infrastructure under Terraform?\n- Why commit the dependency lock file?',
       },
     ],
     get trace() {

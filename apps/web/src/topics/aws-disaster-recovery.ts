@@ -279,7 +279,7 @@ export const awsDisasterRecovery: StaticTopic = {
   difficulty: 'Advanced',
   id: 'aws-disaster-recovery',
   title: 'Disaster Recovery Across AWS Regions',
-  blurb: 'RTO and RPO, the four AWS strategies from backup-and-restore to active/active, and why replicas are not backups',
+  blurb: 'How fast you must come back and how much data you may lose (RTO and RPO), AWS\'s four strategies, and why a copy is not a backup',
   guides: ['cloud-disaster-recovery-strategies', 'scale-aws-dos-and-donts', 'scale-on-efficiency-reliability-scaling---james-hamilton-vp-at-aws', 'hidden-costs-of-the-cloud'],
   story: {
     title: 'The evening Mumbai went dark',
@@ -337,12 +337,12 @@ It also costs about as much as production again, and the hardest problem moves i
     ],
   },
   takeaways: [
-    'RTO is how long you can be down; RPO is how much recent data you can lose. The business picks them, and they decide the design.',
-    'Multi-AZ handles a lost data centre; a second region is for losing the whole region.',
-    'AWS\'s four strategies trade cost for speed: backup and restore (hours), pilot light (tens of minutes), warm standby (minutes), active/active (near zero).',
+    'RTO is how long you may be down; RPO is how much recent data you may lose. The business picks them, and they decide the design.',
+    'Running in several zones handles a lost data centre; a second region is for losing the whole region.',
+    'AWS\'s four strategies trade cost for speed: backup and restore (hours), pilot light (tens of minutes), warm standby (minutes), active/active (almost instant).',
     'Backups must live outside the region they protect, or a regional outage takes them too.',
-    'Replication copies mistakes: only point-in-time backups undo a deleted table.',
-    'Asynchronous replication always risks the last few seconds of writes; test failover regularly, or it won\'t work when you need it.',
+    'Copies copy mistakes too: only point-in-time backups undo a deleted table.',
+    'A copy that runs a moment behind always risks the last few seconds of writes; practise failover, or it won\'t work when you need it.',
   ],
   architecture: {
     replace: false,
@@ -387,39 +387,39 @@ It also costs about as much as production again, and the hardest problem moves i
   explanation: {
     title: 'Disaster Recovery Across AWS Regions',
     summary:
-      'Disaster recovery (DR) is how a system comes back after losing a whole region or its data. Two targets drive the design: RTO, how long it may be down, and RPO, how much recent data it may lose. AWS describes four strategies, from backup-and-restore (cheap, hours) to multi-site active/active (costly, near zero), and none of them replaces point-in-time backups.',
+      'Disaster recovery (DR) is how a system comes back after losing a whole region, or its data. Two targets shape the design: RTO, how long it may be down, and RPO, how much recent data it may lose. AWS describes four strategies, from backup and restore (cheap, hours) to active/active in two regions (costly, almost instant). None of them replaces point-in-time backups.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Multi-AZ protects against losing a data centre inside a region, automatically and in seconds.\n- DR protects against losing a region, an account, or the data itself.\n- Backup and restore: copy backups to another region; rebuild everything there with infrastructure as code. RTO in hours, RPO from minutes to a day.\n- Pilot light: keep the data live in the second region (a replica); start the rest on demand. RTO tens of minutes, RPO seconds.\n- Warm standby: a scaled-down full copy always running, with automatic DNS failover. RTO minutes, RPO seconds.\n- Multi-site active/active: both regions serve traffic with a global database. RTO and RPO near zero.\n\nThe simulator plays a regional outage, a dropped table or a zone failure against each strategy and backup setting, and computes RTO, RPO in lost orders, and the monthly DR cost from stated timings.',
+        body: '- Running in several Availability Zones (Multi-AZ) protects against losing one data centre in a region, automatically, in seconds.\n- DR protects against losing a whole region, an account, or the data itself.\n- Backup and restore: copy backups to another region, and rebuild everything there with infrastructure as code. Back in hours; you lose minutes to a day of data.\n- Pilot light: keep the data live in the second region (a copy that follows the main database), and start everything else when needed. Back in tens of minutes; you lose seconds of data.\n- Warm standby: a smaller copy of the whole system always running, with automatic DNS failover. Back in minutes; you lose seconds.\n- Active/active in two regions: both serve customers all the time, with a database that spans both. Almost no downtime and almost no data lost.\n\nThe simulator plays a regional outage, a dropped table, or a zone failure against each strategy and backup setting. It works out the RTO, the RPO in lost orders, and the monthly cost of DR, from the timings it states.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Take orders again after Mumbai fails, from Hyderabad.\n- Undo a destructive mistake in the database.\n\nNon-functional:\n- RTO under 1 hour, RPO of a few minutes, for a regional outage.\n- DR spending proportionate to the cost of downtime.\n- A failover that has been tested, not just written down.',
+        body: 'What it must do:\n- Take orders again from Hyderabad after Mumbai fails.\n- Undo a destructive mistake in the database.\n\nHow well it must do it:\n- For a regional outage: back within 1 hour, losing at most a few minutes of data.\n- Spend on DR in proportion to what downtime would cost.\n- A failover that has been tested, not just written down.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 1,500 orders an hour = 25 a minute: a 16-hour RPO (nightly snapshot at 2 a.m., disaster at 6 p.m.) loses 24,000 orders; 10 minutes loses 250; 5 seconds loses about 2.\n- Backup and restore RTO: 30 min to decide + 45 min Terraform + 60 min restoring 500 GB + 15 min tests + 5 min DNS = 155 min.\n- Pilot light RTO: 15 min to decide + 10 min promote (servers boot in parallel) + 5 min DNS = 30 min.\n- Warm standby RTO: about 2 min for health checks and DNS + 8 min automated promotion = 10 min.\n- Active/active RTO: about 2 min for health checks; RPO about 1 s.\n- Standby cost against a $2,000 production stack (illustrative): $0, $400, $850, $2,100 a month.',
+        body: '- 1,500 orders an hour = 25 a minute. With only a nightly snapshot at 2 a.m. and a disaster at 6 p.m., the RPO is 16 hours: 24,000 orders lost. An RPO of 10 minutes loses 250; 5 seconds loses about 2.\n- Backup and restore RTO: 30 min to decide + 45 min of Terraform + 60 min to restore 500 GB + 15 min of tests + 5 min for DNS = 155 minutes.\n- Pilot light RTO: 15 min to decide + 10 min to promote the database (servers boot at the same time) + 5 min for DNS = 30 minutes.\n- Warm standby RTO: about 2 min for health checks and DNS + 8 min of automatic promotion = 10 minutes.\n- Active/active RTO: about 2 minutes for health checks; RPO about 1 second.\n- Extra cost each month next to a $2,000 production stack (illustrative): $0, $400, $850 and $2,100.',
       },
       {
         heading: 'Step by step',
-        body: '1. Customers reach Route 53, which answers with the Mumbai Load Balancer while Mumbai is healthy.\n2. Mumbai App Servers write to the Mumbai Database, which replicates asynchronously to the Hyderabad Database (pilot light, warm standby, active/active).\n3. Backups go to Snapshots in Mumbai and are copied to Snapshot Copies in Hyderabad.\n4. When Mumbai fails, the On-call Engineer (or automation) fails over: Terraform rebuilds Hyderabad App Servers for backup and restore, or the replica is promoted.\n5. Route 53 sends customers to the Hyderabad Load Balancer.\n6. For a deleted table, the database is restored to a point in time from backups instead.',
+        body: '1. Customers reach Route 53, which answers with the Mumbai Load Balancer while Mumbai is healthy.\n2. The Mumbai App Servers write to the Mumbai Database, which copies changes, a moment later, to the Hyderabad Database (in pilot light, warm standby and active/active).\n3. Backups go to Snapshots in Mumbai and are copied to Snapshot Copies in Hyderabad.\n4. When Mumbai fails, the On-call Engineer (or automation) fails over: Terraform rebuilds the Hyderabad App Servers for backup and restore, or the copy of the database is promoted.\n5. Route 53 sends customers to the Hyderabad Load Balancer.\n6. For a deleted table, the database is instead restored to a point in time from the backups.',
       },
       {
         heading: 'Components',
-        body: '- Customers: people ordering food.\n- Route 53: AWS\'s DNS; health checks and failover or latency records decide which region answers.\n- On-call Engineer: the person who declares the disaster and runs the runbook.\n- Terraform: the infrastructure as code that rebuilds a region from scratch.\n- Mumbai Load Balancer: the primary region\'s entry point.\n- Mumbai App Servers: the primary region\'s application.\n- Mumbai Database: the primary RDS database, Multi-AZ.\n- Hyderabad Load Balancer: the recovery region\'s entry point, live in warm standby and active/active.\n- Hyderabad App Servers: scaled to zero, scaled down or fully live, depending on the strategy.\n- Hyderabad Database: a cross-region replica, promoted on failover, or a global database member.\n- Snapshots in Mumbai: RDS snapshots and continuous backups in the primary region.\n- Snapshot Copies in Hyderabad: the backups that survive a regional outage.',
+        body: '- Customers: people ordering food.\n- Route 53: AWS\'s DNS; its health checks and failover or latency records decide which region answers.\n- On-call Engineer: the person who declares the disaster and follows the runbook (the written recovery steps).\n- Terraform: the infrastructure as code that rebuilds a region from nothing.\n- Mumbai Load Balancer: the main region\'s front door.\n- Mumbai App Servers: the main region\'s app.\n- Mumbai Database: the main RDS database, spread over two zones.\n- Hyderabad Load Balancer: the recovery region\'s front door, running in warm standby and active/active.\n- Hyderabad App Servers: none, a few, or a full set, depending on the strategy.\n- Hyderabad Database: a copy in another region, promoted on failover, or one half of a database that spans both.\n- Snapshots in Mumbai: RDS snapshots and continuous backups in the main region.\n- Snapshot Copies in Hyderabad: the backups that survive if the whole main region goes down.',
       },
       {
         heading: 'Key decisions',
-        body: '- Set RTO and RPO per system with the business; a payments ledger and an analytics dashboard deserve different answers.\n- Choose the cheapest strategy that meets them: most systems need warm standby at most.\n- Always keep point-in-time backups, copied to another region, and ideally another account, so a compromised account can\'t delete them (AWS Backup vault lock).\n- Keep infrastructure in code so the recovery region can be built and rebuilt identically.\n- Automate failover where you can, but decide who declares a disaster: failing over by mistake is costly too.\n- Make DNS failover fast: health checks and a low TTL on the records that move.',
+        body: '- Agree RTO and RPO for each system with the business: a payments ledger and an analytics dashboard need different answers.\n- Choose the cheapest strategy that meets them; most systems need warm standby at most.\n- Always keep point-in-time backups, copied to another region and ideally another account, so a hacked account can\'t delete them (AWS Backup vault lock).\n- Keep the infrastructure in code, so the recovery region can be built, and rebuilt, the same way.\n- Automate failover where you can, but decide who declares a disaster: failing over by mistake is costly too.\n- Make DNS failover quick: health checks, and a low TTL on the records that move.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Untested DR fails: run game days that actually fail over, at least twice a year.\n- Failing back is a second migration: re-sync Mumbai from Hyderabad before moving traffic home.\n- Asynchronous replication can lose the last seconds of writes; reconcile from payment-provider records after a failover.\n- Quotas in the recovery region (instance limits, IP addresses) must be raised before the day you need them.\n- Some services are global or anchored in one region (IAM, Route 53\'s control plane); prefer data-plane operations during an incident.',
+        body: '- A DR plan nobody has tried usually fails: practise real failovers ("game days") at least twice a year.\n- Failing back is a second move: copy Mumbai back up to date from Hyderabad before you move traffic home.\n- A copy that runs a moment behind can lose the last few seconds of writes; after a failover, check them against the payment provider\'s records.\n- Raise limits in the recovery region (server counts, IP addresses) before the day you need them.\n- Some services are global or tied to one region, such as IAM and Route 53\'s settings; during an incident, rely on the parts that keep running (the data plane), not on changing settings.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What are RTO and RPO, and who decides them?\n- Compare backup and restore, pilot light, warm standby and active/active.\n- Why doesn\'t a replica protect you from a bad migration?\n- How does Route 53 failover work, and what limits how fast it is?\n- What makes active/active hard for writes?\n- How would you prove your DR plan works?',
+        body: '- What are RTO and RPO, and who decides them?\n- Compare backup and restore, pilot light, warm standby and active/active.\n- Why doesn\'t a copy of the database protect you from a bad migration?\n- How does Route 53 failover work, and what limits how fast it is?\n- What makes active/active hard for writes?\n- How would you prove your DR plan works?',
       },
     ],
     get trace() {

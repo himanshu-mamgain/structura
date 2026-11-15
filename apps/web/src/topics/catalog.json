@@ -229,7 +229,7 @@
  {
   "id": "docker-vs-vm",
   "title": "Docker vs Virtual Machines",
-  "blurb": "Hypervisors vs shared kernels, images, layers, and when to use which",
+  "blurb": "Virtual machines vs containers: what each one shares, images and layers, and when to use which",
   "difficulty": "Beginner",
   "area": "infra",
   "video": "/videos/docker-vs-vm.mp4",
@@ -276,7 +276,7 @@
    "what-is-k8s-kubernetes"
   ],
   "explanation": {
-   "summary": "A virtual machine emulates a whole computer and boots its own operating system. A container is an isolated process that shares the host's kernel. VMs give stronger isolation; containers are far lighter and start in about a second.",
+   "summary": "A virtual machine (VM) is a whole computer made in software: it boots its own operating system. A container is just a walled-off program that shares the host's kernel, the core of the operating system. VMs have stronger walls; containers are much lighter and start in about a second.",
    "sections": [
     {
      "heading": "Overview"
@@ -434,7 +434,7 @@
  {
   "id": "kafka",
   "title": "Kafka: Event Streaming",
-  "blurb": "Topics, partitions, consumer groups, replication and delivery guarantees",
+  "blurb": "Topics, partitions, consumer groups, copies across brokers, and what \"delivered\" really means",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -448,7 +448,7 @@
    "primer-asynchronism"
   ],
   "explanation": {
-   "summary": "Kafka is a distributed, durable log. Producers append events to topics, which are split into partitions spread across brokers; consumers read them at their own pace and remember where they are with offsets. It decouples services, absorbs traffic spikes, and lets many systems react to the same events.",
+   "summary": "Kafka is a log of events, spread across several servers and kept safely on disk. Producers add events to topics, which are split into partitions spread over brokers. Consumers read at their own pace and remember their place with offsets. Services no longer have to call each other directly, traffic spikes wait in the log, and many systems can react to the same event.",
    "sections": [
     {
      "heading": "Overview"
@@ -822,7 +822,7 @@
  {
   "id": "scaling-aws",
   "title": "Scaling to Millions of Users on AWS",
-  "blurb": "From one server to a load-balanced, cached, sharded fleet, one bottleneck at a time",
+  "blurb": "From one server to millions of users: load balancing, caching, queues and shards, one bottleneck at a time",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -834,7 +834,7 @@
    "primer-asynchronism"
   ],
   "explanation": {
-   "summary": "No system starts at millions of users. This topic follows one app from a single server to a sharded fleet, adding one idea at each stage: split the database off, balance and cache, auto scale and go async, then shard. You add each piece only when a measured number runs out.",
+   "summary": "No system starts with millions of users. This topic follows one app from a single server to a big fleet, adding one idea at each stage: give the database its own machine, balance and cache, scale automatically and move slow work to a queue, then split the database. Add each piece only when a number you measure runs out.",
    "sections": [
     {
      "heading": "Overview"
@@ -1001,7 +1001,7 @@
  {
   "id": "cdn",
   "title": "CDN: Content Delivery Network",
-  "blurb": "Edge caches, cache keys and TTLs, shielding the origin, purging and hit ratio",
+  "blurb": "Caches close to your visitors: cache keys, how long to keep files, a shield for your server, purging and hit ratio",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -1015,7 +1015,7 @@
    "which-latency-numbers-should-you-know"
   ],
   "explanation": {
-   "summary": "A CDN is a worldwide network of caches placed close to visitors. The first request for a file travels to your origin; the copy is kept at the edge, so later requests are answered a few kilometres away. It cuts latency, shields the origin from load and absorbs traffic spikes and attacks.",
+   "summary": "A CDN (content delivery network) is a worldwide network of caches placed close to visitors. The first request for a file travels to your own server, called the origin; the CDN keeps a copy, so later requests are answered from a few kilometres away. Pages load faster, your server does less work, and traffic spikes and attacks hit the CDN instead.",
    "sections": [
     {
      "heading": "Overview"
@@ -1779,7 +1779,7 @@
  {
   "id": "aws-vpc",
   "title": "AWS VPC Networking",
-  "blurb": "Your own network in AWS: CIDR ranges, public and private subnets, route tables, NAT gateways and endpoints",
+  "blurb": "Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -1791,7 +1791,7 @@
    "aws-ecs-fullstack-infrastructure"
   ],
   "explanation": {
-   "summary": "A VPC (virtual private cloud) is a private network in an AWS region with an address range you choose. You split it into subnets in several availability zones, and route tables decide where traffic from each subnet can go: to the internet, through a NAT gateway, to an AWS service endpoint, or only inside the VPC.",
+   "summary": "A VPC (virtual private cloud) is your own private network in one AWS region, with a range of addresses you choose. You split it into subnets in several Availability Zones. Each subnet's route table decides where its traffic can go: to the internet, through a NAT gateway, straight to an AWS service, or only inside the VPC.",
    "sections": [
     {
      "heading": "Overview"
@@ -1825,7 +1825,7 @@
  {
   "id": "aws-alb",
   "title": "Application Load Balancer",
-  "blurb": "One HTTPS entry point for many services: listeners, rules, target groups, health checks and routing algorithms",
+  "blurb": "One HTTPS address for many services: listeners, rules, target groups, health checks and how a target is picked",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -1837,7 +1837,7 @@
    "reverse-proxy-vs-api-gateway-vs-load-balancer"
   ],
   "explanation": {
-   "summary": "An Application Load Balancer (ALB) is AWS's HTTP load balancer. Listeners accept connections on a port and terminate TLS; rules match each request's host, path or headers and forward it to a target group; health checks keep broken targets out of rotation.",
+   "summary": "An Application Load Balancer (ALB) is AWS's load balancer for web traffic. Listeners accept connections on a port and decrypt HTTPS. Rules look at each request's host, path or headers and send it to a target group. Health checks keep broken targets from getting requests.",
    "sections": [
     {
      "heading": "Overview"
@@ -1871,7 +1871,7 @@
  {
   "id": "aws-ecs-fargate",
   "title": "ECS on Fargate",
-  "blurb": "Running containers without servers: task definitions, services, autoscaling on CPU and safe rolling deploys",
+  "blurb": "Running containers with no servers to manage: task definitions, services, scaling on CPU and safe deploys",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -1883,7 +1883,7 @@
    "aws-containers-roadmap"
   ],
   "explanation": {
-   "summary": "Amazon ECS (Elastic Container Service) runs containers as tasks, kept at a desired count by a service and registered with a load balancer. On Fargate, AWS supplies a small VM per task, so there are no servers to manage; you choose CPU and memory per task and pay for them by the second.",
+   "summary": "Amazon ECS (Elastic Container Service) runs copies of your container, called tasks. A service keeps the number you ask for running and adds them to a load balancer. On Fargate, AWS gives each task its own small virtual machine, so there are no servers for you to look after. You choose CPU and memory for each task and pay for them by the second.",
    "sections": [
     {
      "heading": "Overview"
@@ -1917,7 +1917,7 @@
  {
   "id": "aws-ecs-fullstack",
   "title": "Full-stack App on ECS",
-  "blurb": "A Vue client and Node API on ECS with DynamoDB and S3, shipped by CodePipeline with blue/green deploys",
+  "blurb": "A Vue client and a Node API on ECS, with DynamoDB and S3, shipped by a pipeline with blue/green deploys",
   "difficulty": "Advanced",
   "area": "infra",
   "guides": [
@@ -1929,7 +1929,7 @@
    "aws-containers-roadmap-board"
   ],
   "explanation": {
-   "summary": "A complete AWS setup for a web app: a Vue.js client and a Node.js API as two ECS services behind their own load balancers, DynamoDB and S3 for data, and a CodePipeline that builds every commit with CodeBuild and releases it with CodeDeploy blue/green deployments, all described in Terraform.",
+   "summary": "A complete AWS setup for a web app. A Vue.js client and a Node.js API run as two ECS services, each behind its own load balancer, with DynamoDB and S3 for data. A pipeline (CodePipeline) builds every commit with CodeBuild and ships it with CodeDeploy blue/green deploys. Everything is described in Terraform.",
    "sections": [
     {
      "heading": "Overview"
@@ -1963,7 +1963,7 @@
  {
   "id": "load-balancer",
   "title": "Load Balancer",
-  "blurb": "Spreading requests over servers: algorithms, health checks and failover",
+  "blurb": "Sharing requests across servers: how it picks one, health checks, and what happens when something fails",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -1977,7 +1977,7 @@
    "primer-availability-patterns"
   ],
   "explanation": {
-   "summary": "A load balancer sits in front of a group of identical servers and hands each request to one of them. It lets you add servers to handle more traffic, stops sending traffic to servers that have failed, and hides all of that behind a single address.",
+   "summary": "A load balancer sits in front of a group of identical servers and hands each request to one of them. You can add servers when traffic grows, broken servers stop getting requests, and users only ever see one address.",
    "sections": [
     {
      "heading": "Overview"
@@ -2102,7 +2102,7 @@
  {
   "id": "aws-basics",
   "title": "AWS Basics: What the Cloud Is and Why",
-  "blurb": "Buying servers vs renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each costs",
+  "blurb": "Buying servers or renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each one costs",
   "difficulty": "Beginner",
   "area": "infra",
   "guides": [
@@ -2114,7 +2114,7 @@
    "how-does-aws-lambda-work-behind-the-scenes"
   ],
   "explanation": {
-   "summary": "AWS (Amazon Web Services) rents out computing, such as servers, storage, databases and networking, by the hour or by the request. Instead of buying hardware for your peak and waiting weeks for more, you start what you need in minutes, spread it across data centres, and pay for what you use. The trade-off is a bill that you have to design for and watch.",
+   "summary": "AWS (Amazon Web Services) rents out computing: servers, storage, databases and networks, by the hour or by the request. Instead of buying hardware for your busiest hour and waiting weeks for more, you start what you need in minutes, spread it across data centres, and pay for what you use. The catch is a bill you have to plan for and watch.",
    "sections": [
     {
      "heading": "Overview"
@@ -2148,7 +2148,7 @@
  {
   "id": "aws-iam",
   "title": "AWS IAM: Who Can Do What",
-  "blurb": "Users, roles and JSON policies, and how AWS decides: explicit deny, SCPs, resource policies and permissions boundaries",
+  "blurb": "Who can do what in AWS: users, roles and JSON policies, and how AWS decides yes or no",
   "difficulty": "Beginner",
   "area": "infra",
   "guides": [
@@ -2158,7 +2158,7 @@
    "what-are-the-most-important-aws-services-to-learn"
   ],
   "explanation": {
-   "summary": "IAM (Identity and Access Management) decides whether each AWS API call is allowed. Every call is signed by an identity: a user, or a role with temporary credentials. AWS gathers the policies that apply (identity policies, resource policies, permissions boundaries and organisation SCPs) and evaluates them: an explicit Deny anywhere wins, and without an Allow the answer is no.",
+   "summary": "IAM (Identity and Access Management) decides whether each request to AWS is allowed. Every request is signed by an identity: a user, or a role with short-lived credentials. AWS gathers every policy that applies and checks them. One explicit Deny anywhere means no, and if nothing says Allow, the answer is also no.",
    "sections": [
     {
      "heading": "Overview"
@@ -2192,7 +2192,7 @@
  {
   "id": "aws-disaster-recovery",
   "title": "Disaster Recovery Across AWS Regions",
-  "blurb": "RTO and RPO, the four AWS strategies from backup-and-restore to active/active, and why replicas are not backups",
+  "blurb": "How fast you must come back and how much data you may lose (RTO and RPO), AWS's four strategies, and why a copy is not a backup",
   "difficulty": "Advanced",
   "area": "infra",
   "guides": [
@@ -2202,7 +2202,7 @@
    "hidden-costs-of-the-cloud"
   ],
   "explanation": {
-   "summary": "Disaster recovery (DR) is how a system comes back after losing a whole region or its data. Two targets drive the design: RTO, how long it may be down, and RPO, how much recent data it may lose. AWS describes four strategies, from backup-and-restore (cheap, hours) to multi-site active/active (costly, near zero), and none of them replaces point-in-time backups.",
+   "summary": "Disaster recovery (DR) is how a system comes back after losing a whole region, or its data. Two targets shape the design: RTO, how long it may be down, and RPO, how much recent data it may lose. AWS describes four strategies, from backup and restore (cheap, hours) to active/active in two regions (costly, almost instant). None of them replaces point-in-time backups.",
    "sections": [
     {
      "heading": "Overview"
@@ -2236,7 +2236,7 @@
  {
   "id": "kafka-basics",
   "title": "Kafka Basics: Topics, Partitions, Groups",
-  "blurb": "Events in an append-only log: keys pick partitions, consumer groups share them, offsets let anyone replay",
+  "blurb": "Events in a log you only add to: keys pick partitions, consumer groups share them, and offsets let anyone read again",
   "difficulty": "Beginner",
   "area": "infra",
   "guides": [
@@ -2248,7 +2248,7 @@
    "ref-kafka-nodejs-tutorial"
   ],
   "explanation": {
-   "summary": "Kafka stores events in topics: append-only logs split into partitions. A key's hash picks the partition, which keeps each key's events in order. Consumers in a group share the partitions, one consumer per partition, and save their position as offsets, so many groups can read the same events, and any of them can rewind.",
+   "summary": "Kafka stores events in topics. A topic is a log you only add to, split into partitions. The hash of each event's key picks its partition, which keeps each key's events in order. Consumers in a group share the partitions, one consumer per partition, and save their place as offsets. So many groups can read the same events, and any of them can go back and read again.",
    "sections": [
     {
      "heading": "Overview"
@@ -2282,7 +2282,7 @@
  {
   "id": "kafka-reliability",
   "title": "Kafka Reliability: Durability, Exactly-Once",
-  "blurb": "ISR, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances",
+  "blurb": "In-sync copies, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances",
   "difficulty": "Advanced",
   "area": "infra",
   "guides": [
@@ -2292,7 +2292,7 @@
    "the-ultimate-kafka-101-you-cannot-miss"
   ],
   "explanation": {
-   "summary": "Kafka's guarantees come from configuration. Replication with acks=all and min.insync.replicas decides which confirmed messages survive a broker failure; unclean leader election chooses between availability and data; idempotent producers remove duplicates from retries; and transactions make read-process-write exactly-once within Kafka.",
+   "summary": "Kafka's promises come from its settings. Copies with acks=all and min.insync.replicas decide which confirmed messages survive a broker failing. Unclean leader election chooses between staying up and keeping data. Idempotent producers remove the repeats that retries cause. Transactions make \"read, process, write\" happen exactly once inside Kafka.",
    "sections": [
     {
      "heading": "Overview"
@@ -2326,7 +2326,7 @@
  {
   "id": "terraform-basics",
   "title": "Terraform Basics: Plan, Apply, State",
-  "blurb": "Infrastructure as code: resources, the dependency graph, in-place vs replace, drift, and why the state file matters",
+  "blurb": "Infrastructure as code: resources, the order Terraform works in, updating vs replacing, drift, and why the state file matters",
   "difficulty": "Beginner",
   "area": "infra",
   "guides": [
@@ -2336,7 +2336,7 @@
    "aws-ecs-fullstack-modules"
   ],
   "explanation": {
-   "summary": "Terraform turns .tf files describing the infrastructure you want into API calls that make it so. It keeps a state file mapping each resource in the code to a real one, refreshes it, diffs the code against it, and shows a plan: create, update in place, replace or destroy. Apply follows the dependency graph and writes the new state.",
+   "summary": "Terraform turns .tf files that describe the infrastructure you want into the API calls that build it. It keeps a state file that links each resource in your code to a real one. It checks that state against the real world, compares it with your code, and shows a plan: create, update in place, replace or destroy. Apply carries out the plan in the right order and saves the new state.",
    "sections": [
     {
      "heading": "Overview"
@@ -2370,7 +2370,7 @@
  {
   "id": "terraform-state",
   "title": "Terraform Remote State and Locking",
-  "blurb": "Why state lives in S3, how a lock stops two applies colliding, and what orphans and stale locks look like",
+  "blurb": "Why state lives in S3, how a lock stops two applies at once, and what lost resources and stuck locks look like",
   "difficulty": "Intermediate",
   "area": "infra",
   "guides": [
@@ -2380,7 +2380,7 @@
    "a-cheatsheet-on-infrastructure-as-code-landscape"
   ],
   "explanation": {
-   "summary": "Terraform's state file is its memory of what it manages, so a team must share one copy and never write it twice at once. A remote backend such as S3 shares it, versioning keeps every revision, and a lock makes concurrent runs wait. When runs die, locks and orphaned resources need deliberate cleanup.",
+   "summary": "Terraform's state file is its memory of what it manages, so a team must share one copy and never write it twice at the same time. A remote backend such as S3 shares it, versioning keeps every earlier copy, and a lock makes a second run wait. When a run dies halfway, stuck locks and forgotten resources need careful cleaning up.",
    "sections": [
     {
      "heading": "Overview"
@@ -2414,7 +2414,7 @@
  {
   "id": "terraform-modules",
   "title": "Terraform Modules and Environments",
-  "blurb": "Copy-paste vs workspaces vs versioned modules: blast radius, promotion from dev to prod, and guarding against destroy",
+  "blurb": "Copied folders vs workspaces vs versioned modules: limiting damage, moving changes from dev to prod, and guarding against deletes",
   "difficulty": "Advanced",
   "area": "infra",
   "guides": [
@@ -2426,7 +2426,7 @@
    "how-does-terraform-turn-code-into-cloud"
   ],
   "explanation": {
-   "summary": "Terraform modules package resources behind input variables and outputs, so one component can be reused across environments. How you lay out environments decides the blast radius of every change: copied folders drift, workspaces share one code version, and versioned modules with a root configuration and state per environment let changes be promoted and mistakes contained.",
+   "summary": "A Terraform module packs resources behind inputs and outputs, so one part can be reused in every environment. How you lay out your environments decides how much one change can break. Copied folders drift apart, and workspaces all run the same code version. Versioned modules, with a separate configuration and state for each environment, let you move a change forward step by step and keep mistakes small.",
    "sections": [
     {
      "heading": "Overview"

@@ -332,7 +332,7 @@ export const awsIam: StaticTopic = {
   difficulty: 'Beginner',
   id: 'aws-iam',
   title: 'AWS IAM: Who Can Do What',
-  blurb: 'Users, roles and JSON policies, and how AWS decides: explicit deny, SCPs, resource policies and permissions boundaries',
+  blurb: 'Who can do what in AWS: users, roles and JSON policies, and how AWS decides yes or no',
   guides: ['scale-scalable-iam-architecture-to-secure-access-to-100-aws-accounts-at-segm', 'scale-aardvark-and-repokid-aws-least-privilege-for-distributed-high-velocity', 'scale-detecting-credential-compromise-in-aws-at-netflix', 'what-are-the-most-important-aws-services-to-learn'],
   story: {
     title: 'The key on GitHub',
@@ -383,12 +383,12 @@ Even the admin pipeline couldn't start a server in \`us-east-1\` now. And every 
     ],
   },
   takeaways: [
-    'Lock away the root user and give every person an IAM user, or better, single sign-on, with MFA.',
-    'Everything is denied by default; policies are JSON statements that allow or deny actions on resources, named by ARN.',
+    'Lock away the root user, and give every person their own IAM user, or better, single sign-on, with MFA.',
+    'Everything is denied until a policy allows it; policies are JSON statements that allow or deny actions on resources.',
     'Software should use roles, which get temporary credentials from STS, never long-lived access keys.',
-    'An explicit Deny beats any Allow, wherever it is written: identity policy, resource policy or SCP.',
-    'A permissions boundary caps what a role can do; an SCP caps a whole account; effective permissions are what every layer allows.',
-    'Grant least privilege, and use CloudTrail to see who did what.',
+    'An explicit Deny beats any Allow, wherever it\'s written: identity policy, resource policy or SCP.',
+    'A permissions boundary limits one role, an SCP limits a whole account, and you can only do what every layer allows.',
+    'Give only what each job needs, and use CloudTrail to see who did what.',
   ],
   architecture: {
     replace: false,
@@ -434,39 +434,39 @@ Even the admin pipeline couldn't start a server in \`us-east-1\` now. And every 
   explanation: {
     title: 'AWS IAM: Who Can Do What',
     summary:
-      'IAM (Identity and Access Management) decides whether each AWS API call is allowed. Every call is signed by an identity: a user, or a role with temporary credentials. AWS gathers the policies that apply (identity policies, resource policies, permissions boundaries and organisation SCPs) and evaluates them: an explicit Deny anywhere wins, and without an Allow the answer is no.',
+      'IAM (Identity and Access Management) decides whether each request to AWS is allowed. Every request is signed by an identity: a user, or a role with short-lived credentials. AWS gathers every policy that applies and checks them. One explicit Deny anywhere means no, and if nothing says Allow, the answer is also no.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Root user: the account owner; lock it away with MFA and don\'t use it day to day.\n- IAM user: a person or, historically, a program with long-lived credentials (password, access keys).\n- Group: a set of users sharing policies.\n- Role: an identity with no credentials of its own that services, other accounts or people assume, getting temporary credentials from STS.\n- Policy: JSON statements of Effect, Action, Resource and optional Condition.\n- Identity-based policies attach to users, groups and roles; resource-based policies (like bucket policies) attach to resources and name a Principal.\n- Permissions boundaries cap a user or role; SCPs cap a whole account in an AWS Organization.\n\nThe simulator is a small policy evaluator: it runs real policy JSON against the request with wildcards, NotAction, Principal and conditions, in the order AWS documents for a single account.',
+        body: '- Root user: the account\'s owner. Lock it away with MFA (a second check, like a code from your phone) and don\'t use it day to day.\n- IAM user: one person (or, in older setups, a program) with long-lived credentials: a password or access keys.\n- Group: a set of users who share the same policies.\n- Role: an identity with no password or keys of its own. Services, other accounts or people take it on, and STS gives them temporary credentials.\n- Policy: a JSON document. Each statement says the Effect (Allow or Deny), the Action, the Resource, and optionally a Condition.\n- Identity policies are attached to users, groups and roles. Resource policies, such as an S3 bucket policy, are attached to the resource itself and name who they apply to (the Principal).\n- A permissions boundary limits what one user or role can ever do; an SCP limits a whole account in an AWS Organization.\n\nThe simulator is a small policy checker. It runs real policy JSON against a request, with wildcards, NotAction, Principal and conditions, in the order AWS documents for a single account.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Developers read data and manage dev servers, with MFA.\n- Services reach exactly the tables and buckets they need.\n- The deploy pipeline deploys but can\'t grant itself more power.\n- Nobody can delete the photo bucket or work outside Mumbai.\n\nNon-functional:\n- No long-lived keys in code or config.\n- Every decision logged.',
+        body: 'What it must do:\n- Developers can read data and manage dev servers, with MFA.\n- Each service can reach exactly the tables and buckets it needs, and nothing more.\n- The deploy pipeline can deploy, but can\'t give itself more power.\n- Nobody can delete the photo bucket or work outside the Mumbai region.\n\nHow well it must do it:\n- No long-lived keys in code or settings.\n- Every decision is logged.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- IAM is a global service with no throughput to plan; its limits are quotas, such as 10 managed policies per user or role by default (raisable to 20), 6,144 characters for a managed policy, and 2,048 characters for an inline user policy.\n- Temporary credentials from AssumeRole last 1 hour by default, up to the role\'s maximum session duration (1 to 12 hours).\n- An access key that leaks to a public repository is commonly found by scanners within minutes.',
+        body: '- IAM has no traffic to plan for. Its limits are quotas, such as 10 managed policies per user or role by default (you can ask for 20), 6,144 characters for a managed policy, and 2,048 for a policy written into one user.\n- Temporary credentials from AssumeRole last 1 hour by default, and up to the role\'s maximum, which you set between 1 and 12 hours.\n- An access key pushed to a public repository is often found by scanning bots within minutes.',
       },
       {
         heading: 'Step by step',
-        body: '1. People sign API calls with their IAM user credentials; the Orders Service and Deploy Pipeline get temporary credentials from STS.\n2. The IAM Policy Engine gathers the Identity Policies, Permissions Boundary, Bucket Policy and Organization SCP that apply.\n3. Any explicit Deny in any of them refuses the request.\n4. The Organization SCP must allow the action.\n5. A Bucket Policy that names an IAM user in the same account can allow it on its own.\n6. Otherwise an Identity Policies statement must allow it, and the Permissions Boundary must allow it too.\n7. The call reaches the S3 Bucket, DynamoDB Orders, EC2 Servers or IAM Users, and CloudTrail records the decision.',
+        body: '1. People sign their requests with their IAM user credentials; the Orders Service and the Deploy Pipeline get temporary credentials from STS.\n2. The IAM Policy Engine gathers the Identity Policies, Permissions Boundary, Bucket Policy and Organization SCP that apply.\n3. An explicit Deny in any of them refuses the request.\n4. The Organization SCP must allow the action.\n5. A Bucket Policy that names an IAM user in the same account can allow it on its own.\n6. Otherwise, an Identity Policies statement must allow it, and the Permissions Boundary must allow it too.\n7. The request reaches the S3 Bucket, DynamoDB Orders, EC2 Servers or IAM Users, and CloudTrail records the decision.',
       },
       {
         heading: 'Components',
-        body: '- People: IAM users (or single sign-on users) signing in with MFA.\n- Orders Service: an ECS task using a task role.\n- Deploy Pipeline: CI that assumes a deploy role for each build.\n- STS: the Security Token Service, which issues temporary credentials for roles.\n- IAM Policy Engine: evaluates every request against the policies that apply.\n- Identity Policies: JSON attached to users, groups and roles.\n- Permissions Boundary: a policy that sets the most a user or role can ever be allowed.\n- Bucket Policy: a resource-based policy on an S3 bucket, naming principals.\n- Organization SCP: a service control policy limiting every identity in an account.\n- S3 Bucket: menu photos.\n- DynamoDB Orders: the orders table.\n- EC2 Servers: the app\'s servers, tagged env=dev or env=prod.\n- IAM Users: the identities themselves, which only a few should be able to create.\n- CloudTrail: the log of API calls, allowed and denied.',
+        body: '- People: IAM users (or single sign-on users) signing in with MFA.\n- Orders Service: an ECS task that uses a task role.\n- Deploy Pipeline: the CI system, which takes on a deploy role for each build.\n- STS: the Security Token Service, which hands out temporary credentials for roles.\n- IAM Policy Engine: checks every request against the policies that apply.\n- Identity Policies: JSON attached to users, groups and roles.\n- Permissions Boundary: a policy that sets the most a user or role can ever be allowed.\n- Bucket Policy: a resource policy on an S3 bucket that names who it applies to.\n- Organization SCP: a service control policy that limits every identity in an account.\n- S3 Bucket: the menu photos.\n- DynamoDB Orders: the orders table.\n- EC2 Servers: the app\'s servers, tagged env=dev or env=prod.\n- IAM Users: the identities themselves, which only a few people should be able to create.\n- CloudTrail: the log of requests, allowed and denied.',
       },
       {
         heading: 'Key decisions',
-        body: '- People: single sign-on (IAM Identity Center) or IAM users, always with MFA; never the root user.\n- Software: roles everywhere (EC2 instance profiles, ECS task roles, Lambda execution roles, OIDC for CI); no access keys.\n- Least privilege: start from nothing, add specific actions and ARNs; use IAM Access Analyzer to trim unused permissions.\n- Explicit Deny for things that must never happen (deleting backups, leaving a region), ideally in SCPs or resource policies.\n- Permissions boundaries when you let teams or pipelines create roles, so they can\'t create anything stronger than themselves.\n- Conditions to tighten allows: MFA, tags, source VPC, requested region.',
+        body: '- People: single sign-on (IAM Identity Center) or IAM users, always with MFA, and never the root user.\n- Software: roles everywhere (EC2 instance profiles, ECS task roles, Lambda execution roles, and OIDC for CI), and no access keys.\n- Least privilege: start from nothing and add specific actions on specific resources (named by their ARN, AWS\'s full name for a resource). IAM Access Analyzer shows what isn\'t used, so you can remove it.\n- An explicit Deny for things that must never happen, like deleting backups or leaving a region, ideally in an SCP or a resource policy.\n- Permissions boundaries when teams or pipelines can create roles, so they can\'t create anything stronger than themselves.\n- Conditions to narrow an Allow: only with MFA, only with a certain tag, only from your network, only in one region.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Many accounts (per team, per environment) inside an Organization, with SCPs as guardrails, limit the damage of any one mistake.\n- Leaked keys: deactivate first, then rotate and investigate in CloudTrail; better, have no keys to leak.\n- Over-broad wildcards (s3:*, Resource "*") grow quietly; review them with Access Analyzer and last-accessed data.\n- Cross-account access needs both sides to agree: the resource policy (or role trust policy) and the caller\'s identity policy.\n- A Deny for a missing key needs care: BoolIfExists treats a missing MFA key as false, which is why that Deny is attached only to people, not to roles.',
+        body: '- Many accounts (one per team or environment) inside an Organization, with SCPs as guardrails, limit the damage any one mistake can do.\n- A leaked key: turn it off first, then replace it and look in CloudTrail for what it did. Better still, have no keys to leak.\n- Wide wildcards (s3:*, Resource "*") creep in quietly. Review them with Access Analyzer and "last used" data.\n- Access between accounts needs both sides to agree: the resource policy (or the role\'s trust policy) and the caller\'s own policy.\n- A Deny that depends on a missing value needs care: BoolIfExists treats a missing MFA value as false, which is why that Deny is attached only to people, not to roles.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is the difference between a user and a role?\n- Why are temporary credentials safer than access keys?\n- Walk through how AWS evaluates a request with an Allow in one policy and a Deny in another.\n- What does a permissions boundary do that a smaller policy doesn\'t?\n- How does an SCP differ from an IAM policy?\n- How would you find out who deleted a resource?',
+        body: '- What\'s the difference between a user and a role?\n- Why are temporary credentials safer than access keys?\n- Walk through how AWS decides a request with an Allow in one policy and a Deny in another.\n- What does a permissions boundary do that a smaller policy doesn\'t?\n- How is an SCP different from an IAM policy?\n- How would you find out who deleted something?',
       },
     ],
     get trace() {

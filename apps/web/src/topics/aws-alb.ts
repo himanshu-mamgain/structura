@@ -170,7 +170,7 @@ export const awsAlb: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'aws-alb',
   title: 'Application Load Balancer',
-  blurb: 'One HTTPS entry point for many services: listeners, rules, target groups, health checks and routing algorithms',
+  blurb: 'One HTTPS address for many services: listeners, rules, target groups, health checks and how a target is picked',
   adaptedFrom: {
     title: 'terraform-aws-alb',
     author: 'terraform-aws-modules (Anton Babenko and contributors)',
@@ -240,11 +240,11 @@ That sounds wrong, but it's deliberate: a health check that is itself broken (a 
   },
   takeaways: [
     'An Application Load Balancer works at the HTTP level: listeners on ports, rules on host, path and headers, and target groups of servers or containers.',
-    'Rules run in priority order and the first full match wins, so broad rules like /* must come after specific ones.',
-    'The load balancer terminates TLS with certificates that renew automatically, and port 80 should only redirect to HTTPS.',
-    'Health checks remove a failing target after a few failed checks, so a broken target still gets requests for interval × threshold seconds.',
+    'Rules are checked in order and the first full match wins, so broad rules like /* must come after specific ones.',
+    'The load balancer decrypts HTTPS with certificates that renew themselves, and port 80 should only redirect to HTTPS.',
+    'A failing target is removed after a few failed checks, so it still gets requests for interval × threshold seconds.',
     'Least outstanding requests suits requests of uneven cost better than round robin.',
-    'If every target is unhealthy the load balancer fails open, so keep health checks shallow and honest.',
+    'If every target is unhealthy, the load balancer sends traffic to all of them, so keep health checks shallow and honest.',
   ],
   architecture: {
     replace: false,
@@ -290,39 +290,39 @@ That sounds wrong, but it's deliberate: a health check that is itself broken (a 
   explanation: {
     title: 'Application Load Balancer',
     summary:
-      'An Application Load Balancer (ALB) is AWS\'s HTTP load balancer. Listeners accept connections on a port and terminate TLS; rules match each request\'s host, path or headers and forward it to a target group; health checks keep broken targets out of rotation.',
+      'An Application Load Balancer (ALB) is AWS\'s load balancer for web traffic. Listeners accept connections on a port and decrypt HTTPS. Rules look at each request\'s host, path or headers and send it to a target group. Health checks keep broken targets from getting requests.',
     sections: [
       {
         heading: 'Overview',
-        body: 'A load balancer gives many servers one address. AWS has two main kinds: the Network Load Balancer works with TCP and UDP connections, and the Application Load Balancer understands HTTP, so it can route by host name, path, headers or query string, redirect, return fixed responses and terminate TLS.\n\nAn ALB is made of listeners (a port and protocol), rules (conditions and actions, in priority order), and target groups (the servers, containers or functions that do the work, with a health check). It runs nodes in every availability zone you give it and scales them automatically.\n\nThe simulator really evaluates the listener rules against your request, applies health check thresholds and picks targets with round robin or least outstanding requests.',
+        body: 'A load balancer gives many servers one address. AWS has two main kinds. The Network Load Balancer works with raw TCP and UDP connections. The Application Load Balancer understands HTTP, so it can choose by host name, path, headers or query string, redirect, send a fixed answer, and decrypt HTTPS (TLS) itself.\n\nAn ALB has three parts: listeners (a port and a protocol), rules (conditions and actions, checked in order), and target groups (the servers, containers or functions that do the work, each group with a health check). It runs a piece in every Availability Zone you give it, and grows those pieces automatically.\n\nThe simulator really checks the listener rules against your request, applies the health check thresholds, and picks targets by round robin or by least outstanding requests.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- One public HTTPS endpoint for the website, the API and the admin panel.\n- Route by host and path; send header-tagged requests to a canary version.\n- Redirect HTTP to HTTPS.\n- Stop sending requests to broken tasks.\n\nNon-functional:\n- Survive the loss of an availability zone.\n- Certificates renew without anyone remembering.\n- Logs of every request for debugging.',
+        body: 'What it must do:\n- One public HTTPS address for the website, the API and the admin panel.\n- Route by host and path, and send requests with a special header to a test (canary) version.\n- Redirect HTTP to HTTPS.\n- Stop sending requests to broken tasks.\n\nHow well it must do it:\n- Keep working if an Availability Zone is lost.\n- Certificates renew without anyone having to remember.\n- A log line for every request, for debugging.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Health checks: 3 API tasks checked every 30 s from each load balancer node in 3 zones = 3 × 3 ÷ 30 = 0.3 checks a second; trivial, but it grows with targets × nodes.\n- Detecting a dead target: unhealthy threshold × interval = 2 × 30 s = up to 60 s; recovery needs healthy threshold × interval = 5 × 30 s = 150 s.\n- With 10 s and 3 failures: detection in up to 30 s.\n- Requests to a dead target before it is removed: at 600 requests a second spread over 3 tasks, 200 a second × 60 s = 12,000 failed requests.\n- Access logs: 600 requests a second × 86,400 s × ~400 bytes ≈ 20.7 GB a day to S3.',
+        body: '- Health checks: 3 API tasks, checked every 30 seconds from the load balancer\'s piece in each of 3 zones = 3 × 3 ÷ 30 = 0.3 checks a second. Tiny, but it grows with targets × pieces.\n- Noticing a dead target: unhealthy threshold × interval = 2 × 30 s = up to 60 seconds. Letting it back in: healthy threshold × interval = 5 × 30 s = 150 seconds.\n- Checking every 10 seconds with 3 failures: noticed within 30 seconds.\n- Requests sent to a dead target before it\'s removed: at 600 requests a second over 3 tasks, 200 a second × 60 s = 12,000 failed requests.\n- Access logs: 600 requests a second × 86,400 seconds × about 400 bytes ≈ 20.7 GB a day to S3.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Shopper connects to the HTTP Listener (80), which redirects to HTTPS, or straight to the HTTPS Listener (443).\n2. The HTTPS Listener (443) completes TLS with the TLS Certificate chosen by SNI and writes the request to the Access Logs.\n3. Listener Rules are checked in priority order: the admin host goes to Admin Targets, /api/* with X-Canary: 1 to API v2 Targets, /api/* to the API tasks, and anything else to Web Targets.\n4. Health Checks call GET /status on API Task (zone a), API Task (zone b) and API Task (zone c); unhealthy ones get no new requests.\n5. The load balancer picks a healthy API task by round robin or least outstanding requests and returns its response to the Shopper.',
+        body: '1. The Shopper connects to the HTTP Listener (80), which redirects to HTTPS, or straight to the HTTPS Listener (443).\n2. The HTTPS Listener (443) sets up the encrypted connection with the TLS Certificate chosen by SNI (the site name the browser asks for), and writes the request to the Access Logs.\n3. Listener Rules are checked in order: the admin host goes to Admin Targets, /api/* with the header X-Canary: 1 goes to API v2 Targets, other /api/* requests go to the API tasks, and everything else goes to Web Targets.\n4. Health Checks call GET /status on API Task (zone a), API Task (zone b) and API Task (zone c); unhealthy ones get no new requests.\n5. The load balancer picks a healthy API task, by round robin or least outstanding requests, and sends its answer back to the Shopper.',
       },
       {
         heading: 'Components',
-        body: '- Shopper: a browser or the mobile app.\n- HTTP Listener (80): plain HTTP; its only action is a 301 redirect to HTTPS.\n- HTTPS Listener (443): HTTPS; terminates TLS and runs the rules.\n- TLS Certificate: from AWS Certificate Manager, renewed automatically; several per listener, chosen by SNI.\n- Listener Rules: conditions (host, path, header, method, query, source IP) and actions (forward, weighted forward, redirect, fixed response), checked by priority.\n- Health Checks: periodic requests to each target; thresholds decide when it leaves and rejoins.\n- Web Targets: the website\'s tasks, the default action.\n- Admin Targets: the admin panel, reached by host name.\n- API v2 Targets: a canary version reached only with a header.\n- API Task (zone a): one API container, registered by IP address.\n- API Task (zone b): the same, in another zone.\n- API Task (zone c): the same, in a third zone.\n- Access Logs: one line per request in S3, with target, status and timings.',
+        body: '- Shopper: a browser or the phone app.\n- HTTP Listener (80): plain HTTP; its only job is a 301 redirect to HTTPS.\n- HTTPS Listener (443): HTTPS; decrypts the request and runs the rules.\n- TLS Certificate: from AWS Certificate Manager, which renews it for you; a listener can hold several, chosen by SNI.\n- Listener Rules: conditions (host, path, header, method, query, source IP) and actions (forward, forward by weight, redirect, fixed answer), checked in order.\n- Health Checks: regular requests to each target; thresholds decide when it leaves and when it comes back.\n- Web Targets: the website\'s tasks, which get whatever no other rule matches.\n- Admin Targets: the admin panel, reached by its host name.\n- API v2 Targets: a test version, reached only with a special header.\n- API Task (zone a): one API container, added to the group by its IP address.\n- API Task (zone b): the same, in another zone.\n- API Task (zone c): the same, in a third zone.\n- Access Logs: one line per request in S3, with the target, the status code and the timings.',
       },
       {
         heading: 'Key decisions',
-        body: '- ALB or NLB: ALB for HTTP routing, TLS and redirects; NLB for raw TCP/UDP, static IP addresses and the lowest latency.\n- Rule order: specific rules get low numbers, broad ones high numbers; the default action catches the rest.\n- Health check design: a cheap endpoint that says the process can serve, not a deep check of every dependency, which can remove all targets at once.\n- Thresholds: shorter intervals detect failures sooner but react to short pauses; pair them with retries in clients.\n- Algorithm: round robin for uniform requests; least outstanding requests when some requests are slow.\n- Deregistration delay: during deploys, a target leaving the group keeps finishing in-flight requests for this long (300 s by default); lower it for short requests.\n- Stickiness: avoid it if you can by keeping sessions out of the servers; it makes the load uneven.',
+        body: '- ALB or NLB: an ALB for HTTP routing, HTTPS and redirects; an NLB for raw TCP or UDP, fixed IP addresses and the lowest delay.\n- Rule order: specific rules get low numbers, broad ones high numbers, and the default action catches the rest.\n- The health check: a cheap endpoint that says "this process can serve", not a deep check of every dependency, which could take every target out at once.\n- Thresholds: checking more often finds failures sooner, but also reacts to short pauses. Pair it with retries in the clients.\n- Picking a target: round robin when requests cost about the same; least outstanding requests when some are slow.\n- Deregistration delay: during a deploy, a target that\'s leaving keeps finishing its requests for this long (300 seconds by default). Lower it if your requests are short.\n- Stickiness (keeping a user on one target): avoid it by keeping sessions out of the servers, because it makes the load uneven.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- The ALB scales its nodes with traffic; for a sudden huge spike (a launch), warm it up in advance through AWS support or Load Balancer Capacity Units reservation.\n- Cross-zone load balancing is on for ALBs, so targets get equal shares even if zones have different numbers of them.\n- A zone failure removes that zone\'s node from DNS and its targets from rotation.\n- Fail open: if every target is unhealthy, the ALB routes to all of them.\n- Slow start can ramp traffic to new targets over a few minutes, so a cold cache isn\'t flooded.\n- Put AWS WAF on the listener to block common attacks before they reach the app.',
+        body: '- The ALB grows its pieces with the traffic. For a sudden, huge spike, such as a launch, ask AWS to prepare it, or reserve capacity (Load Balancer Capacity Units).\n- Cross-zone balancing is on for ALBs, so targets get equal shares even if zones have different numbers of them.\n- If a zone fails, its piece is removed from DNS and its targets stop getting requests.\n- Fail open: if every target is unhealthy, the ALB sends requests to all of them anyway.\n- Slow start can raise a new target\'s share over a few minutes, so a cold cache isn\'t flooded.\n- Put AWS WAF on the listener to block common attacks before they reach the app.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- A request matches two rules. Which one wins, and how do you check?\n- How long can a dead target keep getting traffic? How would you shorten it, and what\'s the risk?\n- Why does an ALB route to unhealthy targets when they\'re all unhealthy?\n- When would you choose a Network Load Balancer instead?\n- How do you send 5% of real traffic to a new version?\n- Deploys cause a burst of 502 errors. What would you look at?',
+        body: '- A request matches two rules. Which one wins, and how do you check?\n- How long can a dead target keep getting traffic? How would you shorten that, and what\'s the risk?\n- Why does an ALB send traffic to unhealthy targets when all of them are unhealthy?\n- When would you choose a Network Load Balancer instead?\n- How do you send 5% of real traffic to a new version?\n- Deploys cause a burst of 502 errors. What would you look at?',
       },
     ],
     get trace() {

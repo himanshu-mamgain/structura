@@ -331,7 +331,7 @@ export const awsBasics: StaticTopic = {
   difficulty: 'Beginner',
   id: 'aws-basics',
   title: 'AWS Basics: What the Cloud Is and Why',
-  blurb: 'Buying servers vs renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each costs',
+  blurb: 'Buying servers or renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each one costs',
   guides: ['what-are-the-most-important-aws-services-to-learn', 'aws-services-cheat-sheet', '2-decades-of-cloud-evolution', 'hidden-costs-of-the-cloud', 'cloud-cost-reduction-techniques', 'how-does-aws-lambda-work-behind-the-scenes'],
   story: {
     title: 'Why a food app stopped buying servers',
@@ -386,12 +386,12 @@ The cloud didn't make things free. It turned hardware into a bill that follows w
     ],
   },
   takeaways: [
-    'AWS rents computing (servers, storage, databases and more) by the hour or by the request, with no hardware to buy.',
-    'A region is a geographic area like Mumbai; each has several Availability Zones, separate data centres, so spreading across two survives one failing.',
-    'Owning servers means paying for your peak up front and waiting weeks for more; renting lets you add capacity in minutes.',
-    'Auto Scaling makes the server count, and the bill, follow the traffic; for flat traffic a fixed fleet with a Savings Plan is cheaper.',
-    'Lambda bills per request: ideal for low or spiky traffic, expensive for high, steady traffic.',
-    'Managed services like RDS hand AWS the running of the software, but you still choose the design and watch the bill.',
+    'AWS rents computing, from servers to databases, by the hour or by the request, with no hardware to buy.',
+    'A region is an area like Mumbai, with several Availability Zones (separate data centres); spreading across two survives one failing.',
+    'Owning servers means paying for your peak up front and waiting weeks for more; renting adds capacity in minutes.',
+    'Auto Scaling makes the number of servers, and the bill, follow the traffic; for flat traffic, fixed servers with a Savings Plan cost less.',
+    'Lambda bills per request: great for low or spiky traffic, expensive for high, steady traffic.',
+    'Managed services like RDS let AWS run the software, but you still choose the design and watch the bill.',
   ],
   architecture: {
     replace: false,
@@ -438,39 +438,39 @@ The cloud didn't make things free. It turned hardware into a bill that follows w
   explanation: {
     title: 'AWS Basics: What the Cloud Is and Why',
     summary:
-      'AWS (Amazon Web Services) rents out computing, such as servers, storage, databases and networking, by the hour or by the request. Instead of buying hardware for your peak and waiting weeks for more, you start what you need in minutes, spread it across data centres, and pay for what you use. The trade-off is a bill that you have to design for and watch.',
+      'AWS (Amazon Web Services) rents out computing: servers, storage, databases and networks, by the hour or by the request. Instead of buying hardware for your busiest hour and waiting weeks for more, you start what you need in minutes, spread it across data centres, and pay for what you use. The catch is a bill you have to plan for and watch.',
     sections: [
       {
         heading: 'Overview',
-        body: 'The cloud is someone else\'s data centres, rented through an API:\n- Compute: EC2 (virtual servers), containers (ECS, EKS) and Lambda (functions run per request).\n- Storage: S3 (files of any size), EBS (disks for servers).\n- Databases: RDS (managed Postgres, MySQL and others), DynamoDB (key-value).\n- Networking: VPC (your private network), load balancers, CloudFront (CDN).\n- Security and operations: IAM (who can do what), CloudWatch (metrics, logs, alarms).\n\nAWS is organised into regions, such as Mumbai (ap-south-1), each with several Availability Zones: separate data centres with independent power and networking. You pick the region close to your users and spread across zones for reliability.\n\nThe simulator runs a month of traffic, hour by hour, on servers you buy, on rented EC2 servers, on EC2 with Auto Scaling and on Lambda, and works out the bill, the requests turned away and the capacity actually used.',
+        body: 'The cloud is someone else\'s data centres, which you rent through an API:\n- Computing: EC2 (virtual servers), containers (ECS, EKS) and Lambda (functions that run once per request).\n- Storage: S3 (files of any size) and EBS (disks for servers).\n- Databases: RDS (Postgres, MySQL and others, run for you) and DynamoDB (a key-value store).\n- Networking: VPC (your own private network), load balancers and CloudFront (a CDN).\n- Security and operations: IAM (who can do what) and CloudWatch (numbers, logs and alarms).\n\nAWS is split into regions, such as Mumbai (ap-south-1). Each region has several Availability Zones: separate data centres, each with its own power and network. You pick a region close to your users, and spread across zones so one failing doesn\'t take you down.\n\nThe simulator runs a month of traffic, hour by hour, four ways: on servers you buy, on rented EC2 servers, on EC2 with Auto Scaling, and on Lambda. It works out the bill, the requests turned away, and how much of the capacity was really used.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Serve the app\'s API to customers, with a database and file storage.\n\nNon-functional:\n- Handle the daily peak and an unexpected sale without turning customers away.\n- Survive one data centre failing.\n- Pay for what is used, not for idle machines.',
+        body: 'What it must do:\n- Serve the app\'s API to customers, with a database and file storage.\n\nHow well it must do it:\n- Handle the daily peak, and a surprise sale, without turning customers away.\n- Keep working if one data centre fails.\n- Pay for what is used, not for machines sitting idle.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Food-delivery traffic: 60 req/s at night, 1,200 req/s at dinner; about 1.03 billion requests a month.\n- One server (m6i.large) handles about 200 req/s: 8 servers for the peak plus 30%.\n- Bought: 8 × $1,800 = $14,400 up front, then 8 × $70 = $560 a month.\n- Rented, fixed: 8 × $0.101 × 720 hours = $582 a month.\n- Auto Scaling at 70% CPU: 2 to 9 servers, 2,670 server-hours ≈ $270 a month.\n- Lambda at 100 ms and 512 MB: about $1.03 per million requests ≈ $1,062 a month.\n- Only 24.8% of the capacity of 8 fixed servers is used over a day; Auto Scaling uses 53%.',
+        body: '- A food-delivery app: 60 requests a second at night, 1,200 at dinner; about 1.03 billion requests a month.\n- One server (m6i.large) handles about 200 requests a second: 1,200 ÷ 200 = 6 for the peak, plus 30% spare = 8 servers.\n- Bought: 8 × $1,800 = $14,400 up front, then 8 × $70 = $560 a month to run them.\n- Rented all the time: 8 × $0.101 an hour × 720 hours = $582 a month.\n- Auto Scaling at 70% CPU: between 2 and 9 servers, 2,670 server-hours ≈ $270 a month.\n- Lambda at 100 ms and 512 MB per request: about $1.03 per million requests ≈ $1,062 a month.\n- Over a day, 8 fixed servers do only 24.8% of the work they could; with Auto Scaling, the servers you pay for do 53%.',
       },
       {
         heading: 'Step by step',
-        body: '1. Customers send requests over the Internet.\n2. Before the cloud, they reach Own Servers in a single data centre.\n3. On AWS, the Load Balancer spreads them across EC2 Servers in Zone A and EC2 Servers in Zone B.\n4. CloudWatch watches their CPU; Auto Scaling adds or removes servers to keep it near 70%.\n5. Alternatively, Lambda Functions run one copy per request with no servers to manage.\n6. Every option reads and writes the RDS Primary, which keeps an RDS Standby in the other zone, and stores files in the S3 Bucket.',
+        body: '1. Customers send requests over the Internet.\n2. Before the cloud, the requests reach Own Servers in one data centre.\n3. On AWS, the Load Balancer shares them between EC2 Servers in Zone A and EC2 Servers in Zone B.\n4. CloudWatch watches the servers\' CPU, and Auto Scaling adds or removes servers to keep it near 70%.\n5. Or, instead of servers, Lambda Functions run one copy of your code per request, with no servers to look after.\n6. Whichever you choose, the app reads and writes the RDS Primary, which keeps an RDS Standby copy in the other zone, and stores files in the S3 Bucket.',
       },
       {
         heading: 'Components',
-        body: '- Customers: people using the app.\n- Internet: the public network between them and the servers.\n- Own Servers: hardware you buy and run in your own or a rented data centre.\n- Load Balancer: spreads requests over healthy servers in several zones.\n- CloudWatch: AWS\'s metrics, logs and alarms.\n- Auto Scaling: keeps the number of servers in line with a target, such as 70% CPU.\n- Lambda Functions: code AWS runs per request, billed per request and per millisecond.\n- S3 Bucket: object storage for files such as menu photos.\n- EC2 Servers in Zone A: rented virtual servers in the first data centre.\n- RDS Primary: the managed database that serves reads and writes.\n- EC2 Servers in Zone B: rented virtual servers in a second, independent data centre.\n- RDS Standby: a synchronous copy of the database that takes over if the primary\'s zone fails.',
+        body: '- Customers: the people using the app.\n- Internet: the public network between them and the servers.\n- Own Servers: hardware you buy and run in your own data centre, or in space you rent.\n- Load Balancer: shares requests between the healthy servers in several zones.\n- CloudWatch: AWS\'s numbers, logs and alarms.\n- Auto Scaling: keeps the number of servers in line with a target, such as 70% CPU.\n- Lambda Functions: code AWS runs once per request, billed per request and per millisecond.\n- S3 Bucket: storage for files such as menu photos.\n- EC2 Servers in Zone A: rented virtual servers in the first data centre.\n- RDS Primary: the database, run for you by AWS, that handles reads and writes.\n- EC2 Servers in Zone B: rented virtual servers in a second, separate data centre.\n- RDS Standby: a copy of the database, kept up to date on every write, that takes over if the primary\'s zone fails.',
       },
       {
         heading: 'Key decisions',
-        body: '- Buy or rent: owning can be cheaper for large, steady, predictable load, if you have people to run it; renting wins on speed, elasticity and reliability.\n- Region: close to your users (latency), and where your data is allowed to live.\n- Two or more Availability Zones for anything that must stay up.\n- Pricing model: On-Demand for flexibility, Savings Plans or Reserved Instances (a 1- or 3-year commitment for a lower price) for steady load, Spot (spare capacity, up to 90% cheaper, can be taken back) for work that can be interrupted.\n- Servers, containers or functions: Lambda for spiky or low traffic and glue code, servers or containers for high, steady traffic.\n- Managed services (RDS, S3) over running your own on EC2 when you\'d rather not patch and back up databases yourself.\n- Shared responsibility: AWS secures the hardware and data centres; you secure your accounts, data, network rules and code.',
+        body: '- Buy or rent: owning can cost less for big, steady, predictable traffic, if you have people to run it. Renting wins on speed, on growing and shrinking, and on reliability.\n- Region: close to your users, so pages are fast, and where your data is allowed to be stored.\n- Use two or more Availability Zones for anything that must stay up.\n- How you pay: On-Demand for flexibility; Savings Plans or Reserved Instances (you promise to use 1 or 3 years\' worth for a lower price) for steady traffic; Spot (spare capacity, up to 90% cheaper, but AWS can take it back) for work that can be interrupted.\n- Servers, containers or functions: Lambda for low or spiky traffic and small glue jobs; servers or containers for high, steady traffic.\n- Managed services such as RDS and S3, rather than running your own on EC2, when you\'d rather not patch and back up databases yourself.\n- Shared responsibility: AWS protects the hardware and the data centres; you protect your accounts, data, network rules and code.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Zone failure: spread servers and databases across zones; a load balancer stops sending traffic to an unhealthy zone.\n- Region failure is rarer; surviving it needs a second region and is a disaster-recovery decision.\n- New servers take minutes to start: schedule capacity ahead of known peaks.\n- Service quotas (such as Lambda\'s default 1,000 concurrent executions) can be raised, but only if you ask before you need them.\n- Bills surprise people: data transfer out, NAT gateways and forgotten resources. Set an AWS Budget with an alert on day one.',
+        body: '- A zone fails: spread servers and databases across zones, and the load balancer stops sending traffic to the broken one.\n- A whole region failing is rarer. Surviving that needs a second region, which is a disaster-recovery decision.\n- New servers take minutes to start, so add capacity before peaks you know about.\n- Service quotas, such as Lambda\'s default of 1,000 functions running at once, can be raised, but only if you ask before you need it.\n- Bills surprise people: data sent out to the internet, NAT gateways, and things someone forgot to turn off. Set up an AWS Budget with an alert on day one.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is the difference between a region and an Availability Zone?\n- When is buying servers cheaper than the cloud?\n- How does Auto Scaling decide how many servers to run, and what goes wrong in the first minutes of a spike?\n- When would you choose Lambda over EC2, and when not?\n- What does AWS secure, and what is still your job?\n- How would you keep a cloud bill under control?',
+        body: '- What\'s the difference between a region and an Availability Zone?\n- When is buying servers cheaper than the cloud?\n- How does Auto Scaling decide how many servers to run, and what goes wrong in the first minutes of a spike?\n- When would you choose Lambda over EC2, and when not?\n- What does AWS protect, and what is still your job?\n- How would you keep a cloud bill under control?',
       },
     ],
     get trace() {
