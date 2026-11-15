@@ -33,6 +33,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'payment-idempotency': 'development',
   'unique-id-generator': 'development',
   'notification-system': 'development',
+  'message-queue': 'development',
   'chat-system': 'development',
   'twitter-timeline': 'development',
   'search-autocomplete': 'development',

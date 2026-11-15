@@ -24,6 +24,7 @@ import { redisBasics } from './redis-basics'
 import { redisPersistence } from './redis-persistence'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
+import { messageQueue } from './message-queue'
 import { metricsMonitoring } from './metrics-monitoring'
 import { mint } from './mint'
 import { notificationSystem } from './notification-system'
@@ -81,6 +82,7 @@ const BASE_TOPICS: StaticTopic[] = [
   metricsMonitoring,
   fileSync,
   leaderElection,
+  messageQueue,
   locking,
   distributedCache,
   databaseSharding,

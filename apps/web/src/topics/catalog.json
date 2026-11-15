@@ -1408,6 +1408,50 @@
   "simulator": true
  },
  {
+  "id": "message-queue",
+  "title": "Distributed Message Queue",
+  "blurb": "Visibility timeouts, acks, retries and dead-letter queues, and why delivery is at least once",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "primer-asynchronism",
+   "types-of-message-queue",
+   "how-do-message-queue-architectures-evolve",
+   "scale-delaying-asynchronous-message-processing-with-rabbitmq-at-indeed",
+   "scale-reprocessing-and-dead-letter-queues-with-kafka-at-uber"
+  ],
+  "explanation": {
+   "summary": "A message queue sits between a producer that has work and the workers that do it. The producer drops a message and moves on; workers take messages at their own pace. The interesting part is failure: a worker that crashes must not lose the message, and one bad message must not block the rest. Queues solve this with acknowledgements, a visibility timeout, retries and a dead-letter queue, and the price is that a message can be delivered more than once.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "locking",
   "title": "Locking: Redis & Database",
   "blurb": "Shared, exclusive, update and intent locks, Redis locks with fencing, and when to use which",
