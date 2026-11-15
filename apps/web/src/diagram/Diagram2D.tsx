@@ -174,22 +174,36 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     else fit()
   }, [placed, focusKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The observer and the wheel listener are bound once, and read the latest functions from here.
+  const latest = useRef({ focus, fit, frameFocus, zoom })
+  latest.current = { focus, fit, frameFocus, zoom }
+
   useEffect(() => {
     const el = host.current
     if (!el) return
-    const observer = new ResizeObserver(() => (focus?.length ? frameFocus(focus) : fit()))
+    // Re-frame only when the card's size really changes. A ResizeObserver also reports the
+    // size once when it starts, and re-framing then would undo every zoom and pan.
+    let size = `${el.clientWidth}x${el.clientHeight}`
+    const observer = new ResizeObserver(() => {
+      const now = `${el.clientWidth}x${el.clientHeight}`
+      if (now === size) return
+      size = now
+      const { focus, fit, frameFocus } = latest.current
+      if (focus?.length) frameFocus(focus)
+      else fit()
+    })
     observer.observe(el)
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey && !e.metaKey) return
       e.preventDefault()
-      zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1)
+      latest.current.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1)
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => {
       observer.disconnect()
       el.removeEventListener('wheel', onWheel)
     }
-  }) // re-binds with the latest `placed`
+  }, [])
 
   function zoom(factor: number) {
     const el = host.current
@@ -382,11 +396,11 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
         )}
       </div>
       <div className="d2-zoom" role="group" aria-label="Zoom">
-        <button type="button" onClick={() => zoom(1 / 1.2)} aria-label="Zoom out">
+        <button type="button" onClick={() => zoom(1 / 1.3)} aria-label="Zoom out">
           −
         </button>
         <span>{Math.round(view.scale * 100)}%</span>
-        <button type="button" onClick={() => zoom(1.2)} aria-label="Zoom in">
+        <button type="button" onClick={() => zoom(1.3)} aria-label="Zoom in">
           +
         </button>
         <button type="button" onClick={fit} aria-label="Fit diagram">
