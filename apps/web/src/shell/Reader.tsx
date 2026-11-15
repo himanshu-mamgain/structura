@@ -5,6 +5,7 @@ import { responsibility, subtitleOf } from '../diagram/inspect'
 import { LESSONS, playTopic, toggle, useCommute } from '../learn/commute'
 import { Body, CodeBlock } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
+import { erdToDbml, schemaSnippet } from '../learn/dbml'
 import { type Markdown, plainText } from '../learn/markdown'
 import type { Block } from '../learn/notesFormat'
 import { updateTopic, useProgress } from '../learn/progress'
@@ -89,6 +90,7 @@ export function Reader({
   const explanation = topic.explanation
   const trace = explanation.trace
   const sql = useMemo(() => (topic.database ? erdToSql(topic.database) : null), [topic])
+  const dbml = useMemo(() => (topic.database ? erdToDbml(topic.database) : null), [topic])
   const lesson = LESSONS.topics[topic.id]
   const next = nextInRoadmap(topic.id)
   const playing = commute.topicId === topic.id && commute.playing
@@ -359,7 +361,7 @@ export function Reader({
       {!deep && sql && (
         <section id={anchor('Data model')} className="reader-section">
           <h2>Data model</h2>
-          <CodeBlock snippet={{ title: 'Schema (PostgreSQL)', language: 'sql', source: sql }} />
+          <CodeBlock snippet={schemaSnippet(sql, dbml)} />
         </section>
       )}
 

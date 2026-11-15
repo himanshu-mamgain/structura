@@ -64,7 +64,11 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - `public/og/<id>.jpg`: each topic's link-preview card (1200 × 630), drawn by
     `npm run og -w @structura/web` (Playwright, run locally like the videos; `default.jpg` is the site's).
   - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), its ELK layout (`layout.ts`), box icons (`icons.ts`),
-    component inspector logic (`inspect.ts`).
+    component inspector logic (`inspect.ts`). The "Data model" view is `DataModel.tsx`: the topic's `database`
+    drawn by [dbml-erd-viewer](https://github.com/usingsky/dbml-erd-viewer) (MIT, lazy-loaded). `src/learn/dbml.ts`
+    turns an `Erd` into DBML (the Schema tab's DBML tab) and into the viewer's schema directly, so the browser
+    never loads the 2.6 MB DBML parser (`vite.config.ts` aliases `@dbml/core` to a stub).
+    `npm run test:dbml` checks that parsing the DBML gives exactly that schema for every topic.
   - `src/sim/`: the load test: the Rust/WASM simulator's worker (`engine.ts`), the knobs (`loadtest.ts`)
     and the panel (`LoadPanel.tsx`), whose results show as a busy badge on each box of the 2D diagram.
     There is no 3D view: it was removed on purpose; don't bring three.js back into the app.

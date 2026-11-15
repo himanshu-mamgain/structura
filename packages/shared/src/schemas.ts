@@ -18,7 +18,7 @@ export const SHAPE_COLORS = [
 /** Box shapes in diagrams: rectangle for components, diamond for decisions, ellipse for actors, hexagon for external services, cloud for networks. */
 export const NODE_SHAPES = ['rectangle', 'ellipse', 'diamond', 'hexagon', 'cloud'] as const
 
-export const CODE_LANGUAGES = ['typescript', 'javascript', 'python', 'sql', 'go', 'java', 'bash'] as const
+export const CODE_LANGUAGES = ['typescript', 'javascript', 'python', 'sql', 'go', 'java', 'bash', 'dbml'] as const
 
 const ID = z.string().max(32)
 const LABEL = z.string().max(48)

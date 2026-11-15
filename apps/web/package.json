@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@structura/sim": "^0.0.0",
+    "@xyflow/react": "^12.12.1",
+    "dbml-erd-viewer": "^0.1.3",
     "elkjs": "^0.12.0",
     "kokoro-js": "^1.2.1",
     "lucide-react": "^1.57.0",
