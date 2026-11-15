@@ -345,6 +345,74 @@ console.log(q.receive(10_000))   // undefined: still hidden
 console.log(q.receive(30_000))   // worker B gets it: A never deleted it`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class VisibilityQueue {
+  private static final class Msg {
+    final String id;
+    final String body;
+    int receives = 0;
+    long visibleAt = 0;
+
+    Msg(String id, String body) {
+      this.id = id;
+      this.body = body;
+    }
+  }
+
+  public record Received(String id, String body, String receipt) {}
+
+  private final Map<String, Msg> msgs = new LinkedHashMap<>();
+  private final List<Msg> dlq = new ArrayList<>();
+  private final long visibilityMs;
+  private final int maxReceives;
+
+  public VisibilityQueue(long visibilityMs, int maxReceives) {
+    this.visibilityMs = visibilityMs;
+    this.maxReceives = maxReceives;
+  }
+
+  public void send(String id, String body) {
+    msgs.put(id, new Msg(id, body));
+  }
+
+  public Received receive(long now) {
+    for (Iterator<Msg> it = msgs.values().iterator(); it.hasNext(); ) {
+      Msg m = it.next();
+      if (m.visibleAt > now) continue; // hidden: someone is working on it
+      if (m.receives >= maxReceives) { // tried enough: park it
+        it.remove();
+        dlq.add(m);
+        continue;
+      }
+      m.receives++;
+      m.visibleAt = now + visibilityMs; // hide it, don't delete it
+      return new Received(m.id, m.body, m.id + ":" + m.receives);
+    }
+    return null;
+  }
+
+  public void delete(String receipt) {
+    String[] parts = receipt.split(":");
+    Msg m = msgs.get(parts[0]);
+    if (m != null && m.receives == Integer.parseInt(parts[1])) msgs.remove(parts[0]); // a stale receipt does nothing
+  }
+
+  public static void main(String[] args) {
+    VisibilityQueue q = new VisibilityQueue(30_000, 3);
+    q.send("m-7f3a21", "charge order-1042");
+    System.out.println(q.receive(0)); // worker A gets it at t=0
+    System.out.println(q.receive(10_000)); // null: still hidden
+    System.out.println(q.receive(30_000)); // worker B gets it: A never deleted it
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Msg = { id: string; body: string; receives: number; visibleAt: number }
 
@@ -415,6 +483,56 @@ console.log(handle('m-7f3a21', 'order-1042', 4900)) // charged
 console.log(handle('m-7f3a21', 'order-1042', 4900)) // duplicate, skipped (redelivery)
 console.log(db.prepare('SELECT COUNT(*) AS n FROM charges').get().n) // 1`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+// In-memory H2 database (com.h2database:h2), so it runs as is.
+public class IdempotentHandler {
+  private final Connection db;
+
+  IdempotentHandler(Connection db) throws SQLException {
+    this.db = db;
+    try (Statement st = db.createStatement()) {
+      st.execute("CREATE TABLE processed_messages (message_id VARCHAR(64) PRIMARY KEY)");
+      st.execute("CREATE TABLE charges (order_id VARCHAR(64), amount_cents INT)");
+    }
+    db.setAutoCommit(false); // one transaction per message: both rows commit or neither does
+  }
+
+  String handle(String messageId, String orderId, int amountCents) throws SQLException {
+    try (PreparedStatement seen = db.prepareStatement("INSERT INTO processed_messages VALUES (?)");
+        PreparedStatement charge = db.prepareStatement("INSERT INTO charges VALUES (?, ?)")) {
+      seen.setString(1, messageId);
+      seen.executeUpdate();
+      charge.setString(1, orderId);
+      charge.setInt(2, amountCents);
+      charge.executeUpdate();
+      db.commit();
+      return "charged";
+    } catch (SQLException e) {
+      db.rollback();
+      if ("23505".equals(e.getSQLState())) return "duplicate, skipped"; // already done: safe to ack
+      throw e;
+    }
+  }
+
+  public static void main(String[] args) throws SQLException {
+    IdempotentHandler h = new IdempotentHandler(DriverManager.getConnection("jdbc:h2:mem:queue"));
+    System.out.println(h.handle("m-7f3a21", "order-1042", 4900)); // charged
+    System.out.println(h.handle("m-7f3a21", "order-1042", 4900)); // duplicate, skipped (redelivery)
+    try (ResultSet rs = h.db.createStatement().executeQuery("SELECT COUNT(*) FROM charges")) {
+      rs.next();
+      System.out.println(rs.getInt(1)); // 1
+    }
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import sqlite3

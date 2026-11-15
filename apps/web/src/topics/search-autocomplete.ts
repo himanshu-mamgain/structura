@@ -369,6 +369,54 @@ export function suggest(root, prefix, k = 5) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Autocomplete {
+  static class Node {
+    final Map<Character, Node> kids = new HashMap<>();
+    final List<String> top = new ArrayList<>();
+  }
+
+  // counts: the weekly total per query. Built once, offline.
+  static Node build(Map<String, Long> counts, int k) {
+    Node root = new Node();
+    List<Map.Entry<String, Long>> ranked = new ArrayList<>(counts.entrySet());
+    ranked.sort(Map.Entry.<String, Long>comparingByValue().reversed()); // most popular first
+    for (var entry : ranked) {
+      Node n = root;
+      for (char ch : entry.getKey().toCharArray()) {
+        n = n.kids.computeIfAbsent(ch, c -> new Node());
+        if (n.top.size() < k + 2) n.top.add(entry.getKey()); // k + 2 spares for the filter
+      }
+    }
+    return root;
+  }
+
+  static List<String> suggest(Node root, String prefix, int k) {
+    Node n = root;
+    for (char ch : prefix.toCharArray()) {
+      n = n.kids.get(ch);
+      if (n == null) return List.of();
+    }
+    return n.top.subList(0, Math.min(k, n.top.size())); // no scan: the answer is already on the node
+  }
+
+  public static void main(String[] args) {
+    Map<String, Long> counts = new LinkedHashMap<>();
+    counts.put("iphone 16", 9_400L);
+    counts.put("ipl score", 52_000L);
+    counts.put("ipl schedule", 31_000L);
+    counts.put("india vs australia", 47_000L);
+    System.out.println(suggest(build(counts, 5), "ip", 2)); // [ipl score, ipl schedule]
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Node = { kids: Map<string, Node>; top: string[] }
 
@@ -416,6 +464,54 @@ input.addEventListener('input', () => {
     render(await res.json())
   }, 150)                                      // wait for a pause in typing
 })`,
+        versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
+
+// The same client logic in an Android app: attach with searchBox.addTextChangedListener(...).
+public class SuggestWatcher implements TextWatcher {
+  private final Handler main = new Handler(Looper.getMainLooper());
+  private final ExecutorService network = Executors.newSingleThreadExecutor();
+  private int latest = 0; // only touched on the main thread
+  private Runnable pending;
+
+  @Override
+  public void afterTextChanged(Editable text) {
+    if (pending != null) main.removeCallbacks(pending);
+    String q = text.toString().trim().toLowerCase(Locale.ROOT);
+    if (q.isEmpty()) {
+      hideDropdown();
+      return;
+    }
+    pending = () -> {
+      int id = ++latest; // remember which request this is
+      network.execute(() -> {
+        List<String> suggestions = api.suggest(q); // GET /suggest?q=...
+        main.post(() -> {
+          if (id != latest) return; // a newer keystroke won; ignore this late answer
+          render(suggestions);
+        });
+      });
+    };
+    main.postDelayed(pending, 150); // wait for a pause in typing
+  }
+
+  @Override
+  public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+  @Override
+  public void onTextChanged(CharSequence s, int start, int before, int count) {}
+}`,
+          },
+        ],
       },
       {
         title: 'Aggregate the query log',
@@ -448,6 +544,28 @@ export async function suggestions(prefix, k, trie) {
   return result
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import redis.clients.jedis.RedisClient;
+
+public class SuggestionCache {
+  private static final ObjectMapper json = new ObjectMapper();
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+  private static final String VERSION = "v7"; // bump to invalidate every cached list at once
+
+  public static List<String> suggestions(String prefix, int k, TrieClient trie) throws Exception {
+    String key = "sug:" + VERSION + ":" + prefix + ":" + k;
+    String hit = redis.get(key);
+    if (hit != null) return json.readValue(hit, new TypeReference<>() {});
+    List<String> result = trie.lookup(prefix, k); // network call to a trie shard
+    redis.setex(key, 60, json.writeValueAsString(result)); // short TTL: new snapshots show up within a minute
+    return result;
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import json, redis

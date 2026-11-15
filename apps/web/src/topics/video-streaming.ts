@@ -329,6 +329,27 @@ export function pickRung(rungs, bandwidthKbps) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+
+public class Abr {
+  public record Rung(int height, int kbps) {}
+
+  // Best rendition whose bitrate fits in 80% of the bandwidth; else the lowest.
+  static Rung pickRung(List<Rung> rungs, double bandwidthKbps) { // rungs sorted low → high
+    double budget = bandwidthKbps * 0.8; // leave headroom for jitter
+    Rung best = rungs.get(0);
+    for (Rung r : rungs) if (r.kbps() <= budget) best = r;
+    return best;
+  }
+
+  public static void main(String[] args) {
+    List<Rung> ladder = List.of(new Rung(240, 400), new Rung(480, 1200), new Rung(720, 2500), new Rung(1080, 5000));
+    System.out.println(pickRung(ladder, 4000)); // Rung[height=720, kbps=2500]: 3,200 kbps budget
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Rung = { height: number; kbps: number }
 

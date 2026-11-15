@@ -387,6 +387,43 @@ export function geohash(lat, lng, precision) {
 geohash(28.6315, 77.2167, 7) // "ttnfvh5"`,
         versions: [
           {
+            language: 'java',
+            source: `public class Geohash {
+  static final String BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
+
+  static String geohash(double lat, double lng, int precision) {
+    double[] la = {-90, 90};
+    double[] lo = {-180, 180};
+    boolean even = true;
+    int bit = 0;
+    int ch = 0;
+    StringBuilder out = new StringBuilder();
+    while (out.length() < precision) {
+      double[] range = even ? lo : la; // longitude first, then latitude
+      double mid = (range[0] + range[1]) / 2;
+      if ((even ? lng : lat) >= mid) { // upper half = 1
+        ch = ch * 2 + 1;
+        range[0] = mid;
+      } else {
+        ch = ch * 2;
+        range[1] = mid;
+      }
+      even = !even;
+      if (++bit == 5) { // 5 bits per character
+        out.append(BASE32.charAt(ch));
+        bit = 0;
+        ch = 0;
+      }
+    }
+    return out.toString();
+  }
+
+  public static void main(String[] args) {
+    System.out.println(geohash(28.6315, 77.2167, 7)); // ttnfvh5
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
 
@@ -436,6 +473,44 @@ export async function nearby(redis, lat, lng, radiusM, precision, neighbours) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import redis.clients.jedis.RedisClient;
+
+public class Nearby {
+  public record Business(String id, double lat, double lng) {}
+
+  public record Hit(double meters, Business business) {}
+
+  static double haversineM(double lat1, double lng1, double lat2, double lng2) {
+    double h = Math.pow(Math.sin(Math.toRadians(lat2 - lat1) / 2), 2)
+        + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+            * Math.pow(Math.sin(Math.toRadians(lng2 - lng1) / 2), 2);
+    return 2 * 6371008.8 * Math.asin(Math.sqrt(h));
+  }
+
+  static List<Hit> nearby(RedisClient redis, BusinessCache businesses, double lat, double lng, double radiusM,
+      int precision, List<String> neighbours) {
+    Set<String> ids = new HashSet<>();
+    for (String cell : neighbours) { // the user's cell plus its 8 neighbours
+      ids.addAll(redis.smembers("geo:" + precision + ":" + cell));
+    }
+    List<Hit> found = new ArrayList<>();
+    for (String id : ids) {
+      Business b = businesses.get(id); // cache first, database on a miss
+      double d = haversineM(lat, lng, b.lat(), b.lng());
+      if (d <= radiusM) found.add(new Hit(d, b)); // the cell is a rectangle: drop the far corners
+    }
+    found.sort(Comparator.comparingDouble(Hit::meters));
+    return found.subList(0, Math.min(20, found.size()));
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `from math import radians, sin, cos, asin, sqrt
 
@@ -468,6 +543,25 @@ async function indexBusiness(redis, b) {
   }
   await pipe.exec() // one round trip; SADD is safe to repeat if the event arrives twice
 }`,
+        versions: [
+          {
+            language: 'java',
+            source: `import redis.clients.jedis.AbstractTransaction;
+import redis.clients.jedis.RedisClient;
+
+public class IndexBuilder {
+  // Runs in the Index Builder after a business.created event.
+  static void indexBusiness(RedisClient redis, String id, double lat, double lng) {
+    try (AbstractTransaction tx = redis.multi()) {
+      for (int precision : new int[] {4, 5, 6}) {
+        tx.sadd("geo:" + precision + ":" + Geohash.geohash(lat, lng, precision), id);
+      }
+      tx.exec(); // one round trip; SADD is safe to repeat if the event arrives twice
+    }
+  }
+}`,
+          },
+        ],
       },
       {
         title: 'Why a lat/lng range query is slow (SQL)',

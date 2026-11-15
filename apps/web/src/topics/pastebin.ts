@@ -358,6 +358,36 @@ export function pasteKey(ip, timestamp, salt = '') {
   }
   return code.slice(0, 7)
 }`,
+        versions: [
+          {
+            language: 'java',
+            source: `import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public class PasteKeys {
+  static final String BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  static final BigInteger SIXTY_TWO = BigInteger.valueOf(62);
+
+  // MD5 of ip + timestamp, written in base 62, first 7 characters.
+  static String pasteKey(String ip, long timestamp, String salt) throws Exception {
+    byte[] md5 = MessageDigest.getInstance("MD5").digest((ip + timestamp + salt).getBytes(StandardCharsets.UTF_8));
+    BigInteger n = new BigInteger(1, md5); // 1: read the 16 bytes as a positive number
+    StringBuilder code = new StringBuilder();
+    while (n.signum() > 0) {
+      BigInteger[] qr = n.divideAndRemainder(SIXTY_TWO);
+      code.append(BASE62.charAt(qr[1].intValue()));
+      n = qr[0];
+    }
+    return code.reverse().substring(0, 7);
+  }
+
+  public static void main(String[] args) throws Exception {
+    System.out.println(pasteKey("203.0.113.7", 1773480413589L, ""));
+  }
+}`,
+          },
+        ],
       },
       {
         title: 'Create a paste (retry on collision)',
@@ -383,6 +413,33 @@ export function pasteKey(ip, timestamp, salt = '') {
   throw new Error('could not find a free key')
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.sql.Timestamp;
+import java.time.Instant;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class CreatePaste {
+  public static String createPaste(JdbcTemplate db, BlobStore store, String text, int minutes, String ip,
+      Instant now) throws Exception {
+    for (int attempt = 0; attempt < 5; attempt++) {
+      String key = PasteKeys.pasteKey(ip, now.toEpochMilli(), attempt > 0 ? String.valueOf(attempt) : "");
+      String path = "pastes/" + key + ".txt";
+      store.put(path, text); // write the blob first: an orphan blob is harmless
+      try {
+        // shortlink is the primary key, so a clash throws instead of overwriting
+        db.update("INSERT INTO pastes (shortlink, expiration_length_in_minutes, created_at, paste_path) "
+            + "VALUES (?, ?, ?, ?)", key, minutes, Timestamp.from(now), path);
+        return key;
+      } catch (DuplicateKeyException clash) {
+        // Postgres 23505: another paste has this key. Try again with a salt.
+      }
+    }
+    throw new IllegalStateException("could not find a free key");
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def create_paste(db, store, text, minutes, ip, now):
@@ -428,6 +485,36 @@ export function pasteKey(ip, timestamp, salt = '') {
   return text
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import org.springframework.jdbc.core.JdbcTemplate;
+import redis.clients.jedis.RedisClient;
+
+public class ReadPaste {
+  public static String readPaste(RedisClient cache, JdbcTemplate db, BlobStore store, String key, Instant now) {
+    String cached = cache.get("paste:" + key);
+    if (cached != null) return cached; // TTL was set to the time left, so it cannot be expired
+
+    List<Map<String, Object>> rows = db.queryForList("SELECT paste_path, created_at, expiration_length_in_minutes "
+        + "FROM pastes WHERE shortlink = ?", key);
+    if (rows.isEmpty()) return null;
+    Map<String, Object> row = rows.get(0);
+    int minutes = ((Number) row.get("expiration_length_in_minutes")).intValue();
+    Instant expiresAt = ((Timestamp) row.get("created_at")).toInstant().plus(Duration.ofMinutes(minutes));
+    if (minutes > 0 && !expiresAt.isAfter(now)) return null; // enforce expiry on every read, cleanup comes later
+
+    String text = store.get((String) row.get("paste_path"));
+    long ttl = minutes > 0 ? Duration.between(now, expiresAt).toSeconds() : 86_400;
+    cache.setex("paste:" + key, ttl, text);
+    return text;
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def read_paste(cache, db, store, key, now):

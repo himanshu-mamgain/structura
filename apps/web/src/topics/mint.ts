@@ -313,6 +313,17 @@ WHERE account_id = $1 ORDER BY posted_at DESC LIMIT 25;`,
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+
+public class Categorizer {
+  static String categorize(String seller, Map<String, String> userRules, Map<String, String> sellerTable) {
+    // A rule the user set always beats the shared default.
+    return userRules.getOrDefault(seller, sellerTable.getOrDefault(seller, "Uncategorized"));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Rules = Map<string, string> // seller -> category chosen by this user
 
@@ -341,6 +352,26 @@ export async function addToBudget(userId, month, category, cents, limitCents) {
   return crossedLimit ? 'over' : crossedWarn ? 'warn' : null
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import redis.clients.jedis.RedisClient;
+
+public class Budgets {
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+  private static final double WARN_AT = 0.8;
+
+  /** Returns "over", "warn" or null. */
+  public static String addToBudget(long userId, String month, String category, long cents, long limitCents) {
+    String key = "budget:" + userId + ":" + month;
+    long after = redis.hincrBy(key, category, cents); // integer cents: no float drift
+    long before = after - cents;
+    // Alert only when this purchase crosses the line, not on every later one.
+    boolean crossedWarn = before < limitCents * WARN_AT && after >= limitCents * WARN_AT;
+    boolean crossedLimit = before < limitCents && after >= limitCents;
+    return crossedLimit ? "over" : crossedWarn ? "warn" : null;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import Redis from 'ioredis'
@@ -372,6 +403,19 @@ export function nextSync(lastLogin, lastSync, now) {
   return new Date(lastSync.getTime() + DAY)
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.time.Duration;
+import java.time.Instant;
+
+public class SyncSchedule {
+  // Active users are pulled often; inactive ones once a day.
+  static Instant nextSync(Instant lastLogin, Instant lastSync, Instant now) {
+    boolean active = Duration.between(lastLogin, now).compareTo(Duration.ofDays(30)) <= 0;
+    return lastSync.plus(active ? Duration.ofMinutes(15) : Duration.ofDays(1));
+  }
+}`,
+          },
           {
             language: 'python',
             source: `from datetime import datetime, timedelta

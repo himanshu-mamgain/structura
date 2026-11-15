@@ -268,6 +268,50 @@ export function rank(totals) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class SalesRank {
+  public record Sale(String productId, long sold) {}
+
+  // One log line: product_id, category, quantity, timestamp
+  static Map.Entry<String, Long> mapSale(String line) {
+    String[] f = line.stripTrailing().split("\\t");
+    return Map.entry(f[1] + "\\t" + f[0], Long.parseLong(f[2]));
+  }
+
+  // In a real cluster, the shuffle groups equal keys; groupingBy plays that part here.
+  static Map<String, Long> reduceTotals(Stream<Map.Entry<String, Long>> pairs) {
+    return pairs.collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(Map.Entry::getValue)));
+  }
+
+  static Map<String, List<Sale>> rank(Map<String, Long> totals) {
+    Map<String, List<Sale>> byCategory = new TreeMap<>();
+    totals.forEach((key, sold) -> {
+      String[] parts = key.split("\\t");
+      byCategory.computeIfAbsent(parts[0], c -> new ArrayList<>()).add(new Sale(parts[1], sold));
+    });
+    // Highest sales first; product id breaks ties so runs are repeatable.
+    byCategory.values().forEach(rows -> rows.sort(
+        Comparator.comparingLong(Sale::sold).reversed().thenComparing(Sale::productId)));
+    return byCategory;
+  }
+
+  public static void main(String[] args) {
+    List<String> log = List.of("p1\\tbooks\\t2\\t1700000000", "p2\\tbooks\\t5\\t1700000060",
+        "p1\\tbooks\\t3\\t1700000120", "p9\\ttoys\\t1\\t1700000180");
+    System.out.println(rank(reduceTotals(log.stream().map(SalesRank::mapSale))));
+    // {books=[Sale[productId=p1, sold=5], Sale[productId=p2, sold=5]], toys=[Sale[productId=p9, sold=1]]}
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `from collections import defaultdict
 
@@ -313,6 +357,42 @@ export async function bestsellers(category, n = 20) {
   return rows.slice(0, n)
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import redis.clients.jedis.RedisClient;
+
+public class Bestsellers {
+  public record Row(String productId, long totalSold) {}
+
+  private static final ObjectMapper json = new ObjectMapper();
+  private final RedisClient redis = RedisClient.create("localhost", 6379);
+  private final JdbcTemplate db;
+
+  public Bestsellers(JdbcTemplate db) {
+    this.db = db;
+  }
+
+  /** Top N for a category: cache first, table on a miss. */
+  public List<Row> bestsellers(String category, int n) throws Exception {
+    String key = "rank:" + category + ":7d";
+    String hit = redis.get(key);
+    List<Row> rows;
+    if (hit != null) {
+      rows = json.readValue(hit, new TypeReference<>() {});
+    } else {
+      rows = db.query("SELECT product_id, total_sold FROM sales_rank WHERE category_id = ? "
+          + "ORDER BY total_sold DESC LIMIT 100",
+          (rs, i) -> new Row(rs.getString("product_id"), rs.getLong("total_sold")), category);
+      redis.setex(key, 3600, json.writeValueAsString(rows)); // the next batch run overwrites it anyway
+    }
+    return rows.subList(0, Math.min(n, rows.size()));
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import Redis from 'ioredis'

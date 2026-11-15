@@ -322,6 +322,32 @@ export async function blockHashes(path) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.HexFormat;
+import java.util.List;
+
+public class BlockHashes {
+  static final int BLOCK = 4 * 1024 * 1024;
+
+  // Returns one SHA-256 per fixed 4 MB block (the last may be shorter).
+  static List<String> blockHashes(Path path) throws Exception {
+    List<String> hashes = new ArrayList<>();
+    try (InputStream in = Files.newInputStream(path)) {
+      byte[] block;
+      while ((block = in.readNBytes(BLOCK)).length > 0) { // a full block unless the file ends
+        hashes.add(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(block)));
+      }
+    }
+    return hashes;
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { createHash } from 'node:crypto'
 import { createReadStream } from 'node:fs'
@@ -381,6 +407,70 @@ const before = [...chunks(a)].map(short)
 const after = [...chunks(Buffer.concat([Buffer.from('x'), a]))].map(short)
 console.log(before.length, 'chunks;', new Set(after.filter((h) => !before.includes(h))).size, 'new after an insert')`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
+public class Chunking {
+  // One fixed random number per byte value. Every device builds the same table,
+  // so they all cut a file in the same places.
+  static final int[] GEAR = new int[256];
+
+  static {
+    for (int i = 0; i < 256; i++) GEAR[i] = ByteBuffer.wrap(sha256(("gear:" + i).getBytes(StandardCharsets.UTF_8))).getInt();
+  }
+
+  static final int MASK = (1 << 20) - 1; // cut when the low 20 bits are zero: ~1 MB average
+  static final int MIN = 256 * 1024;
+  static final int MAX = 4 * 1024 * 1024;
+
+  static List<byte[]> chunks(byte[] data) {
+    List<byte[]> out = new ArrayList<>();
+    int start = 0;
+    int h = 0;
+    for (int i = 0; i < data.length; i++) {
+      h = (h << 1) + GEAR[data[i] & 0xff]; // an int keeps 32 bits: old bytes shift out after 32 steps
+      int size = i - start + 1;
+      if ((size >= MIN && (h & MASK) == 0) || size >= MAX) {
+        out.add(Arrays.copyOfRange(data, start, i + 1));
+        start = i + 1;
+        h = 0;
+      }
+    }
+    if (start < data.length) out.add(Arrays.copyOfRange(data, start, data.length));
+    return out;
+  }
+
+  static byte[] sha256(byte[] data) {
+    try {
+      return MessageDigest.getInstance("SHA-256").digest(data);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public static void main(String[] args) {
+    // Insert one byte at the start: only the first chunk's hash changes.
+    byte[] a = new byte[8_000_000];
+    new Random().nextBytes(a);
+    byte[] b = new byte[a.length + 1];
+    b[0] = 'x';
+    System.arraycopy(a, 0, b, 1, a.length);
+    Set<String> before = new HashSet<>();
+    for (byte[] c : chunks(a)) before.add(Arrays.toString(sha256(c)));
+    long fresh = chunks(b).stream().filter(c -> !before.contains(Arrays.toString(sha256(c)))).count();
+    System.out.println(before.size() + " chunks; " + fresh + " new after an insert");
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import hashlib, random

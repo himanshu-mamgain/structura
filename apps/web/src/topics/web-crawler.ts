@@ -225,6 +225,39 @@ export class Crawler {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.concurrent.BlockingQueue;
+
+// Pulls the most important link, skips near-duplicates, queues indexing.
+public class Crawler {
+  private final PagesStore store;
+  private final BlockingQueue<Page> reverseIndexQueue;
+  private final BlockingQueue<Page> docQueue;
+
+  public Crawler(PagesStore store, BlockingQueue<Page> reverseIndexQueue, BlockingQueue<Page> docQueue) {
+    this.store = store;
+    this.reverseIndexQueue = reverseIndexQueue;
+    this.docQueue = docQueue;
+  }
+
+  public void crawl() throws InterruptedException {
+    Page page;
+    while ((page = store.extractMaxPriorityPage()) != null) {
+      if (store.crawledSimilar(page.signature())) {
+        // Seen this content: don't crawl it again (avoids cycles).
+        store.reducePriorityLinkToCrawl(page.url());
+        continue;
+      }
+      reverseIndexQueue.put(page);
+      docQueue.put(page);
+      for (String url : page.childUrls()) store.addLinkToCrawl(url);
+      store.removeLinkToCrawl(page.url());
+      store.insertCrawledLink(page.url(), page.signature());
+    }
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `class Crawler:
     """Pulls the most important link, skips near-duplicates, queues indexing."""
@@ -273,6 +306,32 @@ export function similar(a, b, maxDifferentBits = 3) {
   return differentBits <= maxDifferentBits
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
+
+public class SimHash {
+  // Similar pages get signatures that differ in only a few bits.
+  static long simhash(List<String> words) throws Exception {
+    int[] weights = new int[64];
+    MessageDigest md5 = MessageDigest.getInstance("MD5");
+    for (String word : words) {
+      BigInteger h = new BigInteger(1, md5.digest(word.getBytes(StandardCharsets.UTF_8)));
+      for (int i = 0; i < 64; i++) weights[i] += h.testBit(i) ? 1 : -1;
+    }
+    long signature = 0;
+    for (int i = 0; i < 64; i++) if (weights[i] > 0) signature |= 1L << i;
+    return signature;
+  }
+
+  static boolean similar(long a, long b) {
+    return Long.bitCount(a ^ b) <= 3; // at most 3 bits differ
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import hashlib
