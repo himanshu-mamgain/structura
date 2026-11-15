@@ -5850,3 +5850,97 @@ button.area-tag {
   color: #c7cde0;
   font-size: 13.5px;
 }
+
+/* ─── Hand-drawn diagram (rough.js, src/diagram/sketch.ts) ─── */
+
+/* The words sit on the sketch, not in a glowing card. */
+.d2-card {
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.d2-card.is-ellipse,
+.d2-card.is-cloud {
+  justify-content: center;
+}
+
+.d2-card.is-cylinder {
+  padding-top: 16px;
+}
+
+.d2-card-icon {
+  background: color-mix(in srgb, var(--glow) 16%, transparent);
+}
+
+.d2-card-text strong {
+  font-size: 15px;
+}
+
+.d2-card-text small {
+  color: #b9c1d6;
+  font-size: 12.5px;
+}
+
+.sk-base {
+  fill: #0b1020;
+}
+
+.sk-fill {
+  fill: none;
+  opacity: 0.3;
+}
+
+.d2-node .sk-stroke {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.d2-node.is-lit .sk-stroke {
+  stroke-width: 3;
+}
+
+.d2-node.is-lit .sk-fill {
+  opacity: 0.5;
+}
+
+.d2-node.is-selected .sk-stroke {
+  stroke: #f8fafc;
+  stroke-width: 3;
+}
+
+.d2-node.is-failed .sk-stroke,
+.d2-node.is-failed .sk-fill {
+  stroke: #f87171;
+}
+
+.d2-node.is-lit .d2-card,
+.d2-node.is-lit .d2-table,
+.d2-node.is-selected .d2-card,
+.d2-node.is-failed .d2-card {
+  box-shadow: none;
+}
+
+.d2-node.is-failed .d2-card {
+  border: 0;
+  background: none;
+}
+
+.d2-group .sk-stroke {
+  stroke-dasharray: 9 8;
+}
+
+.d2-edge .sk-stroke {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.d2-edge.is-lit .sk-stroke {
+  stroke-width: 3;
+}
+
+.d2-table {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
