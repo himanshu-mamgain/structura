@@ -102,6 +102,8 @@ export const LIBRARY_AREAS: Record<AreaId, string[]> = {
     'technical-interviews',
     'scalability-architecture',
     'scalability-interview',
+    'prep-system-design',
+    'prep-javascript',
   ],
   infra: ['cloud-distributed-systems', 'devops-cicd', 'aws-sample', 'aws-terraform', 'aws-roadmap', 'scalability-availability', 'scalability-stability'],
   databases: ['database-and-storage', 'caching-performance', 'db-learning', 'scalability-performance'],

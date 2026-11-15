@@ -39,6 +39,11 @@
    "name": "Projects and tutorials",
    "repo": "https://kafka.apache.org/",
    "license": "Linked; each keeps its own licence (Kafka Apache 2.0, docker-curriculum MIT, awesome-system-design-resources GPL-3.0, link only)."
+  },
+  "prep": {
+   "name": "Interview prep (open repositories)",
+   "repo": "https://github.com/yangshun/tech-interview-handbook",
+   "license": "Linked only: each repository keeps its own licence, and nothing is copied."
   }
  },
  "categories": [
@@ -53,6 +58,30 @@
    "title": "Worked designs (Primer)",
    "sort": 1,
    "source": "primer"
+  },
+  {
+   "id": "prep-dsa",
+   "title": "Interview prep: DSA",
+   "sort": 100,
+   "source": "prep"
+  },
+  {
+   "id": "prep-system-design",
+   "title": "Interview prep: System design",
+   "sort": 101,
+   "source": "prep"
+  },
+  {
+   "id": "prep-javascript",
+   "title": "Interview prep: JavaScript and Node.js",
+   "sort": 102,
+   "source": "prep"
+  },
+  {
+   "id": "prep-process",
+   "title": "Interview prep: The whole process",
+   "sort": 103,
+   "source": "prep"
   },
   {
    "id": "api-web-development",
@@ -5715,6 +5744,145 @@
    ],
    "source": "bytebytego",
    "url": "https://bytebytego.com/guides/why-do-we-need-to-use-a-distributed-lock/"
+  },
+  {
+   "slug": "prep-javascript-algorithms",
+   "title": "trekhleb/javascript-algorithms: algorithms and data structures in JavaScript",
+   "url": "https://github.com/trekhleb/javascript-algorithms",
+   "tags": [
+    "DSA",
+    "JavaScript"
+   ],
+   "note": "Each one implemented in JavaScript, with an explanation and further reading.",
+   "categories": [
+    "prep-dsa"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-neetcode",
+   "title": "neetcode-gh/leetcode: NeetCode 150 and Blind 75 solutions",
+   "url": "https://github.com/neetcode-gh/leetcode",
+   "tags": [
+    "DSA",
+    "LeetCode",
+    "JavaScript"
+   ],
+   "note": "Solutions to every problem in many languages, JavaScript included.",
+   "categories": [
+    "prep-dsa"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-coding-interview-university",
+   "title": "jwasham/coding-interview-university: a full CS self-study plan",
+   "url": "https://github.com/jwasham/coding-interview-university",
+   "tags": [
+    "DSA",
+    "CS fundamentals"
+   ],
+   "note": "It is long: use it as a checklist rather than reading it cover to cover.",
+   "categories": [
+    "prep-dsa"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-system-design-primer",
+   "title": "donnemartin/system-design-primer: the standard starting point",
+   "url": "https://github.com/donnemartin/system-design-primer",
+   "tags": [
+    "System design"
+   ],
+   "note": "Core concepts plus worked design questions. Several Structura topics are adapted from it.",
+   "categories": [
+    "prep-system-design"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-system-design-101",
+   "title": "ByteByteGoHq/system-design-101: short visual explanations",
+   "url": "https://github.com/ByteByteGoHq/system-design-101",
+   "tags": [
+    "System design",
+    "Revision"
+   ],
+   "note": "Good for quick revision. Its guides are also listed one by one in this library.",
+   "categories": [
+    "prep-system-design"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-karanpratapsingh-system-design",
+   "title": "karanpratapsingh/system-design: a course from the basics to case studies",
+   "url": "https://github.com/karanpratapsingh/system-design",
+   "tags": [
+    "System design",
+    "Course"
+   ],
+   "note": "A structured course that goes from the basics to full case studies.",
+   "categories": [
+    "prep-system-design"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-javascript-questions",
+   "title": "lydiahallie/javascript-questions: tricky output and concept questions",
+   "url": "https://github.com/lydiahallie/javascript-questions",
+   "tags": [
+    "JavaScript"
+   ],
+   "note": "Every question comes with an explanation of the answer.",
+   "categories": [
+    "prep-javascript"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-sudheerj-javascript",
+   "title": "sudheerj/javascript-interview-questions: a large JavaScript question bank",
+   "url": "https://github.com/sudheerj/javascript-interview-questions",
+   "tags": [
+    "JavaScript",
+    "React"
+   ],
+   "note": "The same author keeps a React version too.",
+   "categories": [
+    "prep-javascript"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-node-best-practices",
+   "title": "goldbergyoni/nodebestpractices: Node.js best practices",
+   "url": "https://github.com/goldbergyoni/nodebestpractices",
+   "tags": [
+    "Node.js"
+   ],
+   "note": "Not interview-specific, but it covers what senior Node.js rounds tend to probe.",
+   "categories": [
+    "prep-javascript"
+   ],
+   "source": "prep"
+  },
+  {
+   "slug": "prep-tech-interview-handbook",
+   "title": "yangshun/tech-interview-handbook: the whole interview process",
+   "url": "https://github.com/yangshun/tech-interview-handbook",
+   "tags": [
+    "Resume",
+    "Behavioural",
+    "Negotiation"
+   ],
+   "note": "Resume, behavioural rounds, study plans and negotiation, from the author of Blind 75.",
+   "categories": [
+    "prep-process"
+   ],
+   "source": "prep"
   },
   {
    "slug": "ref-apache-kafka-docs",

@@ -211,6 +211,7 @@ function LibraryGuides({
               <a href={g.url} target="_blank" rel="noreferrer">
                 {g.title} <ExternalLink size={13} aria-hidden />
               </a>
+              {g.note && <span className="guide-note">{g.note}</span>}
               <span className="guide-tags">{[sourceOf(g).name.split(' (')[0], ...g.tags.slice(0, 3)].join(' · ')}</span>
               {covered && (
                 <button type="button" className="guide-interactive" onClick={() => onOpen(covered)}>

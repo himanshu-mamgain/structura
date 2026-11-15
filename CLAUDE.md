@@ -146,6 +146,7 @@ estimates, hashes) rather than guessing. Use realistic example data.
 | [amazon-ecs-fullstack-app-terraform](https://github.com/aws-samples/amazon-ecs-fullstack-app-terraform) | MIT-0 | May be adapted; credit it anyway |
 | [terraform-aws-modules](https://github.com/terraform-aws-modules) (ECS, VPC, ALB) | Apache 2.0 | May be adapted, with credit |
 | [aws/containers-roadmap](https://github.com/aws/containers-roadmap) | CC BY-SA 4.0 | **Link only**: adapting it would make Structura's text share-alike |
+| Interview prep repos (javascript-algorithms, neetcode, coding-interview-university, karanpratapsingh/system-design, javascript-questions, javascript-interview-questions, nodebestpractices, tech-interview-handbook) | various | **Link only**: the `prep-*` library categories and the Interview prep page (`?page=prep`) link to them with Structura's own one-line notes |
 
 Otherwise, write topics from your own knowledge. The library (`library.json`)
 is the syllabus: topics not yet built are good candidates.
