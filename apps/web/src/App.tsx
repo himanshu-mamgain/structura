@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { BookA, Boxes, Briefcase, Clapperboard, GraduationCap, Headphones, House, Loader2, Search, type LucideIcon } from 'lucide-react'
-import { board } from './board/store'
 import { InstallButton } from './pwa/InstallButton'
 import { updateReady } from './pwa/updates'
 import { AppSwitcher } from './shell/AppSwitcher'
@@ -264,7 +263,6 @@ export default function App() {
                     <TopicView
                       key={topic.id}
                       topic={topic}
-                      board={board}
                       openLoad={openLoad}
                       onNote={openNote}
                       onRead={() => openRead(meta)}

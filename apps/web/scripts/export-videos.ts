@@ -8,7 +8,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { layout } from '../src/board/layout'
+import { layout } from '../src/diagram/layout'
 import { responsibility, subtitleOf } from '../src/diagram/inspect'
 import { splitSentences } from '../src/learn/text'
 import { STATIC_TOPICS } from '../src/topics'

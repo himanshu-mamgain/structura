@@ -332,7 +332,7 @@ button {
   font-weight: 600;
 }
 
-/* Segmented control: Architecture | Data model, 2D | 3D. */
+/* Segmented control: Architecture | Data model. */
 .seg {
   display: inline-flex;
   padding: 3px;
@@ -515,11 +515,6 @@ button {
     radial-gradient(circle at 50% 40%, rgba(85, 124, 114, 0.08), transparent 60%),
     linear-gradient(rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px,
     linear-gradient(90deg, rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px;
-}
-
-.diagram-body .board {
-  position: absolute;
-  inset: 0;
 }
 
 .walk-start {

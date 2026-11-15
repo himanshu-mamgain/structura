@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { Board } from './store'
-import { runSimulation, type SimResult } from '../sim/engine'
-import { defaults, perSecond, type LoadParam, type LoadTest, type LoadValues } from '../sim/loadtest'
+import { runSimulation, type ComponentStats, type SimResult } from './engine'
+import { defaults, perSecond, type LoadParam, type LoadTest, type LoadValues } from './loadtest'
+
+/** Each component's results, by lower-case label: what the 2D diagram shows on its boxes. */
+export type LoadStats = ReadonlyMap<string, ComponentStats>
 
 /** Maps a 0..1000 slider position to a value on a log scale, and back. */
 const toLog = (p: LoadParam & { kind: 'range' }, pos: number) => p.min * (p.max / p.min) ** (pos / 1000)
@@ -52,10 +54,9 @@ function fromLink(test: LoadTest): LoadValues {
 
 /**
  * Puts real load through the topic's design: the Rust simulator runs in the
- * background and the results show on the 3D blocks (height and colour = how
- * busy, cubes = queue, dots = traffic).
+ * background, the numbers show here, and each box on the diagram shows how busy it is.
  */
-export function LoadPanel({ board, test, onClose }: { board: Board; test: LoadTest; onClose: () => void }) {
+export function LoadPanel({ test, onStats, onClose }: { test: LoadTest; onStats: (stats: LoadStats | null) => void; onClose: () => void }) {
   const [values, setValues] = useState<LoadValues>(() => ({ ...defaults(test), ...fromLink(test) }))
   const [result, setResult] = useState<SimResult | null>(null)
   const [error, setError] = useState('')
@@ -70,7 +71,7 @@ export function LoadPanel({ board, test, onClose }: { board: Board; test: LoadTe
           if (!current) return
           setResult(r)
           setError('')
-          board.setStats(new Map(r.components.map((c) => [c.label.toLowerCase(), c])))
+          onStats(new Map(r.components.map((c) => [c.label.toLowerCase(), c])))
         })
         .catch((e: unknown) => current && setError(e instanceof Error ? e.message : String(e)))
         .finally(() => current && setRunning(false))
@@ -79,28 +80,10 @@ export function LoadPanel({ board, test, onClose }: { board: Board; test: LoadTe
       current = false
       clearTimeout(timer)
     }
-  }, [board, test, values])
+  }, [onStats, test, values])
 
-  // The topic at its default settings is the "usual" that busy components are compared with.
-  useEffect(() => {
-    let current = true
-    runSimulation(test.build(defaults(test)))
-      .then((r) => current && board.setStats(board.stats, new Map(r.components.map((c) => [c.label.toLowerCase(), c]))))
-      .catch(() => {})
-    return () => {
-      current = false
-    }
-  }, [board, test])
-
-  // Leaving the load test puts the boxes back to normal. Opening or closing the
-  // panel changes the free space, so the view is re-framed both times.
-  useEffect(() => {
-    requestAnimationFrame(() => board.fitAll())
-    return () => {
-      board.setStats(null, null)
-      requestAnimationFrame(() => board.fitAll())
-    }
-  }, [board])
+  // Closing the load test puts the boxes back to normal.
+  useEffect(() => () => onStats(null), [onStats])
 
   const bottleneck = result && [...result.components].sort((a, b) => b.utilization - a.utilization)[0]
   const retrying = result && result.attemptsPerS > result.offeredPerS * 1.05
@@ -155,8 +138,8 @@ export function LoadPanel({ board, test, onClose }: { board: Board; test: LoadTe
         </>
       )}
       <p className="load-legend">
-        <span className="dot is-ok" /> relaxed <span className="dot is-warm" /> busy <span className="dot is-hot" /> saturated · height = how
-        busy · cubes = queue · hover a block for details. Typical numbers, not a benchmark.
+        <span className="dot is-ok" /> relaxed <span className="dot is-warm" /> busy <span className="dot is-hot" /> saturated · each box on the
+        diagram shows how busy it is. Typical numbers, not a benchmark.
       </p>
     </aside>
   )

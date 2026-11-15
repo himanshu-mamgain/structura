@@ -5901,6 +5901,37 @@ button.area-tag {
   fill: var(--card);
 }
 
+/* Load test: each box shows how busy it is, in the legend's three colours. */
+.d2-load {
+  align-self: flex-start;
+  margin-top: 3px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font: 800 12.5px/1.4 Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.d2-load.is-ok {
+  background: #2f7a55;
+}
+
+.d2-load.is-warm {
+  background: #b8611f;
+}
+
+.d2-load.is-hot {
+  background: #b4443a;
+}
+
+.d2-node.has-load.is-warm .sk-base {
+  fill: color-mix(in srgb, #b8611f 10%, var(--card));
+}
+
+.d2-node.has-load.is-hot .sk-base {
+  fill: color-mix(in srgb, #b4443a 16%, var(--card));
+}
+
 .sk-fill {
   fill: none;
   opacity: 0.3;

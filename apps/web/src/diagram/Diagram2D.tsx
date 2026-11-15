@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { motion } from 'motion/react'
-import { layout, type Layout, type LayoutDiagram, type Placed } from '../board/layout'
+import { layout, type Layout, type LayoutDiagram, type Placed } from './layout'
 import { iconFor } from './icons'
 import { edgeSketch, groupSketch, INK, nodeSketch, roundedRectPath, shapeOf, shapePath, type SketchPath } from './sketch'
 
-// A hand-drawn drawing of a diagram, like a whiteboard sketch (rough.js): the same
-// ELK layout the 3D view uses, with sketchy boxes (icon, name, one-line role) whose
+// A hand-drawn drawing of a diagram, like a whiteboard sketch (rough.js): an ELK
+// layout with sketchy boxes (icon, name, one-line role) whose
 // shape says what they are (people are ovals, data stores cylinders, the internet a
 // cloud) joined by hand-drawn arrows. Pans with a drag, zooms with the buttons or
 // ctrl + wheel, and dims everything but the boxes in focus, where a packet travels.
+// During a load test, each box shows how busy it is.
 
 
 const PAD = 40
@@ -78,7 +79,12 @@ export interface Diagram2DProps {
   fitAll?: boolean
   /** Always fit every box in focus, however small, instead of zooming to a readable size (a lesson card's figure). */
   focusFit?: boolean
+  /** A load test's results by lower-case label: each box shows how busy it is. */
+  load?: ReadonlyMap<string, { utilization: number; meanQueue: number }> | null
 }
+
+/** How busy a box is, in the load test's three colours. */
+const busyLevel = (u: number) => (u > 0.95 ? 'is-hot' : u > 0.7 ? 'is-warm' : 'is-ok')
 
 /** Card size: room for the icon tile, the name and the subtitle line. */
 const cardSize = (label: string, subtitle?: string) => ({
@@ -86,7 +92,7 @@ const cardSize = (label: string, subtitle?: string) => ({
   height: subtitle ? 78 : 64,
 })
 
-export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles, fitAll = false, focusFit = false }: Diagram2DProps) {
+export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles, fitAll = false, focusFit = false, load = null }: Diagram2DProps) {
   const [placed, setPlaced] = useState<Layout | null>(null)
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
   const host = useRef<HTMLDivElement>(null)
@@ -339,8 +345,9 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
               const Icon = iconFor(node.label)
               const subtitle = subtitles?.[node.id]
               const shape = shapeOf(node.shape, node.color)
+              const busy = load?.get(node.label.toLowerCase())
               return (
-                <g key={node.id} className={cls} data-node={node.id}>
+                <g key={node.id} className={`${cls}${busy ? ` has-load ${busyLevel(busy.utilization)}` : ''}`} data-node={node.id}>
                   {/* A plain fill under the sketch, so arrows don't show through the words. */}
                   <path className="sk-base" d={shapePath(shape, p.x, p.y, p.w, p.h)} />
                   <Sketch paths={sketches?.nodes.get(node.id) ?? []} />
@@ -357,7 +364,14 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
                     </span>
                     <span className="d2-card-text">
                       <strong>{node.label}</strong>
-                      {subtitle && <small>{subtitle}</small>}
+                      {/* During a load test, how busy the box is takes the place of its role line. */}
+                      {busy ? (
+                        <span className={`d2-load ${busyLevel(busy.utilization)}`} title={`${busy.meanQueue.toFixed(1)} requests waiting on average`}>
+                          {Math.round(busy.utilization * 100)}% busy
+                        </span>
+                      ) : (
+                        subtitle && <small>{subtitle}</small>
+                      )}
                     </span>
                   </motion.div>
                 </foreignObject>

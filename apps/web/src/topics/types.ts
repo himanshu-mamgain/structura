@@ -18,7 +18,7 @@ export interface StaticTopic {
   explanation: Explanation
   /** Lets the walkthrough run on the user's own input. */
   simulator?: Simulator
-  /** Lets the 3D lab put real load through the design. */
+  /** Lets the load test put real load through the design. */
   loadTest?: LoadTest
   /** A narrated explainer video (rendered by apps/video into public/videos). */
   video?: string

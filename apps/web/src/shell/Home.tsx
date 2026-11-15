@@ -59,7 +59,7 @@ export function Home({
         <h1>Learn system design by seeing it work</h1>
         <p>
           Every topic is a live architecture: click any component to see what it does, follow a real request step by step, switch parts off to
-          see what breaks, and put load on it in 3D. Narrated videos, code and interview questions included.
+          see what breaks, and put real load on it. Narrated videos, code and interview questions included.
         </p>
         <div className="hero-actions">
           {/* New learners start with the roadmap; everyone else carries on where they were. */}
