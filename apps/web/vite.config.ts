@@ -16,8 +16,8 @@ export default defineConfig({
         description:
           'Learn system design by seeing it work: interactive architecture diagrams, step-by-step walkthroughs, a 3D load lab, narrated videos, quizzes and progress tracking. Works offline.',
         categories: ['education', 'developer', 'productivity'],
-        theme_color: '#0a0e1a',
-        background_color: '#0a0e1a',
+        theme_color: '#f7f5ef',
+        background_color: '#f7f5ef',
         display: 'standalone',
         orientation: 'any',
         start_url: '/',

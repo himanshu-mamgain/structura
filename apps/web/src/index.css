@@ -1,16 +1,16 @@
 :root {
-  /* One dark theme for everything: panels are glass over the dark 3D city. */
-  --assistant-bg: rgba(18, 20, 28, 0.94);
-  --assistant-fg: #eef0f6;
-  --assistant-muted: #9aa3b5;
-  --assistant-border: rgba(255, 255, 255, 0.1);
-  --assistant-accent: #8ab4ff;
-  --assistant-danger: #ff6b81;
-  --assistant-input: rgba(255, 255, 255, 0.06);
-  --brand: #d4ff3f;
+  /* Warm Paper everywhere; the 3D city keeps its own dark sky. */
+  --assistant-bg: rgba(255, 253, 248, 0.94);
+  --assistant-fg: var(--text);
+  --assistant-muted: var(--muted);
+  --assistant-border: rgba(41, 45, 50, 0.1);
+  --assistant-accent: #2e63b8;
+  --assistant-danger: #b4443a;
+  --assistant-input: rgba(41, 45, 50, 0.06);
+  --brand: #557c72;
   --dock-h: calc(66px + env(safe-area-inset-bottom));
   --top-h: calc(58px + env(safe-area-inset-top));
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html,

@@ -10,20 +10,21 @@ import { edgeSketch, groupSketch, type NodeShape, nodeSketch, roundedRectPath, s
 // cloud) joined by hand-drawn arrows. Pans with a drag, zooms with the buttons or
 // ctrl + wheel, and dims everything but the boxes in focus, where a packet travels.
 
+// Marker-pen inks that read well on the warm paper background.
 const COLORS: Record<string, string> = {
-  black: '#9ca3af',
-  grey: '#94a3b8',
-  'light-violet': '#c4b5fd',
-  violet: '#a78bfa',
-  blue: '#60a5fa',
-  'light-blue': '#7dd3fc',
-  yellow: '#facc15',
-  orange: '#fb923c',
-  green: '#34d399',
-  'light-green': '#86efac',
-  'light-red': '#fca5a5',
-  red: '#f87171',
-  white: '#e5e7eb',
+  black: '#4a4e55',
+  grey: '#77736b',
+  'light-violet': '#8a6fc4',
+  violet: '#6b4fb3',
+  blue: '#2e63b8',
+  'light-blue': '#2a7fa3',
+  yellow: '#a37a00',
+  orange: '#b8611f',
+  green: '#2f7a55',
+  'light-green': '#4f9a6c',
+  'light-red': '#c0605a',
+  red: '#b4443a',
+  white: '#4a4e55',
 }
 
 const PAD = 40
@@ -244,7 +245,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
       const broken = Boolean(failed?.has(edge.from) || failed?.has(edge.to))
       const { from: p, to: q, horizontal } = sides(a, b)
       const { d, mid, c2 } = curve(p, q, horizontal)
-      const color = broken ? '#f87171' : (COLORS[from?.color ?? 'grey'] ?? COLORS.grey)
+      const color = broken ? '#b4443a' : (COLORS[from?.color ?? 'grey'] ?? COLORS.grey)
       return { d, mid, color, broken, paths: edgeSketch(`${edge.from}>${edge.to}#${i}`, d, q, c2, color, Boolean(edge.dashed || broken)) }
     })
     return { groups, nodes, edges }
