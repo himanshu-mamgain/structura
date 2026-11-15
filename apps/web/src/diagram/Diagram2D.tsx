@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { motion } from 'motion/react'
 import { layout, type Layout, type LayoutDiagram, type Placed } from '../board/layout'
 import { iconFor } from './icons'
+import { edgeSketch, groupSketch, type NodeShape, nodeSketch, roundedRectPath, shapePath, type SketchPath } from './sketch'
 
-// A flat, crisp drawing of a diagram: the same ELK layout the 3D view uses,
-// drawn as glowing component cards (icon, name, one-line role) joined by
-// flowing dashed arrows. Pans with a drag, zooms with the buttons or ctrl +
-// wheel, and dims everything but the boxes in focus, where a packet travels.
+// A hand-drawn drawing of a diagram, like a whiteboard sketch (rough.js): the same
+// ELK layout the 3D view uses, with sketchy boxes (icon, name, one-line role) whose
+// shape says what they are (people are ovals, data stores cylinders, the internet a
+// cloud) joined by hand-drawn arrows. Pans with a drag, zooms with the buttons or
+// ctrl + wheel, and dims everything but the boxes in focus, where a packet travels.
 
 const COLORS: Record<string, string> = {
   black: '#9ca3af',
@@ -46,13 +48,34 @@ function sides(a: Placed, b: Placed) {
   return { from: { x: ac.x, y: ac.y + (s * a.h) / 2 }, to: { x: bc.x, y: bc.y - (s * b.h) / 2 }, horizontal }
 }
 
-/** An S-shaped curve between two side midpoints, and the point halfway along it (for the label). */
+/** An S-shaped curve between two side midpoints, the point halfway along it (for the label), and its last control point (for the arrowhead). */
 function curve(from: { x: number; y: number }, to: { x: number; y: number }, horizontal: boolean) {
   const mx = (from.x + to.x) / 2
   const my = (from.y + to.y) / 2
   const c1 = horizontal ? { x: mx, y: from.y } : { x: from.x, y: my }
   const c2 = horizontal ? { x: mx, y: to.y } : { x: to.x, y: my }
-  return { d: `M${from.x},${from.y} C${c1.x},${c1.y} ${c2.x},${c2.y} ${to.x},${to.y}`, mid: { x: mx, y: my } }
+  return { d: `M${from.x},${from.y} C${c1.x},${c1.y} ${c2.x},${c2.y} ${to.x},${to.y}`, mid: { x: mx, y: my }, c2 }
+}
+
+/** What a box is drawn as: data stores (green) as cylinders, the rest by their shape. */
+const shapeOf = (shape: string, color: string): NodeShape =>
+  shape === 'rectangle' && color === 'green' ? 'cylinder' : (['ellipse', 'diamond', 'hexagon', 'cloud'].includes(shape) ? shape : 'rectangle') as NodeShape
+
+function Sketch({ paths }: { paths: SketchPath[] }) {
+  return (
+    <>
+      {paths.map((p, i) => (
+        <path
+          key={i}
+          className={p.kind === 'fill' ? 'sk-fill' : 'sk-stroke'}
+          d={p.d}
+          stroke={p.stroke}
+          strokeWidth={p.strokeWidth}
+          fill={p.fill ?? 'none'}
+        />
+      ))}
+    </>
+  )
 }
 
 export interface Diagram2DProps {
@@ -197,6 +220,36 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     if (d) setView((v) => ({ ...v, x: d.vx + e.clientX - d.x, y: d.vy + e.clientY - d.y }))
   }
 
+  // The hand-drawn shapes, made once per layout (each has a fixed seed, so they don't wobble).
+  const sketches = useMemo(() => {
+    if (!placed) return null
+    const groups = new Map<string, SketchPath[]>()
+    for (const g of diagram.groups) {
+      const p = placed.groups.get(g.id)
+      if (p) groups.set(g.id, groupSketch(g.id, p.x, p.y, p.w, p.h))
+    }
+    const nodes = new Map<string, SketchPath[]>()
+    for (const n of diagram.nodes) {
+      const p = placed.nodes.get(n.id)
+      if (!p) continue
+      const color = COLORS[n.color] ?? COLORS.grey
+      nodes.set(n.id, n.table ? nodeSketch(n.id, 'rectangle', p.x, p.y, p.w, p.h, color) : nodeSketch(n.id, shapeOf(n.shape, n.color), p.x, p.y, p.w, p.h, color))
+    }
+    // Arrows: drawn red and dashed when either end is down.
+    const edges = diagram.edges.map((edge, i) => {
+      const a = placed.nodes.get(edge.from)
+      const b = placed.nodes.get(edge.to)
+      if (!a || !b) return null
+      const from = diagram.nodes.find((n) => n.id === edge.from)
+      const broken = Boolean(failed?.has(edge.from) || failed?.has(edge.to))
+      const { from: p, to: q, horizontal } = sides(a, b)
+      const { d, mid, c2 } = curve(p, q, horizontal)
+      const color = broken ? '#f87171' : (COLORS[from?.color ?? 'grey'] ?? COLORS.grey)
+      return { d, mid, color, broken, paths: edgeSketch(`${edge.from}>${edge.to}#${i}`, d, q, c2, color, Boolean(edge.dashed || broken)) }
+    })
+    return { groups, nodes, edges }
+  }, [placed, diagram, failed])
+
   const inFocus = focus ? new Set(focus.map(normalize)) : null
   const nodeFocused = (label: string, tableName?: string) => {
     if (!inFocus) return true
@@ -223,18 +276,12 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
             viewBox={`${-PAD} ${-PAD} ${placed.w + PAD * 2} ${placed.h + PAD * 2}`}
             style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})` }}
           >
-            <defs>
-              <marker id="d2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
-              </marker>
-            </defs>
-
             {diagram.groups.map((group) => {
               const p = placed.groups.get(group.id)
               if (!p) return null
               return (
                 <g key={group.id} className="d2-group">
-                  <rect x={p.x} y={p.y} width={p.w} height={p.h} rx={18} />
+                  <Sketch paths={sketches?.groups.get(group.id) ?? []} />
                   <text x={p.x + 18} y={p.y + 30}>
                     {group.label.toUpperCase()}
                   </text>
@@ -243,25 +290,20 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
             })}
 
             {diagram.edges.map((edge, i) => {
-              const a = placed.nodes.get(edge.from)
-              const b = placed.nodes.get(edge.to)
-              if (!a || !b) return null
+              const sketch = sketches?.edges[i]
+              if (!sketch) return null
               const from = diagram.nodes.find((n) => n.id === edge.from)!
               const to = diagram.nodes.find((n) => n.id === edge.to)!
               const lit = nodeFocused(from.label, from.table?.lines[0]) && nodeFocused(to.label, to.table?.lines[0])
-              const broken = failed?.has(edge.from) || failed?.has(edge.to)
-              const { from: p, to: q, horizontal } = sides(a, b)
-              const { d, mid } = curve(p, q, horizontal)
               // Arrows take the colour of where they start, like the request leaving that box.
-              const color = broken ? '#f87171' : (COLORS[from.color] ?? COLORS.grey)
+              const { d, mid, color, broken } = sketch
               return (
                 <g
                   key={i}
                   className={`d2-edge${edge.dashed ? ' is-dashed' : ''}${inFocus ? (lit ? ' is-lit' : ' is-dim') : ''}${broken ? ' is-broken' : ''}`}
                   style={{ color }}
                 >
-                  <path className="d2-edge-glow" d={d} />
-                  <path className="d2-edge-flow" d={d} markerEnd="url(#d2-arrow)" />
+                  <Sketch paths={sketch.paths} />
                   {inFocus && lit && !broken && (
                     // A packet travelling along the arrows of the step in focus.
                     <circle className="d2-packet" r={5}>
@@ -286,7 +328,10 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
               if (node.table) {
                 const [name, ...columns] = node.table.lines
                 return (
-                  <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
+                  <g key={node.id} className={cls} data-node={node.id}>
+                    <path className="sk-base" d={roundedRectPath(p.x, p.y, p.w, p.h, 12)} />
+                    <Sketch paths={sketches?.nodes.get(node.id) ?? []} />
+                  <foreignObject x={p.x} y={p.y} width={p.w} height={p.h}>
                     <motion.div
                       className="d2-table"
                       style={{ borderColor: color, ['--glow' as string]: color }}
@@ -300,19 +345,24 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
                       ))}
                     </motion.div>
                   </foreignObject>
+                  </g>
                 )
               }
               const Icon = iconFor(node.label)
               const subtitle = subtitles?.[node.id]
+              const shape = shapeOf(node.shape, node.color)
               return (
-                <foreignObject key={node.id} x={p.x} y={p.y} width={p.w} height={p.h} className={cls} data-node={node.id}>
+                <g key={node.id} className={cls} data-node={node.id}>
+                  {/* A plain fill under the sketch, so arrows don't show through the words. */}
+                  <path className="sk-base" d={shapePath(shape, p.x, p.y, p.w, p.h)} />
+                  <Sketch paths={sketches?.nodes.get(node.id) ?? []} />
+                <foreignObject x={p.x} y={p.y} width={p.w} height={p.h}>
                   <motion.div
-                    className={`d2-card is-${node.shape}`}
+                    className={`d2-card is-${shape}`}
                     style={{ ['--glow' as string]: color }}
-                    initial={{ opacity: 0, y: 14, scale: 0.94 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    whileHover={{ scale: 1.035 }}
-                    transition={{ delay: index * 0.045, type: 'spring', stiffness: 240, damping: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.04, type: 'spring', stiffness: 240, damping: 22 }}
                   >
                     <span className="d2-card-icon">
                       <Icon size={22} strokeWidth={2} aria-hidden />
@@ -323,6 +373,7 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
                     </span>
                   </motion.div>
                 </foreignObject>
+                </g>
               )
             })}
           </svg>
