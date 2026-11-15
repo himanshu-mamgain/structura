@@ -15,6 +15,10 @@ export interface TopicProgress {
   storyRead?: boolean
   /** Finished the walkthrough to its last step. */
   walked?: boolean
+  /** Lesson mode: the card to resume at, and whether the lesson was finished (with its quiz score). */
+  lessonStep?: number
+  lessonDone?: boolean
+  lessonScore?: number
   videoTime?: number
   videoDuration?: number
   lastWatchedAt?: number

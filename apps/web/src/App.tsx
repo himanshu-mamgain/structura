@@ -18,6 +18,8 @@ import type { StaticTopic } from './topics/types'
 const TopicView = lazy(() => import('./shell/TopicView').then((m) => ({ default: m.TopicView })))
 // Read mode (?topic=…&read): the same topic as one article.
 const Reader = lazy(() => import('./shell/Reader').then((m) => ({ default: m.Reader })))
+// Lesson mode (?topic=…&learn): the topic as short cards over the diagram, then a quick check.
+const Lesson = lazy(() => import('./shell/Lesson').then((m) => ({ default: m.Lesson })))
 // Other pages load when first visited, so the home page starts with less to download.
 const Explore = lazy(() => import('./shell/Explore').then((m) => ({ default: m.Explore })))
 const NoteView = lazy(() => import('./shell/Notes').then((m) => ({ default: m.NoteView })))
@@ -48,6 +50,7 @@ function readRoute() {
     reel: query.get('reel'),
     noteId: query.get('note'),
     read: query.has('read'),
+    learn: query.has('learn'),
   }
 }
 
@@ -136,6 +139,11 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  function openLearn(next: TopicMeta) {
+    navigate(`?topic=${next.id}&learn`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openPage(page: Page) {
     navigate(`?page=${page}`)
     window.scrollTo({ top: 0 })
@@ -180,9 +188,10 @@ export default function App() {
   }
 
   const reels = !meta && route.page === 'reels'
+  const lessonOpen = Boolean(meta && route.learn)
 
   return (
-    <div className={`shell${reels ? ' is-reels' : ''}`}>
+    <div className={`shell${reels ? ' is-reels' : ''}${lessonOpen ? ' is-lesson' : ''}`}>
       <div className="main">
         <header className="appbar">
           <button type="button" className="brand" onClick={() => open(null)} aria-label="Structura, home">
@@ -223,10 +232,21 @@ export default function App() {
             {meta ? (
               topic ? (
                 <Suspense fallback={<TopicLoading meta={meta} />}>
-                  {route.read ? (
-                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} onOpen={open} onArea={openArea} />
+                  {route.learn ? (
+                    <Lesson key={topic.id} topic={topic} onExit={() => open(meta)} onRead={() => openRead(meta)} onLearn={openLearn} />
+                  ) : route.read ? (
+                    <Reader key={topic.id} topic={topic} onExit={() => open(meta)} onRead={openRead} onOpen={open} onArea={openArea} onLearn={() => openLearn(meta)} />
                   ) : (
-                    <TopicView key={topic.id} topic={topic} board={board} openLoad={openLoad} onNote={openNote} onRead={() => openRead(meta)} onArea={openArea} />
+                    <TopicView
+                      key={topic.id}
+                      topic={topic}
+                      board={board}
+                      openLoad={openLoad}
+                      onNote={openNote}
+                      onRead={() => openRead(meta)}
+                      onLearn={() => openLearn(meta)}
+                      onArea={openArea}
+                    />
                   )}
                 </Suspense>
               ) : (
@@ -262,6 +282,7 @@ export default function App() {
                 }}
                 onOpen={open}
                 onRead={openRead}
+                onLearn={openLearn}
               />
             ) : route.page === 'explore' ? (
               <Explore

@@ -48,7 +48,9 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
     phones and in the top bar from 1024px), `Home.tsx` (reels row first), `Explore.tsx`
     (search, topic grid, library), `Reels.tsx` (full-screen video feed), `Search.tsx`,
-    `TopicView.tsx`, `Practice.tsx`, `Roadmap.tsx` (where to start: each area's track in four
+    `TopicView.tsx`, `Reader.tsx` (Read mode, `?topic=<id>&read`), `Lesson.tsx` (Lesson mode,
+    `?topic=<id>&learn`: swipeable cards that light up the diagram, then a quick check; the
+    diagram sits above the card on phones and beside it from 768px), `Practice.tsx`, `Roadmap.tsx` (where to start: each area's track in four
     stages, Foundations → Intermediate → Advanced → Expert, of small module cards from
     `src/learn/roadmap.ts`; a card opens its steps at `?page=roadmap&part=<id>`), `topicIcons.ts`. There's no sidebar: anything fixed
     to the bottom of the screen sits above the tab bar (`bottom: calc(… + var(--tabbar))`).
@@ -116,6 +118,12 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      (`**Q: …**` then `A: …`), related topics (`/?topic=<id>&read` links), sources and
      `## Why This Matters`. `docker-vs-vm.md` is the model; `src/learn/markdown.ts` lists the
      Markdown it reads (tables, code fences, callouts, nested lists).
+   - **Lesson** (`src/topics/lessons/<id>.ts`, recommended): Lesson mode's cards, in Simple
+     English (see "Style"). 7 to 10 cards, each a `title`, a `text` of 2 to 4 short sentences, and
+     optionally `focus` (exact node labels to light up), an `example` (a command, a worked number,
+     a few lines of JSON) and a one-line `remember`. Then exactly 3 questions with 4 options, the
+     `answer` index (vary where the right one sits) and a `why`. `npm run catalog` stops if a focus
+     label isn't a box in the diagram. `docker-vs-vm.ts` is the model.
 2. **Register it** in `src/topics/index.ts` (`STATIC_TOPICS`), **give it an area** in `AREA_OF`
    (`src/topics/areas.ts`: `development`, `infra`, `databases` or `ai`; the build stops without one),
    and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a module of the same area and the
@@ -240,6 +248,15 @@ to topics; add words to its `ALIASES` to link more). Format and encryption:
 
 ## Style
 
-- Explanations: short, plain sentences; define a term the first time it appears.
+- **Simple English** for everything a learner reads (summaries, sections, walkthrough steps,
+  takeaways, deep notes, lessons). Write for someone new to the topic whose first language may
+  not be English:
+  - Short sentences, one idea each (about 20 words at most). Say "you"; prefer active verbs.
+  - Everyday words: "use", not "utilise"; "start", not "instantiate"; "split", not "partition"
+    unless partition is the term being taught.
+  - Keep the real term, and explain it in plain words the first time: "A hypervisor is software
+    that splits one real server into several pretend computers."
+  - Give one concrete example (a real command, a worked number, the food-delivery app) rather
+    than another abstract sentence. No idioms or jokes that don't translate.
 - Comments in code explain why, not what. Match the surrounding code style.
 - Commit messages: conventional (`feat:`, `fix:`), imperative, one subject line.

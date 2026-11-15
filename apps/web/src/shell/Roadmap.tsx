@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, BookOpenText, CheckCircle2, ChevronRight, Circle, Database, ExternalLink, Hammer, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, BookOpenText, CheckCircle2, ChevronRight, Circle, Database, ExternalLink, GraduationCap, Hammer, Sparkles } from 'lucide-react'
 import { ECOSYSTEM } from '../ecosystem'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
 import {
@@ -18,6 +18,7 @@ import {
 import { areaById, AREAS, type AreaId } from '../topics/areas'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import type { Guide } from '../topics/library'
+import { hasLesson } from '../topics/lessonsIndex'
 import { useLibrary } from '../topics/useLibrary'
 import { AREA_ICON, AreaChips } from './Areas'
 import { topicIcon } from './topicIcons'
@@ -50,6 +51,7 @@ export function Roadmap({
   onPart,
   onOpen,
   onRead,
+  onLearn,
 }: {
   area: AreaId | null
   partId: string | null
@@ -57,10 +59,11 @@ export function Roadmap({
   onPart: (id: string) => void
   onOpen: (topic: TopicMeta) => void
   onRead: (topic: TopicMeta) => void
+  onLearn: (topic: TopicMeta) => void
 }) {
   const part = partById(partId)
-  if (part) return <Module part={part} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} />
-  return <Overview area={area} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} />
+  if (part) return <Module part={part} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} onLearn={onLearn} />
+  return <Overview area={area} onArea={onArea} onPart={onPart} onOpen={onOpen} onRead={onRead} onLearn={onLearn} />
 }
 
 /** Every track (or one), stage by stage, as cards. */
@@ -70,12 +73,14 @@ function Overview({
   onPart,
   onOpen,
   onRead,
+  onLearn,
 }: {
   area: AreaId | null
   onArea: (area: AreaId | null) => void
   onPart: (id: string) => void
   onOpen: (topic: TopicMeta) => void
   onRead: (topic: TopicMeta) => void
+  onLearn: (topic: TopicMeta) => void
 }) {
   const progress = useProgress()
   const a = area ? areaById(area) : null
@@ -145,7 +150,7 @@ function Overview({
           <p className="roadmap-track-note">New since the roadmap was written.</p>
           <ol className="card roadmap-steps">
             {extra.map((t) => (
-              <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} onRead={onRead} />
+              <Step key={t.id} step={{ id: `topic-${t.id}`, title: t.title, detail: t.blurb, topic: t.id }} isNext={false} onOpen={onOpen} onRead={onRead} onLearn={onLearn} />
             ))}
           </ol>
         </section>
@@ -244,12 +249,14 @@ function Module({
   onPart,
   onOpen,
   onRead,
+  onLearn,
 }: {
   part: RoadmapPart
   onArea: (area: AreaId | null) => void
   onPart: (id: string) => void
   onOpen: (topic: TopicMeta) => void
   onRead: (topic: TopicMeta) => void
+  onLearn: (topic: TopicMeta) => void
 }) {
   const progress = useProgress()
   const d = partDone(part, progress)
@@ -278,7 +285,7 @@ function Module({
       </header>
       <ol className="card roadmap-steps">
         {part.steps.map((step) => (
-          <Step key={step.id} step={step} isNext={firstUndone?.id === step.id} onOpen={onOpen} onRead={onRead} />
+          <Step key={step.id} step={step} isNext={firstUndone?.id === step.id} onOpen={onOpen} onRead={onRead} onLearn={onLearn} />
         ))}
       </ol>
       {after && (
@@ -293,7 +300,19 @@ function Module({
   )
 }
 
-function Step({ step, isNext, onOpen, onRead }: { step: RoadmapStep; isNext: boolean; onOpen: (topic: TopicMeta) => void; onRead: (topic: TopicMeta) => void }) {
+function Step({
+  step,
+  isNext,
+  onOpen,
+  onRead,
+  onLearn,
+}: {
+  step: RoadmapStep
+  isNext: boolean
+  onOpen: (topic: TopicMeta) => void
+  onRead: (topic: TopicMeta) => void
+  onLearn: (topic: TopicMeta) => void
+}) {
   const progress = useProgress()
   const lib = useLibrary()
   const topic = step.topic ? topicById.get(step.topic) : undefined
@@ -325,6 +344,11 @@ function Step({ step, isNext, onOpen, onRead }: { step: RoadmapStep; isNext: boo
             <button type="button" className="roadmap-topic" onClick={() => onOpen(topic)}>
               <Icon size={15} aria-hidden /> {topic.title}
               <span>{readiness(topic, progress.topics[topic.id])}% ready</span>
+            </button>
+          )}
+          {topic && hasLesson(topic.id) && (
+            <button type="button" className="roadmap-read is-learn" onClick={() => onLearn(topic)} title={`Learn ${topic.title} in short steps`}>
+              <GraduationCap size={14} aria-hidden /> Learn
             </button>
           )}
           {topic && (

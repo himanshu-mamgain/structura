@@ -94,6 +94,8 @@ export interface Diagram2DProps {
   subtitles?: Record<string, string>
   /** Always start with the whole diagram in view, however small (a figure in an article). */
   fitAll?: boolean
+  /** Always fit every box in focus, however small, instead of zooming to a readable size (a lesson card's figure). */
+  focusFit?: boolean
 }
 
 /** Card size: room for the icon tile, the name and the subtitle line. */
@@ -102,7 +104,7 @@ const cardSize = (label: string, subtitle?: string) => ({
   height: subtitle ? 78 : 64,
 })
 
-export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles, fitAll = false }: Diagram2DProps) {
+export function Diagram2D({ diagram, focus, className = '', selected = null, failed, onSelect, subtitles, fitAll = false, focusFit = false }: Diagram2DProps) {
   const [placed, setPlaced] = useState<Layout | null>(null)
   const [view, setView] = useState({ scale: 1, x: 0, y: 0 })
   const host = useRef<HTMLDivElement>(null)
@@ -169,7 +171,10 @@ export function Diagram2D({ diagram, focus, className = '', selected = null, fai
     const maxY = Math.max(...hits.map((p) => p.y + p.h))
     const w = host.current.clientWidth
     const h = host.current.clientHeight - CAPTION_SPACE
-    const scale = Math.min(1.1, Math.max(0.55, Math.min(w / (maxX - minX + 200), h / (maxY - minY + 160))))
+    // A lesson's small figure keeps every box in focus in view; elsewhere they stay readable.
+    const fitW = w / (maxX - minX + (focusFit ? Math.min(120, w * 0.12) : 200))
+    const fitH = h / (maxY - minY + (focusFit ? Math.min(100, h * 0.15) : 160))
+    const scale = Math.min(1.1, Math.max(focusFit ? 0.25 : 0.55, Math.min(fitW, fitH)))
     const cx = (minX + maxX) / 2 + PAD
     const cy = (minY + maxY) / 2 + PAD
     setView({ scale, x: w / 2 - cx * scale, y: h / 2 - cy * scale })
