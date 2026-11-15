@@ -825,6 +825,51 @@ export function topK(query, items, k = 10) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Comparator;
+import java.util.List;
+
+public class ExactSearch {
+  public record Item(String id, float[] vector) {}
+
+  public record Scored(String id, double score) {}
+
+  // Brute force: exact, simple, and fine up to about 100,000 vectors.
+  static float[] normalise(float[] v) {
+    double n = 0;
+    for (float x : v) n += x * x;
+    n = Math.sqrt(n);
+    float[] unit = new float[v.length];
+    for (int i = 0; i < v.length; i++) unit[i] = (float) (v[i] / n);
+    return unit;
+  }
+
+  // On unit vectors, cosine similarity is just the dot product.
+  static double dot(float[] a, float[] b) {
+    double s = 0;
+    for (int i = 0; i < a.length; i++) s += a[i] * b[i];
+    return s;
+  }
+
+  // Items are stored normalised, so each comparison is one dot product.
+  static List<Scored> topK(float[] query, List<Item> items, int k) {
+    float[] q = normalise(query);
+    return items.stream()
+        .map(it -> new Scored(it.id(), dot(q, it.vector())))
+        .sorted(Comparator.comparingDouble(Scored::score).reversed())
+        .limit(k)
+        .toList();
+  }
+
+  public static void main(String[] args) {
+    List<Item> items = List.of(
+        new Item("goa-villa", normalise(new float[] {0.9f, 0.1f})),
+        new Item("delhi-flat", normalise(new float[] {0.1f, 0.9f})));
+    System.out.println(topK(new float[] {1, 0}, items, 1).get(0).id()); // goa-villa
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `// Brute force: exact, simple, and fine up to about 100,000 vectors.
 export function normalise(v: Float32Array): Float32Array {
@@ -905,6 +950,61 @@ export async function search(queryVector) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import io.milvus.v2.client.ConnectConfig;
+import io.milvus.v2.client.MilvusClientV2;
+import io.milvus.v2.common.IndexParam;
+import io.milvus.v2.service.index.request.CreateIndexReq;
+import io.milvus.v2.service.vector.request.SearchReq;
+import io.milvus.v2.service.vector.request.data.FloatVec;
+import io.milvus.v2.service.vector.response.SearchResp.SearchResult;
+
+// FAISS has no official Java binding; Milvus builds the same kind of index from Java.
+public class ListingSearch {
+  private final MilvusClientV2 milvus =
+      new MilvusClientV2(ConnectConfig.builder().uri("http://localhost:19530").build());
+
+  public void buildIndex() {
+    IndexParam ivfPq = IndexParam.builder()
+        .fieldName("vector")
+        .indexType(IndexParam.IndexType.IVF_PQ)
+        .metricType(IndexParam.MetricType.COSINE)
+        .extraParams(Map.of("nlist", 4000, "m", 96, "nbits", 8)) // 4,000 clusters; 96 bytes a vector
+        .build();
+    milvus.createIndex(CreateIndexReq.builder().collectionName("listings").indexParams(List.of(ivfPq)).build());
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<SearchResult> search(float[] query) {
+    List<SearchResult> candidates = milvus.search(SearchReq.builder()
+        .collectionName("listings")
+        .data(List.of(new FloatVec(query)))
+        .searchParams(Map.of("nprobe", 64)) // clusters searched per query
+        .topK(50) // PQ scores are approximate, so take 50 candidates...
+        .outputFields(List.of("vector")) // ...with their full vectors
+        .build()).getSearchResults().get(0);
+    // ...and re-rank them exactly to return the best 10.
+    return candidates.stream()
+        .sorted(Comparator.comparingDouble(r -> -cosine(query, (List<Float>) r.getEntity().get("vector"))))
+        .limit(10)
+        .toList();
+  }
+
+  static double cosine(float[] q, List<Float> v) {
+    double dot = 0, qq = 0, vv = 0;
+    for (int i = 0; i < q.length; i++) {
+      dot += q[i] * v.get(i);
+      qq += q[i] * q[i];
+      vv += v.get(i) * v.get(i);
+    }
+    return dot / Math.sqrt(qq * vv);
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `import faiss
 import numpy as np
@@ -962,6 +1062,66 @@ for (const ef of [10, 64, 200]) {
   console.log(\`ef=\${ef}: recall@10 = \${recall.toFixed(3)}\`)
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import com.github.jelmerk.hnswlib.core.DistanceFunctions;
+import com.github.jelmerk.hnswlib.core.Index;
+import com.github.jelmerk.hnswlib.core.Item;
+import com.github.jelmerk.hnswlib.core.SearchResult;
+import com.github.jelmerk.hnswlib.core.hnsw.HnswIndex;
+
+public class HnswRecall {
+  record Listing(Integer id, float[] vector) implements Item<Integer, float[]> {
+    public int dimensions() { return vector.length; }
+  }
+
+  public static void main(String[] args) throws Exception {
+    int dim = 768;
+    // listing_vectors.f32: every vector's 768 float32s (little-endian), one vector after another.
+    FloatBuffer floats = ByteBuffer.wrap(Files.readAllBytes(Path.of("listing_vectors.f32")))
+        .order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+    List<Listing> items = new ArrayList<>();
+    for (int i = 0; floats.hasRemaining(); i++) {
+      float[] v = new float[dim];
+      floats.get(v);
+      items.add(new Listing(i, v));
+    }
+
+    HnswIndex<Integer, float[], Listing, Float> index = HnswIndex
+        .newBuilder(dim, DistanceFunctions.FLOAT_COSINE_DISTANCE, items.size())
+        .withM(16).withEfConstruction(200) // M = 16 links a node
+        .build();
+    index.addAll(items);
+    Index<Integer, float[], Listing, Float> exact = index.asExactIndex(); // ground truth: a full scan
+
+    List<float[]> queries = new Random().ints(100, 0, items.size()).mapToObj(i -> items.get(i).vector()).toList();
+    List<Set<Integer>> truth = queries.stream().map(q -> ids(exact.findNearest(q, 10))).toList();
+
+    for (int ef : new int[] {10, 64, 200}) {
+      index.setEf(ef); // search width: higher finds more, slower
+      double found = 0;
+      for (int i = 0; i < queries.size(); i++) {
+        Set<Integer> got = ids(index.findNearest(queries.get(i), 10));
+        got.retainAll(truth.get(i));
+        found += got.size();
+      }
+      System.out.printf("ef=%d: recall@10 = %.3f%n", ef, found / (queries.size() * 10));
+    }
+  }
+
+  static Set<Integer> ids(List<SearchResult<Listing, Float>> results) {
+    Set<Integer> ids = new HashSet<>();
+    for (var r : results) ids.add(r.item().id());
+    return ids;
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import hnswlib

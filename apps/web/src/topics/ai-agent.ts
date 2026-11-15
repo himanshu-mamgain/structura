@@ -528,6 +528,56 @@ The team added three things:
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class AgentLoop {
+  public interface Tool {
+    Object run(Map<String, Object> args, String idempotencyKey) throws Exception;
+  }
+
+  public interface Model {
+    Reply ask(List<Map<String, Object>> messages) throws Exception;
+  }
+
+  public record Call(String tool, Map<String, Object> args) {}
+
+  public record Reply(String answer, Call call) {} // one of the two is set
+
+  public record Outcome(boolean done, String text) {}
+
+  private static final ObjectMapper json = new ObjectMapper();
+
+  public static Outcome runAgent(Model model, Map<String, Tool> tools, Set<String> allowed,
+      List<Map<String, Object>> messages, int maxSteps) throws Exception {
+    for (int step = 1; step <= maxSteps; step++) {
+      Reply reply = model.ask(messages);
+      if (reply.call() == null) return new Outcome(true, reply.answer());
+      String tool = reply.call().tool();
+      Object result;
+      if (!allowed.contains(tool) || !tools.containsKey(tool)) {
+        result = Map.of("error", tool + " is not allowed here"); // the model learns it can't, nothing runs
+      } else {
+        // Same intended action, same key, on every retry.
+        String key = tool + ":" + json.writeValueAsString(reply.call().args());
+        try {
+          result = tools.get(tool).run(reply.call().args(), key);
+        } catch (Exception e) {
+          result = Map.of("error", String.valueOf(e));
+        }
+      }
+      // Results go back as data, clearly marked as coming from a tool.
+      messages.add(Map.of("role", "assistant", "toolCall", reply.call()));
+      messages.add(Map.of("role", "tool", "name", tool, "content", json.writeValueAsString(result)));
+    }
+    return new Outcome(false, "Handing this to a colleague.");
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type ToolCall = { tool: string; args: Record<string, unknown> }
 type Reply = { type: 'tool'; call: ToolCall } | { type: 'answer'; text: string }
@@ -612,6 +662,35 @@ export function check(task, tool, args) {
 assert.equal(check('rebook_flight', 'issue_refund', { amount: 11200 }), 'approval')`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+import java.util.Set;
+
+public class ToolPolicy {
+  record Rules(Set<String> allowed, Set<String> needsApproval) {}
+
+  static final Map<String, Rules> POLICY = Map.of(
+      "rebook_flight", new Rules(
+          Set.of("get_booking", "search_flights", "rebook", "send_email"),
+          Set.of("issue_refund")));
+
+  static String check(String task, String tool, Map<String, Long> args) {
+    Rules rules = POLICY.get(task);
+    if (rules.needsApproval().contains(tool)) return "approval"; // park the call; a support lead decides
+    if (!rules.allowed().contains(tool)) return "deny"; // the model gets an error back, nothing runs
+    if (tool.equals("rebook") && args.getOrDefault("charge_inr", 0L) > 10_000) {
+      return "approval"; // arguments are checked too, not just names
+    }
+    return "allow";
+  }
+
+  public static void main(String[] args) {
+    System.out.println(check("rebook_flight", "issue_refund", Map.of("amount", 11_200L))); // approval
+    System.out.println(check("rebook_flight", "delete_booking", Map.of())); // deny
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `POLICY = {
     "rebook_flight": {
@@ -659,6 +738,50 @@ export async function evaluate(agent) {
   return { passRate: 1 - failed.size / cases.length, failures }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class AgentEval {
+  public interface Agent {
+    Run replay(JsonNode messages, JsonNode toolResults) throws Exception;
+  }
+
+  public record Run(List<String> toolCalls, Map<String, Integer> sideEffects) {}
+
+  public record Failure(String caseId, String reason) {}
+
+  // Fills \`failures\` and returns the share of cases that passed.
+  public static double evaluate(Agent agent, List<Failure> failures) throws Exception {
+    ObjectMapper json = new ObjectMapper();
+    // Each case: a conversation, scripted tool results (including injections and
+    // timeouts), and what must and must not happen.
+    List<String> cases = Files.readAllLines(Path.of("agent_cases.jsonl"));
+    for (String line : cases) {
+      JsonNode c = json.readTree(line);
+      String id = c.get("id").asText();
+      Run run = agent.replay(c.get("messages"), c.get("tool_results"));
+      for (JsonNode forbidden : c.path("must_not_call")) {
+        if (run.toolCalls().contains(forbidden.asText())) {
+          failures.add(new Failure(id, "called a forbidden tool"));
+          break;
+        }
+      }
+      if (run.sideEffects().getOrDefault("bookings", 0) > c.path("max_bookings").asInt(1)) {
+        failures.add(new Failure(id, "duplicate booking"));
+      }
+      if (run.toolCalls().size() > c.path("max_steps").asInt(12)) failures.add(new Failure(id, "too many steps"));
+    }
+    long failed = failures.stream().map(Failure::caseId).distinct().count();
+    return 1 - (double) failed / cases.size();
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import json

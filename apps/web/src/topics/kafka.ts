@@ -319,6 +319,35 @@ export async function orderPaid(orderId, amountInr) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Properties;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+public class OrderEvents {
+  private final KafkaProducer<String, String> producer;
+
+  public OrderEvents() {
+    Properties p = new Properties();
+    p.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-1:9092,kafka-2:9092,kafka-3:9092");
+    p.put(ProducerConfig.ACKS_CONFIG, "all"); // wait for the in-sync replicas
+    p.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true); // retries can't create duplicates in the log
+    p.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    p.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    producer = new KafkaProducer<>(p);
+  }
+
+  public void orderPaid(String orderId, long amountInr) throws Exception {
+    String value = String.format(
+        "{\\"order_id\\":\\"%s\\",\\"amount_inr\\":%d,\\"status\\":\\"PAID\\"}", orderId, amountInr);
+    // The order id is the key, so all of this order's events land on one partition, in order.
+    producer.send(new ProducerRecord<>("orders", orderId, value)).get(); // wait for the ack
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { Kafka } from 'kafkajs'
 
@@ -360,6 +389,52 @@ await consumer.run({
   },
 })`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.Duration;
+import java.util.List;
+import java.util.Properties;
+import javax.sql.DataSource;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+
+public class BillingConsumer {
+  static final String INSERT = "INSERT INTO invoices (order_id, amount_inr, created_at) "
+      + "VALUES (?, ?, now()) ON CONFLICT (order_id) DO NOTHING";
+
+  public static void run(DataSource db) throws Exception {
+    Properties p = new Properties();
+    p.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-1:9092");
+    p.put(ConsumerConfig.GROUP_ID_CONFIG, "billing");
+    p.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false); // commit only after the invoice is written
+    p.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    p.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    ObjectMapper json = new ObjectMapper();
+
+    try (var consumer = new KafkaConsumer<String, String>(p); Connection conn = db.getConnection()) {
+      consumer.subscribe(List.of("orders"));
+      while (true) {
+        for (ConsumerRecord<String, String> record : consumer.poll(Duration.ofMillis(500))) {
+          JsonNode event = json.readTree(record.value());
+          // A redelivered event (after a crash or rebalance) inserts nothing.
+          try (PreparedStatement st = conn.prepareStatement(INSERT)) {
+            st.setString(1, event.get("order_id").asText());
+            st.setLong(2, event.get("amount_inr").asLong());
+            st.executeUpdate();
+          }
+        }
+        consumer.commitSync(); // at-least-once: commit after the batch is written
+      }
+    }
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import { Kafka } from 'kafkajs'

@@ -538,6 +538,37 @@ export async function handler(event) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+// AWS runs one copy per request in flight and bills per request and per millisecond.
+public class MenuHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+  private static final ObjectMapper json = new ObjectMapper(); // made once, reused while the copy stays warm
+
+  @Override
+  public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
+    Map<String, String> params = event.getPathParameters();
+    String restaurantId = params == null ? null : params.get("id");
+    var response = new APIGatewayProxyResponseEvent();
+    if (restaurantId == null) return response.withStatusCode(400).withBody("missing restaurant id");
+    try {
+      Menu menu = loadMenu(restaurantId); // reads from RDS or DynamoDB
+      return response.withStatusCode(200)
+          .withHeaders(Map.of("content-type", "application/json"))
+          .withBody(json.writeValueAsString(menu));
+    } catch (Exception e) {
+      context.getLogger().log("menu " + restaurantId + " failed: " + e);
+      return response.withStatusCode(500).withBody("could not load the menu");
+    }
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda'
 

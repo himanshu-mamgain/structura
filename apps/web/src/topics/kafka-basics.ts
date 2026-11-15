@@ -340,6 +340,33 @@ export async function publish(orderId, type) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.time.Instant;
+import java.util.Properties;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+public class OrderPublisher {
+  private final KafkaProducer<String, String> producer;
+
+  public OrderPublisher() {
+    Properties p = new Properties();
+    p.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    p.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    p.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    producer = new KafkaProducer<>(p);
+  }
+
+  // Same key, same partition: this order's events stay in order.
+  public void publish(String orderId, String type) {
+    String value = String.format("{\\"orderId\\":\\"%s\\",\\"type\\":\\"%s\\",\\"at\\":\\"%s\\"}", orderId, type, Instant.now());
+    producer.send(new ProducerRecord<>("orders", orderId, value));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { Kafka } from 'kafkajs'
 
@@ -377,6 +404,44 @@ await consumer.run({
   },
 })`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.time.Duration;
+import java.util.List;
+import java.util.Properties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+
+public class BillingWorker {
+  public static void main(String[] args) throws Exception {
+    Properties p = new Properties();
+    p.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    p.put(ConsumerConfig.GROUP_ID_CONFIG, "billing"); // every copy with this group id shares the partitions
+    p.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // a new group starts at the beginning
+    p.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+    p.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    p.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    ObjectMapper json = new ObjectMapper();
+
+    try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(p)) {
+      consumer.subscribe(List.of("orders"));
+      while (true) {
+        for (ConsumerRecord<String, String> m : consumer.poll(Duration.ofMillis(500))) {
+          JsonNode event = json.readTree(m.value());
+          upsertInvoice(event); // idempotent: keyed by order id
+          System.out.printf("P%d@%d %s %s%n", m.partition(), m.offset(),
+              event.get("orderId").asText(), event.get("type").asText());
+        }
+        consumer.commitSync(); // commit after processing, so a crash re-reads, never skips
+      }
+    }
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import { Kafka } from 'kafkajs'

@@ -399,6 +399,40 @@ route([{ priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/a
 route([{ priority: 1, path: '/*', target: 'web' }, { priority: 30, path: '/api/*', target: 'api' }], 'shop.example.com', '/api/orders/42') // 'web'`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Comparator;
+import java.util.List;
+
+public class AlbRules {
+  record Rule(int priority, String host, String path, String target) {}
+
+  // ALB path patterns: * matches any run of characters, ? exactly one.
+  static boolean glob(String p, String s) {
+    if (p.isEmpty()) return s.isEmpty();
+    if (p.charAt(0) == '*') return glob(p.substring(1), s) || (!s.isEmpty() && glob(p, s.substring(1)));
+    return !s.isEmpty() && (p.charAt(0) == '?' || p.charAt(0) == s.charAt(0))
+        && glob(p.substring(1), s.substring(1));
+  }
+
+  // Lowest priority number first; the first rule whose conditions all match wins.
+  static String route(List<Rule> rules, String host, String path) {
+    return rules.stream()
+        .sorted(Comparator.comparingInt(Rule::priority))
+        .filter(r -> (r.host() == null || r.host().equals(host)) && (r.path() == null || glob(r.path(), path)))
+        .map(Rule::target)
+        .findFirst()
+        .orElse("web");
+  }
+
+  public static void main(String[] args) {
+    String host = "shop.example.com", path = "/api/orders/42";
+    System.out.println(route(List.of(new Rule(30, null, "/api/*", "api")), host, path)); // api
+    System.out.println(route(List.of(new Rule(1, null, "/*", "web"), new Rule(30, null, "/api/*", "api")),
+        host, path)); // web
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `interface Rule {
   priority: number
@@ -450,6 +484,35 @@ app.listen(3001, async () => {
   await openPool()
   ready = true
 })`,
+        versions: [
+          {
+            language: 'java',
+            source: `import java.util.concurrent.atomic.AtomicBoolean;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class StatusController {
+  private final AtomicBoolean ready = new AtomicBoolean(false);
+
+  // Spring fires this once every bean is up: config loaded, database pool open.
+  @EventListener(ApplicationReadyEvent.class)
+  void started() {
+    ready.set(true);
+  }
+
+  // Answers "should this task get traffic?", fast. It doesn't call other services:
+  // if a shared dependency is down, failing every task's check helps nobody.
+  @GetMapping("/status")
+  ResponseEntity<String> status() {
+    return ready.get() ? ResponseEntity.ok("ok") : ResponseEntity.status(503).body("starting");
+  }
+}`,
+          },
+        ],
       },
       {
         title: 'Why is a target unhealthy? (bash)',

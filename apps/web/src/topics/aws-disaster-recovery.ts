@@ -486,6 +486,33 @@ export async function currentRpoSeconds() {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.model.Datapoint;
+import software.amazon.awssdk.services.cloudwatch.model.Statistic;
+
+public class Rpo {
+  private static final CloudWatchClient cw = CloudWatchClient.builder().region(Region.AP_SOUTH_2).build();
+
+  // ReplicaLag is how far the cross-region replica is behind, in seconds: your RPO right now.
+  public static double currentRpoSeconds() {
+    Instant now = Instant.now();
+    var res = cw.getMetricStatistics(req -> req
+        .namespace("AWS/RDS")
+        .metricName("ReplicaLag")
+        .dimensions(d -> d.name("DBInstanceIdentifier").value("orders-dr"))
+        .startTime(now.minus(5, ChronoUnit.MINUTES))
+        .endTime(now)
+        .period(60)
+        .statistics(Statistic.MAXIMUM));
+    return res.datapoints().stream().mapToDouble(Datapoint::maximum).max().orElse(0);
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { CloudWatchClient, GetMetricStatisticsCommand } from '@aws-sdk/client-cloudwatch'
 

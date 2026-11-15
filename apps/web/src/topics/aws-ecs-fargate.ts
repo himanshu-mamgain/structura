@@ -421,6 +421,28 @@ desiredTasks(8, 75)  // 12
 export const breakerThreshold = (desired) => Math.min(200, Math.max(3, Math.ceil(0.5 * desired)))`,
         versions: [
           {
+            language: 'java',
+            source: `public class TargetTracking {
+  // Target tracking sets capacity in proportion to how far the metric is from its target.
+  static int desiredTasks(int current, double metric, double target, int min, int max) {
+    int want = (int) Math.ceil(current * metric / target);
+    return Math.min(max, Math.max(min, want));
+  }
+
+  // The deployment circuit breaker's failure threshold.
+  static int breakerThreshold(int desired) {
+    return Math.min(200, Math.max(3, (int) Math.ceil(0.5 * desired)));
+  }
+
+  public static void main(String[] args) {
+    System.out.println(desiredTasks(2, 100, 50, 2, 12)); // 4: two tasks at 100% CPU need twice as many
+    System.out.println(desiredTasks(4, 100, 50, 2, 12)); // 8: still saturated a minute later, double again
+    System.out.println(desiredTasks(8, 75, 50, 2, 12)); // 12
+    System.out.println(breakerThreshold(12)); // 6
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `// Target tracking sets capacity in proportion to how far the metric is from its target.
 export function desiredTasks(current: number, metric: number, target = 50, min = 2, max = 12): number {

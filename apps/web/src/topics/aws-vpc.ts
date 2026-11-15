@@ -415,6 +415,37 @@ export const usable = (prefix) => 2 ** (32 - prefix) - 5
 console.log(cidrsubnet('10.0.0.0/16', 8, 3), usable(24)) // 10.0.3.0/24 251`,
         versions: [
           {
+            language: 'java',
+            source: `public class Subnets {
+  static long toInt(String ip) {
+    long n = 0;
+    for (String octet : ip.split("\\\\.")) n = n * 256 + Integer.parseInt(octet);
+    return n;
+  }
+
+  static String toIp(long n) {
+    return (n >> 24 & 255) + "." + (n >> 16 & 255) + "." + (n >> 8 & 255) + "." + (n & 255);
+  }
+
+  // cidrsubnet("10.0.0.0/16", 8, 3) = "10.0.3.0/24"
+  static String cidrsubnet(String cidr, int newBits, int index) {
+    String[] parts = cidr.split("/");
+    int prefix = Integer.parseInt(parts[1]) + newBits;
+    if (index >= 1L << newBits) throw new IllegalArgumentException("index out of range");
+    return toIp(toInt(parts[0]) + ((long) index << (32 - prefix))) + "/" + prefix;
+  }
+
+  // AWS keeps the first four addresses and the last one in every subnet.
+  static long usable(int prefix) {
+    return (1L << (32 - prefix)) - 5;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(cidrsubnet("10.0.0.0/16", 8, 3) + " " + usable(24)); // 10.0.3.0/24 251
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `const toInt = (ip: string) => ip.split('.').reduce((n, o) => n * 256 + Number(o), 0)
 const toIp = (n: number) => [3, 2, 1, 0].map((i) => Math.floor(n / 256 ** i) % 256).join('.')

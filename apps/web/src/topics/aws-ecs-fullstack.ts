@@ -457,6 +457,35 @@ export function failedRequests(share, perMinute = 3000, errorRate = 0.3, thresho
 console.log(failedRequests(shares.allAtOnce), failedRequests(shares.canary10for5), failedRequests(shares.linear10every1)) // 1800 180 270`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.function.IntToDoubleFunction;
+
+public class Rollouts {
+  // Share of traffic on green, minute by minute, for CodeDeploy's ECS configurations.
+  static final IntToDoubleFunction ALL_AT_ONCE = t -> 1;
+  static final IntToDoubleFunction CANARY_10_FOR_5 = t -> t < 5 ? 0.1 : 1;
+  static final IntToDoubleFunction LINEAR_10_EVERY_1 = t -> Math.min(1, 0.1 * (t + 1));
+
+  // Failed requests until an alarm (over 50 errors a minute, 2 minutes running) rolls back.
+  static long failedRequests(IntToDoubleFunction share) {
+    double perMinute = 3000, errorRate = 0.3, threshold = 50, total = 0;
+    int over = 0;
+    for (int t = 0; t < 30; t++) {
+      double errors = share.applyAsDouble(t) * perMinute * errorRate;
+      total += errors;
+      over = errors > threshold ? over + 1 : 0;
+      if (over >= 2) break; // CodeDeploy points the listener back at blue
+    }
+    return Math.round(total);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(failedRequests(ALL_AT_ONCE) + " " + failedRequests(CANARY_10_FOR_5) + " "
+        + failedRequests(LINEAR_10_EVERY_1)); // 1800 180 270
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `// Share of traffic on green, minute by minute, for CodeDeploy's ECS configurations.
 const shares = {

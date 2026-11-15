@@ -515,6 +515,32 @@ for (const r of result.EvaluationResults) console.log(r.EvalActionName, r.EvalDe
 // iam:CreateUser implicitDeny`,
         versions: [
           {
+            language: 'java',
+            source: `import java.nio.file.Files;
+import java.nio.file.Path;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.iam.model.EvaluationResult;
+
+public class CheckDeployRole {
+  public static void main(String[] args) throws Exception {
+    String boundary = Files.readString(Path.of("deploy-boundary.json"));
+    try (IamClient iam = IamClient.builder().region(Region.AWS_GLOBAL).build()) {
+      // The IAM policy simulator evaluates a principal's real policies without making the call.
+      var result = iam.simulatePrincipalPolicy(req -> req
+          .policySourceArn("arn:aws:iam::111122223333:role/deploy-role")
+          .actionNames("ecs:UpdateService", "iam:CreateUser")
+          .permissionsBoundaryPolicyInputList(boundary));
+      for (EvaluationResult r : result.evaluationResults()) {
+        System.out.println(r.evalActionName() + " " + r.evalDecision());
+      }
+    }
+  }
+}
+// ecs:UpdateService allowed
+// iam:CreateUser implicitDeny`,
+          },
+          {
             language: 'python',
             source: `import boto3
 
@@ -547,6 +573,26 @@ export async function saveOrder(order) {
   await db.send(new PutCommand({ TableName: 'Orders', Item: order }))
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.Map;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+
+public class Orders {
+  // No access key anywhere: on ECS the SDK fetches the task role's temporary
+  // credentials from the container's credentials endpoint and refreshes them.
+  private final DynamoDbClient db = DynamoDbClient.builder().region(Region.AP_SOUTH_1).build();
+
+  public void saveOrder(String orderId, String customerId, long totalPaise) {
+    db.putItem(req -> req.tableName("Orders").item(Map.of(
+        "orderId", AttributeValue.fromS(orderId),
+        "customerId", AttributeValue.fromS(customerId),
+        "totalPaise", AttributeValue.fromN(Long.toString(totalPaise)))));
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
