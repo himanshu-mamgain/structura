@@ -2,10 +2,10 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { AlertTriangle, BookOpenText, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, GraduationCap, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
-import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { failureEffect, responsibilitiesOf, responsibility, sameComponent, stepsThrough, subtitleOf, technologiesOf } from '../diagram/inspect'
 import { iconFor } from '../diagram/icons'
+import type { LoadStats } from '../sim/LoadPanel'
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
@@ -13,11 +13,9 @@ import { readingMinutes, storyText, StoryView } from '../learn/story'
 import { speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/speech'
 import type { WalkCommand } from '../learn/assistant'
 import { erdToDiagram } from '../learn/erd'
-import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
-import { openStaticTopic } from '../topics/open'
 import { NoteBox, TopicNotes } from './Notes'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
@@ -27,9 +25,8 @@ import { AreaTag } from './Areas'
 import { topicIcon } from './topicIcons'
 import { ecoLinks } from '../ecosystem'
 
-// The 3D city (three.js) and the load test (Rust/WASM simulator) load on first use.
-const BoardCanvas = lazy(() => import('../board/react').then((m) => ({ default: m.BoardCanvas })))
-const LoadPanel = lazy(() => import('../board/LoadPanel').then((m) => ({ default: m.LoadPanel })))
+// The load test (the Rust/WASM simulator) loads on first use.
+const LoadPanel = lazy(() => import('../sim/LoadPanel').then((m) => ({ default: m.LoadPanel })))
 
 type Tab = 'story' | 'explain' | 'walk' | 'code' | 'data'
 
@@ -58,13 +55,12 @@ function useNarrow() {
 }
 
 /**
- * One topic, laid out like a study dashboard: the diagram (2D or the 3D city),
+ * One topic, laid out like a study dashboard: the hand-drawn diagram,
  * the narrated video with chapters, the explanation with a walkthrough, code
  * and data model, and the key takeaways. Mounted fresh for each topic.
  */
 export function TopicView({
   topic,
-  board,
   openLoad = false,
   onNote,
   onRead,
@@ -72,7 +68,6 @@ export function TopicView({
   onArea,
 }: {
   topic: StaticTopic
-  board: Board
   openLoad?: boolean
   onNote?: (id: string) => void
   onRead?: () => void
@@ -81,7 +76,6 @@ export function TopicView({
 }) {
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
-  const [mode, setMode] = useState<'2d' | '3d'>(openLoad ? '3d' : '2d')
   // A review reminder (?review) opens the interview follow-ups, to answer without looking;
   // otherwise a topic with a story opens on it.
   const [review] = useState(() => new URLSearchParams(window.location.search).has('review'))
@@ -90,7 +84,7 @@ export function TopicView({
   const [trace, setTrace] = useState<Trace | null>(topic.explanation.trace)
   const [walk, setWalk] = useState<{ index: number; playing: boolean } | null>(null)
   const [showLoad, setShowLoad] = useState(openLoad && Boolean(topic.loadTest))
-  const [board3d, setBoard3d] = useState(false)
+  const [load, setLoad] = useState<LoadStats | null>(null)
   const [duration, setDuration] = useState<number | null>(null)
   const [videoTime, setVideoTime] = useState(0)
   // The voice guide: intro (summary), then the walkthrough spoken step by step, then the takeaways.
@@ -129,21 +123,11 @@ export function TopicView({
   )
   const sql = useMemo(() => (topic.database ? erdToSql(topic.database) : null), [topic])
 
-  // The 3D city is drawn on first use: it needs the topic on the board.
-  useEffect(() => {
-    if (mode !== '3d' || board3d) return
-    void openStaticTopic(board, topic).then(() => setBoard3d(true))
-  }, [mode, board3d, board, topic])
-
-  // Walkthrough: focus the step (in 3D, fly to it), wait long enough to read, move on.
+  // Walkthrough: focus the step, wait long enough to read, move on.
   useEffect(() => {
     if (!walk) return
     const step = steps[walk.index]
     if (!step) return
-    if (mode === '3d' && board3d) {
-      const built = buildSteps(board, { ...explanation, trace })[walk.index]
-      if (built) focusStep(board, built)
-    }
     if (walk.index === steps.length - 1) updateTopic(topic.id, { walked: true })
     if (!walk.playing) {
       if (tour === 'walk') stopSpeaking()
@@ -168,12 +152,7 @@ export function TopicView({
       stepDuration(step.text) / walkSpeed,
     )
     return () => clearTimeout(timer)
-  }, [walk, mode, board3d, board, steps, explanation, trace, topic, tour, walkSpeed])
-
-  const walking = Boolean(walk)
-  useEffect(() => {
-    if (!walking && board3d) showWholeDiagram(board)
-  }, [walking, board3d, board])
+  }, [walk, steps, topic, tour, walkSpeed])
 
   // Leaving the topic, or stopping the walkthrough mid-tour, ends the voice.
   const tourRef = useRef(tour)
@@ -416,27 +395,18 @@ export function TopicView({
                 <Box size={15} /> Architecture
               </button>
               {dataModel && (
-                <button type="button" aria-pressed={diagramView === 'data'} onClick={() => setDiagramView('data')} disabled={mode === '3d'}>
+                <button type="button" aria-pressed={diagramView === 'data'} onClick={() => setDiagramView('data')}>
                   <Database size={15} /> Data model
                 </button>
               )}
             </div>
             <div className="card-tools">
-              <div className="seg" role="group" aria-label="View">
-                <button type="button" aria-pressed={mode === '2d'} onClick={() => (setMode('2d'), setShowLoad(false))}>
-                  2D
-                </button>
-                <button type="button" aria-pressed={mode === '3d'} onClick={() => (setMode('3d'), setDiagramView('architecture'))}>
-                  3D
-                </button>
-              </div>
               {topic.loadTest && (
                 <button
                   type="button"
                   className={`btn btn-ghost${showLoad ? ' is-on' : ''}`}
                   onClick={() => {
                     setShowLoad(!showLoad)
-                    setMode('3d')
                     setDiagramView('architecture')
                   }}
                   title="Put real load through this design"
@@ -448,20 +418,17 @@ export function TopicView({
           </header>
           <div className={`diagram-stage${inspected ? ' has-inspector' : ''}`}>
             <div className="diagram-body">
-              {mode === '2d' ? (
-                <Diagram2D
-                  diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
-                  focus={focus}
-                  selected={selected}
-                  failed={failed}
-                  onSelect={setSelected}
-                  subtitles={diagramView === 'architecture' ? subtitles : undefined}
-                />
-              ) : (
-                <Suspense fallback={<p className="d2-loading">Loading the 3D city…</p>}>
-                  <BoardCanvas board={board} />
-                </Suspense>
-              )}
+              <Diagram2D
+                diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
+                focus={focus}
+                selected={selected}
+                failed={failed}
+                onSelect={setSelected}
+                subtitles={diagramView === 'architecture' ? subtitles : undefined}
+                load={showLoad && diagramView === 'architecture' ? load : null}
+                // During a load test, show the whole design (wide screens), so every box's busy badge is in view.
+                fitAll={showLoad && !narrow}
+              />
               <AnimatePresence>
                 {(tour === 'intro' || tour === 'outro') && (
                   <motion.div
@@ -683,7 +650,7 @@ export function TopicView({
         <aside className="side-col" hidden={!topic.video && !showLoad}>
           {showLoad && topic.loadTest && (
             <Suspense fallback={<p className="card d2-loading">Loading the simulator…</p>}>
-              <LoadPanel board={board} test={topic.loadTest} onClose={() => setShowLoad(false)} />
+              <LoadPanel test={topic.loadTest} onStats={setLoad} onClose={() => setShowLoad(false)} />
             </Suspense>
           )}
           {topic.video && (

@@ -1,7 +1,7 @@
 # Structura
 
-A PWA for learning system design by seeing it work. Each topic is an interactive
-architecture (2D diagram + three.js 3D city), a step-by-step walkthrough with a
+A PWA for learning system design by seeing it work. Each topic is an interactive,
+hand-drawn architecture diagram (rough.js), a step-by-step walkthrough with a
 "try your own input" simulator, an explanation, code, a data model, key
 takeaways and (for some) a narrated Remotion video. Deployed to Netlify as a
 static site from `main`: https://structura-web.netlify.app
@@ -63,9 +63,11 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     tags between `<!-- seo` and `<!-- /seo -->`; keep those markers.
   - `public/og/<id>.jpg`: each topic's link-preview card (1200 × 630), drawn by
     `npm run og -w @structura/web` (Playwright, run locally like the videos; `default.jpg` is the site's).
-  - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), box icons (`icons.ts`),
+  - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), its ELK layout (`layout.ts`), box icons (`icons.ts`),
     component inspector logic (`inspect.ts`).
-  - `src/board/`: the 3D city (`scene.ts`), ELK layout (`layout.ts`), load test panel.
+  - `src/sim/`: the load test: the Rust/WASM simulator's worker (`engine.ts`), the knobs (`loadtest.ts`)
+    and the panel (`LoadPanel.tsx`), whose results show as a busy badge on each box of the 2D diagram.
+    There is no 3D view: it was removed on purpose; don't bring three.js back into the app.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
   - CSS: `index.css` (panel internals), `shell.css` (layout), `features.css` (newer features).
   - `src/ecosystem.ts`: the owner's other apps (DSA Atlas, Schemata for SQL and databases), in the

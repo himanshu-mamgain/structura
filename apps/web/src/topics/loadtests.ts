@@ -1,5 +1,5 @@
 // Load models for the hand-written topics: the knobs a learner can turn in the
-// 3D lab, and the system each setting describes. Service times and capacities
+// load test, and the system each setting describes. Service times and capacities
 // are typical values, not measurements of any particular product. Queue limits
 // mirror real backlogs (accept queues, connection-pool waits): past them, a
 // component rejects work instead of letting every request wait forever.

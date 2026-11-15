@@ -1,6 +1,6 @@
 import type { SimConfig } from './engine'
 
-/** A knob in the 3D lab: a slider or a switch. */
+/** A knob in the load test: a slider or a switch. */
 export type LoadParam =
   | {
       kind: 'range'

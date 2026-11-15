@@ -14,7 +14,7 @@ export default defineConfig({
         name: 'Structura: system design, visualised',
         short_name: 'Structura',
         description:
-          'Learn system design by seeing it work: interactive architecture diagrams, step-by-step walkthroughs, a 3D load lab, narrated videos, quizzes and progress tracking. Works offline.',
+          'Learn system design by seeing it work: interactive architecture diagrams, step-by-step walkthroughs, load tests, narrated videos, quizzes and progress tracking. Works offline.',
         categories: ['education', 'developer', 'productivity'],
         theme_color: '#f7f5ef',
         background_color: '#f7f5ef',
@@ -35,7 +35,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Headroom for large chunks (the ELK layout engine is ~1.4 MB, three.js ~0.7 MB),
+        // Headroom for large chunks (the ELK layout engine is ~1.4 MB),
         // so everything is precached and diagrams work offline.
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // wasm: the load simulator, so load tests work offline too.

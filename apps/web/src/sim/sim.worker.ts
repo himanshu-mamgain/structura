@@ -1,5 +1,5 @@
-// Runs the WebAssembly simulator off the main thread, so the 3D view keeps
-// animating smoothly while a simulation computes.
+// Runs the WebAssembly simulator off the main thread, so the page stays
+// smooth while a simulation computes.
 import init, { simulate } from '@structura/sim'
 import wasmUrl from '@structura/sim/wasm?url'
 

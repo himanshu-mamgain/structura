@@ -10,7 +10,7 @@ Every topic is a live architecture, not a static picture:
 
 - **Interactive diagram.** Glowing component cards joined by animated arrows. Click any component to see what it does, its key responsibilities and technologies, and what calls it. Switch parts off (a cache, a broker) and see which requests break.
 - **Walkthrough.** Follow one real request step by step, with a packet travelling the arrows and the actual request, cache entry or SQL at each step. Most topics let you try your own input; the Kafka topic uses Kafka's real partitioner.
-- **3D load lab.** Switch to a three.js city and put real load on the design with a discrete-event simulator (Rust, compiled to WebAssembly). Watch queues build and the bottleneck light up.
+- **Load test.** Put real load on the design with a discrete-event simulator (Rust, compiled to WebAssembly). Each box on the diagram shows how busy it is, so you see queues build and the bottleneck light up.
 - **Narrated videos and Reels.** Vertical explainers made with [Remotion](https://www.remotion.dev/), with chapters, resume and save-for-offline. Every topic gets one automatically. The Reels tab plays them full screen, one after another, swiped like Instagram.
 - **Voice assistant.** Always on screen: ask by voice or text ("what is a load balancer?", "walk me through it", "what should I learn today?"). It answers aloud in a natural voice, drives the app, and highlights each word as it speaks.
 - **Commute mode.** Every topic as an offline audio lesson, like a podcast: save on Wi-Fi, listen with the screen off, lock-screen and earphone controls, interview practice with thinking pauses, and it remembers where you stopped.
@@ -95,7 +95,7 @@ npm workspaces, TypeScript, React 19, Vite, [Motion](https://motion.dev/) for an
 
 | Path | What it is |
 | --- | --- |
-| `apps/web` | The app (PWA): topics, 2D/3D diagrams, walkthroughs, voice assistant, Commute mode, progress, library |
+| `apps/web` | The app (PWA): topics, hand-drawn diagrams, lessons, walkthroughs, voice assistant, Commute mode, progress, library |
 | `apps/video` | Remotion videos: hand-made ones and the automatic topic video template (`npm run studio -w @structura/video`) |
 | `packages/shared` | Schemas for diagrams, data models, traces and explanations |
 | `packages/sim` | Load simulator in Rust, compiled to WebAssembly (`pkg/` is committed) |
