@@ -41,8 +41,8 @@ export default defineConfig({
         // wasm: the load simulator, so load tests work offline too.
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,ico,woff2,wasm,txt}'],
         // Store screenshots are for the install sheet, not the app; videos are saved on request.
-        // Store screenshots, videos and the natural voice's 21 MB speech runtime download on demand.
-        globIgnores: ['screenshots/**', 'videos/*.mp4', '**/ort-wasm*.wasm', '**/kokoro.worker-*.js'],
+        // Store screenshots, link-preview cards, videos and the natural voice's 21 MB speech runtime download on demand.
+        globIgnores: ['screenshots/**', 'og/**', 'videos/*.mp4', '**/ort-wasm*.wasm', '**/kokoro.worker-*.js'],
         // Push notifications: shows them and opens the page when tapped (public/notify-sw.js).
         importScripts: ['notify-sw.js'],
         runtimeCaching: [

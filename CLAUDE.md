@@ -44,7 +44,8 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     (`AREA_OF`) and the library categories that belong to each. Explore (`?page=explore&area=infra`),
     Home's area cards, search, the topic page's tag and the roadmap's tracks (`?page=roadmap&area=…`)
     are all organised by them; `src/shell/Areas.tsx` has the chips, cards and tag.
-  - `src/shell/`: app shell. `App.tsx` (routes via `?topic=`, `?page=explore|reels|listen|quiz|glossary|roadmap`,
+  - `src/shell/`: app shell. `App.tsx` (routes: a topic lives at `/topic/<id>/` (old `?topic=<id>` links
+    still work and are tidied), with `?read`, `?learn` or `?load` after it; other pages use `?page=explore|reels|listen|quiz|glossary|roadmap`,
     `?page=reels&reel=<id>`, `?library=`; the five Instagram-style tabs, along the bottom on
     phones and in the top bar from 1024px), `Home.tsx` (reels row first), `Explore.tsx`
     (search, topic grid, library), `Reels.tsx` (full-screen video feed), `Search.tsx`,
@@ -54,6 +55,14 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     stages, Foundations → Intermediate → Advanced → Expert, of small module cards from
     `src/learn/roadmap.ts`; a card opens its steps at `?page=roadmap&part=<id>`), `topicIcons.ts`. There's no sidebar: anything fixed
     to the bottom of the screen sits above the tab bar (`bottom: calc(… + var(--tabbar))`).
+  - **Ready-made pages** (`scripts/prerender.tsx`, the step after `vite build`): every topic gets
+    `dist/topic/<id>/index.html` with its own title, description, canonical link, Open Graph and
+    JSON-LD, and its explanation as plain HTML in Read mode's classes, so search engines and link
+    previews read it without JavaScript, and the text shows while the app loads. Also
+    `dist/sitemap.xml`. Static files only: there's still no server. `index.html` holds the home page's
+    tags between `<!-- seo` and `<!-- /seo -->`; keep those markers.
+  - `public/og/<id>.jpg`: each topic's link-preview card (1200 × 630), drawn by
+    `npm run og -w @structura/web` (Playwright, run locally like the videos; `default.jpg` is the site's).
   - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), box icons (`icons.ts`),
     component inspector logic (`inspect.ts`).
   - `src/board/`: the 3D city (`scene.ts`), ELK layout (`layout.ts`), load test panel.
@@ -128,7 +137,8 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
    (`src/topics/areas.ts`: `development`, `infra`, `databases` or `ai`; the build stops without one),
    and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a module of the same area and the
    right stage (a new module is fine). Unplaced topics still show, at the end of their area, under "More topics".
-3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon).
+3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon), and draw its
+   link-preview card with `npm run og -w @structura/web` (it only draws topics that have none).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
 5. **Make its video and audio lesson** (see below) if the Kokoro setup is available.
 6. **Open a PR** titled `feat: add <title> topic`, saying what the walkthrough and
