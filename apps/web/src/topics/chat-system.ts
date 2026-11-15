@@ -238,6 +238,47 @@ wss.on('connection', (socket, req) => {
 })`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+// Registered at /ws with a WebSocketConfigurer; Spring Security sets the user from the token.
+public class ChatGateway extends TextWebSocketHandler {
+  private static final ObjectMapper json = new ObjectMapper();
+  private final Set<String> seen = ConcurrentHashMap.newKeySet(); // de-duplicate client retries (use Redis in production)
+  private final SessionRegistry sessions;
+  private final ChatService chatService;
+
+  public ChatGateway(SessionRegistry sessions, ChatService chatService) {
+    this.sessions = sessions;
+    this.chatService = chatService;
+  }
+
+  @Override
+  public void afterConnectionEstablished(WebSocketSession socket) {
+    sessions.register(socket.getPrincipal().getName(), GATEWAY_ID); // Session Registry: user -> this gateway
+  }
+
+  @Override
+  protected void handleTextMessage(WebSocketSession socket, TextMessage raw) throws Exception {
+    JsonNode m = json.readTree(raw.getPayload());
+    if (!"send".equals(m.path("type").asText())) return;
+    String clientMsgId = m.get("client_msg_id").asText();
+    if (!seen.add(clientMsgId)) return; // a retry: already stored
+    String userId = socket.getPrincipal().getName();
+    long id = chatService.store(userId, m.get("conversation").asText(), m.get("text").asText()); // store first
+    socket.sendMessage(new TextMessage(json.writeValueAsString(
+        Map.of("type", "ack", "client_msg_id", clientMsgId, "message_id", id, "state", "sent"))));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { WebSocketServer } from 'ws'
 
@@ -280,6 +321,29 @@ export function nextId(serverId) {
   return (ms << 22n) | (serverId << 12n) | seq
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.time.Instant;
+
+public class MessageIds {
+  private static final long EPOCH = Instant.parse("2024-01-01T00:00:00Z").toEpochMilli();
+  private long lastMs = 0;
+  private long seq = 0;
+
+  /** 41 bits time | 10 bits server | 12 bits sequence: ids sort by send time. */
+  public synchronized long nextId(long serverId) {
+    long ms = System.currentTimeMillis() - EPOCH;
+    if (ms == lastMs) {
+      seq = (seq + 1) & 0xfff; // up to 4,096 ids per millisecond per server
+      if (seq == 0) ms = lastMs + 1; // sequence used up: borrow the next millisecond
+    } else {
+      seq = 0;
+    }
+    lastMs = ms;
+    return (ms << 22) | (serverId << 12) | seq;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `const EPOCH = Date.UTC(2024, 0, 1)

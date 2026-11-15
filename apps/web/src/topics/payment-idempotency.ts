@@ -528,6 +528,72 @@ export async function createPayment(bank, userId, key, body) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+public class Payments {
+  public record PaymentRequest(String merchant_id, long amount_paise) {}
+
+  public record Response(int status, Object body) {}
+
+  private static final ObjectMapper json = new ObjectMapper();
+  private static final SecureRandom random = new SecureRandom();
+  private final JdbcTemplate db;
+  private final Bank bank;
+
+  public Payments(JdbcTemplate db, Bank bank) {
+    this.db = db;
+    this.bank = bank;
+  }
+
+  /** Repeating this with the same Idempotency-Key never debits twice. */
+  public Response createPayment(long userId, String key, PaymentRequest body) throws Exception {
+    byte[] hash = MessageDigest.getInstance("SHA-256").digest(json.writeValueAsBytes(body));
+    byte[] idBytes = new byte[9];
+    random.nextBytes(idBytes);
+    String paymentId = "pay_" + Base64.getUrlEncoder().withoutPadding().encodeToString(idBytes);
+    try {
+      // One statement: the payment and its key are saved together or not at all.
+      db.update("""
+          WITH p AS (INSERT INTO payments (payment_id, user_id, merchant_id, amount_paise, status)
+                     VALUES (?, ?, ?, ?, 'PENDING'))
+          INSERT INTO idempotency_keys (user_id, idempotency_key, request_hash, payment_id) VALUES (?, ?, ?, ?)""",
+          paymentId, userId, body.merchant_id(), body.amount_paise(), userId, key, hash, paymentId);
+    } catch (DuplicateKeyException seenBefore) { // 23505 = unique_violation: key seen before
+      Map<String, Object> seen = db.queryForMap("SELECT request_hash, response_code, response_body "
+          + "FROM idempotency_keys WHERE user_id = ? AND idempotency_key = ?", userId, key);
+      if (!Arrays.equals(hash, (byte[]) seen.get("request_hash"))) {
+        return new Response(422, Map.of("error", "Key reused for a different payment"));
+      }
+      if (seen.get("response_code") == null) return new Response(409, Map.of("error", "Still processing, retry shortly"));
+      // Replay: the bank is not called again.
+      return new Response(((Number) seen.get("response_code")).intValue(), seen.get("response_body"));
+    }
+    // Our payment id is the bank's idempotency key, so retrying this call is safe too.
+    String status;
+    try {
+      status = bank.debit(paymentId, body.amount_paise());
+    } catch (Exception timeout) {
+      status = "PENDING"; // timeout ≠ failed
+    }
+    var response = new Response(status.equals("PENDING") ? 202 : 200, Map.of("payment_id", paymentId, "status", status));
+    db.update("""
+        WITH p AS (UPDATE payments SET status = ?, updated_at = now() WHERE payment_id = ? AND status = 'PENDING')
+        UPDATE idempotency_keys SET response_code = ?, response_body = ?::jsonb
+        WHERE user_id = ? AND idempotency_key = ?""",
+        status, paymentId, response.status(), json.writeValueAsString(response.body()), userId, key);
+    return response;
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { createHash, randomBytes } from 'node:crypto'
 import pg from 'pg'
@@ -602,6 +668,52 @@ export async function pay(key, order) {
   return { status: 0, body: { status: 'UNKNOWN' } }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class PayClient {
+  public record Result(int status, String body) {}
+
+  private static final HttpClient http = HttpClient.newHttpClient();
+
+  /**
+   * Make the key when the checkout opens and keep it, even across app restarts:
+   * every attempt for this checkout must send the same one.
+   * orderJson already holds the order with "currency": "INR" and "method": "upi".
+   */
+  public static Result pay(String key, String orderJson) throws InterruptedException {
+    for (int attempt = 0; attempt < 5; attempt++) {
+      if (attempt > 0) {
+        long backoff = 1000L << (attempt - 1); // 1 s, 2 s, 4 s, 8 s
+        // Jitter: thousands of phones that lost signal together shouldn't retry together.
+        Thread.sleep(backoff / 2 + ThreadLocalRandom.current().nextLong(backoff / 2 + 1));
+      }
+      HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.example.com/v1/payments"))
+          .header("Content-Type", "application/json")
+          .header("Idempotency-Key", key)
+          .timeout(Duration.ofSeconds(15))
+          .POST(HttpRequest.BodyPublishers.ofString(orderJson))
+          .build();
+      try {
+        HttpResponse<String> res = http.send(request, HttpResponse.BodyHandlers.ofString());
+        // 200 paid, 202 processing, other 4xx a definite no. 409 and 5xx: ask again.
+        if (res.statusCode() != 409 && res.statusCode() < 500) return new Result(res.statusCode(), res.body());
+      } catch (IOException e) {
+        // Timeout or dropped connection: the payment may have happened. Never show "failed" here.
+      }
+    }
+    // Show "checking status". Calling pay() again later with the same key is the status check.
+    return new Result(0, "{\\"status\\":\\"UNKNOWN\\"}");
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `/**

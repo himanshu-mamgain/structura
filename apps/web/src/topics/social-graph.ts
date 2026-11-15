@@ -295,6 +295,53 @@ export const socialGraph: StaticTopic = {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+public class SocialGraph {
+  // friends: one call for a whole batch of people -> each one's friend ids.
+  static Long meetingPoint(long a, long b, Function<List<Long>, Map<Long, List<Long>>> friends, int maxDepth) {
+    Map<Long, Long> fromA = new HashMap<>(Map.of(a, a)); // person -> who we came from
+    Map<Long, Long> fromB = new HashMap<>(Map.of(b, b));
+    List<Long> frontA = List.of(a);
+    List<Long> frontB = List.of(b);
+    for (int depth = 0; depth < maxDepth && !frontA.isEmpty() && !frontB.isEmpty(); depth++) {
+      // Always expand the smaller side: fewer friends to fetch.
+      boolean sideA = frontA.size() <= frontB.size();
+      Map<Long, Long> seen = sideA ? fromA : fromB;
+      Map<Long, Long> other = sideA ? fromB : fromA;
+      List<Long> next = new ArrayList<>();
+      for (var entry : friends.apply(sideA ? frontA : frontB).entrySet()) {
+        for (long f : entry.getValue()) {
+          if (seen.containsKey(f)) continue;
+          seen.put(f, entry.getKey());
+          if (other.containsKey(f)) return f; // the two searches met at f
+          next.add(f);
+        }
+      }
+      if (sideA) frontA = next;
+      else frontB = next;
+    }
+    return null; // not connected within maxDepth
+  }
+
+  public static void main(String[] args) {
+    Map<Long, List<Long>> graph = Map.of(1L, List.of(2L), 2L, List.of(1L, 3L), 3L, List.of(2L, 4L),
+        4L, List.of(3L, 5L), 5L, List.of(4L));
+    Function<List<Long>, Map<Long, List<Long>>> friends = ids -> {
+      Map<Long, List<Long>> out = new java.util.LinkedHashMap<>();
+      for (long id : ids) out.put(id, graph.get(id));
+      return out;
+    };
+    System.out.println(meetingPoint(1, 5, friends, 6)); // 5: the search from 1 reached 5 via 1-2-3-4-5
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `type Friends = (ids: number[]) => Promise<Map<number, number[]>> // batched per server
 
@@ -334,6 +381,28 @@ export async function getFriends(ids, lookup, call) {
   return new Map(results.flatMap((m) => [...m]))
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class FriendLookup {
+  // The Lookup Service says which server owns each person; group ids so each server is called once.
+  static Map<Long, List<Long>> getFriends(List<Long> ids, Function<Long, String> lookup,
+      BiFunction<String, List<Long>, CompletableFuture<Map<Long, List<Long>>>> call) {
+    Map<String, List<Long>> byServer = ids.stream().collect(Collectors.groupingBy(lookup));
+    var calls = byServer.entrySet().stream().map(e -> call.apply(e.getKey(), e.getValue())).toList(); // all at once
+    Map<Long, List<Long>> friends = new HashMap<>();
+    for (var c : calls) friends.putAll(c.join());
+    return friends;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `// The Lookup Service says which server owns each person; group ids so each server is called once.

@@ -282,6 +282,52 @@ export function requirePermission(permission) {
 // app.delete('/articles/:id', requirePermission('article:delete'), deleteArticle)`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.Map;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.SecurityFilterChain;
+
+// application.properties: spring.security.oauth2.resourceserver.jwt.issuer-uri=https://auth.example.com
+// Spring fetches the Identity Provider's public keys and checks signature, expiry and issuer.
+@Configuration
+@EnableMethodSecurity
+class SecurityConfig {
+  // Role → permissions, loaded from role_permissions and cached (it changes rarely).
+  static final Map<String, List<String>> ROLE_PERMISSIONS = Map.of(
+      "viewer", List.of("article:read"),
+      "editor", List.of("article:read", "article:write"),
+      "admin", List.of("article:read", "article:write", "article:delete", "user:manage"));
+
+  @Bean
+  SecurityFilterChain api(HttpSecurity http) throws Exception {
+    return http
+        .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // no valid token: 401
+        .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.jwtAuthenticationConverter(SecurityConfig::permissions)))
+        .build();
+  }
+
+  // The token carries roles; turn them into the permissions they grant.
+  static AbstractAuthenticationToken permissions(Jwt jwt) {
+    List<String> roles = jwt.hasClaim("roles") ? jwt.getClaimAsStringList("roles") : List.of();
+    var granted = roles.stream()
+        .flatMap(role -> ROLE_PERMISSIONS.getOrDefault(role, List.of()).stream())
+        .distinct().map(SimpleGrantedAuthority::new).toList();
+    return new JwtAuthenticationToken(jwt, granted);
+  }
+}
+
+// Deny by default: 403 unless one of the user's roles grants the permission.
+// @DeleteMapping("/articles/{id}") @PreAuthorize("hasAuthority('article:delete')")`,
+          },
+          {
             language: 'typescript',
             source: `import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { NextFunction, Request, Response } from 'express'
@@ -338,6 +384,46 @@ export function issueAccessToken(userId, roles) {
     .sign(privateKey)
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import io.jsonwebtoken.Jwts;
+
+public class Tokens {
+  private static final PrivateKey PRIVATE_KEY = loadKey(System.getenv("JWT_PRIVATE_KEY"));
+
+  public static String issueAccessToken(String userId, List<String> roles) {
+    Instant now = Instant.now();
+    return Jwts.builder()
+        .header().keyId("key-2026-10").and()
+        .subject(userId)
+        .issuer("https://auth.example.com")
+        .claim("roles", roles)
+        .issuedAt(Date.from(now))
+        // Short-lived: a removed role stops working within 15 minutes.
+        .expiration(Date.from(now.plus(Duration.ofMinutes(15))))
+        .signWith(PRIVATE_KEY, Jwts.SIG.RS256)
+        .compact();
+  }
+
+  // A PEM "BEGIN PRIVATE KEY" (PKCS#8) string, as importPKCS8 takes it.
+  static PrivateKey loadKey(String pem) {
+    try {
+      byte[] der = Base64.getMimeDecoder().decode(pem.replaceAll("-----[A-Z ]+-----", ""));
+      return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(der));
+    } catch (Exception e) {
+      throw new IllegalStateException("bad JWT_PRIVATE_KEY", e);
+    }
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import { importPKCS8, SignJWT } from 'jose'

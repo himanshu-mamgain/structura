@@ -349,6 +349,43 @@ http.createServer((req, res) => {
 }).listen(9100)`,
         versions: [
           {
+            language: 'java',
+            source: `import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicLong;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+
+public class MetricsServer {
+  private static final AtomicLong requests = new AtomicLong(); // a counter only ever goes up; the database computes rates
+
+  public static void main(String[] args) throws Exception {
+    HttpServer server = HttpServer.create(new InetSocketAddress(9100), 0);
+    server.createContext("/metrics", exchange -> {
+      int cpu = 35; // in real code: read from the OS
+      exchange.getResponseHeaders().set("Content-Type", "text/plain; version=0.0.4");
+      send(exchange, "# TYPE http_requests_total counter\\n"
+          + "http_requests_total{service=\\"checkout\\",code=\\"200\\"} " + requests.get() + "\\n"
+          + "# TYPE cpu_usage_percent gauge\\n"
+          + "cpu_usage_percent{service=\\"checkout\\"} " + cpu + "\\n");
+    });
+    server.createContext("/", exchange -> {
+      requests.incrementAndGet();
+      send(exchange, "ok");
+    });
+    server.start();
+  }
+
+  static void send(HttpExchange exchange, String text) throws java.io.IOException {
+    byte[] body = text.getBytes(StandardCharsets.UTF_8);
+    exchange.sendResponseHeaders(200, body.length);
+    try (var out = exchange.getResponseBody()) {
+      out.write(body);
+    }
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import http from 'node:http'
 
@@ -392,6 +429,37 @@ export function evaluate(samples, threshold = 90, holdSeconds = 300) {
 // 95% from t=60 to t=540 (every 15 s): fires at t=360, 300 s after it first held.`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import java.util.stream.LongStream;
+
+public class AlertRule {
+  public record Sample(long t, double value) {}
+
+  public record State(String name, Long firedAt) {}
+
+  // samples: oldest first.
+  static State evaluate(List<Sample> samples, double threshold, long holdSeconds) {
+    Long pendingSince = null;
+    for (Sample s : samples) {
+      if (s.value() > threshold) {
+        if (pendingSince == null) pendingSince = s.t();
+        if (s.t() - pendingSince >= holdSeconds) return new State("firing", s.t());
+      } else {
+        pendingSince = null; // one good sample resets the timer
+      }
+    }
+    return new State(pendingSince != null ? "pending" : "inactive", null);
+  }
+
+  public static void main(String[] args) {
+    // 95% from t=60 to t=540 (every 15 s): fires at t=360, 300 s after it first held.
+    List<Sample> samples = LongStream.iterate(60, t -> t <= 540, t -> t + 15).mapToObj(t -> new Sample(t, 95)).toList();
+    System.out.println(evaluate(samples, 90, 300)); // State[name=firing, firedAt=360]
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `def evaluate(samples, threshold=90, hold_seconds=300):
     """samples: list of (time_in_seconds, value), oldest first."""
@@ -434,6 +502,26 @@ const ts = [1700000000, 1700000015, 1700000030, 1700000045, 1700000060]
 console.log(deltaOfDelta(ts)) // [0, 0, 0]: steady 15 s steps cost about 1 bit each
 // A late scrape (1700000046 instead of 1700000045) gives [0, 1, -1]: still tiny.`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.Arrays;
+
+public class DeltaOfDelta {
+  static long[] deltaOfDelta(long[] ts) {
+    long[] deltas = new long[ts.length - 1];
+    for (int i = 1; i < ts.length; i++) deltas[i - 1] = ts[i] - ts[i - 1];
+    long[] out = new long[deltas.length - 1];
+    for (int i = 1; i < deltas.length; i++) out[i - 1] = deltas[i] - deltas[i - 1];
+    return out;
+  }
+
+  public static void main(String[] args) {
+    long[] ts = {1700000000, 1700000015, 1700000030, 1700000045, 1700000060};
+    System.out.println(Arrays.toString(deltaOfDelta(ts))); // [0, 0, 0]: steady 15 s steps cost about 1 bit each
+    // A late scrape (1700000046 instead of 1700000045) gives [0, 1, -1]: still tiny.
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def delta_of_delta(timestamps):

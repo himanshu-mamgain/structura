@@ -293,6 +293,46 @@ export class Snowflake {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `public class Snowflake {
+  private static final long EPOCH = 1735689600000L; // 2025-01-01, our own epoch
+  private static final long MAX_WAIT_MS = 100;
+  private final long machineId; // 0..1023, leased from the registry
+  private long lastMs = -1;
+  private long seq = 0;
+
+  public Snowflake(long machineId) {
+    this.machineId = machineId;
+  }
+
+  public synchronized long next() {
+    long now = System.currentTimeMillis();
+    if (now < lastMs) {
+      // Clock went backwards: wait if small, refuse if large.
+      if (lastMs - now > MAX_WAIT_MS) throw new IllegalStateException("clock moved backwards");
+      while (now < lastMs) now = System.currentTimeMillis();
+    }
+    if (now == lastMs) {
+      seq = (seq + 1) & 0xfff; // 12 bits
+      if (seq == 0) while (now <= lastMs) now = System.currentTimeMillis(); // full: next ms
+    } else {
+      seq = 0;
+    }
+    lastMs = now;
+    // A long holds it (41 bits of time last until 2094). Send it to browsers as a string:
+    // JSON numbers above 2^53 lose precision.
+    return ((now - EPOCH) << 22) | (machineId << 12) | seq;
+  }
+
+  public static void main(String[] args) {
+    Snowflake ids = new Snowflake(42);
+    long a = ids.next();
+    long b = ids.next();
+    System.out.println((b > a) + " " + ((a >> 12) & 1023)); // true 42
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `const EPOCH = 1735689600000n // 2025-01-01, our own epoch
 const MAX_WAIT_MS = 100n
@@ -346,6 +386,36 @@ export async function takeWorkerId() {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.Client;
+import io.etcd.jetcd.op.Cmp;
+import io.etcd.jetcd.op.CmpTarget;
+import io.etcd.jetcd.op.Op;
+import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.support.Observers;
+
+public class WorkerIds {
+  // Try each machine id until one is free; the lease frees it if we crash.
+  public static int takeWorkerId(Client etcd) throws Exception {
+    long lease = etcd.getLeaseClient().grant(30).get().getID(); // 30 s
+    etcd.getLeaseClient().keepAlive(lease, Observers.observer(ok -> {})); // renewed while we run
+    ByteSequence host = ByteSequence.from(InetAddress.getLocalHost().getHostName(), StandardCharsets.UTF_8);
+    for (int id = 0; id < 1024; id++) {
+      ByteSequence key = ByteSequence.from("/id-workers/" + id, StandardCharsets.UTF_8);
+      boolean took = etcd.getKVClient().txn()
+          .If(new Cmp(key, Cmp.Op.EQUAL, CmpTarget.createRevision(0))) // only if nobody holds it
+          .Then(Op.put(key, host, PutOption.builder().withLeaseId(lease).build()))
+          .commit().get().isSucceeded();
+      if (took) return id;
+    }
+    throw new IllegalStateException("all 1024 worker ids are taken");
+  }
+}`,
+          },
+          {
             language: 'go',
             source: `// Try each machine id until one is free; the lease frees it if we crash.
 lease, _ := cli.Grant(ctx, 30) // 30 s, renewed with KeepAlive
@@ -381,6 +451,27 @@ export function decode(id) {
 console.log(decode(158506160599736320n))
 // { created_ms: 1773480413589, datacenter: 1, worker: 2, sequence: 0 }`,
         versions: [
+          {
+            language: 'java',
+            source: `public class DecodeId {
+  static final long EPOCH_MS = 1735689600000L;
+
+  record Parts(long createdMs, long datacenter, long worker, long sequence) {}
+
+  static Parts decode(long id) {
+    return new Parts(
+        (id >> 22) + EPOCH_MS, // top 41 bits
+        (id >> 17) & 0x1F, // next 5
+        (id >> 12) & 0x1F, // next 5
+        id & 0xFFF); // last 12
+  }
+
+  public static void main(String[] args) {
+    System.out.println(decode(158506160599736320L));
+    // Parts[createdMs=1773480413589, datacenter=1, worker=2, sequence=0]
+  }
+}`,
+          },
           {
             language: 'python',
             source: `EPOCH_MS = 1735689600000

@@ -290,6 +290,34 @@ export async function fanOut(tweet, followers) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import redis.clients.jedis.AbstractPipeline;
+import redis.clients.jedis.RedisClient;
+
+public class FanOut {
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+  private static final int CELEBRITY = 1_000_000; // above this, followers merge at read time
+  private static final int TIMELINE_LENGTH = 800; // keep only the newest entries in memory
+
+  public static void fanOut(long tweetId, long userId, List<Long> followers) {
+    if (followers.size() >= CELEBRITY) return; // too many: skip, merged on read
+
+    String entry = tweetId + ":" + userId + ":0"; // tweet_id:user_id:meta
+    // Batch the O(n) writes: one round trip per 1,000 followers.
+    for (int i = 0; i < followers.size(); i += 1000) {
+      try (AbstractPipeline batch = redis.pipelined()) {
+        for (long follower : followers.subList(i, Math.min(i + 1000, followers.size()))) {
+          batch.lpush("home:" + follower, entry);
+          batch.ltrim("home:" + follower, 0, TIMELINE_LENGTH - 1);
+        }
+        batch.sync();
+      }
+    }
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import Redis from 'ioredis'
 
@@ -336,6 +364,37 @@ export async function homeTimeline(userId, celebrityTweets) {
 /** Snowflake-style ids carry their creation time in the top bits. */
 const snowflakeTime = (id) => Number(BigInt(id) >> 22n)`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Supplier;
+import redis.clients.jedis.RedisClient;
+
+public class HomeTimeline {
+  public record TweetRef(long id, long at) {}
+
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+
+  /** Newest 20 tweet ids for a user, with followed celebrities merged in. */
+  public static List<Long> homeTimeline(long userId, Supplier<List<TweetRef>> celebrityTweets) {
+    List<TweetRef> merged = new ArrayList<>();
+    for (String entry : redis.lrange("home:" + userId, 0, 19)) { // O(1) to find, O(20) to read
+      long id = Long.parseLong(entry.split(":")[0]);
+      merged.add(new TweetRef(id, snowflakeTime(id)));
+    }
+    merged.addAll(celebrityTweets.get());
+    merged.sort(Comparator.comparingLong(TweetRef::at).reversed()); // re-order at serve time
+    return merged.stream().limit(20).map(TweetRef::id).toList();
+  }
+
+  /** Snowflake-style ids carry their creation time in the top bits. */
+  static long snowflakeTime(long id) {
+    return id >> 22;
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import Redis from 'ioredis'

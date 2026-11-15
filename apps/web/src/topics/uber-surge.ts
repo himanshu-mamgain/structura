@@ -292,6 +292,40 @@ export function multiplier(cell) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Arrays;
+
+public class Surge {
+  public record Cell(int riders, int usualDrivers, int wentOfflineLast2Min, int[] driversPerMinute,
+      double neighbourDrivers) {}
+
+  static double surge(double riders, double drivers) {
+    return Math.min(3, Math.max(1, 1 + (riders / Math.max(1, drivers) - 1) * 0.4));
+  }
+
+  static double multiplier(Cell cell) {
+    // 1. Coordinated drop-off: many drivers, one cell, two minutes.
+    boolean coordinated = cell.wentOfflineLast2Min() >= 5
+        && (double) cell.wentOfflineLast2Min() / cell.usualDrivers() >= 0.3;
+    int[] recent = coordinated
+        ? Arrays.stream(cell.driversPerMinute()).map(d -> Math.max(d, cell.usualDrivers())).toArray() // ignore the fake dip
+        : cell.driversPerMinute();
+
+    // 2. Smooth over time (10-minute average) and space (neighbouring cells).
+    double average = Arrays.stream(recent).average().orElse(0);
+    double supply = 0.5 * average + 0.5 * cell.neighbourDrivers();
+
+    return Math.round(surge(cell.riders(), supply) * 10) / 10.0;
+  }
+
+  public static void main(String[] args) {
+    int[] perMinute = {40, 40, 39, 41, 40, 40, 38, 25, 22, 21};
+    System.out.println(multiplier(new Cell(60, 40, 15, perMinute, 38))); // 1.2: 15 went offline at once, so the dip is ignored
+    System.out.println(multiplier(new Cell(60, 40, 2, perMinute, 38))); // 1.3: a real drop in drivers
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `interface CellWindow {
   riders: number

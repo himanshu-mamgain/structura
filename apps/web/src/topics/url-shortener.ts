@@ -267,6 +267,34 @@ export function decode(code) {
 // encode(125_000_000_000n) === '2crtgcg', and decode('2crtgcg') === 125_000_000_000n`,
         versions: [
           {
+            language: 'java',
+            source: `public class Base62 {
+  static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  // The short code is just the row's numeric ID, written in base 62.
+  static String encode(long id) {
+    if (id == 0) return "0";
+    StringBuilder code = new StringBuilder();
+    for (; id > 0; id /= 62) code.append(ALPHABET.charAt((int) (id % 62)));
+    return code.reverse().toString();
+  }
+
+  static long decode(String code) {
+    long id = 0;
+    for (char ch : code.toCharArray()) {
+      int digit = ALPHABET.indexOf(ch);
+      if (digit < 0) throw new IllegalArgumentException("invalid character: " + ch);
+      id = Math.addExact(Math.multiplyExact(id, 62), digit); // throws instead of wrapping on overflow
+    }
+    return id;
+  }
+
+  public static void main(String[] args) {
+    System.out.println(encode(125_000_000_000L) + " " + decode("2crtgcg")); // 2crtgcg 125000000000
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -328,6 +356,53 @@ app.get('/:code', async (req, res) => {
   res.redirect(302, url)
 })`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class RedirectController {
+  private final StringRedisTemplate redis;
+  private final JdbcTemplate db;
+  private final ClickPublisher clicks;
+
+  public RedirectController(StringRedisTemplate redis, JdbcTemplate db, ClickPublisher clicks) {
+    this.redis = redis;
+    this.db = db;
+    this.clicks = clicks;
+  }
+
+  @GetMapping("/{code}")
+  public ResponseEntity<String> redirect(@PathVariable String code,
+      @RequestHeader(value = "Referer", required = false) String referrer) {
+    // 1. Cache first: most redirects end here.
+    String url = redis.opsForValue().get("url:" + code);
+    if (url == null) {
+      // 2. Miss: read the source of truth (uses the UNIQUE index on short_code).
+      List<String> rows = db.queryForList("SELECT long_url FROM urls "
+          + "WHERE short_code = ? AND (expires_at IS NULL OR expires_at > now())", String.class, code);
+      if (rows.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Link not found");
+      url = rows.get(0);
+      // 3. Fill the cache for the next visitor.
+      redis.opsForValue().set("url:" + code, url, Duration.ofDays(1));
+    }
+    // 4. Count the click without delaying the redirect.
+    clicks.publishAsync(code, Instant.now(), referrer);
+    return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(url)).build();
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import express from 'express'
@@ -391,6 +466,38 @@ export async function nextId(db) {
   return next++
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.function.LongSupplier;
+
+// Each server reserves 1,000 IDs at a time from a shared Postgres sequence,
+// so most links get their ID from memory with no network call.
+public class IdBlocks {
+  private static final long BLOCK = 1000;
+  private final LongSupplier nextBlock; // runs SELECT nextval('url_id_blocks')
+  private long next = 0;
+  private long end = 0;
+
+  public IdBlocks(LongSupplier nextBlock) {
+    this.nextBlock = nextBlock;
+  }
+
+  // synchronized: concurrent callers wait for one refill instead of each reserving a block.
+  public synchronized long nextId() {
+    if (next == end) {
+      next = nextBlock.getAsLong() * BLOCK;
+      end = next + BLOCK;
+    }
+    return next++;
+  }
+
+  public static void main(String[] args) {
+    long[] sequence = {7};
+    IdBlocks ids = new IdBlocks(() -> sequence[0]++);
+    System.out.println(ids.nextId() + " " + ids.nextId()); // 7000 7001: block 7 covers 7000-7999
+  }
+}`,
+          },
           {
             language: 'typescript',
             source: `import type pg from 'pg'

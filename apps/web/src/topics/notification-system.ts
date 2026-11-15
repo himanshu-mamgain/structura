@@ -330,6 +330,49 @@ export const notificationSystem: StaticTopic = {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import redis.clients.jedis.RedisClient;
+import redis.clients.jedis.params.SetParams;
+
+public class Intake {
+  public record Event(String idempotencyKey, String userId, String event, Map<String, Object> data) {}
+
+  public record Accepted(String status, Long id) {}
+
+  private static final ObjectMapper json = new ObjectMapper();
+  private final RedisClient redis;
+  private final PrefsService prefsService;
+  private final NotificationLog log;
+  private final KafkaProducer<String, String> kafka;
+
+  public Intake(RedisClient redis, PrefsService prefs, NotificationLog log, KafkaProducer<String, String> kafka) {
+    this.redis = redis;
+    this.prefsService = prefs;
+    this.log = log;
+    this.kafka = kafka;
+  }
+
+  public Accepted accept(Event e) throws Exception {
+    // SET NX: only the first caller within 24h gets "OK".
+    String first = redis.set("dedup:" + e.idempotencyKey(), "1", SetParams.setParams().nx().ex(86_400));
+    if (first == null) return new Accepted("duplicate", null);
+
+    Prefs prefs = prefsService.get(e.userId());
+    NotificationType type = TYPES.get(e.event());
+    if (type.kind().equals("marketing") && !prefs.marketingOptIn()) return suppress(e, "OPT_OUT");
+
+    long id = log.insert(e, "QUEUED");
+    String topic = type.kind().equals("urgent") ? "notif.push.high" : "notif." + type.channel() + ".normal";
+    kafka.send(new ProducerRecord<>(topic, e.userId(), json.writeValueAsString(Map.of("id", id, "event", e))));
+    return new Accepted("QUEUED", id); // 202: delivery happens later
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `export async function accept(e: { event: string; user_id: string; idempotency_key: string }) {
   // SET NX: only the first caller within 24h gets "OK".
@@ -366,6 +409,29 @@ export async function deliver(msg, send) {
   }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeoutException;
+
+public class Delivery {
+  static final int MAX_ATTEMPTS = 5;
+
+  // attempt 1 -> ~2s, 2 -> ~4s, 3 -> ~8s ... plus up to 1s of jitter
+  static double nextDelaySeconds(int attempt) {
+    return 2 * Math.pow(2, attempt - 1) + ThreadLocalRandom.current().nextDouble();
+  }
+
+  static void deliver(Message msg, Sender send) throws Exception {
+    try {
+      send.send(msg);
+    } catch (TimeoutException e) {
+      if (msg.attempts() + 1 >= MAX_ATTEMPTS) deadLetter(msg); // alert, keep for replay
+      else retryQueue.put(msg, nextDelaySeconds(msg.attempts() + 1));
+    }
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import random

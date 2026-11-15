@@ -429,6 +429,34 @@ export async function allow(apiKey, capacity = 10, perSecond = 10 / 60) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.List;
+import redis.clients.jedis.RedisClient;
+
+public class TokenBucket {
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+
+  // Runs inside Redis, so read, refill and take happen as one step.
+  private static final String SCRIPT = """
+      local cap, rate = tonumber(ARGV[1]), tonumber(ARGV[2])
+      local now = tonumber(redis.call('TIME')[1])  -- Redis clock, not the gateway's
+      local s = redis.call('HMGET', KEYS[1], 'tokens', 'ts')
+      local tokens = math.min(cap, (tonumber(s[1]) or cap) + (now - (tonumber(s[2]) or now)) * rate)
+      local allowed = tokens >= 1
+      if allowed then tokens = tokens - 1 end
+      redis.call('HSET', KEYS[1], 'tokens', tokens, 'ts', now)
+      redis.call('EXPIRE', KEYS[1], 120)
+      return allowed and 1 or 0""";
+
+  // allow(key, 10, 10 / 60.0): bursts of up to 10, refilled at 10 a minute.
+  public static boolean allow(String apiKey, int capacity, double perSecond) {
+    Object result = redis.eval(SCRIPT, List.of("rl:tb:" + apiKey),
+        List.of(Integer.toString(capacity), Double.toString(perSecond)));
+    return Long.valueOf(1).equals(result);
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import Redis from 'ioredis'
 const redis = new Redis()
@@ -469,6 +497,22 @@ export async function allow(apiKey, limit = 10, window = 60) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import redis.clients.jedis.RedisClient;
+
+public class FixedWindow {
+  private static final RedisClient redis = RedisClient.create("localhost", 6379);
+
+  public static boolean allow(String apiKey, int limit, int window) {
+    long bucket = System.currentTimeMillis() / 1000 / window; // which minute are we in?
+    String key = "rl:fw:" + apiKey + ":" + bucket;
+    long count = redis.incr(key); // atomic, so no race
+    if (count == 1) redis.expire(key, window * 2L); // old counters clean themselves up
+    return count <= limit;
+  }
+}`,
+          },
+          {
             language: 'python',
             source: `import time, redis
 r = redis.Redis()
@@ -495,6 +539,21 @@ def allow(api_key: str, limit: int = 10, window: int = 60) -> bool:
 // 10 requests at t=55, a new request at t=65 (5 s into the next window):
 // estimate(10, 0, 5) = 10 * 0.9167 = 9.17, so one more would make 10.17 > 10: denied.`,
         versions: [
+          {
+            language: 'java',
+            source: `public class SlidingWindow {
+  static double estimate(long prevCount, long curCount, double secondsIntoWindow, double window) {
+    // The share of the previous window that still overlaps the last 60 seconds.
+    double overlap = 1 - secondsIntoWindow / window;
+    return prevCount * overlap + curCount;
+  }
+
+  public static void main(String[] args) {
+    // 10 requests at t=55, a new request at t=65 (5 s into the next window):
+    System.out.printf("%.2f%n", estimate(10, 0, 5, 60)); // 9.17, so one more would make 10.17 > 10: denied
+  }
+}`,
+          },
           {
             language: 'python',
             source: `def estimate(prev_count: int, cur_count: int, seconds_into_window: float, window: int = 60) -> float:
