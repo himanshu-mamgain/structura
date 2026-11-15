@@ -19,6 +19,8 @@
   query = { topic = ":id" }
   to = "/topic/:id/"
   status = 301
+  # "/" is a real file (index.html), which would otherwise win over the rule.
+  force = true
 
 [functions]
   directory = "netlify/functions"
