@@ -217,8 +217,29 @@ export const chatSystem: StaticTopic = {
     code: [
       {
         title: 'Gateway: receive, store, ack',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { WebSocketServer } from 'ws'
+
+const wss = new WebSocketServer({ port: 8080 })
+const seen = new Set() // de-duplicate client retries (use Redis in production)
+
+wss.on('connection', (socket, req) => {
+  const userId = authenticate(req) // from the token on the upgrade request
+  registerSession(userId, GATEWAY_ID) // Session Registry: user -> this gateway
+
+  socket.on('message', async (raw) => {
+    const m = JSON.parse(raw.toString())
+    if (m.type !== 'send') return
+    if (seen.has(m.client_msg_id)) return // a retry: already stored, ack again below
+    seen.add(m.client_msg_id)
+    const id = await chatService.store(userId, m.conversation, m.text) // store first
+    socket.send(JSON.stringify({ type: 'ack', client_msg_id: m.client_msg_id, message_id: id, state: 'sent' }))
+  })
+})`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { WebSocketServer } from 'ws'
 
 const wss = new WebSocketServer({ port: 8080 })
 const seen = new Set<string>() // de-duplicate client retries (use Redis in production)
@@ -236,11 +257,32 @@ wss.on('connection', (socket, req) => {
     socket.send(JSON.stringify({ type: 'ack', client_msg_id: m.client_msg_id, message_id: id, state: 'sent' }))
   })
 })`,
+          },
+        ],
       },
       {
         title: 'Time-sortable message id',
-        language: 'typescript',
+        language: 'javascript',
         source: `const EPOCH = Date.UTC(2024, 0, 1)
+let lastMs = 0n
+let seq = 0n
+
+/** 41 bits time | 10 bits server | 12 bits sequence: ids sort by send time. */
+export function nextId(serverId) {
+  let ms = BigInt(Date.now() - EPOCH)
+  if (ms === lastMs) {
+    seq = (seq + 1n) & 0xfffn // up to 4,096 ids per millisecond per server
+    if (seq === 0n) ms = lastMs + 1n // sequence used up: borrow the next millisecond
+  } else {
+    seq = 0n
+  }
+  lastMs = ms
+  return (ms << 22n) | (serverId << 12n) | seq
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const EPOCH = Date.UTC(2024, 0, 1)
 let lastMs = 0n
 let seq = 0n
 
@@ -256,6 +298,8 @@ export function nextId(serverId: bigint): bigint {
   lastMs = ms
   return (ms << 22n) | (serverId << 12n) | seq
 }`,
+          },
+        ],
       },
       {
         title: 'Message table and sync query',

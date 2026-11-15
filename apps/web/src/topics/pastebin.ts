@@ -361,8 +361,31 @@ export function pasteKey(ip, timestamp, salt = '') {
       },
       {
         title: 'Create a paste (retry on collision)',
-        language: 'python',
-        source: `def create_paste(db, store, text, minutes, ip, now):
+        language: 'javascript',
+        source: `export async function createPaste(db, store, text, minutes, ip, now) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const key = pasteKey(ip, now, attempt ? String(attempt) : '')
+    const path = \`pastes/\${key}.txt\`
+    await store.put(path, text) // write the blob first: an orphan blob is harmless
+    try {
+      // shortlink is the primary key, so a clash throws instead of overwriting
+      await db.query(
+        \`INSERT INTO pastes (shortlink, expiration_length_in_minutes, created_at, paste_path)
+         VALUES ($1, $2, $3, $4)\`,
+        [key, minutes, now, path],
+      )
+      return key
+    } catch (err) {
+      if (err.code !== '23505') throw err // 23505 is Postgres's unique_violation
+      // another paste has this key: try again with a salt
+    }
+  }
+  throw new Error('could not find a free key')
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `def create_paste(db, store, text, minutes, ip, now):
     path = None
     for attempt in range(5):
         key = paste_key(ip, now, salt=str(attempt) if attempt else "")
@@ -379,11 +402,35 @@ export function pasteKey(ip, timestamp, salt = '') {
         except UniqueViolation:
             continue  # another paste has this key: try again with a salt
     raise RuntimeError("could not find a free key")`,
+          },
+        ],
       },
       {
         title: 'Read with expiry and cache',
-        language: 'python',
-        source: `def read_paste(cache, db, store, key, now):
+        language: 'javascript',
+        source: `export async function readPaste(cache, db, store, key, now) {
+  const cached = await cache.get(\`paste:\${key}\`)
+  if (cached !== null) return cached // TTL was set to the time left, so it cannot be expired
+
+  const { rows } = await db.query(
+    \`SELECT paste_path, created_at, expiration_length_in_minutes
+     FROM pastes WHERE shortlink = $1\`,
+    [key],
+  )
+  if (rows.length === 0) return null
+  const { paste_path: path, created_at: created, expiration_length_in_minutes: minutes } = rows[0]
+  const expiresAt = created.getTime() + minutes * 60_000
+  if (minutes > 0 && expiresAt <= now.getTime()) return null // enforce expiry on every read, cleanup comes later
+
+  const text = await store.get(path)
+  const ttl = minutes ? Math.floor((expiresAt - now.getTime()) / 1000) : 86_400
+  await cache.set(\`paste:\${key}\`, text, { EX: ttl })
+  return text
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `def read_paste(cache, db, store, key, now):
     text = cache.get(f"paste:{key}")
     if text is not None:
         return text  # TTL was set to the time left, so it cannot be expired
@@ -400,6 +447,8 @@ export function pasteKey(ip, timestamp, salt = '') {
     ttl = int((created + timedelta(minutes=minutes) - now).total_seconds()) if minutes else 86400
     cache.set(f"paste:{key}", text, ex=ttl)
     return text`,
+          },
+        ],
       },
       {
         title: 'Cleanup job',

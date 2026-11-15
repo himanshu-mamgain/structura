@@ -270,8 +270,33 @@ export const socialGraph: StaticTopic = {
     code: [
       {
         title: 'Bidirectional breadth-first search',
-        language: 'typescript',
-        source: `type Friends = (ids: number[]) => Promise<Map<number, number[]>> // batched per server
+        language: 'javascript',
+        source: `export async function shortestPath(a, b, friends, maxDepth = 6) {
+  const fromA = new Map([[a, a]]) // person -> who we came from
+  const fromB = new Map([[b, b]])
+  let frontA = [a]
+  let frontB = [b]
+  for (let depth = 0; depth < maxDepth && frontA.length && frontB.length; depth++) {
+    // Always expand the smaller side: fewer friends to fetch.
+    const [front, seen, other] = frontA.length <= frontB.length ? [frontA, fromA, fromB] : [frontB, fromB, fromA]
+    const next = []
+    for (const [id, list] of await friends(front)) {
+      for (const f of list) {
+        if (seen.has(f)) continue
+        seen.set(f, id)
+        if (other.has(f)) return f // the two searches met at f
+        next.push(f)
+      }
+    }
+    if (front === frontA) frontA = next
+    else frontB = next
+  }
+  return null // not connected within maxDepth
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Friends = (ids: number[]) => Promise<Map<number, number[]>> // batched per server
 
 export async function shortestPath(a: number, b: number, friends: Friends, maxDepth = 6) {
   const fromA = new Map([[a, a]]) // person -> who we came from
@@ -295,17 +320,31 @@ export async function shortestPath(a: number, b: number, friends: Friends, maxDe
   }
   return null // not connected within maxDepth
 }`,
+          },
+        ],
       },
       {
         title: 'Batching lookups per Person Server',
-        language: 'typescript',
+        language: 'javascript',
         source: `// The Lookup Service says which server owns each person; group ids so each server is called once.
+export async function getFriends(ids, lookup, call) {
+  const byServer = new Map()
+  for (const id of ids) byServer.set(lookup(id), [...(byServer.get(lookup(id)) ?? []), id])
+  const results = await Promise.all([...byServer].map(([server, group]) => call(server, group)))
+  return new Map(results.flatMap((m) => [...m]))
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// The Lookup Service says which server owns each person; group ids so each server is called once.
 export async function getFriends(ids: number[], lookup: (id: number) => number, call: (server: number, ids: number[]) => Promise<Map<number, number[]>>) {
   const byServer = new Map<number, number[]>()
   for (const id of ids) byServer.set(lookup(id), [...(byServer.get(lookup(id)) ?? []), id])
   const results = await Promise.all([...byServer].map(([server, group]) => call(server, group)))
   return new Map(results.flatMap((m) => [...m]))
 }`,
+          },
+        ],
       },
       {
         title: 'Friend list (SQL)',

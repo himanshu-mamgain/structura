@@ -407,8 +407,30 @@ export const rateLimiter: StaticTopic = {
     code: [
       {
         title: 'Token bucket as one atomic Redis script',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+const redis = new Redis()
+
+// Runs inside Redis, so read, refill and take happen as one step.
+const script = \`
+local cap, rate = tonumber(ARGV[1]), tonumber(ARGV[2])
+local now = tonumber(redis.call('TIME')[1])  -- Redis clock, not the gateway's
+local s = redis.call('HMGET', KEYS[1], 'tokens', 'ts')
+local tokens = math.min(cap, (tonumber(s[1]) or cap) + (now - (tonumber(s[2]) or now)) * rate)
+local allowed = tokens >= 1
+if allowed then tokens = tokens - 1 end
+redis.call('HSET', KEYS[1], 'tokens', tokens, 'ts', now)
+redis.call('EXPIRE', KEYS[1], 120)
+return allowed and 1 or 0
+\`
+
+export async function allow(apiKey, capacity = 10, perSecond = 10 / 60) {
+  return (await redis.eval(script, 1, \`rl:tb:\${apiKey}\`, capacity, perSecond)) === 1
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 const redis = new Redis()
 
 // Runs inside Redis, so read, refill and take happen as one step.
@@ -427,11 +449,28 @@ return allowed and 1 or 0
 export async function allow(apiKey: string, capacity = 10, perSecond = 10 / 60) {
   return (await redis.eval(script, 1, \`rl:tb:\${apiKey}\`, capacity, perSecond)) === 1
 }`,
+          },
+        ],
       },
       {
         title: 'Fixed window counter with INCR',
-        language: 'python',
-        source: `import time, redis
+        language: 'javascript',
+        source: `import { createClient } from 'redis'
+
+const redis = createClient()
+await redis.connect()
+
+export async function allow(apiKey, limit = 10, window = 60) {
+  const bucket = Math.floor(Date.now() / 1000 / window) // which minute are we in?
+  const key = \`rl:fw:\${apiKey}:\${bucket}\`
+  const count = await redis.incr(key) // atomic, so no race
+  if (count === 1) await redis.expire(key, window * 2) // old counters clean themselves up
+  return count <= limit
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import time, redis
 r = redis.Redis()
 
 def allow(api_key: str, limit: int = 10, window: int = 60) -> bool:
@@ -441,17 +480,32 @@ def allow(api_key: str, limit: int = 10, window: int = 60) -> bool:
     if count == 1:
         r.expire(key, window * 2)                  # old counters clean themselves up
     return count <= limit`,
+          },
+        ],
       },
       {
         title: 'Sliding window counter estimate',
-        language: 'python',
-        source: `def estimate(prev_count: int, cur_count: int, seconds_into_window: float, window: int = 60) -> float:
+        language: 'javascript',
+        source: `export function estimate(prevCount, curCount, secondsIntoWindow, window = 60) {
+  // The share of the previous window that still overlaps the last 60 seconds.
+  const overlap = 1 - secondsIntoWindow / window
+  return prevCount * overlap + curCount
+}
+
+// 10 requests at t=55, a new request at t=65 (5 s into the next window):
+// estimate(10, 0, 5) = 10 * 0.9167 = 9.17, so one more would make 10.17 > 10: denied.`,
+        versions: [
+          {
+            language: 'python',
+            source: `def estimate(prev_count: int, cur_count: int, seconds_into_window: float, window: int = 60) -> float:
     # The share of the previous window that still overlaps the last 60 seconds.
     overlap = 1 - seconds_into_window / window
     return prev_count * overlap + cur_count
 
 # 10 requests at t=55, a new request at t=65 (5 s into the next window):
 # estimate(10, 0, 5) = 10 * 0.9167 = 9.17, so one more would make 10.17 > 10: denied.`,
+          },
+        ],
       },
       {
         title: 'Rules table lookup',

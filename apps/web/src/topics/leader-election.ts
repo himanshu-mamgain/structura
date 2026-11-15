@@ -307,9 +307,44 @@ export const leaderElection: StaticTopic = {
     },
     code: [
       {
-        title: 'Follower: election timeout and candidacy (TypeScript)',
-        language: 'typescript',
-        source: `type Role = 'follower' | 'candidate' | 'leader'
+        title: 'Follower: election timeout and candidacy',
+        language: 'javascript',
+        source: `class RaftNode {
+  role = 'follower'
+  term = 0
+  votedFor = null
+  timer
+
+  constructor(id, peers, disk) {
+    this.id = id
+    this.peers = peers
+    this.disk = disk
+  }
+
+  // A fresh random timeout each time makes simultaneous candidates unlikely.
+  resetTimer() {
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => this.startElection(), 150 + Math.random() * 150)
+  }
+
+  async startElection() {
+    this.role = 'candidate'
+    this.term += 1
+    this.votedFor = this.id
+    await this.disk.save({ term: this.term, votedFor: this.id }) // persist before asking
+    this.resetTimer() // if this round splits, try again
+    let votes = 1
+    await Promise.all(this.peers.map(async (p) => {
+      const r = await p.requestVote({ term: this.term, candidateId: this.id, ...this.lastLog() })
+      if (r.term > this.term) return this.stepDown(r.term)
+      if (r.granted && this.role === 'candidate' && ++votes > (this.peers.length + 1) / 2) this.becomeLeader()
+    }))
+  }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Role = 'follower' | 'candidate' | 'leader'
 
 class RaftNode {
   role: Role = 'follower'
@@ -339,11 +374,13 @@ class RaftNode {
     }))
   }
 }`,
+          },
+        ],
       },
       {
-        title: 'Voter: one vote per term (TypeScript)',
-        language: 'typescript',
-        source: `async requestVote(req: { term: number; candidateId: number; lastLogIndex: number; lastLogTerm: number }) {
+        title: 'Voter: one vote per term',
+        language: 'javascript',
+        source: `async requestVote(req) {
   if (req.term < this.term) return { term: this.term, granted: false } // stale candidate
   if (req.term > this.term) await this.stepDown(req.term) // newer term: become follower, clear the vote
 
@@ -361,6 +398,29 @@ class RaftNode {
   }
   return { term: this.term, granted: false }
 }`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `async requestVote(req: { term: number; candidateId: number; lastLogIndex: number; lastLogTerm: number }) {
+  if (req.term < this.term) return { term: this.term, granted: false } // stale candidate
+  if (req.term > this.term) await this.stepDown(req.term) // newer term: become follower, clear the vote
+
+  const mine = this.lastLog()
+  // Candidate's log must be at least as up to date as ours.
+  const upToDate =
+    req.lastLogTerm > mine.lastLogTerm ||
+    (req.lastLogTerm === mine.lastLogTerm && req.lastLogIndex >= mine.lastLogIndex)
+
+  if ((this.votedFor === null || this.votedFor === req.candidateId) && upToDate) {
+    this.votedFor = req.candidateId
+    await this.disk.save({ term: this.term, votedFor: this.votedFor }) // fsync before replying
+    this.resetTimer()
+    return { term: this.term, granted: true }
+  }
+  return { term: this.term, granted: false }
+}`,
+          },
+        ],
       },
       {
         title: 'Fencing token check on the resource (SQL)',

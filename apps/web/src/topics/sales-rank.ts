@@ -240,9 +240,36 @@ export const salesRank: StaticTopic = {
     },
     code: [
       {
-        title: 'MapReduce job (Python)',
-        language: 'python',
-        source: `from collections import defaultdict
+        title: 'MapReduce job',
+        language: 'javascript',
+        source: `// One log line: product_id, category, quantity, timestamp
+export function* mapSale(line) {
+  const [productId, category, quantity] = line.trimEnd().split('\\t')
+  yield [\`\${category}\\t\${productId}\`, Number(quantity)]
+}
+
+export function reduceTotals(pairs) {
+  const totals = new Map()
+  // In a real cluster, the shuffle groups equal keys.
+  for (const [key, quantity] of pairs) totals.set(key, (totals.get(key) ?? 0) + quantity)
+  return totals
+}
+
+export function rank(totals) {
+  const byCategory = new Map()
+  for (const [key, sold] of totals) {
+    const [category, productId] = key.split('\\t')
+    if (!byCategory.has(category)) byCategory.set(category, [])
+    byCategory.get(category).push({ sold, productId })
+  }
+  // Highest sales first; product id breaks ties so runs are repeatable.
+  for (const rows of byCategory.values()) rows.sort((a, b) => b.sold - a.sold || a.productId.localeCompare(b.productId))
+  return byCategory
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `from collections import defaultdict
 
 def map_sale(line):
     # one log line: product_id, category, quantity, timestamp
@@ -261,11 +288,34 @@ def rank(totals):
         by_category[category].append((sold, product_id))
     # highest sales first; product id breaks ties so runs are repeatable
     return {c: sorted(rows, key=lambda r: (-r[0], r[1])) for c, rows in by_category.items()}`,
+          },
+        ],
       },
       {
         title: 'Read path with cache',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+import { db } from './db'
+
+const redis = new Redis()
+
+/** Top N for a category: cache first, table on a miss. */
+export async function bestsellers(category, n = 20) {
+  const key = \`rank:\${category}:7d\`
+  const hit = await redis.get(key)
+  if (hit) return JSON.parse(hit).slice(0, n)
+
+  const { rows } = await db.query(
+    'SELECT product_id, total_sold FROM sales_rank WHERE category_id = $1 ORDER BY total_sold DESC LIMIT 100',
+    [category],
+  )
+  await redis.set(key, JSON.stringify(rows), 'EX', 3600) // the next batch run overwrites it anyway
+  return rows.slice(0, n)
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 import { db } from './db'
 
 const redis = new Redis()
@@ -283,6 +333,8 @@ export async function bestsellers(category: string, n = 20) {
   await redis.set(key, JSON.stringify(rows), 'EX', 3600) // the next batch run overwrites it anyway
   return rows.slice(0, n)
 }`,
+          },
+        ],
       },
       {
         title: 'The ranked table',

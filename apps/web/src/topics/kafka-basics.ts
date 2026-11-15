@@ -323,9 +323,25 @@ kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group bi
 # orders  0          1532            1540            8`,
       },
       {
-        title: 'Producing with a key (TypeScript)',
-        language: 'typescript',
+        title: 'Producing with a key',
+        language: 'javascript',
         source: `import { Kafka } from 'kafkajs'
+
+const kafka = new Kafka({ clientId: 'order-service', brokers: ['localhost:9092'] })
+const producer = kafka.producer()
+await producer.connect()
+
+// Same key, same partition: this order's events stay in order.
+export async function publish(orderId, type) {
+  await producer.send({
+    topic: 'orders',
+    messages: [{ key: orderId, value: JSON.stringify({ orderId, type, at: new Date().toISOString() }) }],
+  })
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Kafka } from 'kafkajs'
 
 const kafka = new Kafka({ clientId: 'order-service', brokers: ['localhost:9092'] })
 const producer = kafka.producer()
@@ -338,11 +354,32 @@ export async function publish(orderId: string, type: 'placed' | 'paid' | 'delive
     messages: [{ key: orderId, value: JSON.stringify({ orderId, type, at: new Date().toISOString() }) }],
   })
 }`,
+          },
+        ],
       },
       {
-        title: 'A consumer in a group (TypeScript)',
-        language: 'typescript',
+        title: 'A consumer in a group',
+        language: 'javascript',
         source: `import { Kafka } from 'kafkajs'
+
+const kafka = new Kafka({ clientId: 'billing', brokers: ['localhost:9092'] })
+// Every copy started with groupId 'billing' shares the partitions.
+const consumer = kafka.consumer({ groupId: 'billing' })
+
+await consumer.connect()
+await consumer.subscribe({ topic: 'orders', fromBeginning: true })
+await consumer.run({
+  // Offsets are committed after eachMessage returns, so a crash re-reads, never skips.
+  eachMessage: async ({ partition, message }) => {
+    const event = JSON.parse(message.value.toString())
+    await upsertInvoice(event) // idempotent: keyed by order id
+    console.log(\`P\${partition}@\${message.offset} \${event.orderId} \${event.type}\`)
+  },
+})`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Kafka } from 'kafkajs'
 
 const kafka = new Kafka({ clientId: 'billing', brokers: ['localhost:9092'] })
 // Every copy started with groupId 'billing' shares the partitions.
@@ -360,6 +397,8 @@ await consumer.run({
 })
 
 declare function upsertInvoice(e: unknown): Promise<void>`,
+          },
+        ],
       },
       {
         title: 'Replaying after a fix (bash)',

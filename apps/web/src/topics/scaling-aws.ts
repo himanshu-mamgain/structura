@@ -324,8 +324,35 @@ export const scalingAws: StaticTopic = {
     code: [
       {
         title: 'Cache-aside with replica reads',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+import { Pool } from 'pg'
+
+const redis = new Redis(process.env.CACHE_URL)
+const primary = new Pool({ connectionString: process.env.DB_PRIMARY })
+const replicas = process.env.DB_REPLICAS.split(',').map((url) => new Pool({ connectionString: url }))
+
+export async function getFeed(userId) {
+  const hit = await redis.get(\`feed:\${userId}\`)
+  if (hit) return JSON.parse(hit) // ~80% of reads end here
+
+  const replica = replicas[userId % replicas.length] // spread reads
+  const { rows } = await replica.query(
+    'SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20',
+    [userId],
+  )
+  await redis.set(\`feed:\${userId}\`, JSON.stringify(rows), 'EX', 60) // short TTL bounds staleness
+  return rows
+}
+
+export async function addPost(userId, body) {
+  await primary.query('INSERT INTO posts (user_id, body) VALUES ($1, $2)', [userId, body])
+  await redis.del(\`feed:\${userId}\`) // drop the stale copy
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 import { Pool } from 'pg'
 
 const redis = new Redis(process.env.CACHE_URL)
@@ -349,11 +376,25 @@ export async function addPost(userId: number, body: string) {
   await primary.query('INSERT INTO posts (user_id, body) VALUES ($1, $2)', [userId, body])
   await redis.del(\`feed:\${userId}\`) // drop the stale copy
 }`,
+          },
+        ],
       },
       {
         title: 'Choosing a shard',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { Pool } from 'pg'
+
+const SHARDS = [0, 1, 2, 3].map((i) => new Pool({ connectionString: process.env[\`DB_SHARD_\${i}\`] }))
+
+/** Same user, same shard, every time: a user's posts never need a cross-shard join. */
+export const shardFor = (userId) => SHARDS[userId % SHARDS.length]
+
+// Plain modulo means adding a shard moves almost every user.
+// Consistent hashing, or many small logical shards mapped onto few servers, avoids that.`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Pool } from 'pg'
 
 const SHARDS = [0, 1, 2, 3].map((i) => new Pool({ connectionString: process.env[\`DB_SHARD_\${i}\`] }))
 
@@ -362,6 +403,8 @@ export const shardFor = (userId: number) => SHARDS[userId % SHARDS.length]
 
 // Plain modulo means adding a shard moves almost every user.
 // Consistent hashing, or many small logical shards mapped onto few servers, avoids that.`,
+          },
+        ],
       },
       {
         title: 'Scale the web fleet on CPU',

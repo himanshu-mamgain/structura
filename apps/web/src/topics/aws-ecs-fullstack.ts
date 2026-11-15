@@ -432,9 +432,33 @@ cp Infrastructure/Templates/appspec.yaml Infrastructure/Templates/taskdef.json A
 sed -i "s|<REPO_URL>|$REPO_URL|g" Artifacts/taskdef.json`,
       },
       {
-        title: 'Failed requests per strategy (TypeScript)',
-        language: 'typescript',
+        title: 'Failed requests per strategy',
+        language: 'javascript',
         source: `// Share of traffic on green, minute by minute, for CodeDeploy's ECS configurations.
+const shares = {
+  allAtOnce: () => 1,
+  canary10for5: (t) => (t < 5 ? 0.1 : 1),
+  linear10every1: (t) => Math.min(1, 0.1 * (t + 1)),
+}
+
+// Failed requests until an alarm (threshold per minute, N minutes running) rolls back.
+export function failedRequests(share, perMinute = 3000, errorRate = 0.3, threshold = 50, periods = 2) {
+  let total = 0
+  let over = 0
+  for (let t = 0; t < 30; t++) {
+    const errors = share(t) * perMinute * errorRate
+    total += errors
+    over = errors > threshold ? over + 1 : 0
+    if (over >= periods) break // CodeDeploy points the listener back at blue
+  }
+  return Math.round(total)
+}
+
+console.log(failedRequests(shares.allAtOnce), failedRequests(shares.canary10for5), failedRequests(shares.linear10every1)) // 1800 180 270`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// Share of traffic on green, minute by minute, for CodeDeploy's ECS configurations.
 const shares = {
   allAtOnce: () => 1,
   canary10for5: (t: number) => (t < 5 ? 0.1 : 1),
@@ -455,6 +479,8 @@ export function failedRequests(share: (t: number) => number, perMinute = 3000, e
 }
 
 console.log(failedRequests(shares.allAtOnce), failedRequests(shares.canary10for5), failedRequests(shares.linear10every1)) // 1800 180 270`,
+          },
+        ],
       },
     ],
     related: ['ECS on Fargate', 'Application Load Balancer', 'AWS VPC networking', 'Docker vs VMs', 'Feature flags', 'Monitoring and alerting'],

@@ -495,9 +495,28 @@ aws iam attach-role-policy --role-name orders-task-role \\
   --policy-arn arn:aws:iam::111122223333:policy/OrdersTaskPolicy`,
       },
       {
-        title: 'Ask IAM before you find out (Python)',
-        language: 'python',
-        source: `import boto3
+        title: 'Ask IAM before you find out',
+        language: 'javascript',
+        source: `import { readFileSync } from 'node:fs'
+import { IAMClient, SimulatePrincipalPolicyCommand } from '@aws-sdk/client-iam'
+
+const iam = new IAMClient({})
+
+// The IAM policy simulator evaluates a principal's real policies without making the call.
+const result = await iam.send(
+  new SimulatePrincipalPolicyCommand({
+    PolicySourceArn: 'arn:aws:iam::111122223333:role/deploy-role',
+    ActionNames: ['ecs:UpdateService', 'iam:CreateUser'],
+    PermissionsBoundaryPolicyInputList: [readFileSync('deploy-boundary.json', 'utf8')],
+  }),
+)
+for (const r of result.EvaluationResults) console.log(r.EvalActionName, r.EvalDecision)
+// ecs:UpdateService allowed
+// iam:CreateUser implicitDeny`,
+        versions: [
+          {
+            language: 'python',
+            source: `import boto3
 
 iam = boto3.client("iam")
 
@@ -511,11 +530,26 @@ for r in result["EvaluationResults"]:
     print(r["EvalActionName"], r["EvalDecision"])
 # ecs:UpdateService allowed
 # iam:CreateUser implicitDeny`,
+          },
+        ],
       },
       {
-        title: 'No keys in code: a task role (TypeScript)',
-        language: 'typescript',
+        title: 'No keys in code: a task role',
+        language: 'javascript',
         source: `import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
+
+// No access key anywhere: on ECS the SDK fetches the task role's temporary
+// credentials from the container's credentials endpoint and refreshes them.
+const db = DynamoDBDocumentClient.from(new DynamoDBClient({ region: 'ap-south-1' }))
+
+export async function saveOrder(order) {
+  await db.send(new PutCommand({ TableName: 'Orders', Item: order }))
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
 
 // No access key anywhere: on ECS the SDK fetches the task role's temporary
@@ -525,6 +559,8 @@ const db = DynamoDBDocumentClient.from(new DynamoDBClient({ region: 'ap-south-1'
 export async function saveOrder(order: { id: string; restaurantId: string; totalPaise: number }) {
   await db.send(new PutCommand({ TableName: 'Orders', Item: order }))
 }`,
+          },
+        ],
       },
       {
         title: 'Who did that? (bash)',

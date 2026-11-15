@@ -342,8 +342,35 @@ export const searchAutocomplete: StaticTopic = {
     code: [
       {
         title: 'Trie with top-k on every node',
-        language: 'typescript',
-        source: `type Node = { kids: Map<string, Node>; top: string[] }
+        language: 'javascript',
+        source: `// counts: the weekly total per query. Built once, offline.
+export function build(counts, k = 5) {
+  const root = { kids: new Map(), top: [] }
+  const ranked = [...counts].sort((a, b) => b[1] - a[1])   // most popular first
+  for (const [query] of ranked) {
+    let n = root
+    for (const ch of query) {
+      if (!n.kids.has(ch)) n.kids.set(ch, { kids: new Map(), top: [] })
+      n = n.kids.get(ch)
+      if (n.top.length < k + 2) n.top.push(query)           // k + 2 spares for the filter
+    }
+  }
+  return root
+}
+
+export function suggest(root, prefix, k = 5) {
+  let n = root
+  for (const ch of prefix) {
+    const next = n.kids.get(ch)
+    if (!next) return []
+    n = next
+  }
+  return n.top.slice(0, k)   // no scan: the answer is already on the node
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Node = { kids: Map<string, Node>; top: string[] }
 
 // counts: the weekly total per query. Built once, offline.
 export function build(counts: Map<string, number>, k = 5): Node {
@@ -369,6 +396,8 @@ export function suggest(root: Node, prefix: string, k = 5): string[] {
   }
   return n.top.slice(0, k)   // no scan: the answer is already on the node
 }`,
+          },
+        ],
       },
       {
         title: 'Client: debounce and drop stale answers',
@@ -403,8 +432,25 @@ SET week_count = EXCLUDED.week_count, last_seen = EXCLUDED.last_seen;`,
       },
       {
         title: 'Cache a prefix in Redis',
-        language: 'python',
-        source: `import json, redis
+        language: 'javascript',
+        source: `import { createClient } from 'redis'
+
+const redis = createClient()
+await redis.connect()
+const VERSION = 'v7' // bump to invalidate every cached list at once
+
+export async function suggestions(prefix, k, trie) {
+  const key = \`sug:\${VERSION}:\${prefix}:\${k}\`
+  const hit = await redis.get(key)
+  if (hit !== null) return JSON.parse(hit)
+  const result = await trie.lookup(prefix, k) // network call to a trie shard
+  await redis.set(key, JSON.stringify(result), { EX: 60 }) // short TTL: new snapshots show up within a minute
+  return result
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import json, redis
 r = redis.Redis()
 VERSION = "v7"   # bump to invalidate every cached list at once
 
@@ -416,6 +462,8 @@ def suggestions(prefix: str, k: int, trie) -> list[str]:
     result = trie.lookup(prefix, k)           # network call to a trie shard
     r.setex(key, 60, json.dumps(result))      # short TTL: new snapshots show up within a minute
     return result`,
+          },
+        ],
       },
     ],
     related: ['Trie', 'Debounce', 'Top-k', 'Cache invalidation', 'Sharding', 'Kafka'],

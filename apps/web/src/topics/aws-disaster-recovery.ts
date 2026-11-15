@@ -464,9 +464,30 @@ aws rds restore-db-instance-to-point-in-time --region ap-south-1 \\
 # Then point the app at orders-restored, check it, and rename when happy.`,
       },
       {
-        title: 'Measuring RPO from replica lag (TypeScript)',
-        language: 'typescript',
+        title: 'Measuring RPO from replica lag',
+        language: 'javascript',
         source: `import { CloudWatchClient, GetMetricStatisticsCommand } from '@aws-sdk/client-cloudwatch'
+
+const cw = new CloudWatchClient({ region: 'ap-south-2' })
+
+// ReplicaLag is how far the cross-region replica is behind, in seconds: your RPO right now.
+export async function currentRpoSeconds() {
+  const now = new Date()
+  const res = await cw.send(new GetMetricStatisticsCommand({
+    Namespace: 'AWS/RDS',
+    MetricName: 'ReplicaLag',
+    Dimensions: [{ Name: 'DBInstanceIdentifier', Value: 'orders-dr' }],
+    StartTime: new Date(now.getTime() - 5 * 60_000),
+    EndTime: now,
+    Period: 60,
+    Statistics: ['Maximum'],
+  }))
+  return Math.max(0, ...(res.Datapoints ?? []).map((d) => d.Maximum ?? 0))
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { CloudWatchClient, GetMetricStatisticsCommand } from '@aws-sdk/client-cloudwatch'
 
 const cw = new CloudWatchClient({ region: 'ap-south-2' })
 
@@ -484,6 +505,8 @@ export async function currentRpoSeconds(): Promise<number> {
   }))
   return Math.max(0, ...(res.Datapoints ?? []).map((d) => d.Maximum ?? 0))
 }`,
+          },
+        ],
       },
     ],
     related: ['AWS Basics', 'Redis persistence and replication', 'Database sharding', 'Leader election', 'Key-value store'],

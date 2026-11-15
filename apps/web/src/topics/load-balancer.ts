@@ -291,9 +291,26 @@ server {
 }`,
       },
       {
-        title: 'The three algorithms in TypeScript',
-        language: 'typescript',
-        source: `interface Backend { name: string; conns: number; up: boolean }
+        title: 'The three algorithms',
+        language: 'javascript',
+        source: `let counter = 0
+// Round robin: take turns among the healthy servers.
+export const roundRobin = (pool) => pool.filter((b) => b.up)[counter++ % pool.filter((b) => b.up).length]
+
+// Least connections: whoever is least busy right now.
+export const leastConn = (pool) => pool.filter((b) => b.up).reduce((a, b) => (b.conns < a.conns ? b : a))
+
+// Hash: same client, same server (while the pool is unchanged).
+export function ipHash(pool, ip) {
+  const up = pool.filter((b) => b.up)
+  let h = 2166136261
+  for (const ch of ip) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+  return up[(h >>> 0) % up.length]
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `interface Backend { name: string; conns: number; up: boolean }
 
 let counter = 0
 // Round robin: take turns among the healthy servers.
@@ -309,11 +326,39 @@ export function ipHash(pool: Backend[], ip: string) {
   for (const ch of ip) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
   return up[(h >>> 0) % up.length]
 }`,
+          },
+        ],
       },
       {
         title: 'A health endpoint that checks what matters',
-        language: 'python',
-        source: `from flask import Flask
+        language: 'javascript',
+        source: `import express from 'express'
+import { createClient } from 'redis'
+
+const app = express()
+const cache = createClient({ url: 'redis://sessions.internal' })
+await cache.connect()
+
+// While Redis is down, commands wait for a reconnect instead of failing, so cap the wait.
+const within = (promise, ms) =>
+  Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))])
+
+app.get('/healthz', async (req, res) => {
+  // Fail only if THIS server can't do its job. Don't check every dependency
+  // deeply, or one slow database would take the whole pool out at once.
+  try {
+    await within(cache.ping(), 500)
+  } catch {
+    return res.status(503).json({ status: 'down' })
+  }
+  res.json({ status: 'ok' })
+})
+
+app.listen(8080)`,
+        versions: [
+          {
+            language: 'python',
+            source: `from flask import Flask
 import redis
 
 app = Flask(__name__)
@@ -328,6 +373,8 @@ def healthz():
     except redis.RedisError:
         return {"status": "down"}, 503
     return {"status": "ok"}, 200`,
+          },
+        ],
       },
     ],
     related: ['Reverse proxy', 'API gateway', 'Health checks', 'Consistent hashing', 'High availability', 'Sticky sessions'],

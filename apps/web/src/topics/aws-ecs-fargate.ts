@@ -405,9 +405,24 @@ module "ecs_service" {
 EOF`,
       },
       {
-        title: 'Target tracking arithmetic (TypeScript)',
-        language: 'typescript',
+        title: 'Target tracking arithmetic',
+        language: 'javascript',
         source: `// Target tracking sets capacity in proportion to how far the metric is from its target.
+export function desiredTasks(current, metric, target = 50, min = 2, max = 12) {
+  const want = Math.ceil((current * metric) / target)
+  return Math.min(max, Math.max(min, want))
+}
+
+desiredTasks(2, 100) // 4: two tasks at 100% CPU need twice as many
+desiredTasks(4, 100) // 8: still saturated a minute later, double again
+desiredTasks(8, 75)  // 12
+
+// The deployment circuit breaker's failure threshold.
+export const breakerThreshold = (desired) => Math.min(200, Math.max(3, Math.ceil(0.5 * desired)))`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// Target tracking sets capacity in proportion to how far the metric is from its target.
 export function desiredTasks(current: number, metric: number, target = 50, min = 2, max = 12): number {
   const want = Math.ceil((current * metric) / target)
   return Math.min(max, Math.max(min, want))
@@ -419,6 +434,8 @@ desiredTasks(8, 75)  // 12
 
 // The deployment circuit breaker's failure threshold.
 export const breakerThreshold = (desired: number) => Math.min(200, Math.max(3, Math.ceil(0.5 * desired)))`,
+          },
+        ],
       },
       {
         title: 'Raise the minimum before a planned sale (bash)',

@@ -500,9 +500,36 @@ The team added three things:
     },
     code: [
       {
-        title: 'The agent loop with limits (TypeScript)',
-        language: 'typescript',
-        source: `type ToolCall = { tool: string; args: Record<string, unknown> }
+        title: 'The agent loop with limits',
+        language: 'javascript',
+        source: `export async function runAgent(
+  ask, // the model call
+  tools,
+  allowed, // tools this task may use
+  messages,
+  maxSteps = 12,
+) {
+  for (let step = 1; step <= maxSteps; step++) {
+    const reply = await ask(messages)
+    if (reply.type === 'answer') return { done: true, text: reply.text }
+    const { tool, args } = reply.call
+    let result
+    if (!allowed.has(tool) || !tools[tool]) {
+      result = { error: \`\${tool} is not allowed here\` } // the model learns it can't, nothing runs
+    } else {
+      // Same intended action, same key, on every retry.
+      const key = \`\${tool}:\${JSON.stringify(args)}\`
+      result = await tools[tool].run(args, key).catch((e) => ({ error: String(e) }))
+    }
+    // Results go back as data, clearly marked as coming from a tool.
+    messages.push({ role: 'assistant', toolCall: reply.call }, { role: 'tool', name: tool, content: JSON.stringify(result) })
+  }
+  return { done: false, text: 'Handing this to a colleague.' }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type ToolCall = { tool: string; args: Record<string, unknown> }
 type Reply = { type: 'tool'; call: ToolCall } | { type: 'answer'; text: string }
 
 interface Tool {
@@ -534,6 +561,8 @@ export async function runAgent(
   }
   return { done: false, text: 'Handing this to a colleague.' }
 }`,
+          },
+        ],
       },
       {
         title: 'An idempotent rebook endpoint (SQL)',
@@ -561,9 +590,30 @@ SELECT * FROM rebookings WHERE idempotency_key = 'rebook:QX7K2P:SK 2131:2026-11-
 LIMIT 1;`,
       },
       {
-        title: 'A tool policy the model can\'t override (Python)',
-        language: 'python',
-        source: `POLICY = {
+        title: "A tool policy the model can't override",
+        language: 'javascript',
+        source: `import assert from 'node:assert'
+
+const POLICY = {
+  rebook_flight: {
+    allowed: new Set(['get_booking', 'search_flights', 'rebook', 'send_email']),
+    needsApproval: new Set(['issue_refund']),
+  },
+}
+
+export function check(task, tool, args) {
+  const rules = POLICY[task]
+  if (rules.needsApproval.has(tool)) return 'approval' // park the call; a support lead decides
+  if (!rules.allowed.has(tool)) return 'deny' // the model gets an error back, nothing runs
+  if (tool === 'rebook' && (args.charge_inr ?? 0) > 10_000) return 'approval' // arguments are checked too, not just names
+  return 'allow'
+}
+
+assert.equal(check('rebook_flight', 'issue_refund', { amount: 11200 }), 'approval')`,
+        versions: [
+          {
+            language: 'python',
+            source: `POLICY = {
     "rebook_flight": {
         "allowed": {"get_booking", "search_flights", "rebook", "send_email"},
         "needs_approval": {"issue_refund"},
@@ -581,11 +631,37 @@ def check(task: str, tool: str, args: dict) -> str:
     return "allow"
 
 assert check("rebook_flight", "issue_refund", {"amount": 11200}) == "approval"`,
+          },
+        ],
       },
       {
-        title: 'Testing on recorded conversations (Python)',
-        language: 'python',
-        source: `import json
+        title: 'Testing on recorded conversations',
+        language: 'javascript',
+        source: `import { readFileSync } from 'node:fs'
+
+// Each case: a conversation, scripted tool results (including injections and
+// timeouts), and what must and must not happen.
+const cases = readFileSync('agent_cases.jsonl', 'utf8')
+  .trim()
+  .split('\\n')
+  .map((line) => JSON.parse(line))
+
+export async function evaluate(agent) {
+  const failures = []
+  for (const c of cases) {
+    const run = await agent.replay(c.messages, { toolResults: c.tool_results })
+    const calls = run.toolCalls.map((call) => call.tool)
+    if ((c.must_not_call ?? []).some((t) => calls.includes(t))) failures.push([c.id, 'called a forbidden tool'])
+    if ((run.sideEffects.bookings ?? 0) > (c.max_bookings ?? 1)) failures.push([c.id, 'duplicate booking'])
+    if (run.toolCalls.length > (c.max_steps ?? 12)) failures.push([c.id, 'too many steps'])
+  }
+  const failed = new Set(failures.map(([id]) => id))
+  return { passRate: 1 - failed.size / cases.length, failures }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import json
 
 # Each case: a conversation, scripted tool results (including injections and
 # timeouts), and what must and must not happen.
@@ -603,6 +679,8 @@ def evaluate(agent):
         if len(run.tool_calls) > case.get("max_steps", 12):
             failures.append((case["id"], "too many steps"))
     return 1 - len({f[0] for f in failures}) / len(cases), failures`,
+          },
+        ],
       },
     ],
     related: ['LLM gateway', 'RAG pipeline', 'Idempotency', 'Payment idempotency', 'Workflow orchestration', 'Prompt injection'],

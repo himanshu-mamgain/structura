@@ -432,9 +432,29 @@ export const databaseSharding: StaticTopic = {
     },
     code: [
       {
-        title: 'Route a key with fixed buckets (TypeScript)',
-        language: 'typescript',
+        title: 'Route a key with fixed buckets',
+        language: 'javascript',
         source: `import { createHash } from 'node:crypto'
+
+const BUCKETS = 1024 // far more buckets than shards, fixed for the life of the system
+
+// bucket → shard id, loaded from the shard map and refreshed when its version changes.
+let bucketToShard = Array.from({ length: BUCKETS }, (_, b) => b % 4)
+
+export function bucketOf(userId) {
+  const h = createHash('md5').update(String(userId)).digest().readUInt32BE(0)
+  return h % BUCKETS
+}
+
+export function shardFor(userId) {
+  return bucketToShard[bucketOf(userId)]
+}
+
+// Adding a shard only changes entries in bucketToShard; no key is ever re-hashed.`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createHash } from 'node:crypto'
 
 const BUCKETS = 1024 // far more buckets than shards, fixed for the life of the system
 
@@ -451,11 +471,34 @@ export function shardFor(userId: number): number {
 }
 
 // Adding a shard only changes entries in bucketToShard; no key is ever re-hashed.`,
+          },
+        ],
       },
       {
-        title: 'Scatter-gather when there is no shard key (Python)',
-        language: 'python',
-        source: `import asyncio, heapq
+        title: 'Scatter-gather when there is no shard key',
+        language: 'javascript',
+        source: `export async function newestShipped(shards, limit = 20) {
+  // Ask every shard for its own newest rows, in parallel.
+  const parts = await Promise.all(
+    shards.map((s) =>
+      s.query(
+        \`SELECT * FROM orders WHERE status = 'shipped'
+         ORDER BY created_at DESC LIMIT $1\`,
+        [limit],
+      ),
+    ),
+  )
+  // At most shards × limit rows come back, so a plain sort is cheap.
+  // Keep the global newest \`limit\`.
+  return parts
+    .flatMap((p) => p.rows)
+    .sort((a, b) => b.created_at - a.created_at)
+    .slice(0, limit)
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import asyncio, heapq
 
 async def newest_shipped(shards, limit=20):
     # Ask every shard for its own newest rows, in parallel.
@@ -467,6 +510,8 @@ async def newest_shipped(shards, limit=20):
     # Merge the already-sorted lists and keep the global newest 'limit'.
     merged = heapq.merge(*parts, key=lambda r: r["created_at"], reverse=True)
     return list(merged)[:limit]`,
+          },
+        ],
       },
       {
         title: 'Per-shard table and the index that matters (SQL)',

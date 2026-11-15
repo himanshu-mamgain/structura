@@ -261,9 +261,40 @@ export const uniqueIdGenerator: StaticTopic = {
     },
     code: [
       {
-        title: 'Snowflake generator (TypeScript, BigInt)',
-        language: 'typescript',
+        title: 'Snowflake generator (BigInt)',
+        language: 'javascript',
         source: `const EPOCH = 1735689600000n // 2025-01-01, our own epoch
+const MAX_WAIT_MS = 100n
+
+export class Snowflake {
+  lastMs = -1n
+  seq = 0n
+  constructor(machineId) {
+    this.machineId = machineId // 0..1023, leased from the registry
+  }
+
+  next() {
+    let now = BigInt(Date.now())
+    if (now < this.lastMs) {
+      // Clock went backwards: wait if small, refuse if large.
+      if (this.lastMs - now > MAX_WAIT_MS) throw new Error('clock moved backwards')
+      while (now < this.lastMs) now = BigInt(Date.now())
+    }
+    if (now === this.lastMs) {
+      this.seq = (this.seq + 1n) & 0xfffn // 12 bits
+      if (this.seq === 0n) while (now <= this.lastMs) now = BigInt(Date.now()) // full: next ms
+    } else {
+      this.seq = 0n
+    }
+    this.lastMs = now
+    // Strings, not numbers: ids above 2^53 lose precision in JSON.
+    return (((now - EPOCH) << 22n) | (this.machineId << 12n) | this.seq).toString()
+  }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const EPOCH = 1735689600000n // 2025-01-01, our own epoch
 const MAX_WAIT_MS = 100n
 
 export class Snowflake {
@@ -289,11 +320,34 @@ export class Snowflake {
     return (((now - EPOCH) << 22n) | (this.machineId << 12n) | this.seq).toString()
   }
 }`,
+          },
+        ],
       },
       {
-        title: 'Take a worker id with an etcd lease (Go)',
-        language: 'go',
-        source: `// Try each machine id until one is free; the lease frees it if we crash.
+        title: 'Take a worker id with an etcd lease',
+        language: 'javascript',
+        source: `import { Etcd3 } from 'etcd3'
+import { hostname } from 'node:os'
+
+const etcd = new Etcd3()
+
+// Try each machine id until one is free; the lease frees it if we crash.
+export async function takeWorkerId() {
+  const lease = etcd.lease(30) // 30 s, renewed in the background while we run
+  for (let id = 0; id < 1024; id++) {
+    const key = \`/id-workers/\${id}\`
+    const res = await etcd
+      .if(key, 'Create', '==', 0) // only if nobody holds it
+      .then(lease.put(key).value(hostname()))
+      .commit()
+    if (res.succeeded) return id
+  }
+  throw new Error('all 1024 worker ids are taken')
+}`,
+        versions: [
+          {
+            language: 'go',
+            source: `// Try each machine id until one is free; the lease frees it if we crash.
 lease, _ := cli.Grant(ctx, 30) // 30 s, renewed with KeepAlive
 cli.KeepAlive(ctx, lease.ID)
 for id := 0; id < 1024; id++ {
@@ -306,11 +360,30 @@ for id := 0; id < 1024; id++ {
 \t\treturn id
 \t}
 }`,
+          },
+        ],
       },
       {
-        title: 'Decode an id back into its parts (Python)',
-        language: 'python',
-        source: `EPOCH_MS = 1735689600000
+        title: 'Decode an id back into its parts',
+        language: 'javascript',
+        source: `// Ids are 64-bit, past Number's safe range (2^53), so use BigInt.
+const EPOCH_MS = 1735689600000n
+
+export function decode(id) {
+  return {
+    created_ms: Number((id >> 22n) + EPOCH_MS), // top 41 bits
+    datacenter: Number((id >> 17n) & 0x1fn), // next 5
+    worker: Number((id >> 12n) & 0x1fn), // next 5
+    sequence: Number(id & 0xfffn), // last 12
+  }
+}
+
+console.log(decode(158506160599736320n))
+// { created_ms: 1773480413589, datacenter: 1, worker: 2, sequence: 0 }`,
+        versions: [
+          {
+            language: 'python',
+            source: `EPOCH_MS = 1735689600000
 
 def decode(id_: int):
     return {
@@ -322,6 +395,8 @@ def decode(id_: int):
 
 print(decode(158506160599736320))
 # {'created_ms': 1773480413589, 'datacenter': 1, 'worker': 2, 'sequence': 0}`,
+          },
+        ],
       },
       {
         title: 'Sorting by id is sorting by time',

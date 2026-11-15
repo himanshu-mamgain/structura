@@ -549,9 +549,27 @@ redis-cli -p 26379 SENTINEL get-master-addr-by-name mymaster
 # 2) "6379"`,
       },
       {
-        title: 'Connecting through Sentinel (TypeScript)',
-        language: 'typescript',
+        title: 'Connecting through Sentinel',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+
+// The client asks the Sentinels where the primary is, and asks again after a failover.
+const redis = new Redis({
+  sentinels: [
+    { host: '10.0.3.21', port: 26379 },
+    { host: '10.0.3.22', port: 26379 },
+    { host: '10.0.3.23', port: 26379 },
+  ],
+  name: 'mymaster',
+})
+
+export async function addToCart(cartId, sku) {
+  return redis.hincrby(\`cart:\${cartId}\`, sku, 1)
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 
 // The client asks the Sentinels where the primary is, and asks again after a failover.
 const redis = new Redis({
@@ -566,11 +584,28 @@ const redis = new Redis({
 export async function addToCart(cartId: string, sku: string) {
   return redis.hincrby(\`cart:\${cartId}\`, sku, 1)
 }`,
+          },
+        ],
       },
       {
-        title: 'WAIT for a replica on key writes (Python)',
-        language: 'python',
-        source: `import redis
+        title: 'WAIT for a replica on key writes',
+        language: 'javascript',
+        source: `import { createClient } from 'redis'
+
+const redis = createClient({ url: 'redis://10.0.1.11:6379' })
+await redis.connect()
+
+export async function placeOrderHold(orderId, cartId) {
+  await redis.hSet(\`hold:\${orderId}\`, { cart: cartId, status: 'held' })
+  // Block up to 100 ms until at least one replica has the write.
+  // It narrows the async window; it isn't a guarantee.
+  const acked = await redis.wait(1, 100)
+  return acked >= 1
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import redis
 
 r = redis.Redis(host="10.0.1.11", port=6379)
 
@@ -580,6 +615,8 @@ def place_order_hold(order_id: str, cart_id: str) -> bool:
     # It narrows the async window; it isn't a guarantee.
     acked = r.wait(1, 100)
     return acked >= 1`,
+          },
+        ],
       },
     ],
     related: ['Redis Basics', 'Distributed cache', 'Replication', 'Leader election', 'Write-ahead log'],

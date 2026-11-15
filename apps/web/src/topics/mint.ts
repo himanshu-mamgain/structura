@@ -306,18 +306,44 @@ WHERE account_id = $1 ORDER BY posted_at DESC LIMIT 25;`,
       },
       {
         title: 'Category lookup with user rules first',
-        language: 'typescript',
-        source: `type Rules = Map<string, string> // seller -> category chosen by this user
+        language: 'javascript',
+        source: `export function categorize(seller, userRules, sellerTable) {
+  // A rule the user set always beats the shared default.
+  return userRules.get(seller) ?? sellerTable.get(seller) ?? 'Uncategorized'
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `type Rules = Map<string, string> // seller -> category chosen by this user
 
 export function categorize(seller: string, userRules: Rules, sellerTable: Map<string, string>) {
   // A rule the user set always beats the shared default.
   return userRules.get(seller) ?? sellerTable.get(seller) ?? 'Uncategorized'
 }`,
+          },
+        ],
       },
       {
         title: 'Budget check with a one-time alert',
-        language: 'typescript',
+        language: 'javascript',
         source: `import Redis from 'ioredis'
+
+const redis = new Redis()
+const WARN_AT = 0.8
+
+export async function addToBudget(userId, month, category, cents, limitCents) {
+  const key = \`budget:\${userId}:\${month}\`
+  const after = await redis.hincrby(key, category, cents) // integer cents: no float drift
+  const before = after - cents
+  // Alert only when this purchase crosses the line, not on every later one.
+  const crossedWarn = before < limitCents * WARN_AT && after >= limitCents * WARN_AT
+  const crossedLimit = before < limitCents && after >= limitCents
+  return crossedLimit ? 'over' : crossedWarn ? 'warn' : null
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import Redis from 'ioredis'
 
 const redis = new Redis()
 const WARN_AT = 0.8
@@ -331,17 +357,32 @@ export async function addToBudget(userId: string, month: string, category: strin
   const crossedLimit = before < limitCents && after >= limitCents
   return crossedLimit ? 'over' : crossedWarn ? 'warn' : null
 }`,
+          },
+        ],
       },
       {
         title: 'Sync schedule by activity',
-        language: 'python',
-        source: `from datetime import datetime, timedelta
+        language: 'javascript',
+        source: `const MINUTE = 60_000
+const DAY = 24 * 60 * MINUTE
+
+// Active users are pulled often; inactive ones once a day.
+export function nextSync(lastLogin, lastSync, now) {
+  if (now - lastLogin <= 30 * DAY) return new Date(lastSync.getTime() + 15 * MINUTE)
+  return new Date(lastSync.getTime() + DAY)
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `from datetime import datetime, timedelta
 
 def next_sync(last_login: datetime, last_sync: datetime, now: datetime) -> datetime:
     """Active users are pulled often; inactive ones once a day."""
     if now - last_login <= timedelta(days=30):
         return last_sync + timedelta(minutes=15)
     return last_sync + timedelta(days=1)`,
+          },
+        ],
       },
     ],
     related: ['Message queues', 'Idempotency', 'Dead-letter queue', 'Rate limiting', 'Sharding', 'Cache-aside'],

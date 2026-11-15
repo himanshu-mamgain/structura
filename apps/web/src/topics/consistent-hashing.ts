@@ -297,9 +297,48 @@ export const consistentHashing: StaticTopic = {
     },
     code: [
       {
-        title: 'A hash ring with virtual nodes (TypeScript)',
-        language: 'typescript',
+        title: 'A hash ring with virtual nodes',
+        language: 'javascript',
         source: `import { createHash } from 'node:crypto'
+
+// First 4 bytes of MD5 as a position on a ring of 2^32. Any well-mixed hash works,
+// but every client must use the same one.
+const pos = (s) => createHash('md5').update(s).digest().readUInt32BE(0)
+
+export class Ring {
+  tokens = []
+
+  constructor(nodes, vnodes = 100) {
+    this.vnodes = vnodes
+    for (const n of nodes) this.add(n)
+  }
+
+  add(node) {
+    for (let i = 0; i < this.vnodes; i++) this.tokens.push({ pos: pos(\`\${node}#\${i}\`), node })
+    this.tokens.sort((a, b) => a.pos - b.pos)
+  }
+
+  remove(node) {
+    this.tokens = this.tokens.filter((t) => t.node !== node)
+  }
+
+  /** First token clockwise from the key, found by binary search. */
+  get(key) {
+    const p = pos(key)
+    let lo = 0
+    let hi = this.tokens.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (this.tokens[mid].pos < p) lo = mid + 1
+      else hi = mid
+    }
+    return this.tokens[lo % this.tokens.length].node // wrap past the top
+  }
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { createHash } from 'node:crypto'
 
 // First 4 bytes of MD5 as a position on a ring of 2^32. Any well-mixed hash works,
 // but every client must use the same one.
@@ -334,11 +373,39 @@ export class Ring {
     return this.tokens[lo % this.tokens.length].node // wrap past the top
   }
 }`,
+          },
+        ],
       },
       {
-        title: 'Count how many keys move (Python)',
-        language: 'python',
-        source: `import hashlib
+        title: 'Count how many keys move',
+        language: 'javascript',
+        source: `import { createHash } from 'node:crypto'
+
+const h = (s) => createHash('md5').update(s).digest().readUInt32BE(0)
+const keys = Array.from({ length: 10_000 }, (_, i) => \`user:\${i}\`)
+const share = (n) => \`\${Math.round((n / keys.length) * 100)}%\`
+
+// Hash mod N: 4 nodes -> 5 nodes
+let moved = keys.filter((k) => h(k) % 4 !== h(k) % 5).length
+console.log(\`mod N: \${share(moved)} of keys moved\`) // about 80%
+
+const ring = (nodes, vnodes = 100) =>
+  nodes.flatMap((n) => Array.from({ length: vnodes }, (_, i) => [h(\`\${n}#\${i}\`), n])).sort((a, b) => a[0] - b[0])
+
+function owner(tokens, key) {
+  const p = h(key)
+  for (const [pos, node] of tokens) if (pos >= p) return node // fine for a demo; use binary search in real code
+  return tokens[0][1]
+}
+
+const before = ring(['A', 'B', 'C', 'D'])
+const after = ring(['A', 'B', 'C', 'D', 'E'])
+moved = keys.filter((k) => owner(before, k) !== owner(after, k)).length
+console.log(\`ring: \${share(moved)} of keys moved\`) // about 20%`,
+        versions: [
+          {
+            language: 'python',
+            source: `import hashlib
 
 def h(s: str) -> int:
     return int.from_bytes(hashlib.md5(s.encode()).digest()[:4], "big")
@@ -363,11 +430,25 @@ before = ring(["A", "B", "C", "D"])
 after = ring(["A", "B", "C", "D", "E"])
 moved = sum(owner(before, k) != owner(after, k) for k in keys)
 print(f"ring: {moved / len(keys):.0%} of keys moved")  # about 20%`,
+          },
+        ],
       },
       {
-        title: 'Replicas: the next distinct nodes clockwise (TypeScript)',
-        language: 'typescript',
+        title: 'Replicas: the next distinct nodes clockwise',
+        language: 'javascript',
         source: `// Store each key on R different nodes. Walk the ring and skip tokens
+// that belong to a node we already picked (virtual nodes repeat).
+export function replicas(tokens, start, r = 3) {
+  const picked = new Set()
+  for (let i = 0; picked.size < r && i < tokens.length; i++) {
+    picked.add(tokens[(start + i) % tokens.length].node)
+  }
+  return [...picked]
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `// Store each key on R different nodes. Walk the ring and skip tokens
 // that belong to a node we already picked (virtual nodes repeat).
 export function replicas(tokens: { pos: number; node: string }[], start: number, r = 3): string[] {
   const picked = new Set<string>()
@@ -376,6 +457,8 @@ export function replicas(tokens: { pos: number; node: string }[], start: number,
   }
   return [...picked]
 }`,
+          },
+        ],
       },
     ],
     related: ['Sharding', 'Rendezvous hashing', 'Distributed cache', 'Consistent hashing with bounded loads', 'Dynamo-style replication'],

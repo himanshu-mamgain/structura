@@ -380,9 +380,24 @@ kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic payments
 # Topic: payments  Partition: 0  Leader: 1  Replicas: 1,2,3  Isr: 1,2,3`,
       },
       {
-        title: 'A safe producer (TypeScript)',
-        language: 'typescript',
+        title: 'A safe producer',
+        language: 'javascript',
         source: `import { Kafka } from 'kafkajs'
+
+const kafka = new Kafka({ clientId: 'payments', brokers: ['b1:9092', 'b2:9092', 'b3:9092'] })
+
+// Idempotent: retries can't create duplicates. It needs acks=-1 (all); one request
+// in flight per connection keeps the order of retried batches simple.
+const producer = kafka.producer({ idempotent: true, maxInFlightRequests: 1 })
+await producer.connect()
+
+export async function recordPayment(p) {
+  await producer.send({ topic: 'payments', acks: -1, messages: [{ key: p.orderId, value: JSON.stringify(p) }] })
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Kafka } from 'kafkajs'
 
 const kafka = new Kafka({ clientId: 'payments', brokers: ['b1:9092', 'b2:9092', 'b3:9092'] })
 
@@ -394,11 +409,49 @@ await producer.connect()
 export async function recordPayment(p: { id: string; orderId: string; paise: number }) {
   await producer.send({ topic: 'payments', acks: -1, messages: [{ key: p.orderId, value: JSON.stringify(p) }] })
 }`,
+          },
+        ],
       },
       {
-        title: 'Exactly-once read-process-write (Java)',
-        language: 'java',
-        source: `// The consumer uses isolation.level=read_committed and enable.auto.commit=false.
+        title: 'Exactly-once read-process-write',
+        language: 'javascript',
+        source: `import { Kafka } from 'kafkajs'
+
+const kafka = new Kafka({ clientId: 'invoicer', brokers: ['kafka-1:9092'] })
+// kafkajs consumers read committed messages only (readUncommitted: false).
+const consumer = kafka.consumer({ groupId: 'invoicer', readUncommitted: false })
+const producer = kafka.producer({ transactionalId: 'invoicer-1', idempotent: true, maxInFlightRequests: 1 })
+
+await producer.connect() // fences any older producer with this transactionalId
+await consumer.connect()
+await consumer.subscribe({ topics: ['orders'] })
+
+await consumer.run({
+  autoCommit: false,
+  eachBatch: async ({ batch }) => {
+    const tx = await producer.transaction()
+    try {
+      await tx.send({
+        topic: 'invoices',
+        messages: batch.messages.map((m) => ({ key: m.key, value: toInvoice(m.value) })),
+      })
+      // The offsets commit inside the same transaction as the invoices.
+      const next = (BigInt(batch.lastOffset()) + 1n).toString()
+      await tx.sendOffsets({
+        consumerGroupId: 'invoicer',
+        topics: [{ topic: batch.topic, partitions: [{ partition: batch.partition, offset: next }] }],
+      })
+      await tx.commit()
+    } catch (err) {
+      await tx.abort() // read_committed consumers never see these
+      throw err // kafkajs then reads the batch again from the last committed offset
+    }
+  },
+})`,
+        versions: [
+          {
+            language: 'java',
+            source: `// The consumer uses isolation.level=read_committed and enable.auto.commit=false.
 producer.initTransactions(); // fences any older producer with this transactional.id
 while (true) {
   ConsumerRecords<String, String> batch = consumer.poll(Duration.ofMillis(500));
@@ -416,6 +469,8 @@ while (true) {
     rewindToCommitted(consumer);
   }
 }`,
+          },
+        ],
       },
       {
         title: 'Consumer settings for calm rebalances (bash)',

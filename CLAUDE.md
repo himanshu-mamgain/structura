@@ -117,8 +117,11 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      celebrity fan-out switch in twitter-timeline). Make `explanation.trace` a getter,
      `get trace() { return defaultTrace(simulator) }` (from `./simulator`), so the
      simulator runs when the topic is opened, not when the app starts.
-   - `code`: up to 4 short, runnable snippets (`typescript`, `javascript`, `python`,
-     `sql`, `go`, `java`, `bash`), with brief comments.
+   - `code`: up to 4 short, runnable snippets with brief comments. Write each in
+     **JavaScript** first (`language: 'javascript'`), then add the same code in **Java**
+     (and TypeScript, Python or Go when they help) under `versions: [{ language, source }]`.
+     The code block shows one tab per language, JavaScript first, and remembers the
+     learner's pick across topics. SQL and bash snippets stay single-language.
    - `takeaways`: 5 or 6 one-sentence points.
    - `guides`: related slugs from `library.json` (search it by title).
    - `adaptedFrom`: required when the topic is adapted from a CC BY source.

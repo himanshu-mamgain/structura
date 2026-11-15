@@ -157,6 +157,11 @@ export const ExplanationSchema = z.object({
         title: LABEL.describe('What the snippet shows, e.g. "Base62 encoding".'),
         language: z.enum(CODE_LANGUAGES),
         source: z.string().describe('Short, runnable code for the core logic, under 40 lines, with brief comments.'),
+        versions: z
+          .array(z.object({ language: z.enum(CODE_LANGUAGES), source: z.string() }))
+          .max(4)
+          .optional()
+          .describe('The same code in other languages; the app shows each language as a tab.'),
       }),
     )
     .max(4)
@@ -165,3 +170,4 @@ export const ExplanationSchema = z.object({
 })
 export type Explanation = z.infer<typeof ExplanationSchema>
 export type CodeSnippet = Explanation['code'][number]
+export type CodeLanguage = (typeof CODE_LANGUAGES)[number]

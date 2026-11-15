@@ -302,8 +302,25 @@ export const kafka: StaticTopic = {
     code: [
       {
         title: 'Producer: durable, ordered per key (kafkajs)',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { Kafka } from 'kafkajs'
+
+const kafka = new Kafka({ clientId: 'order-service', brokers: ['kafka-1:9092', 'kafka-2:9092', 'kafka-3:9092'] })
+// idempotent: retries can't create duplicates in the log.
+const producer = kafka.producer({ idempotent: true, maxInFlightRequests: 5 })
+await producer.connect()
+
+export async function orderPaid(orderId, amountInr) {
+  await producer.send({
+    topic: 'orders',
+    acks: -1, // acks=all: wait for the in-sync replicas
+    messages: [{ key: orderId, value: JSON.stringify({ order_id: orderId, amount_inr: amountInr, status: 'PAID' }) }],
+  })
+}`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Kafka } from 'kafkajs'
 
 const kafka = new Kafka({ clientId: 'order-service', brokers: ['kafka-1:9092', 'kafka-2:9092', 'kafka-3:9092'] })
 // idempotent: retries can't create duplicates in the log.
@@ -317,11 +334,35 @@ export async function orderPaid(orderId: string, amountInr: number) {
     messages: [{ key: orderId, value: JSON.stringify({ order_id: orderId, amount_inr: amountInr, status: 'PAID' }) }],
   })
 }`,
+          },
+        ],
       },
       {
         title: 'Consumer: commit after processing, idempotent write',
-        language: 'typescript',
+        language: 'javascript',
         source: `import { Kafka } from 'kafkajs'
+import { pool } from './db'
+
+const consumer = new Kafka({ clientId: 'billing', brokers: ['kafka-1:9092'] }).consumer({ groupId: 'billing' })
+await consumer.connect()
+await consumer.subscribe({ topic: 'orders' })
+
+await consumer.run({
+  autoCommit: false, // commit only after the invoice is written
+  eachMessage: async ({ topic, partition, message }) => {
+    const event = JSON.parse(message.value.toString())
+    // A redelivered event (after a crash or rebalance) inserts nothing.
+    await pool.query(
+      'INSERT INTO invoices (order_id, amount_inr, created_at) VALUES ($1, $2, now()) ON CONFLICT (order_id) DO NOTHING',
+      [event.order_id, event.amount_inr],
+    )
+    await consumer.commitOffsets([{ topic, partition, offset: (BigInt(message.offset) + 1n).toString() }])
+  },
+})`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `import { Kafka } from 'kafkajs'
 import { pool } from './db'
 
 const consumer = new Kafka({ clientId: 'billing', brokers: ['kafka-1:9092'] }).consumer({ groupId: 'billing' })
@@ -340,11 +381,10 @@ await consumer.run({
     await consumer.commitOffsets([{ topic, partition, offset: (BigInt(message.offset) + 1n).toString() }])
   },
 })`,
-      },
-      {
-        title: 'Same consumer in Go (kafka-go)',
-        language: 'go',
-        source: `r := kafka.NewReader(kafka.ReaderConfig{
+          },
+          {
+            language: 'go',
+            source: `r := kafka.NewReader(kafka.ReaderConfig{
 \tBrokers: []string{"kafka-1:9092"},
 \tGroupID: "billing",
 \tTopic:   "orders",
@@ -359,6 +399,8 @@ for {
 \t}
 \tr.CommitMessages(ctx, m) // at-least-once: commit after processing
 }`,
+          },
+        ],
       },
     ],
     related: ['Message queues', 'Event sourcing', 'Exactly-once semantics', 'Change data capture', 'Stream processing'],

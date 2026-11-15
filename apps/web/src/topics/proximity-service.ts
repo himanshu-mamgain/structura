@@ -366,9 +366,29 @@ export const proximityService: StaticTopic = {
     },
     code: [
       {
-        title: 'Encode a geohash (TypeScript)',
-        language: 'typescript',
+        title: 'Encode a geohash',
+        language: 'javascript',
         source: `const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+
+export function geohash(lat, lng, precision) {
+  let la = [-90, 90], lo = [-180, 180]
+  let even = true, bit = 0, ch = 0, out = ''
+  while (out.length < precision) {
+    const range = even ? lo : la // longitude first, then latitude
+    const mid = (range[0] + range[1]) / 2
+    if ((even ? lng : lat) >= mid) { ch = ch * 2 + 1; range[0] = mid } // upper half = 1
+    else { ch = ch * 2; range[1] = mid }
+    even = !even
+    if (++bit === 5) { out += BASE32[ch]; bit = 0; ch = 0 } // 5 bits per character
+  }
+  return out
+}
+
+geohash(28.6315, 77.2167, 7) // "ttnfvh5"`,
+        versions: [
+          {
+            language: 'typescript',
+            source: `const BASE32 = '0123456789bcdefghjkmnpqrstuvwxyz'
 
 export function geohash(lat: number, lng: number, precision: number): string {
   let la = [-90, 90], lo = [-180, 180]
@@ -385,11 +405,39 @@ export function geohash(lat: number, lng: number, precision: number): string {
 }
 
 geohash(28.6315, 77.2167, 7) // "ttnfvh5"`,
+          },
+        ],
       },
       {
-        title: 'Nearby search (Python)',
-        language: 'python',
-        source: `from math import radians, sin, cos, asin, sqrt
+        title: 'Nearby search',
+        language: 'javascript',
+        source: `const rad = (deg) => (deg * Math.PI) / 180
+
+export function haversineM(lat1, lng1, lat2, lng2) {
+  const h =
+    Math.sin(rad(lat2 - lat1) / 2) ** 2 +
+    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lng2 - lng1) / 2) ** 2
+  return 2 * 6371008.8 * Math.asin(Math.sqrt(h))
+}
+
+export async function nearby(redis, lat, lng, radiusM, precision, neighbours) {
+  const ids = new Set()
+  for (const cell of neighbours) {
+    // the user's cell plus its 8 neighbours
+    for (const id of await redis.sMembers(\`geo:\${precision}:\${cell}\`)) ids.add(id)
+  }
+  const found = []
+  for (const bizId of ids) {
+    const b = await getBusiness(bizId) // cache first, database on a miss
+    const d = haversineM(lat, lng, b.lat, b.lng)
+    if (d <= radiusM) found.push({ d, b }) // the cell is a rectangle: drop the far corners
+  }
+  return found.sort((x, y) => x.d - y.d).slice(0, 20)
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `from math import radians, sin, cos, asin, sqrt
 
 def haversine_m(lat1, lng1, lat2, lng2):
     h = sin(radians(lat2 - lat1) / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(radians(lng2 - lng1) / 2) ** 2
@@ -406,9 +454,11 @@ def nearby(redis, lat, lng, radius_m, precision, neighbours):
         if d <= radius_m:  # the cell is a rectangle: drop the far corners
             found.append((d, b))
     return sorted(found, key=lambda x: x[0])[:20]`,
+          },
+        ],
       },
       {
-        title: 'Add a place to the index (JavaScript)',
+        title: 'Add a place to the index',
         language: 'javascript',
         source: `// Runs in the Index Builder after a business.created event.
 async function indexBusiness(redis, b) {

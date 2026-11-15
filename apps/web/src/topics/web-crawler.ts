@@ -198,8 +198,35 @@ export const webCrawler: StaticTopic = {
     code: [
       {
         title: 'Crawler loop',
-        language: 'python',
-        source: `class Crawler:
+        language: 'javascript',
+        source: `// Pulls the most important link, skips near-duplicates, queues indexing.
+export class Crawler {
+  constructor(store, reverseIndexQueue, docQueue) {
+    this.store = store
+    this.reverseIndexQueue = reverseIndexQueue
+    this.docQueue = docQueue
+  }
+
+  async crawl() {
+    let page
+    while ((page = await this.store.extractMaxPriorityPage()) !== null) {
+      if (await this.store.crawledSimilar(page.signature)) {
+        // Seen this content: don't crawl it again (avoids cycles).
+        await this.store.reducePriorityLinkToCrawl(page.url)
+        continue
+      }
+      this.reverseIndexQueue.put(page)
+      this.docQueue.put(page)
+      for (const url of page.childUrls) await this.store.addLinkToCrawl(url)
+      await this.store.removeLinkToCrawl(page.url)
+      await this.store.insertCrawledLink(page.url, page.signature)
+    }
+  }
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `class Crawler:
     """Pulls the most important link, skips near-duplicates, queues indexing."""
 
     def __init__(self, store, reverse_index_queue, doc_queue):
@@ -219,11 +246,36 @@ export const webCrawler: StaticTopic = {
                 self.store.add_link_to_crawl(url)
             self.store.remove_link_to_crawl(page.url)
             self.store.insert_crawled_link(page.url, page.signature)`,
+          },
+        ],
       },
       {
         title: 'Near-duplicate check (simhash)',
-        language: 'python',
-        source: `import hashlib
+        language: 'javascript',
+        source: `import { createHash } from 'node:crypto'
+
+// Similar pages get signatures that differ in only a few bits.
+export function simhash(words, bits = 64) {
+  const weights = new Array(bits).fill(0)
+  for (const word of words) {
+    const h = BigInt('0x' + createHash('md5').update(word).digest('hex'))
+    for (let i = 0; i < bits; i++) weights[i] += (h >> BigInt(i)) & 1n ? 1 : -1
+  }
+  let signature = 0n
+  weights.forEach((w, i) => {
+    if (w > 0) signature |= 1n << BigInt(i)
+  })
+  return signature
+}
+
+export function similar(a, b, maxDifferentBits = 3) {
+  const differentBits = [...(a ^ b).toString(2)].filter((bit) => bit === '1').length
+  return differentBits <= maxDifferentBits
+}`,
+        versions: [
+          {
+            language: 'python',
+            source: `import hashlib
 
 def simhash(words: list[str], bits: int = 64) -> int:
     """Similar pages get signatures that differ in only a few bits."""
@@ -236,6 +288,8 @@ def simhash(words: list[str], bits: int = 64) -> int:
 
 def similar(a: int, b: int, max_different_bits: int = 3) -> bool:
     return bin(a ^ b).count("1") <= max_different_bits`,
+          },
+        ],
       },
     ],
     related: ['Bloom filter', 'MapReduce', 'Inverted index', 'Message queues', 'Consistent hashing'],
