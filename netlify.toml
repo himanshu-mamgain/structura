@@ -11,17 +11,6 @@
   command = "npm run build -w @structura/web"
   publish = "apps/web/dist"
 
-# Old topic links (/?topic=<id>) move to the topic's own page, /topic/<id>/, which the build
-# writes ready-made (apps/web/scripts/prerender.tsx) so search engines and link previews can read it.
-# Links with more parameters (?topic=x&read) still open the app, which tidies the address itself.
-[[redirects]]
-  from = "/"
-  query = { topic = ":id" }
-  to = "/topic/:id/"
-  status = 301
-  # "/" is a real file (index.html), which would otherwise win over the rule.
-  force = true
-
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
