@@ -1,6 +1,6 @@
 # Distributed Message Queue: Hand Off Work, Survive Failure, Accept Duplicates
 
-> 💡 **TL;DR**: A queue lets a producer hand off a job and move on. A worker **receives** the message, which only **hides** it for a **visibility timeout**; the message is gone only when the worker **deletes** it (the ack). If the worker crashes or is too slow, the message **reappears** and another worker gets it. After a few failed receives it goes to a **dead-letter queue**. The price: delivery is **at least once**, so every handler must be **idempotent**.
+> 💡 **TL;DR**: A queue lets a producer hand off a job and move on. A worker **receives** a message, which only **hides** it for a while (the **visibility timeout**). The message is gone only when the worker **deletes** it, which is its "done" (the ack). If the worker crashes or is too slow, the message **comes back** and another worker gets it. After a few failed tries, it moves to a **dead-letter queue** for a person to look at. The price: every message arrives **at least once**, so every handler must be **safe to repeat** (idempotent).
 
 Related: [Kafka basics](/?topic=kafka-basics&read) (a log, not a queue), [Notification System](/?topic=notification-system&read) (a big user of queues), [Rate Limiter](/?topic=rate-limiter&read), [Idempotent Payments](/?topic=payment-idempotency&read).
 

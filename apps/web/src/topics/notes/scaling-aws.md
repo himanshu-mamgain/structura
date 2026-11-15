@@ -1,6 +1,6 @@
 # Scaling to Millions of Users on AWS: Five Stages, One Bottleneck at a Time
 
-> 💡 **TL;DR**: Nobody starts with a sharded fleet. Start with **one server**, then add one idea each time a **measured** number runs out: move the **database** to its own managed instance; put a **load balancer** in front of several **stateless** servers across AZs, with sessions in a **cache**, **read replicas** and a **CDN** for static files; add **Auto Scaling**, split web and API tiers, and move slow work to **queues and workers**; and only at the very top **shard** the database or move hot data to **DynamoDB**. Measure, find the bottleneck, fix that one thing, repeat.
+> 💡 **TL;DR**: Nobody starts with a giant system. Start with **one server**, then add one idea each time a number you **measure** runs out. Move the **database** to its own managed server. Put a **load balancer** in front of several **stateless** servers (they keep nothing about users in memory) across zones, with sessions in a **cache**, **read-only copies** of the database, and a **CDN** for files. Add **Auto Scaling**, split the web and API servers, and move slow work to **queues and workers**. Only at the very top, **split the database into shards** or move the busiest data to **DynamoDB**. Measure, find the slowest part, fix that one thing, and repeat.
 
 Builds on [AWS Basics](/?topic=aws-basics&read). Each stage leans on another topic: [Application Load Balancer](/?topic=aws-alb&read), [Distributed Cache](/?topic=distributed-cache&read), [Database Sharding](/?topic=database-sharding&read).
 
