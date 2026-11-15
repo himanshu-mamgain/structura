@@ -208,7 +208,7 @@ export const awsVpc: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'aws-vpc',
   title: 'AWS VPC Networking',
-  blurb: 'Your own network in AWS: CIDR ranges, public and private subnets, route tables, NAT gateways and endpoints',
+  blurb: 'Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints',
   adaptedFrom: {
     title: 'terraform-aws-vpc',
     author: 'terraform-aws-modules (Anton Babenko and contributors)',
@@ -275,12 +275,12 @@ Because the VPC was a /16, there was room to add new /20 private subnets (4,091 
     ],
   },
   takeaways: [
-    'A VPC is your own address range in a region, split into subnets that each live in one availability zone.',
+    'A VPC is your own range of addresses in a region, split into subnets that each live in one Availability Zone.',
     'A subnet is public only because its route table sends 0.0.0.0/0 to an internet gateway; private subnets have no such route.',
-    'Private subnets reach the internet through a NAT gateway, which allows outbound connections only.',
-    'Gateway endpoints for S3 and DynamoDB are free and skip the NAT gateway\'s per-GB charge.',
-    'Put a NAT gateway in each zone, or one zone\'s failure can cut off the others.',
-    'AWS reserves 5 addresses per subnet, and every Fargate task uses one, so size container subnets generously.',
+    'Private subnets reach the internet through a NAT gateway, which allows connections out but not in.',
+    'Gateway endpoints for S3 and DynamoDB are free and skip the NAT gateway\'s charge for every GB.',
+    'Put a NAT gateway in each zone, or one zone failing can cut off the others.',
+    'AWS keeps 5 addresses in every subnet, and every Fargate task uses one, so make container subnets generous.',
   ],
   architecture: {
     replace: false,
@@ -332,39 +332,39 @@ Because the VPC was a /16, there was room to add new /20 private subnets (4,091 
   explanation: {
     title: 'AWS VPC Networking',
     summary:
-      'A VPC (virtual private cloud) is a private network in an AWS region with an address range you choose. You split it into subnets in several availability zones, and route tables decide where traffic from each subnet can go: to the internet, through a NAT gateway, to an AWS service endpoint, or only inside the VPC.',
+      'A VPC (virtual private cloud) is your own private network in one AWS region, with a range of addresses you choose. You split it into subnets in several Availability Zones. Each subnet\'s route table decides where its traffic can go: to the internet, through a NAT gateway, straight to an AWS service, or only inside the VPC.',
     sections: [
       {
         heading: 'Overview',
-        body: 'Everything you run in AWS that has a network address (containers, servers, databases, load balancers) lives in a VPC. You choose its range in CIDR notation: 10.0.0.0/16 means the first 16 bits are fixed, leaving 2^16 = 65,536 addresses.\n\nThe VPC is divided into subnets, each in one availability zone (AZ), an isolated data centre within the region. A subnet\'s route table decides what it can reach. The usual layout has three tiers in every zone: public subnets for load balancers and NAT gateways, private subnets for the application, and database subnets with no internet route at all.\n\nThe simulator really carves the subnets, looks up each route by longest prefix match and works out the monthly cost of the egress design.',
+        body: 'Everything you run in AWS that has a network address (containers, servers, databases, load balancers) lives in a VPC. You choose its range in CIDR notation: 10.0.0.0/16 means the first 16 bits are fixed, which leaves 2^16 = 65,536 addresses.\n\nThe VPC is split into subnets, and each subnet sits in one Availability Zone, a separate data centre in the region. A subnet\'s route table decides what it can reach. The usual plan has three kinds of subnet in every zone: public ones for load balancers and NAT gateways, private ones for the app, and database ones with no route to the internet at all.\n\nThe simulator really splits the range into subnets, looks up each route the way AWS does (the most specific match wins) and works out what your way of reaching the internet costs each month.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Visitors reach the website through a load balancer; nothing else is reachable from the internet.\n- Application tasks can call outside APIs and AWS services.\n- Databases are reachable only from the application.\n\nNon-functional:\n- Keep working when one availability zone fails.\n- Room for at least 1,000 tasks per zone in future.\n- No data charges for traffic to S3.',
+        body: 'What it must do:\n- Visitors reach the website through a load balancer, and nothing else can be reached from the internet.\n- The app can call outside APIs and AWS services.\n- Only the app can reach the databases.\n\nHow well it must do it:\n- Keep working when one Availability Zone fails.\n- Leave room for at least 1,000 tasks per zone later on.\n- Pay no data charges for traffic to S3.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 10.0.0.0/16: 2^16 = 65,536 addresses. Split into /24 subnets: 2^(24−16) = 256 subnets of 256 addresses.\n- Usable per subnet: 256 − 5 reserved = 251 for a /24, 4,096 − 5 = 4,091 for a /20.\n- 3 tiers × 3 zones = 9 subnets. As /24s they use 2,304 addresses; as /20s, 36,864 of 65,536.\n- NAT gateways (us-east-1 list prices): $0.045 an hour × 730 = $32.85 a month each, plus $0.045 a GB processed. One per zone in 3 zones: $98.55 a month before data.\n- 30 TB a month to S3 through NAT: 30,000 × $0.045 = $1,350. Through a gateway endpoint: $0.',
+        body: '- 10.0.0.0/16: 2^16 = 65,536 addresses. Split into /24 subnets: 2^(24−16) = 256 subnets of 256 addresses each.\n- AWS keeps 5 addresses in every subnet: 256 − 5 = 251 usable in a /24, and 4,096 − 5 = 4,091 in a /20.\n- 3 kinds × 3 zones = 9 subnets. As /24s they use 2,304 addresses; as /20s, 36,864 of the 65,536.\n- NAT gateways (us-east-1 list prices): $0.045 an hour × 730 hours = $32.85 a month each, plus $0.045 for every GB they handle. One per zone in 3 zones: $98.55 a month before any data.\n- 30 TB a month to S3 through NAT: 30,000 GB × $0.045 = $1,350. Through a gateway endpoint: $0.',
       },
       {
         heading: 'Step by step',
-        body: 'A visitor:\n1. The Visitor\'s request crosses the Internet to the Internet Gateway and reaches the Load Balancer in a public subnet.\n2. The Load Balancer forwards it to App Tasks (zone a) or App Tasks (zone b) by the local route.\n3. The task queries Database (primary), which replicates to Database (standby) in another zone.\n\nA task calling out:\n4. App Tasks look up the Private Route Table. S3 traffic matches the S3 prefix list and goes through the S3 Gateway Endpoint to S3.\n5. Other traffic matches 0.0.0.0/0 and goes to the NAT Gateway (zone a), or with one per zone to NAT Gateway (zone b) for zone b.\n6. The NAT gateway uses the Public Route Table to send it through the Internet Gateway to the External API.',
+        body: 'A visitor:\n1. The Visitor\'s request crosses the Internet to the Internet Gateway and reaches the Load Balancer in a public subnet.\n2. The Load Balancer passes it to App Tasks (zone a) or App Tasks (zone b) using the local route.\n3. The task asks Database (primary), which copies every change to Database (standby) in another zone.\n\nA task calling out:\n4. App Tasks look up the Private Route Table. Traffic for S3 matches the S3 route and goes through the S3 Gateway Endpoint to S3.\n5. Everything else matches 0.0.0.0/0 ("every other address") and goes to the NAT Gateway (zone a), or, with one per zone, to the NAT Gateway (zone b) for zone b.\n6. The NAT gateway uses the Public Route Table to send it through the Internet Gateway to the External API.',
       },
       {
         heading: 'Components',
-        body: '- Visitor: anyone on the internet using the site.\n- Internet: everything outside AWS.\n- Internet Gateway: the VPC\'s door to the internet, for subnets whose route table points at it.\n- Load Balancer: has a node in each public subnet and forwards to private targets.\n- Public Route Table: local route plus 0.0.0.0/0 to the internet gateway.\n- NAT Gateway (zone a): lets private subnets open outbound connections from one Elastic IP; zonal.\n- NAT Gateway (zone b): the same, for zone b, so each zone survives alone.\n- App Tasks (zone a): containers in a private subnet, each with its own address.\n- App Tasks (zone b): the same service in a second zone.\n- Private Route Table: local route, the S3 prefix list to the endpoint, and 0.0.0.0/0 to a NAT gateway.\n- S3 Gateway Endpoint: a free route to S3 (and DynamoDB has one too) that never touches the internet.\n- S3: object storage, outside the VPC.\n- External API: a third-party service, such as a payment provider.\n- Database (primary): in a database subnet with only the local route.\n- Database (standby): a synchronous replica in another zone, promoted if the primary\'s zone fails.',
+        body: '- Visitor: anyone on the internet using the site.\n- Internet: everything outside AWS.\n- Internet Gateway: the VPC\'s door to the internet, for subnets whose route table points to it.\n- Load Balancer: has a piece in each public subnet and passes requests on to the private app.\n- Public Route Table: the local route, plus 0.0.0.0/0 to the internet gateway.\n- NAT Gateway (zone a): lets private subnets open connections out to the internet from one fixed address (an Elastic IP); it lives in one zone.\n- NAT Gateway (zone b): the same for zone b, so each zone can keep working on its own.\n- App Tasks (zone a): containers in a private subnet, each with its own address.\n- App Tasks (zone b): the same service in a second zone.\n- Private Route Table: the local route, the S3 route to the endpoint, and 0.0.0.0/0 to a NAT gateway.\n- S3 Gateway Endpoint: a free route to S3 (DynamoDB has one too) that never touches the internet.\n- S3: AWS\'s file storage, outside the VPC.\n- External API: another company\'s service, such as a payment provider.\n- Database (primary): in a database subnet that only has the local route.\n- Database (standby): a copy in another zone, kept up to date on every write, that takes over if the primary\'s zone fails.',
       },
       {
         heading: 'Key decisions',
-        body: '- The VPC range: big (/16) and not overlapping your offices, other VPCs or partners, because the main range can\'t change and overlapping ranges can\'t be peered.\n- Zones: at least two, usually three, with the same subnets in each.\n- NAT: one per zone for availability; one shared NAT gateway only for test environments. IPv6 with an egress-only internet gateway avoids NAT charges for IPv6 traffic.\n- Endpoints: gateway endpoints for S3 and DynamoDB always; interface endpoints (charged hourly) for other AWS APIs when traffic or security justifies them.\n- Security groups (stateful, per network interface) do most access control; network ACLs (stateless, per subnet) are a coarse second layer.\n- Flow logs to see what was accepted and rejected when debugging.',
+        body: '- The VPC\'s range: big (/16), and not overlapping your offices, your other VPCs or your partners. The main range can\'t be changed later, and networks with overlapping ranges can\'t be joined.\n- Zones: at least two, usually three, with the same subnets in each.\n- NAT: one per zone so each zone keeps working; one shared NAT gateway only for test environments. With IPv6, an egress-only internet gateway avoids NAT charges for IPv6 traffic.\n- Endpoints: always use the free gateway endpoints for S3 and DynamoDB. Interface endpoints for other AWS services cost by the hour, so add them when traffic or security makes them worth it.\n- Security groups (firewall rules on each network card, which remember connections) do most of the access control. Network ACLs (rules on a whole subnet, which don\'t) are a rough second layer.\n- Flow logs show what traffic was accepted and rejected, which helps when something can\'t connect.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Zone failure: run every tier in every zone, give each zone its own NAT gateway, and keep a standby database in another zone.\n- Address exhaustion: Fargate tasks, Lambda functions in a VPC and load balancer nodes all use addresses. Add a secondary CIDR range and new subnets if you run out.\n- NAT limits: a NAT gateway handles up to 55,000 simultaneous connections to one destination; many connections to one API need connection reuse or more NAT addresses.\n- Data costs: watch NAT processing and cross-zone traffic in the bill; keep chatty services in the same zone where you can.\n- Connecting VPCs: peering for a few, a transit gateway for many.',
+        body: '- A zone fails: run every layer in every zone, give each zone its own NAT gateway, and keep a standby database in another zone.\n- Running out of addresses: Fargate tasks, Lambda functions in a VPC and load balancer pieces all use addresses. If you run out, add a second range and new subnets.\n- NAT limits: a NAT gateway handles up to 55,000 connections at once to one destination. Many connections to one API need connection reuse or more NAT addresses.\n- Data costs: watch NAT processing and traffic between zones in the bill, and keep chatty services in the same zone where you can.\n- Joining VPCs: peering for a few, a transit gateway for many.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What actually makes a subnet public?\n- Why does a /24 subnet give you 251 usable addresses?\n- Your private tasks can\'t reach an outside API. What do you check, in order?\n- One NAT gateway or one per zone? What does each cost, and what fails?\n- How do you stop paying NAT charges for S3 traffic?\n- You need to connect this VPC to another company\'s network with an overlapping range. What now?',
+        body: '- What actually makes a subnet public?\n- Why does a /24 subnet give you 251 usable addresses?\n- Your private tasks can\'t reach an outside API. What do you check, and in what order?\n- One NAT gateway, or one per zone? What does each cost, and what can fail?\n- How do you stop paying NAT charges for S3 traffic?\n- You need to connect to another company\'s network, and its range overlaps yours. What now?',
       },
     ],
     get trace() {

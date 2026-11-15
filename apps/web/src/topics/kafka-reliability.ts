@@ -237,7 +237,7 @@ export const kafkaReliability: StaticTopic = {
   difficulty: 'Advanced',
   id: 'kafka-reliability',
   title: 'Kafka Reliability: Durability, Exactly-Once',
-  blurb: 'ISR, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances',
+  blurb: 'In-sync copies, acks and min.insync.replicas, unclean leader election, idempotent producers, transactions and rebalances',
   guides: ['can-kafka-lose-messages', 'ref-apache-kafka-docs', 'why-is-kafka-fast', 'the-ultimate-kafka-101-you-cannot-miss'],
   story: {
     title: 'The payments that Kafka "lost"',
@@ -283,12 +283,12 @@ An **idempotent producer** fixes that: it gets a producer id and numbers its bat
     ],
   },
   takeaways: [
-    'The ISR is the set of replicas caught up with the leader; only they can take over safely.',
-    'acks=all waits for the whole ISR, so pair it with min.insync.replicas=2 on a replication factor of 3, or "all" can mean one.',
-    'Unclean leader election trades confirmed data for availability; keep it off for data you can\'t lose.',
+    'The ISR is the set of copies that are up to date with the leader; only they can take over safely.',
+    'acks=all waits for the whole ISR, so pair it with min.insync.replicas=2 and 3 copies, or "all" can mean just one.',
+    'Unclean leader election gives up confirmed data to stay up; keep it off for data you can\'t lose.',
     'Idempotent producers (the default since Kafka 3.0) make retries safe; they need acks=all.',
-    'Transactions make read-process-write exactly-once within Kafka, with read_committed consumers.',
-    'Committing offsets after processing gives at-least-once delivery, so effects outside Kafka must be idempotent.',
+    'Transactions make "read, process, write" happen exactly once inside Kafka, with read_committed readers.',
+    'Committing offsets after processing means messages arrive at least once, so effects outside Kafka must be safe to repeat.',
   ],
   architecture: {
     replace: false,
@@ -328,39 +328,39 @@ An **idempotent producer** fixes that: it gets a producer id and numbers its bat
   explanation: {
     title: 'Kafka Reliability: Durability, Exactly-Once',
     summary:
-      'Kafka\'s guarantees come from configuration. Replication with acks=all and min.insync.replicas decides which confirmed messages survive a broker failure; unclean leader election chooses between availability and data; idempotent producers remove duplicates from retries; and transactions make read-process-write exactly-once within Kafka.',
+      'Kafka\'s promises come from its settings. Copies with acks=all and min.insync.replicas decide which confirmed messages survive a broker failing. Unclean leader election chooses between staying up and keeping data. Idempotent producers remove the repeats that retries cause. Transactions make "read, process, write" happen exactly once inside Kafka.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Replication factor: copies of each partition, one leader and the rest followers.\n- ISR (in-sync replicas): the leader plus followers caught up within replica.lag.time.max.ms (30 s).\n- acks: 0 (don\'t wait), 1 (the leader has it), all (every ISR member has it).\n- min.insync.replicas: the fewest in-sync copies an acks=all write needs, or it is refused.\n- Unclean leader election: whether an out-of-sync replica may become leader when no ISR member is left.\n- Idempotent producer: producer id plus per-partition sequence numbers, so the broker drops duplicated batches.\n- Transactions: atomic writes across partitions plus the consumer offset commit; read_committed consumers skip aborted data.\n- Rebalance: when group membership changes, partitions are reassigned.\n\nThe simulator applies these rules to a payments topic at 1,000 messages a second and counts confirmed messages lost, duplicates and downtime.',
+        body: '- Replication factor: how many copies of each partition there are: one leader, the rest followers.\n- ISR (in-sync replicas): the leader plus the followers that have kept up within the last 30 seconds (replica.lag.time.max.ms).\n- acks: 0 (don\'t wait), 1 (the leader has it), or all (every in-sync copy has it).\n- min.insync.replicas: the fewest in-sync copies an acks=all write needs; with fewer, the write is refused.\n- Unclean leader election: whether a copy that has fallen behind may become leader when no in-sync copy is left.\n- Idempotent producer: the producer\'s ID plus a sequence number per partition, so the broker drops batches it already has.\n- Transactions: writes to several partitions, plus the consumer\'s offset commit, that all happen or none do. Consumers reading with read_committed skip cancelled data.\n- Rebalance: when consumers join or leave a group, the partitions are handed out again.\n\nThe simulator applies these rules to a payments topic at 1,000 messages a second and counts confirmed messages lost, repeats, and downtime.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Every confirmed payment event survives a broker failure.\n- Each payment produces exactly one invoice.\n\nNon-functional:\n- Survive one broker failure without losing confirmed writes.\n- Recover from a consumer crash within a minute.\n- Keep producing during routine broker restarts.',
+        body: 'What it must do:\n- Every confirmed payment event survives a broker failing.\n- Each payment makes exactly one invoice.\n\nHow well it must do it:\n- Lose no confirmed writes when one broker fails.\n- Recover from a consumer crash within a minute.\n- Keep accepting messages during routine broker restarts.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- acks=1 and a leader crash: about 10 ms of unreplicated writes × 1,000/s ≈ 10 messages lost.\n- ISR shrunk to the leader for 30 s with min.insync.replicas=1: 30 × 1,000 = 30,000 confirmed messages on one copy.\n- Leader election after a broker dies: about 9 s (KRaft broker.session.timeout.ms).\n- A consumer crash with session.timeout.ms 45 s: 45 × 1,000 = 45,000 messages of lag before another member takes over.\n- Replication factor 3 triples storage and inter-broker traffic.',
+        body: '- acks=1 and the leader crashes: about 10 ms of writes not yet copied × 1,000 a second ≈ 10 messages lost.\n- ISR shrunk to just the leader for 30 seconds, with min.insync.replicas=1: 30 × 1,000 = 30,000 confirmed messages kept on only one copy.\n- Picking a new leader after a broker dies: about 9 seconds (KRaft\'s broker.session.timeout.ms).\n- A consumer crash with session.timeout.ms at 45 seconds: 45 × 1,000 = 45,000 messages waiting before another member takes over.\n- 3 copies means three times the storage and the traffic between brokers.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Payments Service produces to Broker 1 (Leader) for its partition of the Payments Topic.\n2. Broker 2 and Broker 3 fetch from the leader; caught-up ones form the ISR.\n3. With acks=all the leader confirms only when the ISR has the write, and refuses it if the ISR is smaller than min.insync.replicas.\n4. If the leader dies, the Controller elects a new leader from the ISR (or, if allowed, an out-of-sync replica).\n5. The Invoicer consumes payments and produces to the Invoices Topic, committing offsets through the Group Coordinator.\n6. If the Invoicer dies, the Group Coordinator rebalances its partitions to the Standby Invoicer, which resumes from the last commit; the Ledger Consumer reads invoices with read_committed.',
+        body: '1. The Payments Service sends to Broker 1 (Leader) for its partition of the Payments Topic.\n2. Broker 2 and Broker 3 copy from the leader; the ones that keep up form the ISR.\n3. With acks=all, the leader confirms a write only once the ISR has it, and refuses it if the ISR is smaller than min.insync.replicas.\n4. If the leader dies, the Controller picks a new leader from the ISR (or, if allowed, a copy that has fallen behind).\n5. The Invoicer reads payments and writes to the Invoices Topic, committing its offsets through the Group Coordinator.\n6. If the Invoicer dies, the Group Coordinator hands its partitions to the Standby Invoicer, which carries on from the last commit; the Ledger Consumer reads invoices with read_committed.',
       },
       {
         heading: 'Components',
-        body: '- Payments Service: the producer, with its acks and idempotence settings.\n- Broker 1 (Leader): holds the leader replica and takes all writes for the partition.\n- Broker 2: a follower replica.\n- Broker 3: another follower replica.\n- Controller: tracks brokers and elects partition leaders (KRaft quorum).\n- Payments Topic: the replicated topic of payment events.\n- Invoices Topic: the output topic, written transactionally.\n- Group Coordinator: the broker that manages a consumer group\'s membership and offsets.\n- Invoicer: a consumer that reads payments and produces invoices.\n- Standby Invoicer: another member of the group that takes over after a rebalance.\n- Ledger Consumer: reads invoices with isolation.level=read_committed.',
+        body: '- Payments Service: the producer, with its acks and idempotence settings.\n- Broker 1 (Leader): holds the leader copy and takes all writes for the partition.\n- Broker 2: a follower copy.\n- Broker 3: another follower copy.\n- Controller: keeps track of brokers and picks each partition\'s leader (a KRaft group of servers that agree).\n- Payments Topic: the copied topic of payment events.\n- Invoices Topic: the output topic, written inside transactions.\n- Group Coordinator: the broker that manages a consumer group\'s members and offsets.\n- Invoicer: a consumer that reads payments and writes invoices.\n- Standby Invoicer: another member of the group, which takes over after a rebalance.\n- Ledger Consumer: reads invoices with isolation.level=read_committed.',
       },
       {
         heading: 'Key decisions',
-        body: '- For data you can\'t lose: replication.factor=3, min.insync.replicas=2, acks=all, unclean.leader.election.enable=false.\n- For throughput-first data (metrics, logs): acks=1 or unclean election may be acceptable.\n- Keep enable.idempotence=true (the default); don\'t override it.\n- Use transactions for consume-transform-produce pipelines; set isolation.level=read_committed on readers.\n- For side effects outside Kafka, make the consumer idempotent with a key (see Idempotent Payments).\n- Rebalance cost: cooperative-sticky assignment and static membership (group.instance.id) avoid stop-the-world rebalances on restarts.',
+        body: '- For data you can\'t lose: replication.factor=3, min.insync.replicas=2, acks=all and unclean.leader.election.enable=false.\n- For data where speed matters more (metrics, logs): acks=1, or unclean election, may be acceptable.\n- Keep enable.idempotence=true (the default); don\'t turn it off.\n- Use transactions for pipelines that read, change and write; set isolation.level=read_committed on the readers.\n- For effects outside Kafka, make the consumer safe to repeat with a key (see Idempotent Payments).\n- Rebalances: cooperative-sticky assignment and static membership (group.instance.id) avoid pausing the whole group every time a consumer restarts.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Spread replicas across racks or Availability Zones (broker.rack) so one zone failure leaves an ISR.\n- Watch UnderReplicatedPartitions, the ISR shrink rate and OfflinePartitionsCount.\n- min.insync.replicas=2 on RF 3 tolerates one broker down for writes; two down stops writes for affected partitions.\n- Transactions add latency (commit markers) and need transaction.timeout.ms tuned for long batches.\n- Consumers that take longer than max.poll.interval.ms between polls are kicked out, causing rebalances and reprocessing.',
+        body: '- Spread copies across racks or Availability Zones (broker.rack), so losing a zone still leaves an in-sync copy.\n- Watch UnderReplicatedPartitions, how often the ISR shrinks, and OfflinePartitionsCount.\n- min.insync.replicas=2 with 3 copies keeps writes working with one broker down; with two down, writes stop for those partitions.\n- Transactions add delay (commit markers) and need transaction.timeout.ms set long enough for big batches.\n- A consumer that takes longer than max.poll.interval.ms between reads is thrown out of the group, which causes a rebalance and processing again.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is the ISR, and when does a replica leave it?\n- Why is acks=all not enough on its own?\n- What does unclean leader election trade away?\n- How does the idempotent producer detect duplicates?\n- What does "exactly-once" mean in Kafka, and where does it stop?\n- What happens during a consumer group rebalance?',
+        body: '- What is the ISR, and when does a copy leave it?\n- Why isn\'t acks=all enough on its own?\n- What does unclean leader election give up?\n- How does the idempotent producer spot repeats?\n- What does "exactly once" mean in Kafka, and where does it stop?\n- What happens during a consumer group rebalance?',
       },
     ],
     get trace() {

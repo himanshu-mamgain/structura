@@ -262,7 +262,7 @@ export const terraformState: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'terraform-state',
   title: 'Terraform Remote State and Locking',
-  blurb: 'Why state lives in S3, how a lock stops two applies colliding, and what orphans and stale locks look like',
+  blurb: 'Why state lives in S3, how a lock stops two applies at once, and what lost resources and stuck locks look like',
   guides: ['how-does-terraform-turn-code-into-cloud', 'aws-ecs-fullstack-modules', 'tf-aws-vpc', 'a-cheatsheet-on-infrastructure-as-code-landscape'],
   story: {
     title: 'Two applies, one state',
@@ -309,11 +309,11 @@ And the cache AWS finished creating wasn't in the state. Instead of creating it 
   },
   takeaways: [
     'State must be shared, so keep it in a remote backend such as S3, not on a laptop or in Git.',
-    'Turn on bucket versioning and encryption, and restrict access: state can contain secrets.',
-    'Without locking, two applies at once lose updates, because the last write wins.',
-    'Locking (use_lockfile on S3 since Terraform 1.10, or DynamoDB before) makes the second run wait or fail clearly.',
-    'A killed apply can leave a stale lock and orphaned resources: force-unlock only after checking, then import the orphans.',
-    'Split large systems into several state files so one lock and one mistake don\'t cover everything.',
+    'Turn on versioning and encryption for the bucket, and limit who can read it: state can contain secrets.',
+    'Without a lock, two applies at once lose work, because the last write wins.',
+    'A lock (use_lockfile on S3 since Terraform 1.10, or DynamoDB before) makes the second run wait or stop with a clear message.',
+    'A killed apply can leave a stuck lock and forgotten resources: force-unlock only after checking, then import what\'s missing.',
+    'Split big systems into several state files, so one lock and one mistake don\'t cover everything.',
   ],
   architecture: {
     replace: false,
@@ -352,39 +352,39 @@ And the cache AWS finished creating wasn't in the state. Instead of creating it 
   explanation: {
     title: 'Terraform Remote State and Locking',
     summary:
-      'Terraform\'s state file is its memory of what it manages, so a team must share one copy and never write it twice at once. A remote backend such as S3 shares it, versioning keeps every revision, and a lock makes concurrent runs wait. When runs die, locks and orphaned resources need deliberate cleanup.',
+      'Terraform\'s state file is its memory of what it manages, so a team must share one copy and never write it twice at the same time. A remote backend such as S3 shares it, versioning keeps every earlier copy, and a lock makes a second run wait. When a run dies halfway, stuck locks and forgotten resources need careful cleaning up.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Backend: where state is stored; local by default, or S3, Terraform Cloud, GCS and others.\n- Serial: a number that goes up on every write of the state.\n- Lineage: an ID shared by every version of one state, so Terraform can refuse an unrelated file.\n- Lock: taken before reading state for plan or apply, released at the end.\n- Orphan: a real resource that no state records.\n- force-unlock: removes a lock by ID when its owner is known to be dead.\n\nThe simulator follows the state serial and the resources each copy records against what exists in AWS, for each backend and situation.',
+        body: '- Backend: where the state is kept: on your machine by default, or in S3, Terraform Cloud, Google Cloud Storage and others.\n- Serial: a number that goes up every time the state is written.\n- Lineage: an ID shared by every version of one state, so Terraform can refuse a file that belongs to something else.\n- Lock: taken before a plan or apply reads the state, and let go at the end.\n- Orphan: a real resource that no state knows about.\n- force-unlock: removes a lock by its ID, once you\'re sure the run that held it is dead.\n\nThe simulator follows the state\'s serial, and what each copy of the state records, against what really exists in AWS, for each backend and situation.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Every engineer and CI plans against the same, current state.\n- Two applies can never interleave.\n- A lost laptop or a bad write can\'t lose the state.\n\nNon-functional:\n- State is encrypted and readable only by those who apply.\n- Recovering from a stuck run takes minutes, not days.',
+        body: 'What it must do:\n- Every engineer, and CI, plans against the same, current state.\n- Two applies can never run at the same time.\n- A lost laptop or a bad write can\'t lose the state.\n\nHow well it must do it:\n- The state is encrypted, and only those who apply can read it.\n- Getting a stuck run unstuck takes minutes, not days.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 23 resources in one state; a typical plan refreshes them in seconds.\n- Collision window: from reading state to writing it, the length of the apply: 20 seconds for a role, 7 minutes for a cache.\n- Rebuilding a lost state by hand: one import per resource, 23 here, plus fixing every difference the plan then shows.\n- Versioning keeps every write; at a few KB to a few MB per state file, years of history cost cents.',
+        body: '- 23 resources in one state; a typical plan checks them in seconds.\n- The danger window, from reading the state to writing it back, lasts as long as the apply: 20 seconds for a role, 7 minutes for a cache.\n- Rebuilding a lost state by hand: one import per resource, 23 here, plus fixing every difference the plan then shows.\n- Versioning keeps every write; state files are a few KB to a few MB, so years of history cost only cents.',
       },
       {
         heading: 'Step by step',
-        body: '1. Priya, Arjun and the CI Runner run terraform init, which connects to the S3 State Bucket from the backend block.\n2. Each run first takes the Lock File with a conditional write; a second run is refused or waits.\n3. With the lock held, the run reads the state from the S3 State Bucket, plans and applies to the AWS Resources.\n4. It writes the new state with a higher serial; versioning keeps the previous one in Older State Versions.\n5. It deletes the lock.\n6. Without a backend, state is the Laptop State File, which nobody else can see.',
+        body: '1. Priya, Arjun and the CI Runner run "terraform init", which connects to the S3 State Bucket named in the backend block.\n2. Each run first takes the Lock File, with a write that only succeeds if no lock exists; a second run is refused or waits.\n3. With the lock held, the run reads the state from the S3 State Bucket, plans, and applies to the AWS Resources.\n4. It writes the new state with a higher serial; versioning keeps the one before in Older State Versions.\n5. It deletes the lock.\n6. Without a backend, the state is just the Laptop State File, which nobody else can see.',
       },
       {
         heading: 'Components',
-        body: '- Priya: an engineer applying from her laptop.\n- Arjun: another engineer, applying at the same time.\n- CI Runner: the pipeline that applies merged changes.\n- Laptop State File: terraform.tfstate with the default local backend.\n- Lock File: the .tflock object (or DynamoDB item) that only one run can hold.\n- S3 State Bucket: the shared, encrypted state.\n- Older State Versions: S3 versioning\'s history of every state write.\n- AWS Resources: everything the state records.\n- IAM Role: Arjun\'s new resource, orphaned when his write is overwritten.\n- Redis Cache: the resource left unrecorded by a killed apply.',
+        body: '- Priya: an engineer applying from her laptop.\n- Arjun: another engineer, applying at the same time.\n- CI Runner: the pipeline that applies changes once they\'re merged.\n- Laptop State File: terraform.tfstate, kept on the laptop by the default local backend.\n- Lock File: the .tflock object (or a DynamoDB item) that only one run can hold.\n- S3 State Bucket: the shared, encrypted state.\n- Older State Versions: S3 versioning\'s history of every state write.\n- AWS Resources: everything the state records.\n- IAM Role: Arjun\'s new resource, forgotten (orphaned) when his write is overwritten.\n- Redis Cache: the resource left unrecorded by an apply that was killed halfway.',
       },
       {
         heading: 'Key decisions',
-        body: '- Backend: S3 with use_lockfile on AWS; Terraform Cloud or another managed backend if you also want runs and policy checks.\n- Bootstrap the state bucket once, separately, and protect it with prevent_destroy.\n- One state per environment and per component (network, data, app), so a lock or a mistake has a small blast radius.\n- Apply from CI, not laptops, so there is one queue of changes and one audit trail.\n- Never edit state by hand; use terraform state mv, rm and import blocks.\n- Restrict who can read state: it can contain secrets.',
+        body: '- Backend: on AWS, S3 with use_lockfile; Terraform Cloud or another managed backend if you also want it to run plans and check policies.\n- Create the state bucket once, on its own, and protect it with prevent_destroy.\n- One state per environment and per part (network, data, app), so a lock or a mistake covers as little as possible.\n- Apply from CI, not from laptops, so there\'s one queue of changes and one record of who did what.\n- Never edit state by hand: use terraform state mv, terraform state rm and import blocks.\n- Limit who can read state: it can contain secrets.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Stale locks: confirm the owner is gone (Who, Created), then force-unlock.\n- Orphans: find them in plan errors (AlreadyExists) or with tagging; adopt with import blocks.\n- Bad state write: restore the previous object version from S3, then plan to check.\n- Many teams: separate states and read others\' outputs with the terraform_remote_state data source or a parameter store.\n- Slow plans on big states mean the state is too big; split it with moved blocks and terraform state mv.',
+        body: '- Stuck locks: check that the owner is really gone (the lock\'s Who and Created fields), then force-unlock.\n- Orphans: they show up as plan errors (AlreadyExists) or through tags. Bring them back with import blocks.\n- A bad state write: restore the previous version from S3, then run a plan to check.\n- Many teams: separate states, reading each other\'s outputs with the terraform_remote_state data source or a parameter store.\n- Slow plans on a big state mean the state is too big: split it with moved blocks and terraform state mv.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- Why can\'t Terraform state live in Git?\n- What happens when two people apply without a lock?\n- How does S3 locking work without DynamoDB?\n- When is force-unlock safe?\n- What is an orphaned resource, and how do you recover it?\n- How would you split one large state into several?',
+        body: '- Why can\'t Terraform state live in Git?\n- What happens when two people apply without a lock?\n- How does S3 locking work without DynamoDB?\n- When is force-unlock safe?\n- What is an orphaned resource, and how do you get it back under Terraform?\n- How would you split one large state into several?',
       },
     ],
     get trace() {

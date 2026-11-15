@@ -197,7 +197,7 @@ export const awsEcsFargate: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'aws-ecs-fargate',
   title: 'ECS on Fargate',
-  blurb: 'Running containers without servers: task definitions, services, autoscaling on CPU and safe rolling deploys',
+  blurb: 'Running containers with no servers to manage: task definitions, services, scaling on CPU and safe deploys',
   adaptedFrom: {
     title: 'terraform-aws-ecs',
     author: 'terraform-aws-modules (Anton Babenko and contributors)',
@@ -262,12 +262,12 @@ They kept 0.5 vCPU, set memory from what the app actually used plus headroom, an
     ],
   },
   takeaways: [
-    'A task definition is the recipe, a task is a running copy, and a service keeps the desired number of tasks running behind a load balancer.',
-    'Fargate runs each task on its own small VM with its own IP address, billed per second for the vCPU and memory requested.',
-    'Target tracking scales in proportion to how far a metric is from its target, but new tasks still take a few minutes to help.',
-    'For known peaks, schedule a higher minimum ahead of time instead of relying on reactive scaling.',
-    'Rolling deploys with 100% minimum healthy keep old tasks serving, and the circuit breaker rolls back a deploy whose new tasks keep failing.',
-    'Fargate prices scale linearly with size, so pick task size for granularity and memory needs, not discounts.',
+    'A task definition is the recipe, a task is a running copy, and a service keeps the right number of tasks running behind a load balancer.',
+    'Fargate runs each task on its own small virtual machine with its own IP address, billed by the second for the CPU and memory you ask for.',
+    'Target tracking adds tasks in step with how far CPU is above the target, but new tasks still take a few minutes to help.',
+    'For peaks you know about, raise the minimum ahead of time instead of waiting for scaling to react.',
+    'Rolling deploys with 100% minimum healthy keep the old tasks serving, and the circuit breaker rolls back a deploy whose new tasks keep failing.',
+    'Fargate\'s price grows in step with task size, so choose a size for how finely you want to scale and how much memory you need.',
   ],
   architecture: {
     replace: false,
@@ -315,39 +315,39 @@ They kept 0.5 vCPU, set memory from what the app actually used plus headroom, an
   explanation: {
     title: 'ECS on Fargate',
     summary:
-      'Amazon ECS (Elastic Container Service) runs containers as tasks, kept at a desired count by a service and registered with a load balancer. On Fargate, AWS supplies a small VM per task, so there are no servers to manage; you choose CPU and memory per task and pay for them by the second.',
+      'Amazon ECS (Elastic Container Service) runs copies of your container, called tasks. A service keeps the number you ask for running and adds them to a load balancer. On Fargate, AWS gives each task its own small virtual machine, so there are no servers for you to look after. You choose CPU and memory for each task and pay for them by the second.',
     sections: [
       {
         heading: 'Overview',
-        body: 'A container image packages an app with everything it needs. ECS decides where and how many copies run. With the EC2 launch type you supply and patch the servers; with Fargate, AWS does, and every task gets its own isolated VM and network interface.\n\nThe building blocks are the task definition (image, CPU, memory, ports, secrets, logs), the task (a running copy), the service (keeps N tasks running, replaces failures, registers them with a load balancer, scales and deploys) and the cluster (a namespace for services).\n\nThe simulator runs a service minute by minute: traffic, CPU, target tracking with its one-minute metrics and two-minute task start-up, rolling deploys with or without the circuit breaker, and the Fargate bill.',
+        body: 'A container image packs an app with everything it needs. ECS decides where copies run and how many. With the EC2 launch type you provide and update the servers yourself; with Fargate, AWS does, and every task gets its own walled-off virtual machine and network card.\n\nThe building blocks:\n- The task definition: the recipe (image, CPU, memory, ports, secrets, logs).\n- The task: one running copy.\n- The service: keeps N tasks running, replaces any that fail, adds them to a load balancer, scales and deploys.\n- The cluster: a named group of services.\n\nThe simulator runs a service minute by minute: traffic, CPU, scaling with its one-minute measurements and two-minute task start-up, rolling deploys with or without the circuit breaker, and the Fargate bill.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Run the API as containers behind a load balancer in at least two zones.\n- Scale with traffic automatically, and ahead of planned sales.\n- Deploy a new version with no downtime, and roll back automatically when it doesn\'t start.\n\nNon-functional:\n- No servers to patch.\n- Handle 1,200 requests a second at peak, 200 normally.\n- Secrets never in images or task definitions in plain text.',
+        body: 'What it must do:\n- Run the API as containers behind a load balancer, in at least two zones.\n- Grow and shrink with traffic by itself, and grow ahead of planned sales.\n- Ship a new version with no downtime, and go back automatically when the new one doesn\'t start.\n\nHow well it must do it:\n- No servers to update.\n- Handle 1,200 requests a second at the peak, 200 normally.\n- Never keep secrets in images, or as plain text in task definitions.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- One vCPU of this app serves about 400 requests a second at 100% CPU, so a 0.5-vCPU task serves 200.\n- Normal: 200 requests/s needs 1 task at 100%; 2 tasks run at 50%, the target.\n- Sale: 1,200 requests/s at 50% CPU needs 1,200 ÷ (200 × 0.5) = 12 tasks; at 100%, 6.\n- Price per 0.5 vCPU / 1 GB task (us-east-1): 0.5 × $0.04048 + 1 × $0.004445 = $0.024685 an hour, about $18 a month.\n- 2 tasks all month ≈ $36; 12 tasks for a 3-hour sale add 10 × 3 × $0.024685 ≈ $0.74.\n- Circuit breaker threshold: max(3, ceil(0.5 × desired)) failed tasks, so 3 for 2 tasks, 5 for 10.',
+        body: '- One vCPU (one virtual CPU) of this app serves about 400 requests a second at 100% CPU, so a 0.5-vCPU task serves 200.\n- Normally: 200 requests a second needs 1 task at 100%; 2 tasks run at 50%, the target.\n- A sale: 1,200 requests a second at 50% CPU needs 1,200 ÷ (200 × 0.5) = 12 tasks; at 100% it would be 6.\n- Price of a 0.5 vCPU / 1 GB task (us-east-1): 0.5 × $0.04048 + 1 × $0.004445 = $0.024685 an hour, about $18 a month.\n- 2 tasks all month ≈ $36; 12 tasks for a 3-hour sale add 10 × 3 × $0.024685 ≈ $0.74.\n- The circuit breaker stops a deploy after max(3, half the desired count rounded up) failed tasks: 3 for 2 tasks, 5 for 10.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Deploy Pipeline pushes an image to the ECR Repository and registers a new Task Definition revision.\n2. The ECS Service starts tasks from it: Fargate Task (zone a) and Fargate Task (zone b), each pulling the image and its secrets from Secrets Manager.\n3. The service registers each task\'s address with the Load Balancer, which sends Shoppers\' requests to healthy tasks.\n4. Tasks write logs to CloudWatch Logs, and the service reports CPU and memory to CloudWatch Metrics.\n5. CPU Above Target? compares average CPU with 50% every minute and sets the service\'s desired count.\n6. During a deploy, New Tasks Healthy? counts failed new tasks; past the threshold it rolls the service back to the previous Task Definition.',
+        body: '1. The Deploy Pipeline pushes an image to the ECR Repository and registers a new Task Definition revision.\n2. The ECS Service starts tasks from it: Fargate Task (zone a) and Fargate Task (zone b). Each one downloads the image, and its secrets from Secrets Manager.\n3. The service adds each task\'s address to the Load Balancer, which sends the Shoppers\' requests to healthy tasks.\n4. Tasks write their logs to CloudWatch Logs, and the service reports CPU and memory to CloudWatch Metrics.\n5. Every minute, CPU Above Target? compares the average CPU with 50% and sets how many tasks the service should run.\n6. During a deploy, New Tasks Healthy? counts new tasks that fail; past the limit, it rolls the service back to the previous Task Definition.',
       },
       {
         heading: 'Components',
-        body: '- Shoppers: the traffic, steady or spiking.\n- Load Balancer: routes requests to healthy tasks by IP address.\n- ECS Service: keeps the desired number of tasks running, replaces failed ones, deploys and scales.\n- Task Definition: the versioned recipe: image, CPU and memory, ports, environment, secrets and logging.\n- ECR Repository: the private container registry the tasks pull from.\n- Fargate Task (zone a): one running copy with its own network interface.\n- Fargate Task (zone b): the same in another zone, so one zone failing halves capacity instead of ending it.\n- CloudWatch Metrics: per-service CPU and memory, every minute.\n- CPU Above Target?: the target tracking policy that sets the desired count.\n- New Tasks Healthy?: the deployment circuit breaker.\n- CloudWatch Logs: everything the containers write to stdout.\n- Secrets Manager: database passwords and keys, injected as environment variables at start.\n- Deploy Pipeline: builds, pushes and updates the service.',
+        body: '- Shoppers: the traffic, steady or spiking.\n- Load Balancer: sends requests to healthy tasks by their IP address.\n- ECS Service: keeps the right number of tasks running, replaces failed ones, deploys and scales.\n- Task Definition: the numbered recipe: image, CPU and memory, ports, settings, secrets and logging.\n- ECR Repository: the private image registry the tasks download from.\n- Fargate Task (zone a): one running copy, with its own network card.\n- Fargate Task (zone b): the same in another zone, so one zone failing halves the capacity instead of ending it.\n- CloudWatch Metrics: the service\'s CPU and memory, every minute.\n- CPU Above Target?: the scaling rule that sets how many tasks to run.\n- New Tasks Healthy?: the deployment circuit breaker.\n- CloudWatch Logs: everything the containers print.\n- Secrets Manager: database passwords and keys, handed to the task as settings when it starts.\n- Deploy Pipeline: builds, pushes and updates the service.',
       },
       {
         heading: 'Key decisions',
-        body: '- Fargate or EC2: Fargate for no servers and per-task isolation; EC2 when you need GPUs, very large tasks, or the lower cost of densely packed, reserved instances.\n- Task size: valid CPU and memory pairs only (0.25 vCPU with 0.5 to 2 GB, 0.5 vCPU with 1 to 4 GB, and so on). Smaller tasks scale in finer steps.\n- Scaling metric: CPU for CPU-bound apps; request count per target from the load balancer for I/O-bound ones; queue depth for workers.\n- Reactive and scheduled: target tracking for surprises, scheduled minimums for known peaks.\n- Deploys: rolling with minimum healthy 100% and maximum 200%, plus the circuit breaker with rollback; blue/green through CodeDeploy when you need test traffic and instant switch-back.\n- Spot: Fargate Spot for interruptible work, mixed with on-demand through capacity provider weights.',
+        body: '- Fargate or EC2: Fargate for no servers and strong walls between tasks; EC2 when you need GPUs, very large tasks, or the lower cost of packing many tasks onto reserved servers.\n- Task size: only certain CPU and memory pairs are allowed (0.25 vCPU with 0.5 to 2 GB, 0.5 vCPU with 1 to 4 GB, and so on). Smaller tasks let you grow in smaller steps.\n- What to scale on: CPU for apps that are busy computing; requests per target (from the load balancer) for apps that mostly wait on other services; queue length for workers.\n- React and plan: let target tracking handle surprises, and schedule a higher minimum for peaks you know about.\n- Deploys: rolling, with minimum healthy at 100% and maximum at 200%, plus the circuit breaker with rollback. Use blue/green through CodeDeploy when you want to test the new version first and switch back instantly.\n- Spot: Fargate Spot (spare capacity, cheaper, but AWS can take it back) for work that can be interrupted, mixed with normal tasks.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Start-up time is the limit on reactive scaling: smaller images, fewer start-up steps and shorter health check intervals help.\n- Set a maximum task count that your database and downstream services can take.\n- Zone failure: spread tasks across zones; the service starts replacements in the remaining zones.\n- Each task uses one IP address in its subnet, so size subnets for the maximum count during deploys.\n- Failing tasks: read the stopped reason (exit code, health check, image pull, out of memory) in the service events.\n- Graceful shutdown: on SIGTERM, finish in-flight requests within the stop timeout and the load balancer\'s deregistration delay.',
+        body: '- Start-up time limits how fast you can react. Smaller images, fewer start-up steps and quicker health checks help.\n- Set a maximum task count that your database and other services can cope with.\n- A zone fails: with tasks spread across zones, the service starts replacements in the zones that are left.\n- Each task uses one IP address in its subnet, so make subnets big enough for the most tasks you\'ll run during a deploy.\n- Tasks that keep failing: read the stopped reason in the service events (exit code, health check, image download, out of memory).\n- Shutting down cleanly: when a task gets the stop signal (SIGTERM), it should finish its requests within the stop timeout and the load balancer\'s deregistration delay.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What is the difference between a task definition, a task and a service?\n- Traffic triples in a minute. Walk through what target tracking does and when capacity actually arrives.\n- A deploy\'s new tasks keep crashing. What do users see, and what does the circuit breaker change?\n- When would you choose EC2 over Fargate?\n- How would you scale a queue worker on ECS?\n- How do you get a database password into a container safely?',
+        body: '- What\'s the difference between a task definition, a task and a service?\n- Traffic triples in one minute. Walk through what target tracking does, and when the new capacity actually arrives.\n- A deploy\'s new tasks keep crashing. What do users see, and what does the circuit breaker change?\n- When would you choose EC2 over Fargate?\n- How would you scale a queue worker on ECS?\n- How do you get a database password into a container safely?',
       },
     ],
     get trace() {

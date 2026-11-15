@@ -167,7 +167,7 @@ export const kafkaBasics: StaticTopic = {
   difficulty: 'Beginner',
   id: 'kafka-basics',
   title: 'Kafka Basics: Topics, Partitions, Groups',
-  blurb: 'Events in an append-only log: keys pick partitions, consumer groups share them, offsets let anyone replay',
+  blurb: 'Events in a log you only add to: keys pick partitions, consumer groups share them, and offsets let anyone read again',
   guides: ['the-ultimate-kafka-101-you-cannot-miss', 'why-is-kafka-fast', 'top-5-kafka-use-cases', 'types-of-message-queue', 'ref-apache-kafka-docs', 'ref-kafka-nodejs-tutorial'],
   story: {
     title: 'The events that wouldn\'t disappear',
@@ -213,11 +213,11 @@ After the fix, someone reset the billing group's **committed offsets** (each con
     ],
   },
   takeaways: [
-    'A Kafka topic is an append-only log: events stay for the retention period, and reading doesn\'t remove them.',
+    'A Kafka topic is a log you only add to: events stay for the retention period, and reading doesn\'t remove them.',
     'A topic is split into partitions; the key\'s hash picks the partition, so events with the same key stay in order.',
-    'Order is guaranteed only within a partition, never across the whole topic.',
-    'In a consumer group each partition goes to exactly one consumer, so partitions cap how many consumers can work in parallel.',
-    'Each group commits its own offsets, so different groups read the same events independently, and a group can rewind to replay.',
+    'Order is kept only within a partition, never across the whole topic.',
+    'In a consumer group, each partition goes to exactly one consumer, so the number of partitions limits how many consumers can work at once.',
+    'Each group commits its own offsets, so groups read the same events separately, and a group can go back to replay.',
     'Lag, how far a group is behind the end of the log, is the number to watch.',
   ],
   architecture: {
@@ -266,39 +266,39 @@ After the fix, someone reset the billing group's **committed offsets** (each con
   explanation: {
     title: 'Kafka Basics: Topics, Partitions, Groups',
     summary:
-      'Kafka stores events in topics: append-only logs split into partitions. A key\'s hash picks the partition, which keeps each key\'s events in order. Consumers in a group share the partitions, one consumer per partition, and save their position as offsets, so many groups can read the same events, and any of them can rewind.',
+      'Kafka stores events in topics. A topic is a log you only add to, split into partitions. The hash of each event\'s key picks its partition, which keeps each key\'s events in order. Consumers in a group share the partitions, one consumer per partition, and save their place as offsets. So many groups can read the same events, and any of them can go back and read again.',
     sections: [
       {
         heading: 'Overview',
-        body: '- Event (record): a key, a value and a timestamp, like order-4101 → {"type":"paid"}.\n- Topic: a named stream of events, such as orders.\n- Partition: one append-only log of a topic; a topic has one or more.\n- Offset: an event\'s position in its partition: 0, 1, 2, …\n- Broker: a Kafka server; partitions are spread over brokers (and copied between them, see Kafka: Event Streaming).\n- Producer: publishes events; the key decides the partition.\n- Consumer group: consumers sharing a group id; each partition is read by one member.\n- Committed offset: where a group will resume in each partition.\n- Retention: how long events stay (7 days by default), read or not.\n\nThe simulator publishes 12 real events, places them with Kafka\'s own murmur2 partitioner, assigns partitions like the RangeAssignor, and works out whether the group keeps up with 120 events a second.',
+        body: '- Event (or record): a key, a value and a time, like order-4101 → {"type":"paid"}.\n- Topic: a named stream of events, such as orders.\n- Partition: one of a topic\'s logs; a topic has one or more.\n- Offset: an event\'s position in its partition: 0, 1, 2 and so on.\n- Broker: a Kafka server. Partitions are spread over brokers (and copied between them; see Kafka: Event Streaming).\n- Producer: sends events in; the key decides the partition.\n- Consumer group: consumers that share a group name; each partition is read by one member.\n- Committed offset: where a group will carry on in each partition.\n- Retention: how long events stay, read or not (7 days by default).\n\nThe simulator sends 12 real events, places them with Kafka\'s own partitioner (murmur2), shares out the partitions the way Kafka\'s RangeAssignor does, and works out whether the group keeps up with 120 events a second.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Billing and analytics both receive every order event.\n- Each order\'s events are processed in order.\n- Events can be re-read after a bug fix.\n\nNon-functional:\n- Billing keeps up with 120 events a second at dinner time.\n- Adding consumers adds throughput.',
+        body: 'What it must do:\n- Billing and analytics both get every order event.\n- Each order\'s events are handled in order.\n- Events can be read again after a bug fix.\n\nHow well it must do it:\n- Billing keeps up with 120 events a second at dinner time.\n- Adding consumers adds speed.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Peak: 120 events a second; one billing consumer processes 50.\n- Consumers needed: ceil(120 ÷ 50) = 3, so at least 3 partitions.\n- 3 partitions, 2 consumers: one consumer gets 2 × 40 = 80/s, so lag grows 30/s, 18,000 in 10 minutes.\n- 1 partition: only one consumer works; lag grows 70/s, 42,000 in 10 minutes.\n- Storage: 120 events/s × 1 KB × 86,400 s ≈ 10 GB a day; 7 days of retention ≈ 70 GB per copy.',
+        body: '- Peak: 120 events a second; one billing consumer handles 50.\n- Consumers needed: 120 ÷ 50 = 2.4, so 3, which means at least 3 partitions.\n- 3 partitions and 2 consumers: one consumer gets 2 partitions × 40 = 80 a second, so it falls behind by 30 a second: 18,000 events in 10 minutes.\n- 1 partition: only one consumer can work, and it falls behind by 70 a second: 42,000 in 10 minutes.\n- Storage: 120 events a second × 1 KB × 86,400 seconds ≈ 10 GB a day; 7 days ≈ 70 GB per copy.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Order Service sends each event with its order id as the key.\n2. The Partitioner hashes the key (murmur2) modulo the partition count and appends the event to Partition 0, Partition 1, Partition 2 or Partitions 3 to 5.\n3. The billing group\'s members, Consumer A, Consumer B, Consumer C and Consumer D, are each assigned whole partitions.\n4. Each consumer reads its partitions in offset order and writes invoices to the Invoices DB.\n5. Each consumer saves its progress in Committed Offsets.\n6. The Analytics Consumer, in another group, reads the same partitions with offsets of its own.',
+        body: '1. The Order Service sends each event with its order ID as the key.\n2. The Partitioner hashes the key (murmur2), divides by the number of partitions, and adds the event to the end of Partition 0, Partition 1, Partition 2 or Partitions 3 to 5.\n3. The billing group\'s members, Consumer A, Consumer B, Consumer C and Consumer D, are each given whole partitions.\n4. Each consumer reads its partitions in offset order and writes invoices to the Invoices DB.\n5. Each consumer saves how far it has got in Committed Offsets.\n6. The Analytics Consumer, in another group, reads the same partitions with offsets of its own.',
       },
       {
         heading: 'Components',
-        body: '- Order Service: the producer of order events.\n- Partitioner: picks a partition from the key\'s murmur2 hash.\n- Partition 0: one log of the orders topic.\n- Partition 1: another log, read independently.\n- Partition 2: a third log.\n- Partitions 3 to 5: the extra logs when the topic has 6 partitions.\n- Consumer A: a billing group member.\n- Consumer B: a billing group member.\n- Consumer C: a billing group member.\n- Consumer D: a billing group member; idle when there are fewer partitions than consumers.\n- Analytics Consumer: a member of a separate group that reads every event too.\n- Committed Offsets: each group\'s saved position per partition, stored in Kafka\'s __consumer_offsets topic.\n- Invoices DB: where billing writes its results, idempotently.',
+        body: '- Order Service: the producer of order events.\n- Partitioner: picks a partition from the hash of the key.\n- Partition 0: one log of the orders topic.\n- Partition 1: another log, read separately.\n- Partition 2: a third log.\n- Partitions 3 to 5: the extra logs when the topic has 6 partitions.\n- Consumer A: a member of the billing group.\n- Consumer B: a member of the billing group.\n- Consumer C: a member of the billing group.\n- Consumer D: a member of the billing group; it sits idle when there are fewer partitions than consumers.\n- Analytics Consumer: a member of a different group, which reads every event too.\n- Committed Offsets: each group\'s saved place in each partition, kept in Kafka\'s own __consumer_offsets topic.\n- Invoices DB: where billing writes its results, in a way that\'s safe to repeat.',
       },
       {
         heading: 'Key decisions',
-        body: '- Key: whatever must stay in order together (an order id, a user id). No key spreads events evenly but without per-key order.\n- Partition count: at least the most consumers you expect in a group; more partitions cost broker resources. Adding partitions later remaps keys.\n- One group per independent use (billing, analytics, search indexing).\n- Commit after processing, and make processing idempotent, because a restart re-reads from the last commit.\n- Retention long enough to replay what you might need to: days for most topics; log compaction to keep the latest value per key.\n- Kafka or a queue: a queue for jobs handed to one worker; Kafka when several readers need the same events, order per key, or replay.',
+        body: '- The key: whatever must stay in order together, such as an order ID or a user ID. With no key, events are spread evenly, but with no order per key.\n- How many partitions: at least as many as the most consumers you expect in one group. More partitions cost the brokers more work, and adding partitions later moves keys to different partitions.\n- One group per separate use: billing, analytics, search.\n- Commit after processing, and make processing safe to repeat (idempotent), because a restart reads again from the last commit.\n- Keep events long enough to replay what you might need: days for most topics. Log compaction keeps just the latest value for each key.\n- Kafka or a queue: a queue when each job goes to one worker; Kafka when several readers need the same events, order per key, or the ability to replay.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Lag is the health signal: alert when it grows steadily.\n- Hot keys: one very busy key puts all its events on one partition, read by one consumer.\n- When a consumer joins or leaves, the group rebalances: partitions are reassigned, and processing pauses briefly.\n- A consumer that crashes before committing re-reads its last batch after the rebalance: duplicates, unless processing is idempotent.\n- Durability (replicas, acks) and failures are covered in Kafka: Event Streaming and Kafka Reliability.',
+        body: '- Lag, how far a group is behind, is the health signal: alert when it keeps growing.\n- Hot keys: one very busy key puts all its events in one partition, read by one consumer.\n- When a consumer joins or leaves, the group rebalances: partitions are handed out again, and reading pauses for a moment.\n- A consumer that crashes before committing reads its last batch again after the rebalance. That means duplicates, unless processing is safe to repeat.\n- Copies, acks and failures are covered in Kafka: Event Streaming and Kafka Reliability.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- How does Kafka differ from a message queue?\n- How does Kafka keep events in order, and in what scope?\n- Why can\'t a group use more consumers than partitions?\n- What is consumer lag and how would you reduce it?\n- What happens to key ordering if you add partitions?\n- How would you reprocess the last day of events?',
+        body: '- How is Kafka different from a message queue?\n- How does Kafka keep events in order, and across what?\n- Why can\'t a group use more consumers than partitions?\n- What is consumer lag, and how would you reduce it?\n- What happens to key order if you add partitions?\n- How would you process the last day of events again?',
       },
     ],
     get trace() {

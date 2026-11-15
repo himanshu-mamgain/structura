@@ -247,7 +247,7 @@ export const cdn: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'cdn',
   title: 'CDN: Content Delivery Network',
-  blurb: 'Edge caches, cache keys and TTLs, shielding the origin, purging and hit ratio',
+  blurb: 'Caches close to your visitors: cache keys, how long to keep files, a shield for your server, purging and hit ratio',
   guides: [
     'primer-content-delivery-network',
     'what-is-cdn-content-delivery-network',
@@ -259,12 +259,12 @@ export const cdn: StaticTopic = {
     'which-latency-numbers-should-you-know',
   ],
   takeaways: [
-    'Distance is latency: the CDN moves copies of files next to the visitor, so the slow trips to the origin become rare.',
-    'Cache-Control from the origin decides what is stored and for how long; private, no-store content must never reach a shared cache.',
-    'Fingerprinted file names (logo.4f3a9c.png) allow year-long caching, because a change means a new URL instead of a purge.',
-    'A shield tier collapses misses from many PoPs into one request to the origin.',
-    'Revalidation (ETag and 304) and stale-while-revalidate keep content fresh without making visitors wait.',
-    'Watch the hit ratio: at 50,000 requests/s, going from 95% to 99% cuts the origin load from 2,500 to 500 requests/s.',
+    'Distance is delay: a CDN keeps copies next to your visitors, so slow trips to your server become rare.',
+    'Your server\'s Cache-Control headers decide what is stored and for how long; private pages must never reach a shared cache.',
+    'Put a version in file names (logo.4f3a9c.png) and you can cache them for a year: a change is a new address, not a purge.',
+    'A shield layer turns misses from many PoPs into one request to your server.',
+    'ETags and 304 answers, plus stale-while-revalidate, keep content fresh without making visitors wait.',
+    'Watch the hit ratio: at 50,000 requests a second, going from 95% to 99% cuts your server\'s load from 2,500 to 500 requests a second.',
   ],
   architecture: {
     replace: false,
@@ -333,39 +333,39 @@ export const cdn: StaticTopic = {
   explanation: {
     title: 'CDN: Content Delivery Network',
     summary:
-      'A CDN is a worldwide network of caches placed close to visitors. The first request for a file travels to your origin; the copy is kept at the edge, so later requests are answered a few kilometres away. It cuts latency, shields the origin from load and absorbs traffic spikes and attacks.',
+      'A CDN (content delivery network) is a worldwide network of caches placed close to visitors. The first request for a file travels to your own server, called the origin; the CDN keeps a copy, so later requests are answered from a few kilometres away. Pages load faster, your server does less work, and traffic spikes and attacks hit the CDN instead.',
     sections: [
       {
         heading: 'Overview',
-        body: "Light travels through fibre at about 200 km per millisecond, and cables are never straight. A visitor in Mumbai talking to a server in Virginia (12,855 km away) waits about 180 ms for every round trip, and a secure connection plus a request takes three of them. That is over half a second before the first byte, however fast the server is.\n\nA CDN fixes the distance, not the server. Its points of presence (PoPs) sit in hundreds of cities. GeoDNS or anycast routing sends each visitor to the nearest one. If the PoP has a fresh copy it answers at once (a HIT); if not (a MISS) it fetches the file from the origin, keeps a copy and serves it.\n\nThe origin controls the rules with HTTP headers: Cache-Control says whether a file may be stored and for how long, and an ETag lets a cache check cheaply whether its copy is still current.",
+        body: 'Light in fibre covers about 200 km each millisecond, and cables are never straight. A visitor in Mumbai talking to a server in Virginia, 12,855 km away, waits about 180 ms for every round trip, and a secure connection plus the request takes three of them. That\'s over half a second before the first byte arrives, however fast the server is.\n\nA CDN fixes the distance, not the server. Its points of presence (PoPs) sit in hundreds of cities, and each visitor is sent to the nearest one. If the PoP has a fresh copy, it answers at once: a HIT. If not, a MISS, it fetches the file from the origin, keeps a copy and sends it on.\n\nYour origin sets the rules with HTTP headers. Cache-Control says whether a file may be stored and for how long. An ETag is a fingerprint of the file, so a cache can cheaply ask "is my copy still current?".',
       },
       {
         heading: 'Requirements',
-        body: '- Serve static files (images, scripts, video segments) from a PoP near the visitor.\n- Keep content reasonably fresh, and allow an urgent purge within seconds.\n- Never cache or leak private pages.\n- Keep the origin\'s load low and steady even when a million people ask for the same file.\n- Stay up when the origin or one PoP is down.',
+        body: '- Serve files that are the same for everyone (images, scripts, video segments) from a PoP near each visitor.\n- Keep content fresh enough, and allow an urgent removal within seconds.\n- Never store or show anyone\'s private pages.\n- Keep the origin\'s load low and steady, even when a million people ask for the same file.\n- Stay up when the origin or one PoP is down.',
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: a shop at peak serves 50,000 requests per second, averaging 300 KB each.\n- Total traffic: 50,000 × 300 KB = 15 GB/s, which is 120 Gbit/s. No single origin can serve that.\n- At a 95% hit ratio the origin sees 5% of requests: 2,500 requests/s and 6 Gbit/s.\n- At 99% it sees 500 requests/s and 1.2 Gbit/s: raising the hit ratio four points cuts origin load by 80%.\n- Latency for a Mumbai visitor: a 3-round-trip handshake costs about 3 × (12 + 180) = 576 ms direct to Virginia, but 3 × 12 = 36 ms to a PoP in Mumbai.\n- Round trip = 2 × distance × 1.4 ÷ 200 km/ms: Mumbai to Singapore (3,904 km) is about 55 ms, Singapore to Virginia (15,522 km) about 217 ms.',
+        body: 'An example: a shop at its busiest serves 50,000 requests a second, 300 KB each on average.\n- All together: 50,000 × 300 KB = 15 GB a second, or 120 Gbit/s. No single origin can send that.\n- If 95% of requests are hits, the origin sees the other 5%: 2,500 requests a second, 6 Gbit/s.\n- At 99% hits it sees 500 requests a second, 1.2 Gbit/s. Four points more hits means 80% less work for the origin.\n- For a visitor in Mumbai: 3 round trips to Virginia cost about 3 × (12 + 180) = 576 ms, but 3 × 12 = 36 ms to a PoP in Mumbai.\n- A round trip ≈ 2 × distance × 1.4 ÷ 200 km per ms (the 1.4 is for cables not being straight): Mumbai to Singapore (3,904 km) is about 55 ms; Singapore to Virginia (15,522 km) about 217 ms.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Browser asks GeoDNS / Anycast for cdn.shop.example and gets the address of the closest PoP.\n2. The Browser opens HTTPS to the Edge Cache (nearest PoP) and sends GET.\n3. The Edge Cache (nearest PoP) builds a cache key and runs the Cache Lookup: hit or miss?\n4. On a HIT the copy is returned straight to the Browser; the origin is never contacted.\n5. On a MISS the request goes to the Regional Shield Cache, which serves it if it has a copy.\n6. If the shield misses too, only it contacts the Origin Server, which reads the file from Object Storage.\n7. The response, with its Cache-Control and ETag, flows back and is stored in the Regional Shield Cache and the Edge Cache (nearest PoP).\n8. Every request is counted in Edge Metrics & Logs; the Purge API removes files that must change now.',
+        body: '1. The Browser asks GeoDNS / Anycast for cdn.shop.example and gets the address of the closest PoP.\n2. The Browser opens an HTTPS connection to the Edge Cache (nearest PoP) and asks for the file.\n3. The Edge Cache (nearest PoP) builds the cache key and runs the Cache Lookup: hit or miss?\n4. On a HIT, the copy goes straight back to the Browser. The origin never hears about it.\n5. On a MISS, the request goes to the Regional Shield Cache, which answers if it has a copy.\n6. Only if the shield misses too does it ask the Origin Server, which reads the file from Object Storage.\n7. The answer, with its Cache-Control and ETag headers, flows back and is stored in the Regional Shield Cache and the Edge Cache (nearest PoP).\n8. Every request is counted in Edge Metrics & Logs, and the Purge API removes files that must change right now.',
       },
       {
         heading: 'Components',
-        body: '- Browser: sends requests and keeps its own private cache too; follows the same Cache-Control rules.\n- GeoDNS / Anycast: answers the name lookup with the nearest healthy PoP, by the visitor\'s resolver location (GeoDNS) or by network routing to one shared address (anycast).\n- Edge Cache (nearest PoP): terminates TLS close to the visitor and stores files in RAM and on SSD, evicting the least recently used when full.\n- Cache Lookup: hit or miss?: compares the cache key (method, host, path, Vary headers) with stored entries and checks the copy is still fresh.\n- Regional Shield Cache: a second cache tier in front of the origin; many PoPs share it, so one miss reaches the origin once.\n- Origin Server: the source of truth; sets Cache-Control and ETag headers and answers conditional requests with 304.\n- Object Storage: holds the original files cheaply and durably (S3 style), so the origin servers stay small.\n- Purge API: removes files before their lifetime ends, by URL, prefix or surrogate key (a tag like product-1842).\n- Edge Metrics & Logs: records hit ratio, bytes served, errors and latency per PoP, to spot bad cache rules.',
+        body: '- Browser: sends requests and keeps its own private cache, following the same Cache-Control rules.\n- GeoDNS / Anycast: sends each visitor to the nearest healthy PoP, either by where their DNS resolver is (GeoDNS) or by network routing to one shared address (anycast).\n- Edge Cache (nearest PoP): handles HTTPS close to the visitor and keeps files in memory and on SSD, throwing out the least recently used ones when full.\n- Cache Lookup: hit or miss?: looks the request up by its cache key (method, host, path, and any headers listed in Vary) and checks that the copy is still fresh.\n- Regional Shield Cache: a second layer of cache in front of the origin. Many PoPs share it, so a miss reaches the origin only once.\n- Origin Server: your own server and the source of truth. It sets the Cache-Control and ETag headers and answers "has it changed?" questions with 304 Not Modified.\n- Object Storage: keeps the original files cheaply and safely (like S3), so the origin servers can stay small.\n- Purge API: removes files before their time is up, by URL, by folder, or by a tag such as product-1842.\n- Edge Metrics & Logs: hit ratio, data sent, errors and response times for each PoP, to spot bad cache rules.',
       },
       {
         heading: 'Key decisions',
-        body: '- Pull or push: a pull CDN fetches on the first miss and needs no upload step; a push CDN stores what you upload, useful for huge files released on a date.\n- TTL: long for files that never change, short for those that do. Versioned names (logo.4f3a9c.png) let you use a one-year TTL and never purge.\n- Cache key: include only what changes the response. Adding a cookie or a tracking query string to the key splits one file into thousands of copies and wrecks the hit ratio.\n- Purging: purge by tag when content changes (a price update), and prefer short TTLs to rely on over purges.\n- Private content: send Cache-Control: private or no-store, or sign URLs and tokens so only the right person can fetch a protected file.\n- Shield tier: add it when you have many PoPs, an expensive origin, or a thundering herd after a purge.',
+        body: '- Pull or push: a pull CDN fetches a file on the first miss, with no upload step. A push CDN keeps what you upload, which suits huge files released on a set date.\n- How long to keep files (the TTL): long for files that never change, short for those that do. Putting a version in the file name, like logo.4f3a9c.png, lets you keep files for a year and never purge.\n- The cache key: include only what changes the answer. Adding a cookie or a tracking parameter to the key turns one file into thousands of copies and ruins the hit ratio.\n- Purging: purge by tag when content changes, such as a new price, but rely mostly on sensible TTLs.\n- Private content: send Cache-Control: private or no-store, or use signed URLs, so only the right person can fetch a protected file.\n- A shield layer: add one when you have many PoPs, a costly origin, or a rush of misses after a purge.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Capacity scales by adding PoPs; the origin only needs to handle misses.\n- A flash crowd for a new file causes many simultaneous misses. Request collapsing makes the edge send one request upstream while the others wait for the answer.\n- If the origin goes down, "stale-if-error" lets caches keep serving expired copies instead of errors.\n- A PoP failure is handled by DNS or anycast routing sending visitors to the next-nearest PoP, at a small cost in latency.\n- A bad purge or a wrongly short TTL can send all traffic to the origin at once: rate limit purges, and keep the origin able to survive a cold cache.',
+        body: '- The CDN grows by adding PoPs; the origin only has to handle the misses.\n- When a new file goes viral, many PoPs miss at the same moment. Request collapsing makes the edge send one request upstream while the others wait for its answer.\n- If the origin goes down, "stale-if-error" lets the caches keep serving their old copies instead of errors.\n- If a PoP fails, DNS or anycast sends its visitors to the next-nearest one, a little further away.\n- A bad purge, or a TTL that\'s far too short, can send all the traffic to the origin at once. Limit purges, and make sure the origin can survive an empty cache.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- How do you update a file that is cached for a year?\n- Why does a cookie in the cache key hurt, and how do you avoid it?\n- A product page is cached, but the price just changed. What are your options?\n- How do you serve private files (paid videos) through a CDN?\n- What happens when a million people request a new file the instant it is released?\n- How would you measure whether the CDN is paying for itself?',
+        body: '- How do you update a file that\'s cached for a year?\n- Why does a cookie in the cache key hurt, and how do you avoid it?\n- A product page is cached, but its price just changed. What can you do?\n- How do you serve private files, like paid videos, through a CDN?\n- What happens when a million people ask for a new file the moment it\'s released?\n- How would you check whether the CDN pays for itself?',
       },
     ],
     get trace() {

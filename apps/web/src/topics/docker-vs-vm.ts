@@ -5,7 +5,7 @@ export const dockerVsVm: StaticTopic = {
   kind: 'static',
   id: 'docker-vs-vm',
   title: 'Docker vs Virtual Machines',
-  blurb: 'Hypervisors vs shared kernels, images, layers, and when to use which',
+  blurb: 'Virtual machines vs containers: what each one shares, images and layers, and when to use which',
   video: '/videos/docker-vs-vm.mp4',
   chapters: [
     [0, "Introduction"],
@@ -26,12 +26,12 @@ export const dockerVsVm: StaticTopic = {
     "what-is-k8s-kubernetes",
   ],
   takeaways: [
-    "A VM virtualizes hardware and boots its own OS; a container is an isolated process on a shared kernel.",
-    "Namespaces give a container its own view; cgroups limit what it can use.",
-    "Containers are megabytes and start in about a second; VMs are gigabytes and take far longer.",
-    "VMs isolate better: every guest has its own kernel.",
-    "Images are layered and cached: order a Dockerfile from least to most often changed.",
-    "In the cloud, containers usually run inside VMs.",
+    'A VM copies the hardware and boots its own operating system; a container is a walled-off program on a shared kernel.',
+    'Namespaces decide what a container can see; cgroups decide how much it can use.',
+    'Containers are megabytes and start in about a second; VMs are gigabytes and take much longer.',
+    'VMs have stronger walls, because every guest has its own kernel.',
+    'Images are built in cached layers, so put the steps that change least at the top of a Dockerfile.',
+    'In the cloud, containers usually run inside VMs.',
   ],
   architecture: {
     replace: false,
@@ -72,31 +72,31 @@ export const dockerVsVm: StaticTopic = {
   explanation: {
     title: 'Docker vs Virtual Machines',
     summary:
-      'A virtual machine emulates a whole computer and boots its own operating system. A container is an isolated process that shares the host\'s kernel. VMs give stronger isolation; containers are far lighter and start in about a second.',
+      'A virtual machine (VM) is a whole computer made in software: it boots its own operating system. A container is just a walled-off program that shares the host\'s kernel, the core of the operating system. VMs have stronger walls; containers are much lighter and start in about a second.',
     sections: [
       {
         heading: 'Overview',
-        body: 'Both solve "it works on my machine": they package an app with everything it needs so it runs the same everywhere. They differ in where the line between app and machine is drawn.\n- A VM virtualizes hardware. A hypervisor splits one physical server into several virtual ones, and each runs a complete guest OS.\n- A container virtualizes the operating system. All containers share the host\'s Linux kernel; the kernel just gives each one its own view of the system.',
+        body: 'Both fix the "it works on my machine" problem. They pack an app with everything it needs, so it runs the same everywhere. The difference is where they draw the line between the app and the machine.\n- A VM copies the hardware. A hypervisor is software that splits one real server into several pretend ones, and each one runs a full operating system of its own, called the guest OS.\n- A container copies only the operating system\'s view. All containers on a server share the host\'s Linux kernel; the kernel simply shows each one its own private view of the system.',
       },
       {
         heading: 'Step by step',
-        body: '1. Write a Dockerfile: the recipe (base image, dependencies, your code, start command).\n2. docker build turns it into an Image (layers): read-only, cached layers, one per instruction.\n3. docker push uploads the image to a Registry (Docker Hub, ECR, GCR).\n4. On any server, the Docker Engine pulls the image.\n5. docker run asks the kernel for Namespaces + cgroups and starts your process inside them: Containers (App + Libs).\n\nThe VM path, for comparison: Server Hardware is split by the Hypervisor (KVM, ESXi), which boots a Guest OS per VM, which then runs the App + Libs in VM.',
+        body: '1. You write a Dockerfile: the recipe (a base image, the packages you need, your code, and the start command).\n2. "docker build" turns the recipe into an Image (layers): read-only layers, one per step, saved in a cache.\n3. "docker push" uploads the image to a Registry, such as Docker Hub or Amazon ECR.\n4. On any server, the Docker Engine downloads ("pulls") the image.\n5. "docker run" asks the kernel for Namespaces + cgroups and starts your program inside them. That running program is one of the Containers (App + Libs).\n\nThe VM path, to compare: the Server Hardware is split by the Hypervisor (KVM, ESXi), which boots a Guest OS per VM, and each guest then runs the App + Libs in VM.',
       },
       {
         heading: 'How containers isolate',
-        body: '- Namespaces give a process its own view: its own process list (pid), network interfaces (net), filesystem mounts (mnt), hostname (uts), and users (user).\n- cgroups limit what it can use: CPU, memory, disk I/O, number of processes.\n- The image\'s layers are stacked with a union filesystem (overlayfs), plus a thin writable layer per container.\n\nThere is no second kernel: a container is a normal Linux process with restrictions. That is why it starts in about a second and why one server can run hundreds.',
+        body: '- Namespaces decide what a program can see: its own list of processes (pid), its own network (net), its own files (mnt), its own host name (uts) and its own users (user).\n- Cgroups (control groups) decide how much it can use: CPU, memory, disk reads and writes, and the number of processes.\n- The image\'s layers are stacked on top of each other by a special filesystem (overlayfs). Each container adds one thin layer on top that it can write to.\n\nThere is no second kernel. A container is a normal Linux program with limits. That\'s why it starts in about a second, and why one server can run hundreds of them.',
       },
       {
         heading: 'Side by side',
-        body: '- Size: a VM image carries a full OS, typically gigabytes. A container image carries only the app and its libraries, typically tens to hundreds of megabytes.\n- Start time: a VM boots an OS, often tens of seconds to minutes. A container starts a process, usually under a second.\n- Density: tens of VMs per server versus hundreds of containers.\n- Isolation: a VM has its own kernel, so a kernel exploit in one guest does not reach the others. Containers share one kernel, so a kernel bug can affect all of them.\n- OS choice: a VM can run Windows on a Linux host. A Linux container needs a Linux kernel.',
+        body: '- Size: a VM image carries a full operating system, usually several gigabytes. A container image carries only the app and its libraries, usually tens to hundreds of megabytes.\n- Start time: a VM boots an operating system, which takes from tens of seconds to minutes. A container starts a program, usually in under a second.\n- How many fit: tens of VMs on one server, but hundreds of containers.\n- Walls: each VM has its own kernel, so an attack on one guest\'s kernel doesn\'t reach the others. Containers share one kernel, so a kernel bug can affect all of them.\n- Operating system: a VM can run Windows on a Linux server. A Linux container needs a Linux kernel.',
       },
       {
         heading: 'When to use which',
-        body: '- VMs: a different OS, strong isolation between untrusted tenants, legacy apps that expect a full machine.\n- Containers: microservices, the same image from laptop to CI to production, fast scaling.\n- Both, very often: cloud containers usually run inside VMs, and Docker Desktop on Windows and macOS runs a small Linux VM to provide the kernel. Lightweight VMs like Firecracker (AWS Lambda, Fargate) combine VM-level isolation with near-container start times.',
+        body: '- VMs: when you need a different operating system, strong walls between customers you don\'t trust, or an old app that expects a whole machine.\n- Containers: small services, the same image on your laptop, in testing and in production, and scaling up fast.\n- Both, very often: in the cloud, containers usually run inside VMs. Docker Desktop on Windows and macOS runs a small Linux VM to get a Linux kernel. Tiny VMs such as Firecracker (used by AWS Lambda and Fargate) give VM-strength walls with almost container-fast start times.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- Why can\'t a Linux container run a Windows app natively?\n- What do layers buy you when 50 images share the same base?\n- How would you run untrusted user code safely: containers, gVisor, or microVMs?\n- What happens to a container\'s files when it is deleted, and how do volumes help?\n- Why do Kubernetes nodes run in VMs in most clouds?',
+        body: '- Why can\'t a Linux container run a Windows app directly?\n- What do layers save when 50 images share the same base image?\n- How would you run code you don\'t trust safely: containers, gVisor or tiny VMs?\n- What happens to a container\'s files when it\'s deleted, and how do volumes help?\n- Why do most clouds run Kubernetes nodes inside VMs?',
       },
     ],
     trace: {

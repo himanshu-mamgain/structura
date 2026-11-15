@@ -170,7 +170,7 @@ export const kafka: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'kafka',
   title: 'Kafka: Event Streaming',
-  blurb: 'Topics, partitions, consumer groups, replication and delivery guarantees',
+  blurb: 'Topics, partitions, consumer groups, copies across brokers, and what "delivered" really means',
   guides: [
     'ref-apache-kafka-docs',
     'ref-kafka-nodejs-tutorial',
@@ -182,12 +182,12 @@ export const kafka: StaticTopic = {
     'primer-asynchronism',
   ],
   takeaways: [
-    'A topic is split into partitions: append-only logs spread across brokers.',
-    'The key decides the partition, and order is only guaranteed within a partition.',
-    'Each partition goes to one consumer per group; more partitions means more parallel consumers.',
-    'acks=all with min.insync.replicas=2 is what keeps a broker crash from losing events.',
-    'Consumers commit offsets after processing, so delivery is at-least-once: make handlers idempotent.',
-    'Consumer groups each keep their own offsets, so many systems can read the same events.',
+    'A topic is split into partitions: logs you only add to, spread across brokers.',
+    'The key decides the partition, and order is kept only within a partition.',
+    'Each partition goes to one consumer per group, so more partitions means more consumers can work at once.',
+    'acks=all with min.insync.replicas=2 is what stops a broker crash from losing events.',
+    'Consumers commit offsets after processing, so events arrive at least once: make handlers safe to repeat.',
+    'Each consumer group keeps its own offsets, so many systems can read the same events.',
   ],
   architecture: {
     replace: false,
@@ -261,39 +261,39 @@ export const kafka: StaticTopic = {
   explanation: {
     title: 'Kafka: Event Streaming',
     summary:
-      'Kafka is a distributed, durable log. Producers append events to topics, which are split into partitions spread across brokers; consumers read them at their own pace and remember where they are with offsets. It decouples services, absorbs traffic spikes, and lets many systems react to the same events.',
+      'Kafka is a log of events, spread across several servers and kept safely on disk. Producers add events to topics, which are split into partitions spread over brokers. Consumers read at their own pace and remember their place with offsets. Services no longer have to call each other directly, traffic spikes wait in the log, and many systems can react to the same event.',
     sections: [
       {
         heading: 'Overview',
-        body: "Without Kafka, the Order Service would call billing, analytics, email and search directly. If one of them is slow or down, orders fail. With Kafka, the Order Service writes one event, \"order paid\", and moves on. Every interested system reads it when it's ready.\n\nThe core idea is the log: an append-only, ordered list of events, kept for days (or forever). Unlike a classic queue, reading an event doesn't delete it. Each reader just remembers its position.",
+        body: 'Without Kafka, the Order Service would call billing, analytics, email and search itself. If one of them is slow or down, orders fail. With Kafka, the Order Service writes one event, "order paid", and moves on. Every system that cares reads it when it\'s ready.\n\nThe core idea is the log: an ordered list of events that you only add to, kept for days, or forever. Unlike a classic queue, reading an event doesn\'t delete it. Each reader just remembers where it is.',
       },
       {
         heading: 'Core concepts',
-        body: '- Topic: a named stream of events, like orders.\n- Partition: a topic is split into partitions, each an ordered append-only log on one broker. Partitions are the unit of parallelism.\n- Offset: an event\'s position in its partition (0, 1, 2…).\n- Broker: a Kafka server that stores partitions. A cluster has several.\n- Replication: each partition has a leader and followers on other brokers; followers that are caught up form the in-sync replicas (ISR).\n- Consumer group: consumers that share the work. Each partition goes to exactly one consumer in the group.\n- KRaft: Kafka\'s built-in consensus (replacing ZooKeeper since Kafka 3.3) that elects partition leaders.',
+        body: '- Topic: a named stream of events, like orders.\n- Partition: a piece of a topic, each one an ordered log on one broker. Partitions are what let several consumers work at once.\n- Offset: an event\'s position in its partition (0, 1, 2…).\n- Broker: a Kafka server that stores partitions. A cluster has several.\n- Copies (replication): each partition has a leader and followers on other brokers. Followers that are fully caught up are the in-sync replicas (ISR).\n- Consumer group: consumers that share the work. Each partition goes to exactly one consumer in the group.\n- KRaft: the way Kafka\'s servers agree among themselves (it replaced ZooKeeper from Kafka 3.3); it picks each partition\'s leader.',
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 50,000 order events per second at peak, about 1 KB each.\n- 50 MB/s written; with replication factor 3, 150 MB/s of disk writes across the cluster.\n- 7-day retention: 50 MB/s × 604,800 s ≈ 30 TB per copy, about 90 TB with replicas.\n- If one consumer handles 5,000 events/s, you need at least 10 partitions for one group to keep up at peak; teams often choose 2 to 3 times that for headroom, because adding partitions later re-maps keys.',
+        body: 'An example: 50,000 order events a second at the peak, about 1 KB each.\n- 50 MB a second written; with 3 copies, 150 MB a second of disk writes across the cluster.\n- Kept for 7 days: 50 MB a second × 604,800 seconds ≈ 30 TB per copy, about 90 TB with all 3 copies.\n- If one consumer handles 5,000 events a second, one group needs at least 10 partitions to keep up at the peak. Teams often choose 2 to 3 times that for room to grow, because adding partitions later moves keys around.',
       },
       {
         heading: 'Step by step',
-        body: '1. The Producer (Order Service) sends an event with a key (the order id).\n2. The Partitioner (hash of key) maps the key to a partition, so one order\'s events stay in order.\n3. The partition\'s leader, say Broker 1 · P0 leader, appends it to its log.\n4. Followers replicate it; with acks=all the producer is answered once the in-sync replicas have it.\n5. In the billing group, the consumer that owns the partition (Billing Consumer 1 or Billing Consumer 2) polls it.\n6. It writes to the Billing DB idempotently, then commits its offset to __consumer_offsets.\n7. Events it can\'t process after retries go to orders.DLQ (dead letters) for a human to look at.\n8. The Analytics Consumer reads the same events with its own offsets.\n9. If a broker dies, the KRaft Controller promotes an in-sync follower to leader.',
+        body: '1. The Producer (Order Service) sends an event with a key (the order ID).\n2. The Partitioner (hash of key) turns the key into a partition number, so one order\'s events stay in order.\n3. That partition\'s leader, say Broker 1 · P0 leader, adds the event to the end of its log.\n4. Followers copy it; with acks=all, the producer gets its answer once the in-sync copies have the event.\n5. In the billing group, the consumer that owns the partition (Billing Consumer 1 or Billing Consumer 2) reads it.\n6. It writes to the Billing DB in a way that\'s safe to repeat, then commits its offset to __consumer_offsets.\n7. Events it still can\'t process after a few retries go to orders.DLQ (dead letters) for a person to look at.\n8. The Analytics Consumer reads the same events with its own offsets.\n9. If a broker dies, the KRaft Controller makes a caught-up follower the new leader.',
       },
       {
         heading: 'Components',
-        body: '- Producer (Order Service): publishes events; batches and compresses them for throughput.\n- Partitioner (hash of key): murmur2(key) mod partition count, so equal keys always go to the same partition.\n- Broker 1 · P0 leader: stores partitions and serves reads and writes for the ones it leads.\n- Broker 2 · P1 leader: also holds replicas of other partitions, ready to take over.\n- Broker 3 · P2 leader: the third broker; three brokers allow replication factor 3.\n- KRaft Controller: tracks brokers and elects a new leader when one fails.\n- __consumer_offsets: an internal topic where each group records how far it has read.\n- Billing Consumer 1: in the billing group, owns partitions 0 and 1.\n- Billing Consumer 2: owns partition 2; if a consumer dies, the group rebalances its partitions.\n- Analytics Consumer: a separate group, so it gets every event too.\n- Billing DB: where invoices are written, with a unique order id so duplicates do nothing.\n- orders.DLQ (dead letters): a topic for events that keep failing, so one bad event can\'t block a partition.',
+        body: '- Producer (Order Service): sends events, grouped and compressed to go faster.\n- Partitioner (hash of key): murmur2(key) divided by the number of partitions; the remainder is the partition, so equal keys always land in the same one.\n- Broker 1 · P0 leader: stores partitions and handles reads and writes for the ones it leads.\n- Broker 2 · P1 leader: also holds copies of other partitions, ready to take over.\n- Broker 3 · P2 leader: the third broker; three brokers allow three copies of everything.\n- KRaft Controller: keeps track of the brokers and picks a new leader when one fails.\n- __consumer_offsets: Kafka\'s own topic where each group records how far it has read.\n- Billing Consumer 1: in the billing group; owns partitions 0 and 1.\n- Billing Consumer 2: owns partition 2; if a consumer dies, the group hands its partitions to the others.\n- Analytics Consumer: in a separate group, so it gets every event too.\n- Billing DB: where invoices are written, with a unique order ID so a repeat does nothing.\n- orders.DLQ (dead letters): a topic for events that keep failing, so one bad event can\'t block a partition.',
       },
       {
         heading: 'Key decisions',
-        body: '- Partition key: choose the thing whose events must stay in order (order id, user id). A skewed key, like one huge customer, makes a hot partition.\n- Partition count: sets the maximum parallelism of a group. Changing it later moves keys to new partitions and breaks ordering during the change.\n- acks and min.insync.replicas: acks=all with min.insync.replicas=2 and replication factor 3 survives a broker loss without losing acknowledged events; acks=1 is faster but can lose them.\n- Delivery semantics: commit after processing gives at-least-once (duplicates possible). Exactly-once needs idempotent producers plus transactions, or idempotent consumers.\n- Retention vs compaction: time-based retention keeps everything for N days; log compaction keeps only the latest value per key, good for state like "current price".',
+        body: '- The partition key: choose the thing whose events must stay in order (an order ID, a user ID). A lopsided key, like one huge customer, makes one partition much busier than the rest.\n- How many partitions: this caps how many consumers in a group can work at once. Changing it later moves keys to new partitions and breaks order during the change.\n- acks and min.insync.replicas: acks=all with min.insync.replicas=2 and 3 copies survives losing a broker without losing any confirmed event. acks=1 is faster but can lose them.\n- What "delivered" means: committing after processing gives "at least once", so repeats are possible. "Exactly once" needs idempotent producers plus transactions, or consumers that are safe to repeat.\n- Keep by time or compact: time-based retention keeps everything for N days; log compaction keeps only the latest value for each key, which suits state like "current price".',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Throughput scales with partitions and brokers: add brokers and move partitions onto them.\n- Consumer lag (how far a group is behind) is the main health metric; growing lag means add consumers (up to the partition count) or make processing faster.\n- A broker failure triggers leader election for its partitions; with in-sync replicas, nothing acknowledged is lost.\n- Rebalances pause consumption briefly; cooperative rebalancing and static membership keep the pauses small.\n- A poison message (one that always fails) would block its partition forever: retry a few times, then send it to a dead-letter topic.',
+        body: '- More partitions and brokers mean more speed: add brokers and move partitions onto them.\n- Consumer lag (how far a group is behind) is the main health number. If it keeps growing, add consumers (up to the number of partitions) or make processing faster.\n- When a broker fails, new leaders are picked for its partitions; with in-sync copies, nothing confirmed is lost.\n- Rebalances pause reading for a moment; cooperative rebalancing and static membership keep the pauses short.\n- A poison message (one that always fails) would block its partition forever: retry a few times, then send it to a dead-letter topic.',
       },
       {
         heading: 'Interview follow-ups',
-        body: '- How do you guarantee all events for one user are processed in order?\n- What happens to ordering if you increase the partition count?\n- How would you make sure a payment event is never lost and never charged twice?\n- Your consumer lag keeps growing. What do you check, and what do you change?\n- When would you choose a classic queue like RabbitMQ or SQS over Kafka?',
+        body: '- How do you make sure all of one user\'s events are handled in order?\n- What happens to order if you add partitions?\n- How would you make sure a payment event is never lost and never charged twice?\n- Your consumer lag keeps growing. What do you check, and what do you change?\n- When would you choose a classic queue like RabbitMQ or SQS over Kafka?',
       },
     ],
     get trace() {
