@@ -5154,6 +5154,12 @@ button.roadmap-step-title:hover {
   cursor: pointer;
 }
 
+.roadmap-read.is-learn {
+  border-color: transparent;
+  background: var(--primary);
+  color: #fff;
+}
+
 @media (min-width: 1024px) {
   .reader-bar {
     top: 68px;
@@ -5952,4 +5958,371 @@ button.area-tag {
   border: 0;
   background: transparent;
   box-shadow: none;
+}
+
+/* ─── Lesson mode (?topic=…&learn): short cards over the hand-drawn diagram ─── */
+
+/* The lesson has its own buttons at the bottom, so the floating ones step aside. */
+.shell.is-lesson .orb,
+.shell.is-lesson .assistant-panel,
+.shell.is-lesson .voice-caption-float,
+.shell.is-lesson .mini-player {
+  display: none;
+}
+
+.shell.is-lesson .content {
+  padding-bottom: calc(20px + var(--tabbar)) !important;
+}
+
+.lesson {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.lesson-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lesson-bar .icon-btn {
+  flex: none;
+  width: 38px;
+  height: 38px;
+}
+
+.lesson-bar-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.lesson-bar-title strong {
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* One segment per card, plus one for the quick check, like stories. */
+.lesson-progress {
+  display: flex;
+  gap: 4px;
+}
+
+.lesson-progress span {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(41, 45, 50, 0.12);
+  transition: background 0.3s;
+}
+
+.lesson-progress .is-done {
+  background: var(--primary);
+}
+
+.lesson-progress .is-here {
+  background: linear-gradient(90deg, var(--primary) 50%, rgba(41, 45, 50, 0.12) 50%);
+}
+
+.lesson-count {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-figure {
+  position: relative;
+  height: clamp(230px, 36dvh, 360px);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(85, 124, 114, 0.08), transparent 60%),
+    linear-gradient(rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, rgba(119, 115, 107, 0.05) 1px, transparent 1px) 0 0 / 28px 28px,
+    var(--card);
+}
+
+.lesson-panel {
+  display: flex;
+  flex-direction: column;
+  padding-top: 18px;
+}
+
+.lesson-card {
+  flex: 1;
+  animation: lesson-in 0.28s ease-out;
+}
+
+@keyframes lesson-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.lesson-kicker {
+  margin: 0 0 6px;
+  color: var(--accent-ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lesson-card h2 {
+  margin: 0 0 10px;
+  font-size: 23px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.lesson-words {
+  margin: 0;
+  color: var(--text);
+  font-size: 17.5px;
+  line-height: 1.65;
+}
+
+.lesson-example {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink-2);
+  font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lesson-remember {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--primary);
+  border-radius: 0 12px 12px 0;
+  background: var(--primary-soft);
+  color: var(--text);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.lesson-remember svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent-ink);
+}
+
+/* Back and Next stay in reach of a thumb, just above the tab bar. */
+.lesson-nav {
+  position: sticky;
+  bottom: calc(10px + var(--tabbar));
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(247, 245, 239, 0.94);
+  box-shadow: 0 8px 24px rgba(41, 45, 50, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.lesson-nav .btn {
+  min-height: 50px;
+  font-size: 16px;
+}
+
+.lesson-options {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lesson-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 16.5px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-option:not(:disabled):hover {
+  border-color: var(--primary);
+}
+
+.lesson-option:disabled {
+  cursor: default;
+}
+
+.lesson-option svg {
+  flex: none;
+}
+
+.lesson-option.is-right {
+  border-color: var(--ok);
+  background: rgba(47, 122, 85, 0.1);
+  color: var(--text);
+}
+
+.lesson-option.is-right svg {
+  color: var(--ok);
+}
+
+.lesson-option.is-wrong {
+  border-color: #b4443a;
+  background: rgba(180, 68, 58, 0.08);
+}
+
+.lesson-option.is-other {
+  opacity: 0.55;
+}
+
+.lesson-why {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(180, 68, 58, 0.08);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+.lesson-why.is-right {
+  background: rgba(47, 122, 85, 0.1);
+}
+
+.lesson-end {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.lesson-trophy {
+  display: block;
+  margin: 0 auto;
+  color: #a37a00;
+}
+
+.lesson-end h2 {
+  margin-top: 8px;
+}
+
+.lesson-end-actions {
+  display: grid;
+  gap: 10px;
+  max-width: 420px;
+  margin: 22px auto 0;
+}
+
+.lesson-end-actions .btn {
+  width: 100%;
+  min-height: 50px;
+}
+
+.lesson-end-actions .btn-wrap {
+  justify-content: space-between;
+}
+
+.lesson-end-actions .btn-wrap span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lesson-end-actions .btn-wrap small {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* Phones: the quick check and the end get the whole screen. */
+@media (max-width: 767px) {
+  .lesson-figure {
+    height: clamp(240px, 38dvh, 380px);
+  }
+
+  /* The figure is small: the zoom buttons would cover the boxes it points at. Drag still pans. */
+  .lesson-figure .d2-zoom {
+    display: none;
+  }
+
+  .lesson-body.is-quiz .lesson-figure {
+    display: none;
+  }
+
+  .lesson-body.is-quiz .lesson-panel {
+    padding-top: 4px;
+  }
+}
+
+/* Tablets and wider: the diagram on the left, the card beside it. */
+@media (min-width: 768px) {
+  .lesson-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+
+  .lesson-figure {
+    position: sticky;
+    top: 84px;
+    height: calc(100dvh - 190px - var(--tabbar));
+    min-height: 380px;
+  }
+
+  .lesson-panel {
+    min-height: calc(100dvh - 190px - var(--tabbar));
+    padding-top: 4px;
+  }
+
+  .lesson-card h2 {
+    font-size: 27px;
+  }
+
+  .lesson-words {
+    font-size: 18.5px;
+  }
+
+  .lesson-nav {
+    bottom: calc(14px + var(--tabbar));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-card {
+    animation: none;
+  }
 }

@@ -1,5 +1,5 @@
 import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, BookOpenText, CheckCircle2, Circle, ExternalLink, Footprints, Headphones, Lightbulb, Move, Network, Pause } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpenText, CheckCircle2, Circle, ExternalLink, Footprints, GraduationCap, Headphones, Lightbulb, Move, Network, Pause } from 'lucide-react'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { responsibility, subtitleOf } from '../diagram/inspect'
 import { LESSONS, playTopic, toggle, useCommute } from '../learn/commute'
@@ -12,6 +12,7 @@ import { nextTopicAfter } from '../learn/roadmap'
 import { StoryView } from '../learn/story'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { hasDeepNote, loadDeepNote } from '../topics/deepNotes'
+import { hasLesson } from '../topics/lessonsIndex'
 import { guidesFor, sourceOf } from '../topics/library'
 import type { StaticTopic } from '../topics/types'
 import type { AreaId } from '../topics/areas'
@@ -68,12 +69,14 @@ export function Reader({
   onRead,
   onOpen,
   onArea,
+  onLearn,
 }: {
   topic: StaticTopic
   onExit: () => void
   onRead: (next: TopicMeta) => void
   onOpen: (next: TopicMeta) => void
   onArea?: (area: AreaId) => void
+  onLearn?: () => void
 }) {
   const progress = useProgress().topics[topic.id]
   const commute = useCommute()
@@ -223,6 +226,11 @@ export function Reader({
             A+
           </button>
         </div>
+        {onLearn && hasLesson(topic.id) && (
+          <button type="button" className="btn" onClick={onLearn} title="Learn it in short steps, then a quick check" aria-label="Lesson">
+            <GraduationCap size={16} /> <span>Lesson</span>
+          </button>
+        )}
         {lesson && (
           <button type="button" className={`btn${playing ? ' is-on' : ''}`} onClick={() => (commute.topicId === topic.id ? toggle() : playTopic(topic.id))}>
             {playing ? <Pause size={16} /> : <Headphones size={16} />} <span>{playing ? 'Pause' : `Listen ${Math.round(lesson.duration / 60)} min`}</span>

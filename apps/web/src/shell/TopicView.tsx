@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, BookOpenText, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
+import { AlertTriangle, BookOpenText, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, GraduationCap, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import type { Board } from '../board/store'
 import { Diagram2D } from '../diagram/Diagram2D'
@@ -16,6 +16,7 @@ import { erdToDiagram } from '../learn/erd'
 import { buildSteps, focusStep, showWholeDiagram } from '../learn/walkthrough'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
+import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
 import { openStaticTopic } from '../topics/open'
 import { NoteBox, TopicNotes } from './Notes'
 import { OfflineVideoButton } from './OfflineVideo'
@@ -67,6 +68,7 @@ export function TopicView({
   openLoad = false,
   onNote,
   onRead,
+  onLearn,
   onArea,
 }: {
   topic: StaticTopic
@@ -74,6 +76,7 @@ export function TopicView({
   openLoad?: boolean
   onNote?: (id: string) => void
   onRead?: () => void
+  onLearn?: () => void
   onArea?: (area: AreaId) => void
 }) {
   const narrow = useNarrow()
@@ -329,6 +332,11 @@ export function TopicView({
           )}
         </div>
         <div className="topic-actions">
+          {onLearn && hasLesson(topic.id) && (
+            <button type="button" className="btn btn-primary" onClick={onLearn} title="Learn it in short steps, then a quick check">
+              <GraduationCap size={17} /> {lessonLabel(progress)}
+            </button>
+          )}
           {onRead && (
             <button type="button" className="btn" onClick={onRead} title="Read the whole topic as one article">
               <BookOpen size={17} /> Read

@@ -5,17 +5,44 @@
 // start-up. `npm run dev` and `npm run build` regenerate it; commit the result.
 //
 //   npx tsx scripts/export-catalog.ts
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { STATIC_TOPICS } from '../src/topics'
 import { AREA_OF } from '../src/topics/areas'
 import type { TopicMeta } from '../src/topics/catalog'
+import type { Lesson } from '../src/topics/lessonTypes'
 
 // Every topic must belong to an area: Explore, Home and the roadmap are organised by them.
 const unplaced = STATIC_TOPICS.filter((t) => !AREA_OF[t.id]).map((t) => t.id)
 if (unplaced.length) {
   console.error(`No area for ${unplaced.join(', ')}: add each to AREA_OF in src/topics/areas.ts.`)
+  process.exit(1)
+}
+
+// Lessons light up boxes by their exact labels, so a typo would silently light nothing.
+const lessonDir = join(dirname(fileURLToPath(import.meta.url)), '../src/topics/lessons')
+const lessonErrors: string[] = []
+for (const file of readdirSync(lessonDir).filter((f) => f.endsWith('.ts'))) {
+  const id = file.replace(/\.ts$/, '')
+  const topic = STATIC_TOPICS.find((t) => t.id === id)
+  if (!topic) {
+    lessonErrors.push(`${file}: no topic with id ${id}`)
+    continue
+  }
+  const { default: lesson } = (await import(pathToFileURL(join(lessonDir, file)).href)) as { default: Lesson }
+  const labels = new Set(topic.architecture.nodes.map((n) => n.label))
+  if (lesson.cards.length < 4 || lesson.cards.length > 12) lessonErrors.push(`${file}: ${lesson.cards.length} cards (4 to 12)`)
+  lesson.cards.forEach((card, i) => {
+    for (const label of card.focus ?? []) if (!labels.has(label)) lessonErrors.push(`${file}: card ${i + 1} focuses on "${label}", which isn't a box in the diagram`)
+  })
+  if (lesson.quiz.length !== 3) lessonErrors.push(`${file}: ${lesson.quiz.length} questions (3)`)
+  lesson.quiz.forEach((q, i) => {
+    if (!(q.answer >= 0 && q.answer < q.options.length)) lessonErrors.push(`${file}: question ${i + 1}'s answer is out of range`)
+  })
+}
+if (lessonErrors.length) {
+  console.error(lessonErrors.join('\n'))
   process.exit(1)
 }
 
