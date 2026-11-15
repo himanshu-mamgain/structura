@@ -1,8 +1,18 @@
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  resolve: {
+    alias: [
+      // The data model view never parses DBML in the browser (see src/diagram/no-dbml-parser.ts).
+      { find: /^@dbml\/core$/, replacement: fileURLToPath(new URL('./src/diagram/no-dbml-parser.ts', import.meta.url)) },
+      // One copy of ELK: dbml-erd-viewer asks for 0.11, the app's diagrams use 0.12, with the same API.
+      { find: /^elkjs\/lib\/elk\.bundled\.js$/, replacement: createRequire(import.meta.url).resolve('elkjs/lib/elk.bundled.js') },
+    ],
+  },
   plugins: [
     react(),
     VitePWA({

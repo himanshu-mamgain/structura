@@ -32,7 +32,7 @@ export function Body({ text }: { text: string }) {
 // The language a learner picked on any code block. Every block on the page follows it,
 // so choosing Java once shows Java everywhere it exists.
 const LANGUAGE_KEY = 'structura:code-language'
-const ORDER: CodeLanguage[] = ['javascript', 'java', 'typescript', 'python', 'go', 'sql', 'bash']
+const ORDER: CodeLanguage[] = ['javascript', 'java', 'typescript', 'python', 'go', 'sql', 'dbml', 'bash']
 const NAMES: Record<CodeLanguage, string> = {
   javascript: 'JavaScript',
   java: 'Java',
@@ -40,6 +40,7 @@ const NAMES: Record<CodeLanguage, string> = {
   python: 'Python',
   go: 'Go',
   sql: 'SQL',
+  dbml: 'DBML',
   bash: 'Bash',
 }
 const listeners = new Set<() => void>()

@@ -6357,3 +6357,45 @@ button.area-tag {
     animation: none;
   }
 }
+
+/* ─── Data model: dbml-erd-viewer in Structura's colours ─── */
+
+.dv-viewer.data-model,
+.data-model .dv-viewer {
+  --dv-canvas: transparent;
+  --dv-bg: var(--card);
+  --dv-border: var(--line);
+  --dv-header-bg: var(--primary-2);
+  --dv-header-fg: #fffdf8;
+  --dv-row-fg: var(--text);
+  --dv-type-fg: var(--muted);
+  --dv-row-hover: var(--card-2);
+  --dv-row-highlight: var(--primary-soft);
+  --dv-pk: #a86b12;
+  --dv-fk: var(--primary);
+  --dv-null: #a3685c;
+  --dv-edge: #9a958b;
+  --dv-edge-active: var(--primary-2);
+  --dv-font: inherit;
+  width: 100%;
+  height: 100%;
+}
+
+.data-model .react-flow__controls {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(41, 45, 50, 0.14);
+}
+
+.data-model .react-flow__controls-button {
+  width: 32px;
+  height: 32px;
+  background: var(--card);
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+/* Locking the diagram isn't useful here; zoom, fit and auto layout are. */
+.data-model .react-flow__controls-interactive {
+  display: none;
+}

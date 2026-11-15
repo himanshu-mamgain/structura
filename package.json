@@ -12,7 +12,8 @@
     "lan": "npm run build -w @structura/web && npm run preview -w @structura/web",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p netlify",
     "test:push": "tsx --test netlify/lib/push.test.ts",
-    "test:notion": "tsx --test netlify/lib/notion-save.test.ts"
+    "test:notion": "tsx --test netlify/lib/notion-save.test.ts",
+    "test:dbml": "tsx --test apps/web/src/learn/dbml.test.ts"
   },
   "engines": {
     "node": ">=20"

@@ -12,7 +12,7 @@ import { readiness, updateTopic, useProgress } from '../learn/progress'
 import { readingMinutes, storyText, StoryView } from '../learn/story'
 import { speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/speech'
 import type { WalkCommand } from '../learn/assistant'
-import { erdToDiagram } from '../learn/erd'
+import { erdToDbml, schemaSnippet } from '../learn/dbml'
 import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
@@ -27,6 +27,8 @@ import { ecoLinks } from '../ecosystem'
 
 // The load test (the Rust/WASM simulator) loads on first use.
 const LoadPanel = lazy(() => import('../sim/LoadPanel').then((m) => ({ default: m.LoadPanel })))
+// The ERD viewer (React Flow) loads only when someone opens the data model.
+const DataModel = lazy(() => import('../diagram/DataModel'))
 
 type Tab = 'story' | 'explain' | 'walk' | 'code' | 'data'
 
@@ -115,13 +117,13 @@ export function TopicView({
   const explanation = topic.explanation
   const steps = trace?.steps ?? []
   const architecture = useMemo(() => (narrow ? { ...topic.architecture, direction: 'down' as const } : topic.architecture), [topic, narrow])
-  const dataModel = useMemo(() => (topic.database ? { ...erdToDiagram(topic.database), direction: narrow ? ('down' as const) : ('right' as const) } : null), [topic, narrow])
   // One line under each component's name: the start of its description in "Components".
   const subtitles = useMemo(
     () => Object.fromEntries(topic.architecture.nodes.map((n) => [n.id, subtitleOf(responsibility(topic, n.label))]).filter(([, v]) => v)) as Record<string, string>,
     [topic],
   )
   const sql = useMemo(() => (topic.database ? erdToSql(topic.database) : null), [topic])
+  const dbml = useMemo(() => (topic.database ? erdToDbml(topic.database) : null), [topic])
 
   // Walkthrough: focus the step, wait long enough to read, move on.
   useEffect(() => {
@@ -240,10 +242,11 @@ export function TopicView({
     void v.play()
   }
 
-  const nodes = diagramView === 'data' && dataModel ? dataModel.nodes : topic.architecture.nodes
-  const edges = diagramView === 'data' && dataModel ? dataModel.edges : topic.architecture.edges
+  const showData = diagramView === 'data' && topic.database !== null
+  const nodes = topic.architecture.nodes
+  const edges = topic.architecture.edges
   const labelOf = (id: string) => nodes.find((n) => n.id === id)?.label ?? id
-  const inspected = selected ? (nodes.find((n) => n.id === selected) ?? null) : null
+  const inspected = selected && !showData ? (nodes.find((n) => n.id === selected) ?? null) : null
   const inspectedIn = inspected ? edges.filter((e) => e.to === inspected.id) : []
   const inspectedOut = inspected ? edges.filter((e) => e.from === inspected.id) : []
   const inspectedSteps = inspected ? stepsThrough(trace, inspected.label) : []
@@ -382,7 +385,7 @@ export function TopicView({
         )}
         {sql && (
           <button type="button" className={tab === 'data' ? 'is-active' : ''} onClick={() => go('data')}>
-            SQL schema
+            Schema
           </button>
         )}
       </nav>
@@ -394,7 +397,7 @@ export function TopicView({
               <button type="button" aria-pressed={diagramView === 'architecture'} onClick={() => setDiagramView('architecture')}>
                 <Box size={15} /> Architecture
               </button>
-              {dataModel && (
+              {topic.database && (
                 <button type="button" aria-pressed={diagramView === 'data'} onClick={() => setDiagramView('data')}>
                   <Database size={15} /> Data model
                 </button>
@@ -418,17 +421,23 @@ export function TopicView({
           </header>
           <div className={`diagram-stage${inspected ? ' has-inspector' : ''}`}>
             <div className="diagram-body">
-              <Diagram2D
-                diagram={diagramView === 'data' && dataModel ? dataModel : architecture}
-                focus={focus}
-                selected={selected}
-                failed={failed}
-                onSelect={setSelected}
-                subtitles={diagramView === 'architecture' ? subtitles : undefined}
-                load={showLoad && diagramView === 'architecture' ? load : null}
-                // During a load test, show the whole design (wide screens), so every box's busy badge is in view.
-                fitAll={showLoad && !narrow}
-              />
+              {showData && topic.database ? (
+                <Suspense fallback={<p className="d2-loading">Loading the data model…</p>}>
+                  <DataModel erd={topic.database} narrow={narrow} />
+                </Suspense>
+              ) : (
+                <Diagram2D
+                  diagram={architecture}
+                  focus={focus}
+                  selected={selected}
+                  failed={failed}
+                  onSelect={setSelected}
+                  subtitles={subtitles}
+                  load={showLoad ? load : null}
+                  // During a load test, show the whole design (wide screens), so every box's busy badge is in view.
+                  fitAll={showLoad && !narrow}
+                />
+              )}
               <AnimatePresence>
                 {(tour === 'intro' || tour === 'outro') && (
                   <motion.div
@@ -728,7 +737,7 @@ export function TopicView({
             )}
             {sql && (
               <button type="button" aria-pressed={tab === 'data'} onClick={() => go('data')}>
-                <Database size={15} /> SQL schema
+                <Database size={15} /> Schema
               </button>
             )}
           </nav>
@@ -820,7 +829,7 @@ export function TopicView({
 
             {tab === 'code' && explanation.code.map((snippet, i) => <CodeBlock key={i} snippet={snippet} />)}
 
-            {tab === 'data' && sql && <CodeBlock snippet={{ title: 'Schema (PostgreSQL)', language: 'sql', source: sql }} />}
+            {tab === 'data' && sql && <CodeBlock snippet={schemaSnippet(sql, dbml)} />}
 
             {explanation.related.length > 0 && (
               <p className="related">
