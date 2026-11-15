@@ -309,6 +309,37 @@ export function ipHash(pool, ip) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class Balancer {
+  public record Backend(String name, boolean up, int conns) {}
+
+  private static final AtomicInteger counter = new AtomicInteger();
+
+  // Round robin: take turns among the healthy servers.
+  static Backend roundRobin(List<Backend> pool) {
+    List<Backend> up = pool.stream().filter(Backend::up).toList();
+    return up.get(Math.floorMod(counter.getAndIncrement(), up.size()));
+  }
+
+  // Least connections: whoever is least busy right now.
+  static Backend leastConn(List<Backend> pool) {
+    return pool.stream().filter(Backend::up).min(Comparator.comparingInt(Backend::conns)).orElseThrow();
+  }
+
+  // Hash: same client, same server (while the pool is unchanged). FNV-1a, 32 bits.
+  static Backend ipHash(List<Backend> pool, String ip) {
+    List<Backend> up = pool.stream().filter(Backend::up).toList();
+    int h = 0x811c9dc5;
+    for (char ch : ip.toCharArray()) h = (h ^ ch) * 16777619;
+    return up.get((int) (Integer.toUnsignedLong(h) % up.size()));
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `interface Backend { name: string; conns: number; up: boolean }
 
@@ -356,6 +387,36 @@ app.get('/healthz', async (req, res) => {
 
 app.listen(8080)`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import redis.clients.jedis.DefaultJedisClientConfig;
+import redis.clients.jedis.RedisClient;
+
+@RestController
+public class Health {
+  // A 500 ms timeout: a hung Redis fails the check instead of hanging it.
+  private final RedisClient cache = RedisClient.builder()
+      .hostAndPort("sessions.internal", 6379)
+      .clientConfig(DefaultJedisClientConfig.builder().socketTimeoutMillis(500).connectionTimeoutMillis(500).build())
+      .build();
+
+  @GetMapping("/healthz")
+  ResponseEntity<Map<String, String>> healthz() {
+    // Fail only if THIS server can't do its job. Don't check every dependency
+    // deeply, or one slow database would take the whole pool out at once.
+    try {
+      cache.ping();
+    } catch (Exception e) {
+      return ResponseEntity.status(503).body(Map.of("status", "down"));
+    }
+    return ResponseEntity.ok(Map.of("status", "ok"));
+  }
+}`,
+          },
           {
             language: 'python',
             source: `from flask import Flask

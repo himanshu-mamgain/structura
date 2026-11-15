@@ -396,6 +396,35 @@ export async function recordPayment(p) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.util.Properties;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+public class PaymentEvents {
+  private final KafkaProducer<String, String> producer;
+
+  public PaymentEvents() {
+    Properties p = new Properties();
+    p.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "b1:9092,b2:9092,b3:9092");
+    // Idempotent: retries can't create duplicates. It needs acks=all; the Java
+    // client keeps retried batches in order with up to 5 requests in flight.
+    p.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+    p.put(ProducerConfig.ACKS_CONFIG, "all");
+    p.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+    p.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    p.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    producer = new KafkaProducer<>(p);
+  }
+
+  public void recordPayment(String orderId, String paymentJson) throws Exception {
+    producer.send(new ProducerRecord<>("payments", orderId, paymentJson)).get(); // wait until it's replicated
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import { Kafka } from 'kafkajs'
 

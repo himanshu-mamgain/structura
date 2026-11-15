@@ -400,6 +400,47 @@ app.get('/account', (_req, res) => {
 })`,
         versions: [
           {
+            language: 'java',
+            source: `import java.time.Duration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+class StaticFiles implements WebMvcConfigurer {
+  // Fingerprinted files: the name changes when the content does, so cache for a year.
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    registry.addResourceHandler("/assets/**")
+        .addResourceLocations("classpath:/static/assets/")
+        .setCacheControl(CacheControl.maxAge(Duration.ofDays(365)).cachePublic().immutable());
+  }
+}
+
+@RestController
+class Pages {
+  // Data that changes: one minute fresh, then serve stale for 30 s while refreshing.
+  @GetMapping("/api/prices.json")
+  ResponseEntity<Prices> prices() {
+    return ResponseEntity.ok()
+        .cacheControl(CacheControl.maxAge(Duration.ofSeconds(60)).cachePublic()
+            .staleWhileRevalidate(Duration.ofSeconds(30)))
+        .header("Surrogate-Key", "prices") // lets you purge every price file with one call
+        .body(loadPrices());
+  }
+
+  // Personal pages: never store them in a shared cache.
+  @GetMapping("/account")
+  ResponseEntity<String> account() {
+    return ResponseEntity.ok().cacheControl(CacheControl.noStore().cachePrivate()).body(renderAccount());
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import express from 'express'
 
@@ -463,6 +504,50 @@ curl -s -o /dev/null -w '%{http_code}\\n' \\
   }
 }`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class EdgeCache {
+  public record Result(String body, String status) {}
+
+  private record Cached(String body, long expiresAt) {}
+
+  private final Map<String, Cached> items;
+
+  public EdgeCache(int capacity) {
+    // accessOrder = true: every get moves a key to the end, so the eldest is the least recently used.
+    items = new LinkedHashMap<>(16, 0.75f, true) {
+      @Override
+      protected boolean removeEldestEntry(Map.Entry<String, Cached> eldest) {
+        return size() > capacity;
+      }
+    };
+  }
+
+  public synchronized Result get(String key) {
+    Cached c = items.get(key);
+    if (c == null) return new Result(null, "MISS");
+    // Expired: the caller revalidates with If-None-Match.
+    if (System.currentTimeMillis() >= c.expiresAt()) return new Result(c.body(), "EXPIRED");
+    return new Result(c.body(), "HIT");
+  }
+
+  public synchronized void put(String key, String body, int ttlSeconds) {
+    items.put(key, new Cached(body, System.currentTimeMillis() + ttlSeconds * 1000L));
+  }
+
+  public static void main(String[] args) {
+    EdgeCache cache = new EdgeCache(2);
+    cache.put("/a.css", "a", 60);
+    cache.put("/b.css", "b", 60);
+    cache.get("/a.css"); // a is now the most recent
+    cache.put("/c.css", "c", 60); // evicts b
+    System.out.println(cache.get("/b.css").status() + " " + cache.get("/a.css").status()); // MISS HIT
+  }
+}`,
+          },
           {
             language: 'python',
             source: `import time

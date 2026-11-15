@@ -351,6 +351,59 @@ export async function addPost(userId, body) {
 }`,
         versions: [
           {
+            language: 'java',
+            source: `import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.sql.DataSource;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import redis.clients.jedis.RedisClient;
+
+public class FeedService {
+  private static final ObjectMapper json = new ObjectMapper();
+  private final RedisClient redis = RedisClient.create(System.getenv("CACHE_URL"));
+  private final DataSource primary;
+  private final List<DataSource> replicas;
+
+  public FeedService(DataSource primary, List<DataSource> replicas) {
+    this.primary = primary;
+    this.replicas = replicas;
+  }
+
+  public List<Map<String, Object>> getFeed(long userId) throws Exception {
+    String hit = redis.get("feed:" + userId);
+    if (hit != null) return json.readValue(hit, new TypeReference<>() {}); // ~80% of reads end here
+
+    DataSource replica = replicas.get(Math.floorMod(userId, replicas.size())); // spread reads
+    List<Map<String, Object>> rows = new ArrayList<>();
+    try (Connection c = replica.getConnection();
+        PreparedStatement st = c.prepareStatement(
+            "SELECT id, body FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT 20")) {
+      st.setLong(1, userId);
+      ResultSet rs = st.executeQuery();
+      while (rs.next()) rows.add(Map.of("id", rs.getLong("id"), "body", rs.getString("body")));
+    }
+    redis.setex("feed:" + userId, 60, json.writeValueAsString(rows)); // short TTL bounds staleness
+    return rows;
+  }
+
+  public void addPost(long userId, String body) throws SQLException {
+    try (Connection c = primary.getConnection();
+        PreparedStatement st = c.prepareStatement("INSERT INTO posts (user_id, body) VALUES (?, ?)")) {
+      st.setLong(1, userId);
+      st.setString(2, body);
+      st.executeUpdate();
+    }
+    redis.del("feed:" + userId); // drop the stale copy
+  }
+}`,
+          },
+          {
             language: 'typescript',
             source: `import Redis from 'ioredis'
 import { Pool } from 'pg'
@@ -392,6 +445,27 @@ export const shardFor = (userId) => SHARDS[userId % SHARDS.length]
 // Plain modulo means adding a shard moves almost every user.
 // Consistent hashing, or many small logical shards mapped onto few servers, avoids that.`,
         versions: [
+          {
+            language: 'java',
+            source: `import java.util.List;
+import javax.sql.DataSource;
+
+public class Shards {
+  private final List<DataSource> shards; // DB_SHARD_0 .. DB_SHARD_3
+
+  public Shards(List<DataSource> shards) {
+    this.shards = shards;
+  }
+
+  /** Same user, same shard, every time: a user's posts never need a cross-shard join. */
+  public DataSource shardFor(long userId) {
+    return shards.get(Math.floorMod(userId, shards.size()));
+  }
+}
+
+// Plain modulo means adding a shard moves almost every user.
+// Consistent hashing, or many small logical shards mapped onto few servers, avoids that.`,
+          },
           {
             language: 'typescript',
             source: `import { Pool } from 'pg'
