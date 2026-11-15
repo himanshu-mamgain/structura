@@ -167,6 +167,12 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  /** One roadmap module, such as AWS basics (?page=roadmap&part=aws-start). */
+  function openPart(id: string) {
+    navigate(`?page=roadmap&part=${id}`)
+    window.scrollTo({ top: 0 })
+  }
+
   function openPage(page: Page) {
     navigate(`?page=${page}`)
     window.scrollTo({ top: 0 })
@@ -225,7 +231,7 @@ export default function App() {
           </button>
           <Tabs current={tab} onTab={onTab} className="appbar-tabs" />
           {/* Explore has its own, bigger search. */}
-          {route.page !== 'explore' && <SearchBox onOpen={open} onRead={openRead} onNote={openNote} className="appbar-search" />}
+          {route.page !== 'explore' && <SearchBox onOpen={open} onRead={openRead} onNote={openNote} onPart={openPart} className="appbar-search" />}
           {/* Narrower screens have no room for the field: this opens Explore's, ready to type. */}
           {route.page !== 'explore' && (
             <button
@@ -298,10 +304,7 @@ export default function App() {
                 area={route.area}
                 partId={route.partId}
                 onArea={(area) => openArea(area, 'roadmap')}
-                onPart={(id) => {
-                  navigate(`?page=roadmap&part=${id}`)
-                  window.scrollTo({ top: 0 })
-                }}
+                onPart={openPart}
                 onOpen={open}
                 onRead={openRead}
                 onLearn={openLearn}
@@ -316,6 +319,7 @@ export default function App() {
                 category={route.category}
                 onCategory={openCategory}
                 onRoadmap={(area) => openArea(area ?? null, 'roadmap')}
+                onPart={openPart}
               />
             ) : reels ? (
               <Reels start={route.reel} onOpen={open} />

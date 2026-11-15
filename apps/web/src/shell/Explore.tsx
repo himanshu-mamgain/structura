@@ -26,6 +26,7 @@ export function Explore({
   category,
   onCategory,
   onRoadmap,
+  onPart,
 }: {
   onOpen: (topic: TopicMeta) => void
   onRead: (topic: TopicMeta) => void
@@ -35,12 +36,13 @@ export function Explore({
   category: string | null
   onCategory: (id: string | null) => void
   onRoadmap: (area?: AreaId) => void
+  onPart: (id: string) => void
 }) {
   const [query, setQuery] = useState('')
 
   return (
     <div className="explore">
-      <SearchBox inline onOpen={onOpen} onRead={onRead} onNote={onNote} query={query} onQuery={setQuery} />
+      <SearchBox inline onOpen={onOpen} onRead={onRead} onNote={onNote} onPart={onPart} query={query} onQuery={setQuery} />
       {!query.trim() && (
         <>
           <AreaChips value={area} onChange={onArea} />
