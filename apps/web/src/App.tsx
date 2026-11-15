@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { BookA, Boxes, Clapperboard, GraduationCap, Headphones, House, Loader2, Search, type LucideIcon } from 'lucide-react'
+import { BookA, Boxes, Briefcase, Clapperboard, GraduationCap, Headphones, House, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { board } from './board/store'
 import { InstallButton } from './pwa/InstallButton'
 import { updateReady } from './pwa/updates'
@@ -25,9 +25,10 @@ const Quiz = lazy(() => import('./shell/Practice').then((m) => ({ default: m.Qui
 const Glossary = lazy(() => import('./shell/Practice').then((m) => ({ default: m.Glossary })))
 const Commute = lazy(() => import('./shell/Commute').then((m) => ({ default: m.Commute })))
 const Roadmap = lazy(() => import('./shell/Roadmap').then((m) => ({ default: m.Roadmap })))
+const Prep = lazy(() => import('./shell/Prep').then((m) => ({ default: m.Prep })))
 
-type Page = 'quiz' | 'glossary' | 'listen' | 'explore' | 'reels' | 'roadmap'
-const PAGES: Page[] = ['quiz', 'glossary', 'listen', 'explore', 'reels', 'roadmap']
+type Page = 'quiz' | 'glossary' | 'prep' | 'listen' | 'explore' | 'reels' | 'roadmap'
+const PAGES: Page[] = ['quiz', 'glossary', 'prep', 'listen', 'explore', 'reels', 'roadmap']
 
 /** Where the learner is lives in the URL (?topic=…, ?page=reels&reel=…, ?note=…, ?library=…, ?area=…), so links can be shared. */
 function readRoute() {
@@ -165,7 +166,7 @@ export default function App() {
     ? null
     : route.noteId
       ? 'explore'
-      : route.page === 'quiz' || route.page === 'glossary'
+      : route.page === 'quiz' || route.page === 'glossary' || route.page === 'prep'
       ? 'practice'
       : route.page === 'explore' || route.page === 'reels' || route.page === 'listen'
         ? route.page
@@ -233,7 +234,7 @@ export default function App() {
               )
             ) : route.noteId ? (
               <NoteView id={route.noteId} onNote={openNote} onOpen={open} />
-            ) : route.page === 'quiz' || route.page === 'glossary' ? (
+            ) : route.page === 'quiz' || route.page === 'glossary' || route.page === 'prep' ? (
               <>
                 <div className="seg practice-switch" role="group" aria-label="Practice">
                   <button type="button" aria-pressed={route.page === 'quiz'} onClick={() => openPage('quiz')}>
@@ -242,8 +243,11 @@ export default function App() {
                   <button type="button" aria-pressed={route.page === 'glossary'} onClick={() => openPage('glossary')}>
                     <BookA size={16} /> Glossary
                   </button>
+                  <button type="button" aria-pressed={route.page === 'prep'} onClick={() => openPage('prep')}>
+                    <Briefcase size={16} /> Interview prep
+                  </button>
                 </div>
-                {route.page === 'quiz' ? <Quiz /> : <Glossary />}
+                {route.page === 'quiz' ? <Quiz /> : route.page === 'glossary' ? <Glossary /> : <Prep onRoadmap={() => openPage('roadmap')} />}
               </>
             ) : route.page === 'listen' ? (
               <Commute />

@@ -203,6 +203,21 @@ const references = [
   { slug: 'ref-awesome-database-learning', title: 'Awesome Database Learning: papers, courses and talks on database internals', url: DB_LEARNING, tags: ['Databases', 'Link only'] },
 ].map((r) => ({ ...r, categories: ['references'], source: 'references' }))
 
+// Interview prep: the best open repositories for each round, linked only (each keeps its own
+// licence). Notes are Structura's own words about what each is good for.
+const prep = [
+  { slug: 'prep-javascript-algorithms', title: "trekhleb/javascript-algorithms: algorithms and data structures in JavaScript", url: 'https://github.com/trekhleb/javascript-algorithms', tags: ["DSA", "JavaScript"], note: "Each one implemented in JavaScript, with an explanation and further reading.", categories: ['prep-dsa'] },
+  { slug: 'prep-neetcode', title: "neetcode-gh/leetcode: NeetCode 150 and Blind 75 solutions", url: 'https://github.com/neetcode-gh/leetcode', tags: ["DSA", "LeetCode", "JavaScript"], note: "Solutions to every problem in many languages, JavaScript included.", categories: ['prep-dsa'] },
+  { slug: 'prep-coding-interview-university', title: "jwasham/coding-interview-university: a full CS self-study plan", url: 'https://github.com/jwasham/coding-interview-university', tags: ["DSA", "CS fundamentals"], note: "It is long: use it as a checklist rather than reading it cover to cover.", categories: ['prep-dsa'] },
+  { slug: 'prep-system-design-primer', title: "donnemartin/system-design-primer: the standard starting point", url: 'https://github.com/donnemartin/system-design-primer', tags: ["System design"], note: "Core concepts plus worked design questions. Several Structura topics are adapted from it.", categories: ['prep-system-design'] },
+  { slug: 'prep-system-design-101', title: "ByteByteGoHq/system-design-101: short visual explanations", url: 'https://github.com/ByteByteGoHq/system-design-101', tags: ["System design", "Revision"], note: "Good for quick revision. Its guides are also listed one by one in this library.", categories: ['prep-system-design'] },
+  { slug: 'prep-karanpratapsingh-system-design', title: "karanpratapsingh/system-design: a course from the basics to case studies", url: 'https://github.com/karanpratapsingh/system-design', tags: ["System design", "Course"], note: "A structured course that goes from the basics to full case studies.", categories: ['prep-system-design'] },
+  { slug: 'prep-javascript-questions', title: "lydiahallie/javascript-questions: tricky output and concept questions", url: 'https://github.com/lydiahallie/javascript-questions', tags: ["JavaScript"], note: "Every question comes with an explanation of the answer.", categories: ['prep-javascript'] },
+  { slug: 'prep-sudheerj-javascript', title: "sudheerj/javascript-interview-questions: a large JavaScript question bank", url: 'https://github.com/sudheerj/javascript-interview-questions', tags: ["JavaScript", "React"], note: "The same author keeps a React version too.", categories: ['prep-javascript'] },
+  { slug: 'prep-node-best-practices', title: "goldbergyoni/nodebestpractices: Node.js best practices", url: 'https://github.com/goldbergyoni/nodebestpractices', tags: ["Node.js"], note: "Not interview-specific, but it covers what senior Node.js rounds tend to probe.", categories: ['prep-javascript'] },
+  { slug: 'prep-tech-interview-handbook', title: "yangshun/tech-interview-handbook: the whole interview process", url: 'https://github.com/yangshun/tech-interview-handbook', tags: ["Resume", "Behavioural", "Negotiation"], note: "Resume, behavioural rounds, study plans and negotiation, from the author of Blind 75.", categories: ['prep-process'] },
+].map((r) => ({ ...r, source: 'prep' }))
+
 // ─── AWS containers on Terraform (adaptable with credit; the roadmap is linked only) ───
 //
 // - aws-samples/amazon-ecs-fullstack-app-terraform: MIT-0, a full-stack app on ECS.
@@ -254,11 +269,16 @@ writeFileSync(
         scalability: { name: 'Awesome Scalability (Binh Nguyen)', repo: SCALABILITY, license: 'MIT: the curated list of titles and links; each article belongs to its author.' },
         aws: { name: 'AWS containers on Terraform', repo: ECS_SAMPLE, license: 'aws-samples full-stack app MIT-0 and terraform-aws-modules Apache 2.0: topics adapted from them credit them. containers-roadmap CC BY-SA 4.0: linked only.' },
         databases: { name: 'Awesome Database Learning (PingCAP)', repo: DB_LEARNING, license: 'No licence given: its sections are linked only; nothing is copied.' },
+        prep: { name: "Interview prep (open repositories)", repo: 'https://github.com/yangshun/tech-interview-handbook', license: "Linked only: each repository keeps its own licence, and nothing is copied." },
         references: { name: 'Projects and tutorials', repo: 'https://kafka.apache.org/', license: 'Linked; each keeps its own licence (Kafka Apache 2.0, docker-curriculum MIT, awesome-system-design-resources GPL-3.0, link only).' },
       },
       categories: [
         { id: 'primer-concepts', title: 'Core concepts (Primer)', sort: 0, source: 'primer' },
         { id: 'primer-solutions', title: 'Worked designs (Primer)', sort: 1, source: 'primer' },
+        { id: 'prep-dsa', title: 'Interview prep: DSA', sort: 100, source: 'prep' },
+        { id: 'prep-system-design', title: 'Interview prep: System design', sort: 101, source: 'prep' },
+        { id: 'prep-javascript', title: 'Interview prep: JavaScript and Node.js', sort: 102, source: 'prep' },
+        { id: 'prep-process', title: 'Interview prep: The whole process', sort: 103, source: 'prep' },
         ...categories.map((c) => ({ ...c, source: 'bytebytego' })),
         ...scalabilitySections.map((title, i) => ({ id: `scalability-${anchor(title)}`, title: `Scalability reading: ${title}`, sort: 5000 + i, source: 'scalability' })),
         { id: 'aws-sample', title: 'AWS: full-stack app on ECS (sample)', sort: 8000, source: 'aws' },
@@ -272,6 +292,7 @@ writeFileSync(
         ...concepts.map((g) => ({ ...g, source: 'primer' })),
         ...solutions.map((g) => ({ ...g, source: 'primer' })),
         ...guides.map((g) => ({ ...g, source: 'bytebytego', url: `https://bytebytego.com/guides/${encodeURIComponent(g.slug)}/` })),
+        ...prep,
         ...references,
         ...aws,
         ...scalabilityLinks.map((g) => ({ ...g, source: 'scalability' })),
@@ -283,4 +304,4 @@ writeFileSync(
     1,
   )}\n`,
 )
-console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${dbLinks.length} database sections, ${references.length} references, ${aws.length} AWS links, ${diagrams.length} diagram sets → src/topics/library.json`)
+console.log(`${concepts.length} primer concepts, ${solutions.length} primer designs, ${guides.length} ByteByteGo guides, ${scalabilityLinks.length} scalability readings, ${dbLinks.length} database sections, ${prep.length} interview prep repos, ${references.length} references, ${aws.length} AWS links, ${diagrams.length} diagram sets → src/topics/library.json`)
