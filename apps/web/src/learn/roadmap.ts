@@ -149,10 +149,11 @@ export const ROADMAP: RoadmapPart[] = [
     area: 'infra',
     stage: 'Foundations',
     title: 'Serving traffic',
-    why: 'Load balancers spread requests; CDNs cache close to users.',
+    why: 'Load balancers spread requests; CDNs cache close to users; a gateway guards the front door.',
     steps: [
       { id: 'sd-load-balancer', title: 'Load balancing', detail: 'Spreading requests, health checks, and layer 4 vs layer 7.', topic: 'load-balancer' },
       { id: 'sd-cdn', title: 'CDNs', detail: 'Caching at the edge, close to users.', topic: 'cdn' },
+      { id: 'sd-api-gateway', title: 'API gateway', detail: 'One front door: tokens, limits, routing and circuit breakers.', topic: 'api-gateway' },
     ],
   },
   {
