@@ -15,7 +15,8 @@ self.addEventListener('push', (event) => {
       // One notification per kind: a newer reminder replaces an unread older one.
       tag: data.tag || 'structura',
       icon: '/pwa-192x192.png',
-      badge: '/pwa-64x64.png',
+      // Android shows the badge as a one-colour shape in the status bar: the glyph alone, not the tile.
+      badge: '/badge-96x96.png',
       data: { url: data.url || '/', id: data.id || '' },
     }),
   )
