@@ -18,6 +18,7 @@ import type { StaticTopic } from '../topics'
 import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
 import { NoteBox, TopicNotes } from './Notes'
+import { ShareWhatsApp } from './Share'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
@@ -347,6 +348,7 @@ export function TopicView({
           >
             {progress?.bookmarked ? <BookmarkCheck size={19} /> : <Bookmark size={19} />}
           </button>
+          <ShareWhatsApp text={`${topic.title} on Structura: ${topic.blurb}`} path={`/topic/${topic.id}/`} className="btn btn-ghost" />
           <button
             type="button"
             className={`btn btn-ghost${progress?.completed ? ' is-on' : ''}`}

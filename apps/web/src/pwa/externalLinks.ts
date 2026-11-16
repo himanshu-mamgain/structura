@@ -11,7 +11,8 @@ import { ECOSYSTEM } from '../ecosystem'
 
 // Sister apps (DSA Atlas) are left to the system: on a phone where that app is
 // installed, the link opens it as its own app rather than inside this one.
-const SISTERS = new Set(ECOSYSTEM.map((app) => new URL(app.url).origin))
+// WhatsApp too: a share link should open the WhatsApp app, not a page inside this one.
+const SISTERS = new Set([...ECOSYSTEM.map((app) => new URL(app.url).origin), 'https://wa.me'])
 
 const installed = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
