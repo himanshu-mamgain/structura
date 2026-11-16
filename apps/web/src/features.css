@@ -6443,3 +6443,125 @@ a.topic-link:focus-visible {
 .share-wa svg {
   color: #1c8a49;
 }
+
+/* "Asked at" under a topic's title (AskedAt.tsx): companies from candidates' interview reports. */
+.asked-at {
+  margin: 8px 0 10px;
+  font-size: 14px;
+}
+
+.reader .asked-at {
+  font-size: 0.8em;
+}
+
+.asked-at summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.asked-at summary::-webkit-details-marker {
+  display: none;
+}
+
+.asked-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 2px;
+  color: var(--ink-2);
+  font-weight: 650;
+}
+
+.asked-chip {
+  padding: 2px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.93em;
+  font-weight: 600;
+}
+
+/* Only a close variant was reported at this company. */
+.asked-chip.is-similar {
+  border-style: dashed;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.asked-more {
+  color: var(--muted);
+  font-size: 0.93em;
+  font-weight: 600;
+}
+
+.asked-toggle {
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+
+.asked-at[open] .asked-toggle {
+  transform: rotate(180deg);
+}
+
+.asked-list {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  list-style: none;
+}
+
+.asked-list li {
+  display: grid;
+  gap: 6px;
+}
+
+.asked-list strong {
+  color: var(--text);
+}
+
+.asked-list a {
+  display: grid;
+  gap: 2px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.asked-list a:hover .asked-question,
+.asked-list a:focus-visible .asked-question {
+  text-decoration: underline;
+}
+
+.asked-list small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.86em;
+}
+
+.asked-similar {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--card-2);
+  color: var(--muted);
+  font-size: 0.8em;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+
+.asked-at .asked-note {
+  margin: 8px 2px 0;
+  color: var(--muted);
+  font-size: 0.86em;
+}

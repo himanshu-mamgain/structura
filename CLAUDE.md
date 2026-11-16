@@ -158,6 +158,7 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
    right stage (a new module is fine). Unplaced topics still show, at the end of their area, under "More topics".
    **Add link rules** in `src/learn/links.ts` for the terms the new topic teaches, pointing at its deep
    note's sections where it has them, then run `npm run test:links`.
+   **Find where it's asked** (see "Asked at" below) and add what you find to `src/topics/askedAt.json`.
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon), and draw its
    link-preview card with `npm run og -w @structura/web` (it only draws topics that have none).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
@@ -167,6 +168,27 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
 
 Numbers in examples must be correct: compute them (base62 codes, capacity
 estimates, hashes) rather than guessing. Use realistic example data.
+
+## Asked at (which companies ask a topic)
+
+Every topic shows "Asked at Amazon · Google · …" under its title (`src/shell/AskedAt.tsx`), from
+`src/topics/askedAt.json`. Tapping it lists each report: the question as the candidate wrote it, where
+it was reported and when, with a link. `topicsAskedAt(company)` in `src/learn/askedAt.ts` is there for
+company prep guides.
+
+**Before adding a topic, or when updating one, search the web for where it was asked**, and update
+the file (and its `checked` date):
+
+- Look at candidates' reports: PracHub's company pages (`prachub.com/companies/<company>/categories/system-design`,
+  `?page=2`…, each question page names the company, role, round and date), IGotAnOffer's company system design
+  guides (questions reported on Glassdoor), LeetCode Discuss interview experiences. Search
+  `site:prachub.com <topic>` and open the question page to read its company.
+- One entry per report: `company` (add it to `companies`, best known first), `question` exactly as reported,
+  `url` of that report, `source`, `date` when the source gives one. Add `"similar": true` when the
+  question is a close variant rather than the same design (a news feed for the Twitter timeline).
+- **Never add a company without a link to a report**, and never from memory or "commonly asked" lists.
+  A topic with nothing found shows nothing. Re-open a few links to check them before committing.
+- `npm run test:asked` checks every topic, company, source, link and date.
 
 ## Sources and licences
 

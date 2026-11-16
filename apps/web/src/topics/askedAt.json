@@ -1,0 +1,1211 @@
+{
+  "$comment": "Which companies asked each topic in interviews, from public candidate reports. Edit by hand; every entry needs a link. See CLAUDE.md, \"Asked at\".",
+  "checked": "2026-11-16",
+  "sources": {
+    "prachub": {
+      "name": "PracHub",
+      "about": "interview questions candidates report, with the company, role, round and date"
+    },
+    "igotanoffer": {
+      "name": "IGotAnOffer",
+      "about": "questions candidates reported on Glassdoor, gathered per company"
+    }
+  },
+  "companies": {
+    "amazon": "Amazon",
+    "google": "Google",
+    "meta": "Meta",
+    "microsoft": "Microsoft",
+    "apple": "Apple",
+    "netflix": "Netflix",
+    "uber": "Uber",
+    "linkedin": "LinkedIn",
+    "salesforce": "Salesforce",
+    "atlassian": "Atlassian",
+    "airbnb": "Airbnb",
+    "doordash": "DoorDash",
+    "openai": "OpenAI",
+    "anthropic": "Anthropic",
+    "databricks": "Databricks",
+    "walmart": "Walmart",
+    "oracle": "Oracle",
+    "tiktok": "TikTok",
+    "pinterest": "Pinterest",
+    "paypal": "PayPal",
+    "coinbase": "Coinbase",
+    "goldman-sachs": "Goldman Sachs",
+    "flipkart": "Flipkart",
+    "tesla": "Tesla",
+    "de-shaw": "D. E. Shaw",
+    "discord": "Discord",
+    "uipath": "UiPath",
+    "illumio": "Illumio",
+    "mercor": "Mercor",
+    "clickup": "ClickUp"
+  },
+  "topics": {
+    "ai-agent": [
+      {
+        "company": "google",
+        "question": "Design a scalable and safe agentic system",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-and-safe-agentic-system",
+        "source": "prachub",
+        "date": "2026-07-10"
+      },
+      {
+        "company": "google",
+        "question": "Design an Enterprise AI Adoption Agent for a Global Company",
+        "url": "https://prachub.com/interview-questions/design-an-enterprise-ai-adoption-agent-for-a-global-company",
+        "source": "prachub",
+        "date": "2026-03-06",
+        "similar": true
+      },
+      {
+        "company": "walmart",
+        "question": "Design an LLM agent with RAG and tools",
+        "url": "https://prachub.com/interview-questions/design-an-llm-agent-with-rag-and-tools",
+        "source": "prachub",
+        "date": "2025-12-07"
+      },
+      {
+        "company": "uipath",
+        "question": "Reliable LLM tool calling: format control, failure recovery, and runaway loops",
+        "url": "https://prachub.com/interview-questions/reliable-llm-tool-calling-format-control-failure-recovery-and-runaway-loops",
+        "source": "prachub",
+        "date": "2026-09-09"
+      }
+    ],
+    "api-gateway": [
+      {
+        "company": "linkedin",
+        "question": "Block Malicious IPs at an API Gateway Across Data Centers",
+        "url": "https://prachub.com/interview-questions/block-malicious-ips-at-an-api-gateway-across-data-centers",
+        "source": "prachub",
+        "date": "2026-09-17",
+        "similar": true
+      },
+      {
+        "company": "walmart",
+        "question": "Design aggregator for multiple downstream services",
+        "url": "https://prachub.com/interview-questions/design-aggregator-for-multiple-downstream-services",
+        "source": "prachub",
+        "date": "2025-12-09",
+        "similar": true
+      },
+      {
+        "company": "illumio",
+        "question": "Design multicloud publishing and API gateway",
+        "url": "https://prachub.com/interview-questions/design-multicloud-publishing-and-api-gateway",
+        "source": "prachub",
+        "date": "2026-05-24"
+      }
+    ],
+    "aws-vpc": [
+      {
+        "company": "amazon",
+        "question": "Design secure multi-tier cloud infrastructure",
+        "url": "https://prachub.com/interview-questions/design-secure-multi-tier-cloud-infrastructure",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "mercor",
+        "question": "Explain VPCs and private/public network connectivity",
+        "url": "https://prachub.com/interview-questions/explain-vpcs-and-private-public-network-connectivity",
+        "source": "prachub",
+        "date": "2026-01-17"
+      }
+    ],
+    "cdn": [
+      {
+        "company": "google",
+        "question": "Design a service that provides services to applications using an edge network",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer",
+        "similar": true
+      },
+      {
+        "company": "tesla",
+        "question": "Design a Content Delivery Network",
+        "url": "https://prachub.com/interview-questions/design-a-content-delivery-network",
+        "source": "prachub",
+        "date": "2026-09-04"
+      }
+    ],
+    "chat-system": [
+      {
+        "company": "amazon",
+        "question": "Design Sent, Delivered and Read Receipts for a Mobile Messaging App",
+        "url": "https://prachub.com/interview-questions/design-sent-delivered-and-read-receipts-for-a-mobile-messaging-app",
+        "source": "prachub",
+        "date": "2026-08-27",
+        "similar": true
+      },
+      {
+        "company": "meta",
+        "question": "Design a Real-Time Chat Service for One-to-One and Group Messaging",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-chat-service-for-one-to-one-and-group-messaging",
+        "source": "prachub",
+        "date": "2026-09-14"
+      },
+      {
+        "company": "meta",
+        "question": "Design Facebook Messenger or WhatsApp",
+        "url": "https://igotanoffer.com/blogs/tech/meta-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "uber",
+        "question": "Design a Real-Time Chat System",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-chat-system",
+        "source": "prachub",
+        "date": "2026-06-19"
+      },
+      {
+        "company": "salesforce",
+        "question": "Design a Multi-Tenant Enterprise Messaging System",
+        "url": "https://prachub.com/interview-questions/design-a-multi-tenant-enterprise-messaging-system",
+        "source": "prachub",
+        "date": "2026-04-11",
+        "similar": true
+      },
+      {
+        "company": "airbnb",
+        "question": "Design a group chat system",
+        "url": "https://prachub.com/interview-questions/design-a-group-chat-system-2",
+        "source": "prachub",
+        "date": "2026-01-19"
+      },
+      {
+        "company": "anthropic",
+        "question": "Design Durable One-to-One Web Messaging at Large Scale",
+        "url": "https://prachub.com/interview-questions/design-durable-one-to-one-web-messaging-at-large-scale",
+        "source": "prachub",
+        "date": "2026-09-01"
+      },
+      {
+        "company": "databricks",
+        "question": "Design Chat APIs, Storage, and Message Flows",
+        "url": "https://prachub.com/interview-questions/design-chat-apis-storage-and-message-flows",
+        "source": "prachub",
+        "date": "2026-09-06"
+      }
+    ],
+    "consistent-hashing": [
+      {
+        "company": "doordash",
+        "question": "Design consistent hashing for sharding",
+        "url": "https://prachub.com/interview-questions/design-consistent-hashing-for-sharding",
+        "source": "prachub",
+        "date": "2025-09-06"
+      }
+    ],
+    "database-sharding": [
+      {
+        "company": "linkedin",
+        "question": "Scale a NoSQL Key–Value Store to One Million QPS",
+        "url": "https://prachub.com/interview-questions/scale-a-nosql-key-value-store-to-one-million-qps",
+        "source": "prachub",
+        "date": "2026-08-31",
+        "similar": true
+      }
+    ],
+    "distributed-cache": [
+      {
+        "company": "amazon",
+        "question": "Design a Distributed In-Memory Cache: Partitioning, Failover and Invalidation",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-in-memory-cache-partitioning-failover-and-invalidation",
+        "source": "prachub",
+        "date": "2026-06-19"
+      },
+      {
+        "company": "google",
+        "question": "Create a cache where values get invalidated based on a TTL (time to live)",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "Scale a Cache or Rate Limiter Across Multiple Machines",
+        "url": "https://prachub.com/interview-questions/scale-a-cache-or-rate-limiter-across-multiple-machines",
+        "source": "prachub",
+        "date": "2026-08-25"
+      },
+      {
+        "company": "apple",
+        "question": "Design a Distributed Blob Cache With Index Metadata Kept in a Database",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-blob-cache-with-index-metadata-kept-in-a-database",
+        "source": "prachub",
+        "date": "2026-07-13",
+        "similar": true
+      },
+      {
+        "company": "databricks",
+        "question": "Design a single-node persistent in-memory cache",
+        "url": "https://prachub.com/interview-questions/design-a-single-node-persistent-in-memory-cache",
+        "source": "prachub",
+        "date": "2026-01-22",
+        "similar": true
+      }
+    ],
+    "docker-vs-vm": [
+      {
+        "company": "de-shaw",
+        "question": "Compare Linux Containers and Virtual Machines",
+        "url": "https://prachub.com/interview-questions/compare-linux-containers-and-virtual-machines",
+        "source": "prachub",
+        "date": "2026-08-25"
+      }
+    ],
+    "file-sync": [
+      {
+        "company": "amazon",
+        "question": "Design a service like Dropbox",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "amazon",
+        "question": "Design a cloud storage service",
+        "url": "https://prachub.com/interview-questions/design-a-cloud-storage-service",
+        "source": "prachub",
+        "date": "2025-08-07",
+        "similar": true
+      },
+      {
+        "company": "google",
+        "question": "Design Google Drive",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "Design a Dropbox-like file storage and sync service",
+        "url": "https://prachub.com/interview-questions/design-a-dropbox-like-file-sync-service",
+        "source": "prachub",
+        "date": "2025-07-15"
+      },
+      {
+        "company": "apple",
+        "question": "Design Large-Document Uploads and Multi-Device Synchronization",
+        "url": "https://prachub.com/interview-questions/design-large-document-uploads-and-multi-device-synchronization",
+        "source": "prachub",
+        "date": "2026-07-25"
+      },
+      {
+        "company": "salesforce",
+        "question": "Design a file sync and sharing service",
+        "url": "https://prachub.com/interview-questions/design-a-file-sync-and-sharing-service",
+        "source": "prachub",
+        "date": "2026-01-22"
+      },
+      {
+        "company": "coinbase",
+        "question": "Design cloud storage system",
+        "url": "https://prachub.com/interview-questions/design-cloud-storage-system",
+        "source": "prachub",
+        "date": "2025-07-29",
+        "similar": true
+      }
+    ],
+    "kafka": [
+      {
+        "company": "amazon",
+        "question": "Design a Kafka-Based File Watcher for Millions of Files",
+        "url": "https://prachub.com/interview-questions/design-a-kafka-based-file-watcher-for-millions-of-files",
+        "source": "prachub",
+        "date": "2026-09-20",
+        "similar": true
+      },
+      {
+        "company": "google",
+        "question": "Design high-throughput event subscription system",
+        "url": "https://prachub.com/interview-questions/design-high-throughput-event-subscription-system",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      }
+    ],
+    "kafka-basics": [
+      {
+        "company": "tiktok",
+        "question": "Explain Kafka architecture and reliability semantics",
+        "url": "https://prachub.com/interview-questions/explain-kafka-architecture-and-reliability-semantics",
+        "source": "prachub",
+        "date": "2025-07-15"
+      }
+    ],
+    "kafka-reliability": [
+      {
+        "company": "tiktok",
+        "question": "Explain Kafka architecture and reliability semantics",
+        "url": "https://prachub.com/interview-questions/explain-kafka-architecture-and-reliability-semantics",
+        "source": "prachub",
+        "date": "2025-07-15"
+      }
+    ],
+    "key-value-store": [
+      {
+        "company": "google",
+        "question": "Design a key-value store",
+        "url": "https://prachub.com/interview-questions/design-a-key-value-store",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "meta",
+        "question": "Build a key-value database",
+        "url": "https://igotanoffer.com/blogs/tech/meta-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a Distributed Key-Value Store",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-key-value-store-4",
+        "source": "prachub",
+        "date": "2026-06-11"
+      },
+      {
+        "company": "linkedin",
+        "question": "Design a Distributed Key-Value Store for a Small Company's Internal Use",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-key-value-store-for-a-small-companys-internal-use",
+        "source": "prachub",
+        "date": "2026-09-29"
+      },
+      {
+        "company": "airbnb",
+        "question": "Design a Distributed Key-Value Store",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-key-value-store-3",
+        "source": "prachub",
+        "date": "2026-01-09"
+      },
+      {
+        "company": "tiktok",
+        "question": "Design a distributed key-value store",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-key-value-store-2",
+        "source": "prachub",
+        "date": "2026-01-22"
+      }
+    ],
+    "leader-election": [
+      {
+        "company": "uber",
+        "question": "Compare Paxos and Raft",
+        "url": "https://prachub.com/interview-questions/compare-paxos-and-raft",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "discord",
+        "question": "Design leader election using Redis leases",
+        "url": "https://prachub.com/interview-questions/design-leader-election-using-redis-leases",
+        "source": "prachub",
+        "date": "2025-10-25"
+      }
+    ],
+    "llm-gateway": [
+      {
+        "company": "google",
+        "question": "Design a Billing-Token Rate Limiter for AI Agents",
+        "url": "https://prachub.com/interview-questions/design-a-billing-token-rate-limiter-for-ai-agents",
+        "source": "prachub",
+        "date": "2026-08-01",
+        "similar": true
+      },
+      {
+        "company": "openai",
+        "question": "Design a Chat Assistant Inference Service: Streaming, Free-Tier Limits, GPU Scheduling",
+        "url": "https://prachub.com/interview-questions/design-a-chat-assistant-inference-service-streaming-free-tier-limits-gpu-scheduling",
+        "source": "prachub",
+        "date": "2026-09-20",
+        "similar": true
+      }
+    ],
+    "load-balancer": [
+      {
+        "company": "amazon",
+        "question": "Design a high availability load balancer",
+        "url": "https://prachub.com/interview-questions/design-a-high-availability-load-balancer",
+        "source": "prachub",
+        "date": "2026-05-09"
+      },
+      {
+        "company": "doordash",
+        "question": "Fix a Round-Robin Load Balancer, Then Implement Consistent Hashing",
+        "url": "https://prachub.com/interview-questions/fix-a-round-robin-load-balancer-then-implement-consistent-hashing",
+        "source": "prachub",
+        "date": "2026-10-01"
+      },
+      {
+        "company": "oracle",
+        "question": "Design a Software Load Balancer",
+        "url": "https://prachub.com/interview-questions/design-a-software-load-balancer",
+        "source": "prachub",
+        "date": "2026-08-14"
+      }
+    ],
+    "locking": [
+      {
+        "company": "walmart",
+        "question": "Design an E-Commerce Checkout Flow That Prevents Concurrency Bugs",
+        "url": "https://prachub.com/interview-questions/design-an-e-commerce-checkout-flow-that-prevents-concurrency-bugs",
+        "source": "prachub",
+        "date": "2026-10-01",
+        "similar": true
+      },
+      {
+        "company": "discord",
+        "question": "Design leader election using Redis leases",
+        "url": "https://prachub.com/interview-questions/design-leader-election-using-redis-leases",
+        "source": "prachub",
+        "date": "2025-10-25",
+        "similar": true
+      }
+    ],
+    "message-queue": [
+      {
+        "company": "google",
+        "question": "Design distributed message queue service",
+        "url": "https://prachub.com/interview-questions/design-distributed-message-queue-service",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "databricks",
+        "question": "Design an online bookstore: DB insert succeeds but SQS publish fails, and duplicate messages",
+        "url": "https://prachub.com/interview-questions/design-an-online-bookstore-db-insert-succeeds-but-sqs-publish-fails-and-duplicate-messages",
+        "source": "prachub",
+        "date": "2026-08-09",
+        "similar": true
+      }
+    ],
+    "metrics-monitoring": [
+      {
+        "company": "amazon",
+        "question": "Design a Scalable Metrics Monitoring System",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-metrics-monitoring-system-2",
+        "source": "prachub",
+        "date": "2026-07-23"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a Metrics Ingestion Pipeline",
+        "url": "https://prachub.com/interview-questions/design-a-metrics-ingestion-pipeline",
+        "source": "prachub",
+        "date": "2026-06-11",
+        "similar": true
+      },
+      {
+        "company": "linkedin",
+        "question": "Design a company-wide monitoring system",
+        "url": "https://prachub.com/interview-questions/design-a-company-wide-monitoring-system",
+        "source": "prachub",
+        "date": "2025-11-21"
+      },
+      {
+        "company": "atlassian",
+        "question": "Design Monitoring and Reliability for 99.99% Availability",
+        "url": "https://prachub.com/interview-questions/design-monitoring-and-reliability-for-99-99percent-availability",
+        "source": "prachub",
+        "date": "2026-09-04",
+        "similar": true
+      },
+      {
+        "company": "openai",
+        "question": "Design a metrics monitoring system, going deep on one or two components",
+        "url": "https://prachub.com/interview-questions/design-a-metrics-monitoring-system-going-deep-on-one-or-two-components",
+        "source": "prachub",
+        "date": "2026-10-01"
+      },
+      {
+        "company": "anthropic",
+        "question": "Design Telemetry Ingestion and Reconcile Metric Names",
+        "url": "https://prachub.com/interview-questions/design-telemetry-ingestion-and-reconcile-metric-names",
+        "source": "prachub",
+        "date": "2026-08-28",
+        "similar": true
+      },
+      {
+        "company": "walmart",
+        "question": "Design a Metrics Monitoring Dashboard",
+        "url": "https://prachub.com/interview-questions/design-a-metrics-monitoring-dashboard",
+        "source": "prachub",
+        "date": "2026-07-31",
+        "similar": true
+      },
+      {
+        "company": "goldman-sachs",
+        "question": "Design a Streaming Metrics Dashboard: Time-Range Queries and Event-Time Watermarks",
+        "url": "https://prachub.com/interview-questions/design-a-streaming-metrics-dashboard-time-range-queries-and-event-time-watermarks",
+        "source": "prachub",
+        "date": "2026-10-05",
+        "similar": true
+      }
+    ],
+    "mint": [
+      {
+        "company": "amazon",
+        "question": "Design a Multi-Provider Financial Dashboard",
+        "url": "https://prachub.com/interview-questions/design-a-multi-provider-financial-dashboard",
+        "source": "prachub",
+        "date": "2026-02-02",
+        "similar": true
+      }
+    ],
+    "notification-system": [
+      {
+        "company": "google",
+        "question": "Design a global real-time notification system",
+        "url": "https://prachub.com/interview-questions/design-a-global-real-time-notification-system",
+        "source": "prachub",
+        "date": "2026-01-12"
+      },
+      {
+        "company": "meta",
+        "question": "Design a Notification System That Delivers Events to Users at Scale",
+        "url": "https://prachub.com/interview-questions/design-a-notification-system-that-delivers-events-to-users-at-scale",
+        "source": "prachub",
+        "date": "2026-09-14"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a Windows App Notification System While Working With an AI Assistant",
+        "url": "https://prachub.com/interview-questions/design-a-windows-app-notification-system-while-working-with-an-ai-assistant",
+        "source": "prachub",
+        "date": "2026-09-06"
+      },
+      {
+        "company": "salesforce",
+        "question": "Design a Scalable Notification Service",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-notification-service",
+        "source": "prachub",
+        "date": "2026-08-12"
+      },
+      {
+        "company": "atlassian",
+        "question": "Design a Social-Media Comments and Notifications System",
+        "url": "https://prachub.com/interview-questions/design-a-social-media-comments-and-notifications-system",
+        "source": "prachub",
+        "date": "2026-09-03",
+        "similar": true
+      },
+      {
+        "company": "airbnb",
+        "question": "Design a multi-channel notification system",
+        "url": "https://prachub.com/interview-questions/design-a-multi-channel-notification-system",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "doordash",
+        "question": "Design an alert notification system",
+        "url": "https://prachub.com/interview-questions/design-an-alert-notification-system",
+        "source": "prachub",
+        "date": "2026-01-28"
+      },
+      {
+        "company": "tiktok",
+        "question": "Design a global notification service",
+        "url": "https://prachub.com/interview-questions/design-a-global-notification-service",
+        "source": "prachub",
+        "date": "2025-07-17"
+      },
+      {
+        "company": "pinterest",
+        "question": "Design a Multi-Channel Notification System",
+        "url": "https://prachub.com/interview-questions/design-a-multi-channel-notification-system-3",
+        "source": "prachub",
+        "date": "2026-07-02"
+      }
+    ],
+    "pastebin": [
+      {
+        "company": "goldman-sachs",
+        "question": "Design a Pastebin Service: Requirements, Entities, APIs and End-to-End Architecture",
+        "url": "https://prachub.com/interview-questions/design-a-pastebin-service-requirements-entities-apis-and-end-to-end-architecture",
+        "source": "prachub",
+        "date": "2026-09-13"
+      }
+    ],
+    "payment-idempotency": [
+      {
+        "company": "netflix",
+        "question": "Design a Streaming Subscription System: Billing, Plan Changes and Payment Retries",
+        "url": "https://prachub.com/interview-questions/design-a-streaming-subscription-system-billing-plan-changes-and-payment-retries",
+        "source": "prachub",
+        "date": "2026-04-20",
+        "similar": true
+      },
+      {
+        "company": "salesforce",
+        "question": "Design an Idempotent Payment Processing Platform",
+        "url": "https://prachub.com/interview-questions/design-an-idempotent-payment-processing-platform",
+        "source": "prachub",
+        "date": "2026-08-31"
+      },
+      {
+        "company": "airbnb",
+        "question": "Design and Implement an Airbnb-Style Wallet (Ledger, Holds, FX, Idempotency)",
+        "url": "https://prachub.com/interview-questions/design-an-airbnb-wallet-with-holds-and-payouts",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "doordash",
+        "question": "Paying Dashers Reliably When the Payment Service Is Unavailable",
+        "url": "https://prachub.com/interview-questions/paying-dashers-reliably-when-the-payment-service-is-unavailable",
+        "source": "prachub",
+        "date": "2026-09-23",
+        "similar": true
+      },
+      {
+        "company": "openai",
+        "question": "Design a Payment System: Holds and Captures, Batch Charges, Reconciliation, Idempotency",
+        "url": "https://prachub.com/interview-questions/design-a-payment-system-holds-and-captures-batch-charges-reconciliation-idempotency",
+        "source": "prachub",
+        "date": "2026-09-20"
+      },
+      {
+        "company": "databricks",
+        "question": "Design a Visa-Style Card Payment Processing System",
+        "url": "https://prachub.com/interview-questions/design-a-visa-style-card-payment-processing-system",
+        "source": "prachub",
+        "date": "2026-09-11",
+        "similar": true
+      },
+      {
+        "company": "paypal",
+        "question": "Design a Cross-Border Money Transfer Service",
+        "url": "https://prachub.com/interview-questions/design-a-cross-border-money-transfer-service",
+        "source": "prachub",
+        "date": "2026-04-14",
+        "similar": true
+      }
+    ],
+    "proximity-service": [
+      {
+        "company": "google",
+        "question": "Design nearest-available-taxi lookup with updates",
+        "url": "https://prachub.com/interview-questions/design-nearest-available-taxi-lookup-with-updates",
+        "source": "prachub",
+        "date": "2026-01-10"
+      },
+      {
+        "company": "meta",
+        "question": "Design a location-based radius top-K search",
+        "url": "https://prachub.com/interview-questions/design-a-location-based-radius-top-k-search",
+        "source": "prachub",
+        "date": "2026-03-11"
+      },
+      {
+        "company": "meta",
+        "question": "Design a nearby places (proximity) service",
+        "url": "https://prachub.com/interview-questions/design-a-nearby-places-proximity-service",
+        "source": "prachub",
+        "date": "2026-02-25"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design Food-Delivery Proximity Search for Restaurants Within 10 km",
+        "url": "https://prachub.com/interview-questions/design-food-delivery-proximity-search-for-restaurants-within-10-km",
+        "source": "prachub",
+        "date": "2026-09-06"
+      },
+      {
+        "company": "uber",
+        "question": "Design a Real-Time Nearby-Driver Service",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-nearby-driver-service",
+        "source": "prachub",
+        "date": "2026-08-16"
+      }
+    ],
+    "query-cache": [
+      {
+        "company": "google",
+        "question": "Design a web cache",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer",
+        "similar": true
+      }
+    ],
+    "rag-pipeline": [
+      {
+        "company": "google",
+        "question": "Grounding Misinformation Moderation Decisions with a Retrieval-Augmented LLM Pipeline",
+        "url": "https://prachub.com/interview-questions/grounding-misinformation-moderation-decisions-with-a-retrieval-augmented-llm-pipeline",
+        "source": "prachub",
+        "date": "2026-10-05",
+        "similar": true
+      },
+      {
+        "company": "apple",
+        "question": "Design a multimodal RAG assistant",
+        "url": "https://prachub.com/interview-questions/design-a-multimodal-rag-assistant",
+        "source": "prachub",
+        "date": "2025-12-15"
+      },
+      {
+        "company": "walmart",
+        "question": "Design an LLM agent with RAG and tools",
+        "url": "https://prachub.com/interview-questions/design-an-llm-agent-with-rag-and-tools",
+        "source": "prachub",
+        "date": "2025-12-07",
+        "similar": true
+      }
+    ],
+    "rate-limiter": [
+      {
+        "company": "google",
+        "question": "Design a large-scale distributed rate limiter",
+        "url": "https://prachub.com/interview-questions/design-a-large-scale-distributed-rate-limiter",
+        "source": "prachub",
+        "date": "2026-01-12"
+      },
+      {
+        "company": "meta",
+        "question": "Scale a Cache or Rate Limiter Across Multiple Machines",
+        "url": "https://prachub.com/interview-questions/scale-a-cache-or-rate-limiter-across-multiple-machines",
+        "source": "prachub",
+        "date": "2026-08-25"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a simple API rate limiter",
+        "url": "https://prachub.com/interview-questions/design-a-simple-api-rate-limiter",
+        "source": "prachub",
+        "date": "2026-02-11"
+      },
+      {
+        "company": "apple",
+        "question": "Design a Distributed Token-Bucket Rate Limiter",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-token-bucket-rate-limiter",
+        "source": "prachub",
+        "date": "2026-08-09"
+      },
+      {
+        "company": "netflix",
+        "question": "Design a Distributed Frequency-Capping Service",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-frequency-capping-service",
+        "source": "prachub",
+        "date": "2026-08-11",
+        "similar": true
+      },
+      {
+        "company": "atlassian",
+        "question": "Design a Rate Limiter Service: Components, Scaling and Precision Trade-offs",
+        "url": "https://prachub.com/interview-questions/design-a-rate-limiter-service-components-scaling-and-precision-trade-offs",
+        "source": "prachub",
+        "date": "2026-08-13"
+      },
+      {
+        "company": "anthropic",
+        "question": "Design a Distributed Rate Limiter",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-rate-limiter-5",
+        "source": "prachub",
+        "date": "2026-06-23"
+      },
+      {
+        "company": "pinterest",
+        "question": "Design a Distributed Rate-Limiting Service",
+        "url": "https://prachub.com/interview-questions/design-a-distributed-rate-limiting-service",
+        "source": "prachub",
+        "date": "2026-07-02"
+      }
+    ],
+    "rbac": [
+      {
+        "company": "meta",
+        "question": "Design a post privacy/visibility system",
+        "url": "https://prachub.com/interview-questions/design-a-post-privacy-visibility-system",
+        "source": "prachub",
+        "date": "2026-02-25",
+        "similar": true
+      },
+      {
+        "company": "apple",
+        "question": "Design Deny-Priority Authorization over a Role Graph",
+        "url": "https://prachub.com/interview-questions/design-deny-priority-authorization-over-a-role-graph",
+        "source": "prachub",
+        "date": "2026-07-25"
+      },
+      {
+        "company": "uber",
+        "question": "Model user-to-resource access permissions in a graph database and migrate to it",
+        "url": "https://prachub.com/interview-questions/model-user-to-resource-access-permissions-in-a-graph-database-and-migrate-to-it",
+        "source": "prachub",
+        "date": "2026-07-25",
+        "similar": true
+      },
+      {
+        "company": "atlassian",
+        "question": "Design an access control system (RBAC + resource-based)",
+        "url": "https://prachub.com/interview-questions/design-an-access-control-system-rbac-plus-resource-based",
+        "source": "prachub",
+        "date": "2026-01-05"
+      },
+      {
+        "company": "flipkart",
+        "question": "Designing a Company-Wide Identity, Roles and Consent Platform for Flipkart Teams",
+        "url": "https://prachub.com/interview-questions/designing-a-company-wide-identity-roles-and-consent-platform-for-flipkart-teams",
+        "source": "prachub",
+        "date": "2024-05-01",
+        "similar": true
+      }
+    ],
+    "redis-basics": [
+      {
+        "company": "meta",
+        "question": "Design a real-time game leaderboard",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-game-leaderboard",
+        "source": "prachub",
+        "date": "2026-02-25",
+        "similar": true
+      }
+    ],
+    "redis-persistence": [
+      {
+        "company": "tiktok",
+        "question": "Explain Redis design, persistence, and scaling",
+        "url": "https://prachub.com/interview-questions/explain-redis-design-persistence-and-scaling",
+        "source": "prachub",
+        "date": "2025-07-15"
+      }
+    ],
+    "redis-replication": [
+      {
+        "company": "tiktok",
+        "question": "Explain Redis design, persistence, and scaling",
+        "url": "https://prachub.com/interview-questions/explain-redis-design-persistence-and-scaling",
+        "source": "prachub",
+        "date": "2025-07-15",
+        "similar": true
+      }
+    ],
+    "sales-rank": [
+      {
+        "company": "amazon",
+        "question": "Design real-time top-K products service",
+        "url": "https://prachub.com/interview-questions/design-real-time-top-k-products-service",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "meta",
+        "question": "Design a Real-Time Trending Hashtags System",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-trending-hashtags-system",
+        "source": "prachub",
+        "date": "2026-03-06",
+        "similar": true
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a Service That Ranks the K Most-Viewed Items per Time Window",
+        "url": "https://prachub.com/interview-questions/design-a-service-that-ranks-the-k-most-viewed-items-per-time-window",
+        "source": "prachub",
+        "date": "2026-04-02",
+        "similar": true
+      },
+      {
+        "company": "apple",
+        "question": "Design a Service for the Top K Most-Visited URLs over a Sliding Time Window",
+        "url": "https://prachub.com/interview-questions/design-a-service-for-the-top-k-most-visited-urls-over-a-sliding-time-window",
+        "source": "prachub",
+        "date": "2026-08-31",
+        "similar": true
+      },
+      {
+        "company": "linkedin",
+        "question": "Design a Top-K search words service",
+        "url": "https://prachub.com/interview-questions/design-a-top-k-search-words-service",
+        "source": "prachub",
+        "date": "2025-10-20",
+        "similar": true
+      },
+      {
+        "company": "salesforce",
+        "question": "Track Top-K Frequent Elements from an Unbounded Stream",
+        "url": "https://prachub.com/interview-questions/track-top-k-frequent-elements-from-an-unbounded-stream",
+        "source": "prachub",
+        "date": "2026-08-31",
+        "similar": true
+      }
+    ],
+    "scaling-aws": [
+      {
+        "company": "amazon",
+        "question": "How would you design Amazon.com so it can handle 10x more traffic than today?",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer",
+        "similar": true
+      },
+      {
+        "company": "apple",
+        "question": "Redesign an Existing Relational Database to Reduce Read Latency",
+        "url": "https://prachub.com/interview-questions/redesign-an-existing-relational-database-to-reduce-read-latency",
+        "source": "prachub",
+        "date": "2026-09-21",
+        "similar": true
+      }
+    ],
+    "search-autocomplete": [
+      {
+        "company": "amazon",
+        "question": "Design a search engine autocomplete",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "google",
+        "question": "Design a word predictor for a search engine",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "How would you design an auto-complete service for a search engine?",
+        "url": "https://igotanoffer.com/blogs/tech/meta-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a typeahead search service",
+        "url": "https://prachub.com/interview-questions/design-a-typeahead-search-service",
+        "source": "prachub",
+        "date": "2026-04-07"
+      },
+      {
+        "company": "uber",
+        "question": "Design a search autocomplete system",
+        "url": "https://prachub.com/interview-questions/design-a-search-autocomplete-system",
+        "source": "prachub",
+        "date": "2025-07-15"
+      },
+      {
+        "company": "databricks",
+        "question": "Design a Typeahead Search System",
+        "url": "https://prachub.com/interview-questions/design-a-typeahead-search-system",
+        "source": "prachub",
+        "date": "2026-09-15"
+      },
+      {
+        "company": "pinterest",
+        "question": "Design Real-Time Search Autocomplete with Top-10 Popularity-Ranked Prefix Suggestions",
+        "url": "https://prachub.com/interview-questions/design-real-time-search-autocomplete-with-top-10-popularity-ranked-prefix-suggestions",
+        "source": "prachub",
+        "date": "2026-09-02"
+      }
+    ],
+    "social-graph": [
+      {
+        "company": "amazon",
+        "question": "Design a system to find friends on social media",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "Design a People-You-May-Know Friend Recommendation System",
+        "url": "https://prachub.com/interview-questions/design-a-people-you-may-know-friend-recommendation-system",
+        "source": "prachub",
+        "date": "2026-09-14",
+        "similar": true
+      }
+    ],
+    "terraform-basics": [
+      {
+        "company": "apple",
+        "question": "Cloud Provider Design for Provisioning Resources Through Terraform",
+        "url": "https://prachub.com/interview-questions/cloud-provider-design-for-provisioning-resources-through-terraform",
+        "source": "prachub",
+        "date": "2026-09-24",
+        "similar": true
+      }
+    ],
+    "twitter-timeline": [
+      {
+        "company": "amazon",
+        "question": "Design the next Twitter",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "amazon",
+        "question": "Design a Scalable News Feed",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-news-feed-2",
+        "source": "prachub",
+        "date": "2026-06-22",
+        "similar": true
+      },
+      {
+        "company": "google",
+        "question": "Design Twitter",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "Design a Ranked Home News Feed for a Large Social Network",
+        "url": "https://prachub.com/interview-questions/design-a-ranked-home-news-feed-for-a-large-social-network",
+        "source": "prachub",
+        "date": "2026-09-14",
+        "similar": true
+      },
+      {
+        "company": "linkedin",
+        "question": "Design a Ranked Social Feed with Hybrid Fan-Out",
+        "url": "https://prachub.com/interview-questions/design-a-ranked-social-feed-with-hybrid-fan-out",
+        "source": "prachub",
+        "date": "2026-05-13"
+      }
+    ],
+    "uber-surge": [
+      {
+        "company": "amazon",
+        "question": "Design ride-hailing pricing with fairness and pooling",
+        "url": "https://prachub.com/interview-questions/design-ride-hailing-pricing-with-fairness-and-pooling",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "uber",
+        "question": "Design real-time driver heatmap system",
+        "url": "https://prachub.com/interview-questions/design-real-time-driver-heatmap-system",
+        "source": "prachub",
+        "date": "2025-08-01",
+        "similar": true
+      },
+      {
+        "company": "salesforce",
+        "question": "Design a Ride-Hailing Platform: Driver Matching, Surge Pricing and Ride Acceptance",
+        "url": "https://prachub.com/interview-questions/design-a-ride-hailing-platform-driver-matching-surge-pricing-and-ride-acceptance",
+        "source": "prachub",
+        "date": "2026-05-06",
+        "similar": true
+      }
+    ],
+    "unique-id-generator": [
+      {
+        "company": "google",
+        "question": "Design a distributed id generation system",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      }
+    ],
+    "url-shortener": [
+      {
+        "company": "amazon",
+        "question": "Design a URL shortening platform",
+        "url": "https://prachub.com/interview-questions/design-a-url-shortening-platform",
+        "source": "prachub",
+        "date": "2025-09-06"
+      },
+      {
+        "company": "amazon",
+        "question": "Design a TinyURL service",
+        "url": "https://igotanoffer.com/en/advice/amazon-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design a URL Shortener (High-Level and Low-Level Design)",
+        "url": "https://prachub.com/interview-questions/design-a-url-shortener-high-level-and-low-level-design",
+        "source": "prachub",
+        "date": "2026-06-12"
+      },
+      {
+        "company": "uber",
+        "question": "Design a Highly Available URL Shortener",
+        "url": "https://prachub.com/interview-questions/design-a-highly-available-url-shortener",
+        "source": "prachub",
+        "date": "2026-08-22"
+      },
+      {
+        "company": "salesforce",
+        "question": "Design a URL-Shortening Service",
+        "url": "https://prachub.com/interview-questions/design-a-url-shortening-service-4",
+        "source": "prachub",
+        "date": "2026-09-02"
+      },
+      {
+        "company": "coinbase",
+        "question": "Design a scalable URL shortener with expiration and security",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-url-shortener-with-expiration-and-security",
+        "source": "prachub",
+        "date": "2025-08-12"
+      }
+    ],
+    "vector-database": [
+      {
+        "company": "microsoft",
+        "question": "Optimize vector semantic search for an assistant",
+        "url": "https://prachub.com/interview-questions/optimize-vector-semantic-search-for-an-assistant",
+        "source": "prachub",
+        "date": "2026-01-06"
+      },
+      {
+        "company": "clickup",
+        "question": "Design an AI-Powered Search System, Focusing on the Search Index",
+        "url": "https://prachub.com/interview-questions/design-an-ai-powered-search-system-focusing-on-the-search-index",
+        "source": "prachub",
+        "date": "2026-07-11",
+        "similar": true
+      }
+    ],
+    "video-streaming": [
+      {
+        "company": "google",
+        "question": "Design YouTube",
+        "url": "https://igotanoffer.com/blogs/tech/google-system-design-interview",
+        "source": "igotanoffer"
+      },
+      {
+        "company": "meta",
+        "question": "Design a YouTube/Netflix video platform",
+        "url": "https://prachub.com/interview-questions/design-a-youtube-netflix-video-platform",
+        "source": "prachub",
+        "date": "2026-02-25"
+      },
+      {
+        "company": "meta",
+        "question": "Design a video upload and sharing app",
+        "url": "https://igotanoffer.com/blogs/tech/meta-system-design-interview",
+        "source": "igotanoffer",
+        "similar": true
+      }
+    ],
+    "web-crawler": [
+      {
+        "company": "google",
+        "question": "Design a Large-Scale Polite Web Crawler",
+        "url": "https://prachub.com/interview-questions/design-a-large-scale-polite-web-crawler",
+        "source": "prachub",
+        "date": "2026-08-06"
+      },
+      {
+        "company": "meta",
+        "question": "Design Search And Web Crawling Systems",
+        "url": "https://prachub.com/interview-questions/design-search-and-web-crawling-systems",
+        "source": "prachub",
+        "date": "2026-05-21"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design A Scalable Web Crawler",
+        "url": "https://prachub.com/interview-questions/design-a-scalable-web-crawler-2",
+        "source": "prachub",
+        "date": "2026-04-18"
+      },
+      {
+        "company": "atlassian",
+        "question": "Design an image crawler for unlimited URLs",
+        "url": "https://prachub.com/interview-questions/design-an-image-crawler-for-unlimited-urls",
+        "source": "prachub",
+        "date": "2026-01-05",
+        "similar": true
+      }
+    ]
+  }
+}
