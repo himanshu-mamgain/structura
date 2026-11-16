@@ -21,6 +21,50 @@ The example limit is **10 requests per 60 seconds** for a free plan.
 - **Sliding window counter.** Estimate the last 60 seconds from two counters: `previous × (share of it still inside the last 60 s) + current`. 5 seconds into a minute, after 10 requests last minute: 10 × 0.917 + 0 = 9.17, so one more makes 10.17 and is refused. It's close to exact with two numbers.
 - **Sliding window log.** Keep each request's time in a sorted set, drop the ones older than 60 s, and count the rest. It's exact, but the memory grows with the limit.
 
+### Token bucket, second by second
+
+Two numbers describe the bucket: how much it holds, and how fast it refills. The refill can be written two ways. Don't mix them up:
+
+| Number | Value | Meaning |
+|---|---|---|
+| Capacity | 10 tokens | The most it can hold, so the biggest burst |
+| Refill time | 60 s ÷ 10 = **6 s** | One new token every 6 seconds |
+| Refill rate | 10 ÷ 60 = **0.167** | The same thing per second: a sixth of a token. The code uses this number |
+
+There is no timer adding tokens. When a request comes, the limiter works out what has dripped in since the last one: **seconds passed ÷ 6**, but never above 10. Then the request takes 1 whole token, or is refused.
+
+Follow one client:
+
+| Time | What happens | Tokens left |
+|---|---|---|
+| 0 s | The bucket starts full | 10 |
+| 0 s | 10 requests at once: all pass | 0 |
+| 3 s | 3 ÷ 6 = 0.5 dripped in. A request is refused: it needs 1 whole token | 0.5 |
+| 6 s | 0.5 + 0.5 = 1. A request passes | 0 |
+| 12 s | 6 ÷ 6 = 1 dripped in. A request passes | 0 |
+| 60 s | Nothing sent since 12 s: 48 ÷ 6 = 8 dripped in | 8 |
+| 120 s | 8 + 60 ÷ 6 = 18, but the bucket holds 10 | 10 |
+
+So in its first minute a client can get **19** requests: 10 at once, then one at 6, 12, 18 … 54 seconds. After that it averages 10 a minute. The extra 9 are the price of allowing bursts. If that's too many, make the bucket smaller (5 tokens, one every 6 s) or use a sliding window.
+
+```javascript
+// The same arithmetic as the Lua script below, for one client.
+const capacity = 10
+const perSecond = 10 / 60 // 0.167: one token every 6 seconds
+let tokens = capacity
+let last = 0 // when the bucket was last worked out, in seconds
+
+function allow(now) {
+  tokens = Math.min(capacity, tokens + (now - last) * perSecond) // what dripped in, capped
+  last = now
+  if (tokens < 1) return false
+  tokens -= 1
+  return true
+}
+
+// allow(0) ×10 → true; allow(3) → false (0.5 tokens); allow(6) → true; allow(12) → true
+```
+
 Try them on the topic page: the simulator runs the real algorithms on the same requests, so you see which ones pass.
 
 ## Counting across many gateways
