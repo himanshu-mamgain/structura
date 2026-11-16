@@ -203,7 +203,7 @@ const simulator: Simulator = {
       steps.push({
         text:
           algorithm === ALGORITHMS[0]
-            ? `Redis runs a small Lua script, so read, refill and take-a-token happen as one atomic step (no two gateways can both take the last token). The bucket holds up to ${LIMIT} tokens and refills ${REFILL.toFixed(3)} per second.`
+            ? `Redis runs a small Lua script, so read, refill and take-a-token happen as one atomic step (no two gateways can both take the last token). The bucket holds up to ${LIMIT} tokens and gets one back every ${WINDOW / LIMIT} seconds (${WINDOW} s ÷ ${LIMIT} = ${WINDOW / LIMIT} s, or ${REFILL.toFixed(3)} a second).`
             : algorithm === ALGORITHMS[1]
               ? `Redis does INCR on a counter named after the key and the current minute. The first INCR in a minute sets a 120 s expiry, so old counters clean themselves up.`
               : `Redis reads the counters for this minute and the last one, and weights the last by how much of it still overlaps the sliding minute. This smooths the edge a fixed window has.`,
@@ -390,7 +390,7 @@ export const rateLimiter: StaticTopic = {
       },
       {
         heading: 'Key decisions',
-        body: '- Token bucket: a bucket of N tokens refilling at a steady rate; each request takes one. Allows bursts up to N, then the average rate. Simple state (tokens, timestamp). Used by Stripe and many cloud APIs.\n- Fixed window counter: one counter per minute. Cheapest, but a client can send 10 at the end of one minute and 10 at the start of the next: 20 requests in seconds.\n- Sliding window counter: previous window × share still overlapping + current window. Two counters, close to exact, no edge spike.\n- Sliding window log: exact, stores every timestamp, so memory grows with the limit.\n- Where to count: in each gateway\'s memory is fast but each node sees only part of the traffic; a shared Redis is accurate for one extra network hop.\n- Race conditions: GET then SET lets two gateways both pass the last token. Use INCR or one Lua script.\n- Fail open or closed: open keeps the API up but unprotected; closed protects but turns a Redis outage into an API outage. Choose per route, in the rule\'s fail_mode: open for reads, closed for login and SMS. A local fallback is the middle path.',
+        body: '- Token bucket: a bucket of N tokens refilling at a steady rate; each request takes one. With 10 a minute, one token comes back every 6 seconds (60 ÷ 10). Allows bursts up to N, then the average rate. Simple state (tokens, timestamp). Used by Stripe and many cloud APIs.\n- Fixed window counter: one counter per minute. Cheapest, but a client can send 10 at the end of one minute and 10 at the start of the next: 20 requests in seconds.\n- Sliding window counter: previous window × share still overlapping + current window. Two counters, close to exact, no edge spike.\n- Sliding window log: exact, stores every timestamp, so memory grows with the limit.\n- Where to count: in each gateway\'s memory is fast but each node sees only part of the traffic; a shared Redis is accurate for one extra network hop.\n- Race conditions: GET then SET lets two gateways both pass the last token. Use INCR or one Lua script.\n- Fail open or closed: open keeps the API up but unprotected; closed protects but turns a Redis outage into an API outage. Choose per route, in the rule\'s fail_mode: open for reads, closed for login and SMS. A local fallback is the middle path.',
       },
       {
         heading: 'Scaling and failure',
@@ -424,6 +424,7 @@ redis.call('EXPIRE', KEYS[1], 120)
 return allowed and 1 or 0
 \`
 
+// perSecond = 10 / 60 = 0.167: one token comes back every 6 seconds.
 export async function allow(apiKey, capacity = 10, perSecond = 10 / 60) {
   return (await redis.eval(script, 1, \`rl:tb:\${apiKey}\`, capacity, perSecond)) === 1
 }`,
@@ -448,7 +449,7 @@ public class TokenBucket {
       redis.call('EXPIRE', KEYS[1], 120)
       return allowed and 1 or 0""";
 
-  // allow(key, 10, 10 / 60.0): bursts of up to 10, refilled at 10 a minute.
+  // allow(key, 10, 10 / 60.0): bursts of up to 10, then one token back every 6 seconds.
   public static boolean allow(String apiKey, int capacity, double perSecond) {
     Object result = redis.eval(SCRIPT, List.of("rl:tb:" + apiKey),
         List.of(Integer.toString(capacity), Double.toString(perSecond)));
@@ -474,6 +475,7 @@ redis.call('EXPIRE', KEYS[1], 120)
 return allowed and 1 or 0
 \`
 
+// perSecond = 10 / 60 = 0.167: one token comes back every 6 seconds.
 export async function allow(apiKey: string, capacity = 10, perSecond = 10 / 60) {
   return (await redis.eval(script, 1, \`rl:tb:\${apiKey}\`, capacity, perSecond)) === 1
 }`,
