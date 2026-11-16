@@ -4,6 +4,8 @@ import { Diagram2D } from '../diagram/Diagram2D'
 import { responsibility, subtitleOf } from '../diagram/inspect'
 import { LESSONS, playTopic, toggle, useCommute } from '../learn/commute'
 import { Body, CodeBlock } from '../learn/content'
+import { Parts, useLinkedList } from '../learn/Linked'
+import { anchor, linkBlocks } from '../learn/links'
 import { erdToSql } from '../learn/ddl'
 import { erdToDbml, schemaSnippet } from '../learn/dbml'
 import { type Markdown, plainText } from '../learn/markdown'
@@ -41,10 +43,12 @@ function savedSize(): number {
 }
 
 const words = (text: string) => text.split(/\s+/).filter(Boolean).length
-const anchor = (s: string) => `read-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 
-/** A deep note's blocks before its first section, and its sections. */
-function sectionsOf(note: Markdown) {
+/**
+ * A deep note's blocks before its first section, and its sections, with the first mention
+ * in each of what another topic teaches linked there (learn/links.ts).
+ */
+function sectionsOf(note: Markdown, from: string) {
   const intro: Block[] = []
   const sections: { heading: string; blocks: Block[] }[] = []
   for (const block of note.blocks) {
@@ -55,7 +59,7 @@ function sectionsOf(note: Markdown) {
   }
   // Same for a rule closing each section: the next heading already starts a new one.
   for (const s of sections) if (s.blocks.at(-1)?.t === 'hr') s.blocks.pop()
-  return { intro, sections }
+  return { intro: linkBlocks(intro, from), sections: sections.map((s) => ({ ...s, blocks: linkBlocks(s.blocks, from, s.heading) })) }
 }
 
 /** The next topic after this one in its area's roadmap track, to keep reading in order. */
@@ -101,13 +105,17 @@ export function Reader({
     if (!deep) return
     let live = true
     loadDeepNote(topic.id).then(
-      (md) => md && live && setNote({ ...sectionsOf(md), title: md.title, words: words(plainText(md.blocks)) }),
+      (md) => md && live && setNote({ ...sectionsOf(md, topic.id), title: md.title, words: words(plainText(md.blocks)) }),
       () => undefined,
     )
     return () => {
       live = false
     }
   }, [topic.id, deep])
+
+  const [summaryLinks] = useLinkedList([explanation.summary], topic.id)
+  const stepLinks = useLinkedList(trace?.steps.map((s) => s.text) ?? [], topic.id)
+  const takeawayLinks = useLinkedList(topic.takeaways, topic.id)
 
   const narrow = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches
   const architecture = useMemo(() => (narrow ? { ...topic.architecture, direction: 'down' as const } : topic.architecture), [topic, narrow])
@@ -258,7 +266,9 @@ export function Reader({
             </div>
           ) : null
         ) : (
-          <p className="reader-summary">{explanation.summary}</p>
+          <p className="reader-summary">
+            <Parts parts={summaryLinks} read />
+          </p>
         )}
       </header>
 
@@ -318,7 +328,7 @@ export function Reader({
                 <span>{String(i + 1).padStart(2, '0')}</span>
                 {s.heading}
               </h2>
-              <Body text={s.body} />
+              <Body text={s.body} from={topic.id} here={s.heading} read />
             </section>
           ))}
       {deep && !note && <p className="reader-note">Loading the notes…</p>}
@@ -332,7 +342,9 @@ export function Reader({
           <ol className="reader-steps">
             {trace.steps.map((step, i) => (
               <li key={i}>
-                <p>{step.text}</p>
+                <p>
+                  <Parts parts={stepLinks[i]} read />
+                </p>
                 {step.nodes.length > 0 && <p className="reader-step-nodes">{step.nodes.join(' → ')}</p>}
                 {step.data && <pre>{step.data}</pre>}
               </li>
@@ -370,8 +382,10 @@ export function Reader({
           <Lightbulb size={20} aria-hidden /> Key takeaways
         </h2>
         <ol>
-          {topic.takeaways.map((t) => (
-            <li key={t}>{t}</li>
+          {topic.takeaways.map((t, i) => (
+            <li key={t}>
+              <Parts parts={takeawayLinks[i]} read />
+            </li>
           ))}
         </ol>
       </aside>

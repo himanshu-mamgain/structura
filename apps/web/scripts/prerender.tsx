@@ -118,7 +118,7 @@ function Page({ topic }: { topic: StaticTopic }) {
                   <span>{String(i + 1).padStart(2, '0')}</span>
                   {s.heading}
                 </h2>
-                <Body text={s.body} />
+                <Body text={s.body} from={topic.id} here={s.heading} read />
               </section>
             ))}
             <aside className="reader-takeaways">

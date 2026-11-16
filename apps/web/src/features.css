@@ -6399,3 +6399,42 @@ button.area-tag {
 .data-model .react-flow__controls-interactive {
   display: none;
 }
+
+/* Deep links between topics (learn/links.ts): visible, but quieter than a normal link. */
+a.topic-link {
+  color: var(--accent-ink);
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--accent-ink) 55%, transparent);
+}
+
+a.topic-link:hover,
+a.topic-link:focus-visible {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+
+/* The section a deep link opened, marked for a moment so the eye finds it. */
+.reader-section.is-target > h2 {
+  border-radius: 6px;
+  animation: target-flash 2.4s ease-out;
+}
+
+@keyframes target-flash {
+  0%,
+  35% {
+    background: var(--primary-soft);
+    box-shadow: 0 0 0 8px var(--primary-soft);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-section.is-target > h2 {
+    animation: none;
+  }
+}

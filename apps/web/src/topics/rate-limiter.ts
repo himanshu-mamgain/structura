@@ -193,7 +193,7 @@ const simulator: Simulator = {
         data: `identity: api_key=${KEY}, plan=free\nlimiter.check("${KEY}", route="GET /v1/orders")`,
       },
       {
-        text: `The Rate Limiter looks up the rule for this plan. Rules change rarely, so each gateway caches them from the Rules Store.`,
+        text: `The Rate Limiter looks up the rule for this plan and route in its own copy of the Rules Store: a map from plan to rules, kept in memory and reloaded every 30 seconds. Rules change rarely, so no request waits for the database.`,
         nodes: ['Rate Limiter', 'Rules Store'],
         data: json({ plan: 'free', algorithm: algo, limit: LIMIT, window_seconds: WINDOW, burst: algo === 'Token bucket' ? LIMIT : null }),
       },
@@ -284,7 +284,7 @@ export const rateLimiter: StaticTopic = {
     'Fixed windows are simple but can let through twice the limit around a window edge.',
     'A sliding window counter smooths that edge with two counters and a weighted sum.',
     'Counting must be atomic across gateways: use one Lua script or INCR in Redis, never read-then-write.',
-    'Decide in advance whether the limiter fails open or closed, and return 429 with Retry-After.',
+    'Decide for each route whether the limiter fails open or closed when Redis is down, and return 429 with Retry-After.',
   ],
   architecture: {
     replace: false,
@@ -386,15 +386,15 @@ export const rateLimiter: StaticTopic = {
       },
       {
         heading: 'Components',
-        body: '- Client app: the caller, identified by an API key.\n- API Gateway: authenticates the request and is the single place limits are enforced.\n- Rate Limiter: library or middleware in the gateway that picks the rule and talks to Redis.\n- Rules Store: the database of limits per plan and route; read rarely and cached.\n- Redis Primary (counters): holds the counters; one Lua script makes read-and-update atomic.\n- Redis Replica: a copy that takes over if the primary fails; it may lag a little, so a few requests can slip through.\n- Local Fallback Limiter: a rough in-memory bucket on each gateway, used when Redis is unreachable.\n- Allowed?: the decision at the end of the check.\n- App Servers: the real API; they only see requests that passed.\n- Reject with 429 and Retry-After: the refusal, with the time to wait.\n- Metrics & Alerts: allowed and denied counts per plan, so spikes and abuse show up.',
+        body: '- Client app: the caller, identified by an API key.\n- API Gateway: authenticates the request and is the single place limits are enforced.\n- Rate Limiter: library or middleware in the gateway that picks the rule and talks to Redis.\n- Rules Store: a small Postgres table of limits per plan and route; each gateway keeps all of it in memory, as a map from plan to rules, and reloads it every 30 s.\n- Redis Primary (counters): holds the counters; one Lua script makes read-and-update atomic.\n- Redis Replica: a copy that takes over if the primary fails; it may lag a little, so a few requests can slip through.\n- Local Fallback Limiter: a token bucket per key in each gateway\'s own memory, holding the limit ÷ the number of gateways; used only while Redis is unreachable.\n- Allowed?: the decision at the end of the check.\n- App Servers: the real API; they only see requests that passed.\n- Reject with 429 and Retry-After: the refusal, with the time to wait.\n- Metrics & Alerts: allowed and denied counts per plan, so spikes and abuse show up.',
       },
       {
         heading: 'Key decisions',
-        body: '- Token bucket: a bucket of N tokens refilling at a steady rate; each request takes one. Allows bursts up to N, then the average rate. Simple state (tokens, timestamp). Used by Stripe and many cloud APIs.\n- Fixed window counter: one counter per minute. Cheapest, but a client can send 10 at the end of one minute and 10 at the start of the next: 20 requests in seconds.\n- Sliding window counter: previous window × share still overlapping + current window. Two counters, close to exact, no edge spike.\n- Sliding window log: exact, stores every timestamp, so memory grows with the limit.\n- Where to count: in each gateway\'s memory is fast but each node sees only part of the traffic; a shared Redis is accurate for one extra network hop.\n- Race conditions: GET then SET lets two gateways both pass the last token. Use INCR or one Lua script.\n- Fail open or closed: open keeps the API up but unprotected; closed protects but turns a Redis outage into an API outage. A local fallback is a middle path.',
+        body: '- Token bucket: a bucket of N tokens refilling at a steady rate; each request takes one. Allows bursts up to N, then the average rate. Simple state (tokens, timestamp). Used by Stripe and many cloud APIs.\n- Fixed window counter: one counter per minute. Cheapest, but a client can send 10 at the end of one minute and 10 at the start of the next: 20 requests in seconds.\n- Sliding window counter: previous window × share still overlapping + current window. Two counters, close to exact, no edge spike.\n- Sliding window log: exact, stores every timestamp, so memory grows with the limit.\n- Where to count: in each gateway\'s memory is fast but each node sees only part of the traffic; a shared Redis is accurate for one extra network hop.\n- Race conditions: GET then SET lets two gateways both pass the last token. Use INCR or one Lua script.\n- Fail open or closed: open keeps the API up but unprotected; closed protects but turns a Redis outage into an API outage. Choose per route, in the rule\'s fail_mode: open for reads, closed for login and SMS. A local fallback is the middle path.',
       },
       {
         heading: 'Scaling and failure',
-        body: '- Shard Redis by the limiter key (consistent hashing), so one key\'s state lives on one node.\n- A hot key (one huge customer) can overload a shard; give it its own shard or count in batches in memory and sync every few milliseconds.\n- Use the Redis server clock inside the script, not the gateways\' clocks, since gateway clocks drift.\n- Replicas lag, so after a failover the counts can be a little low; accept the small slack.\n- Add a short timeout (about 20 ms) and a circuit breaker so a slow Redis doesn\'t slow every request.\n- Return X-RateLimit-Limit, X-RateLimit-Remaining and Retry-After so clients can back off.',
+        body: '- Shard Redis by the limiter key (consistent hashing), so one key\'s state lives on one node.\n- A hot key (one huge customer) can overload a shard; give it its own shard or count in batches in memory and sync every few milliseconds.\n- Use the Redis server clock inside the script, not the gateways\' clocks, since gateway clocks drift.\n- Replicas lag, so after a failover the counts can be a little low; accept the small slack.\n- Add a short timeout (about 20 ms) and a circuit breaker so a slow Redis doesn\'t slow every request.\n- Keep the rules in each gateway\'s memory and reload them every 30 s. If a reload fails, keep the old copy: Postgres being down shouldn\'t change any limits.\n- Return X-RateLimit-Limit, X-RateLimit-Remaining and Retry-After so clients can back off.',
       },
       {
         heading: 'Interview follow-ups',

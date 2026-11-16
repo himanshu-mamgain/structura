@@ -73,6 +73,14 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     and the panel (`LoadPanel.tsx`), whose results show as a busy badge on each box of the 2D diagram.
     There is no 3D view: it was removed on purpose; don't bring three.js back into the app.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
+  - **Deep links** (`src/learn/links.ts`): when a topic's text mentions what another topic teaches
+    ("Redis Sentinel", "rate limiter", "circuit breaker"), the first mention in each section links
+    there, to the exact Read-mode section when the rule names one (`/topic/<id>/?read#read-<heading>`).
+    `LINK_RULES` is written by hand: specific rules first, `exact` for names and acronyms, `near` for
+    words that only mean this next to a context word (a "replica" near "Redis"), `far` to skip a
+    paragraph, `inTopic` to link a term to its own topic's article section. Applied to section text,
+    summaries, takeaways, walkthrough steps (in Read mode) and deep notes; App.tsx opens the links in
+    the app and scrolls to the section. `npm run test:links` checks every target topic and heading exists.
   - CSS: `index.css` (panel internals), `shell.css` (layout), `features.css` (newer features).
   - `src/ecosystem.ts`: the owner's other apps (DSA Atlas, Schemata for SQL and databases), in the
     app switcher; the Databases area and roadmap track link to Schemata.
@@ -146,6 +154,8 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
    (`src/topics/areas.ts`: `development`, `infra`, `databases` or `ai`; the build stops without one),
    and **give it a step in the roadmap** (`src/learn/roadmap.ts`) in a module of the same area and the
    right stage (a new module is fine). Unplaced topics still show, at the end of their area, under "More topics".
+   **Add link rules** in `src/learn/links.ts` for the terms the new topic teaches, pointing at its deep
+   note's sections where it has them, then run `npm run test:links`.
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon), and draw its
    link-preview card with `npm run og -w @structura/web` (it only draws topics that have none).
 4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.

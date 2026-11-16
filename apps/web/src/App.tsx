@@ -73,6 +73,39 @@ function readRoute() {
   }
 }
 
+/**
+ * Scrolls to a Read-mode section (#read-…) once it's on the page: the topic and its deep
+ * notes load after the address changes. Gives up after a few seconds, or if the reader
+ * starts scrolling first.
+ */
+function scrollToSection(hash: string) {
+  const id = decodeURIComponent(hash.replace(/^#/, ''))
+  if (!id) return
+  const started = performance.now()
+  let moved = false
+  const stop = () => (moved = true)
+  window.addEventListener('wheel', stop, { once: true, passive: true })
+  window.addEventListener('touchstart', stop, { once: true, passive: true })
+  const done = () => {
+    window.removeEventListener('wheel', stop)
+    window.removeEventListener('touchstart', stop)
+  }
+  const tick = () => {
+    if (moved) return done()
+    const el = document.getElementById(id)
+    if (!el) return performance.now() - started < 6000 ? requestAnimationFrame(tick) : done()
+    el.scrollIntoView({ block: 'start' })
+    el.classList.add('is-target')
+    setTimeout(() => el.classList.remove('is-target'), 2400)
+    // The diagram above finishes its layout a moment later and can push the section down.
+    setTimeout(() => {
+      if (!moved && Math.abs(el.getBoundingClientRect().top - parseFloat(getComputedStyle(el).scrollMarginTop || '0')) > 8) el.scrollIntoView({ block: 'start' })
+      done()
+    }, 700)
+  }
+  requestAnimationFrame(tick)
+}
+
 type Tab = 'home' | 'explore' | 'reels' | 'listen' | 'practice'
 
 // The five tabs, like Instagram's: along the bottom on phones, in the top bar on desktop.
@@ -143,6 +176,40 @@ export default function App() {
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
+
+  // A shared link to a section (/topic/<id>/?read#read-…) lands on it.
+  useEffect(() => {
+    if (window.location.hash.startsWith('#read-')) scrollToSection(window.location.hash)
+  }, [])
+
+  // Deep links between topics (learn/links.ts) open in the app, at the section they name.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const link = (e.target as Element | null)?.closest?.('a[data-topic-link]')
+      const href = link?.getAttribute('href')
+      const url = href ? new URL(href, window.location.origin) : null
+      const id = url?.pathname.match(TOPIC_PATH)?.[1]
+      if (!url || !id || !topicMeta(id)) return
+      e.preventDefault()
+      const search = `?topic=${id}${url.searchParams.has('read') ? '&read' : ''}`
+      const here = urlFor(search)
+      if (here.pathname === window.location.pathname && here.search === window.location.search) {
+        // Same page: just move to the section, and let Back return to where the reader was.
+        window.history.pushState(null, '', url.hash || here)
+        if (url.hash) scrollToSection(url.hash)
+        return
+      }
+      navigate(search)
+      window.scrollTo({ top: 0 })
+      if (url.hash) {
+        window.history.replaceState(null, '', url.hash)
+        scrollToSection(url.hash)
+      }
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  })
 
   function navigate(search: string) {
     const url = urlFor(search)
