@@ -16,7 +16,7 @@
 
 The example limit is **10 requests per 60 seconds** for a free plan.
 
-- **Token bucket.** The bucket holds at most 10 tokens and gains one every 6 seconds (10 ÷ 60 = 0.167 a second). A request takes a token, or is refused if none is left. So a client can send 10 at once, then one every 6 seconds. You store just `tokens` and the time of the last request, and work out the refill when the next request comes.
+- **Token bucket.** The bucket holds at most 10 tokens. It gains one token every 6 seconds, because 60 seconds ÷ 10 tokens = 6 seconds. Per second, that's 10 ÷ 60 = 0.167 of a token. A request takes a token, or is refused if none is left. So a client can send 10 at once, then one every 6 seconds. You store just `tokens` and the time of the last request, and work out the refill when the next request comes.
 - **Fixed window counter.** One counter per key per minute: `rl:fw:key_live_8f3a:29913450`, where 29913450 is the minute number (Unix seconds ÷ 60). `INCR` it; refuse above 10. It's the cheapest, but 10 requests at 0:55 and 10 more at 1:05 all pass: 20 in 10 seconds.
 - **Sliding window counter.** Estimate the last 60 seconds from two counters: `previous × (share of it still inside the last 60 s) + current`. 5 seconds into a minute, after 10 requests last minute: 10 × 0.917 + 0 = 9.17, so one more makes 10.17 and is refused. It's close to exact with two numbers.
 - **Sliding window log.** Keep each request's time in a sorted set, drop the ones older than 60 s, and count the rest. It's exact, but the memory grows with the limit.
