@@ -22,6 +22,7 @@ import type { AreaId } from '../topics/areas'
 import { AreaTag } from './Areas'
 import { Blocks } from './Notes'
 import { ShareWhatsApp } from './Share'
+import { AskedAt } from './AskedAt'
 import { topicIcon } from './topicIcons'
 
 // Read mode: a topic as one article, top to bottom, like a guide or a newsletter
@@ -261,6 +262,7 @@ export function Reader({
         </p>
         <h1>{note?.title ?? topic.title}</h1>
         <p className="reader-dek">{topic.blurb}</p>
+        <AskedAt topicId={topic.id} />
         {deep ? (
           note ? (
             <div className="note-body reader-intro">

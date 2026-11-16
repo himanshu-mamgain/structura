@@ -19,6 +19,7 @@ import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
 import { NoteBox, TopicNotes } from './Notes'
 import { ShareWhatsApp } from './Share'
+import { AskedAt } from './AskedAt'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
 import { Karaoke } from './VoiceAssistant'
@@ -293,6 +294,7 @@ export function TopicView({
               {ready}% interview ready
             </span>
           </div>
+          <AskedAt topicId={topic.id} />
           <p>
             <Parts parts={summaryLinks} read={false} />
           </p>
