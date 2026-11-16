@@ -61,6 +61,10 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     previews read it without JavaScript, and the text shows while the app loads. Also
     `dist/sitemap.xml`. Static files only: there's still no server. `index.html` holds the home page's
     tags between `<!-- seo` and `<!-- /seo -->`; keep those markers.
+  - **Icons**: `public/favicon.svg` (the app bar's green tile with lucide's "boxes" glyph) is the source of the
+    favicon and every app icon; `pwa-assets.config.ts` makes the PNGs from it at build, and
+    `npx pwa-assets-generator` in `apps/web` redraws the copies in `public/`. The notification badge
+    (`public/badge-96x96.png`) is the glyph alone, from `scripts/badge.svg`.
   - `public/og/<id>.jpg`: each topic's link-preview card (1200 × 630), drawn by
     `npm run og -w @structura/web` (Playwright, run locally like the videos; `default.jpg` is the site's).
   - `src/diagram/`: the 2D diagram (`Diagram2D.tsx`), its ELK layout (`layout.ts`), box icons (`icons.ts`),

@@ -100,17 +100,35 @@ export function SegmentBar({ progress, scenes }: { progress: Progress; scenes: n
   )
 }
 
-/** The Structura mark (as in the app's favicon). */
+/** The Structura mark (as in the app's favicon, apps/web/public/favicon.svg). */
 export function Logo({ size = 76 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" style={{ borderRadius: size * 0.22, boxShadow: `0 0 0 2px ${ink.border}, 0 0 24px rgba(129, 140, 248, 0.35)` }}>
-      <rect width="32" height="32" rx="7" fill="#1e1b4b" />
-      <rect x="7" y="7" width="11" height="7" rx="1.5" fill="#a5b4fc" />
-      <rect x="14" y="16" width="11" height="9" rx="1.5" fill="#818cf8" />
-      <path d="M12.5 14v5.5H14" fill="none" stroke="#a5b4fc" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 32 32" style={{ borderRadius: size * 0.23, boxShadow: `0 0 0 2px ${ink.border}, 0 0 24px rgba(110, 160, 145, 0.35)` }}>
+      <rect width="32" height="32" rx="7.5" fill="#4e7268" />
+      <g transform="translate(4 4)" fill="none" stroke="#fff" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+        {BOXES.map((d) => (
+          <path key={d} d={d} />
+        ))}
+      </g>
     </svg>
   )
 }
+
+// lucide's "boxes" glyph (ISC licence), the same as the app bar's.
+const BOXES = [
+  'M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z',
+  'm7 16.5-4.74-2.85',
+  'm7 16.5 5-3',
+  'M7 16.5v5.17',
+  'M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z',
+  'm17 16.5-5-3',
+  'm17 16.5 4.74-2.85',
+  'M17 16.5v5.17',
+  'M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z',
+  'M12 8 7.26 5.15',
+  'm12 8 4.74-2.85',
+  'M12 13.5V8',
+]
 
 export function Header() {
   return (
