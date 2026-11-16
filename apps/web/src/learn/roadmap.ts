@@ -277,9 +277,10 @@ export const ROADMAP: RoadmapPart[] = [
     area: 'databases',
     stage: 'Advanced',
     title: 'Persistence and failover',
-    why: 'RDB and AOF, replicas and Sentinel, and killing the primary on purpose.',
+    why: 'RDB and AOF, replicas, Sentinel and Cluster, and killing the primary on purpose.',
     steps: [
       { id: 'redis-persist', title: 'Persistence, replication and failover', detail: 'RDB vs the AOF, replicas and Sentinel, and what each kind of failure really loses.', topic: 'redis-persistence', guides: ['how-does-redis-persist-data', 'how-redis-architecture-evolve'] },
+      { id: 'redis-replicate', title: 'Replication, Sentinel and Cluster', detail: 'How a replica syncs and catches up, how Sentinel picks a new primary, and how Cluster splits keys into 16,384 slots.', topic: 'redis-replication', guides: ['how-redis-architecture-evolve', 'scale-replication'] },
       { id: 'redis-practice-failover', title: 'Kill the primary on purpose', detail: 'Run a primary, a replica and three Sentinels in Docker Compose, stop the primary, and time the failover.', practice: true },
     ],
   },

@@ -72,6 +72,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'distributed-cache': 'databases',
   locking: 'databases',
   'redis-persistence': 'databases',
+  'redis-replication': 'databases',
   'consistent-hashing': 'databases',
   'database-sharding': 'databases',
   'key-value-store': 'databases',
