@@ -7,6 +7,7 @@ import { failureEffect, responsibilitiesOf, responsibility, sameComponent, steps
 import { iconFor } from '../diagram/icons'
 import type { LoadStats } from '../sim/LoadPanel'
 import { Body, CodeBlock, SimulatorForm } from '../learn/content'
+import { Parts, TopicLink, topicNamed, useLinkedList } from '../learn/Linked'
 import { erdToSql } from '../learn/ddl'
 import { readiness, updateTopic, useProgress } from '../learn/progress'
 import { readingMinutes, storyText, StoryView } from '../learn/story'
@@ -124,6 +125,9 @@ export function TopicView({
   )
   const sql = useMemo(() => (topic.database ? erdToSql(topic.database) : null), [topic])
   const dbml = useMemo(() => (topic.database ? erdToDbml(topic.database) : null), [topic])
+  // First mentions of what other topics teach link there (learn/links.ts).
+  const [summaryLinks] = useLinkedList([explanation.summary], topic.id)
+  const takeawayLinks = useLinkedList(topic.takeaways, topic.id)
 
   // Walkthrough: focus the step, wait long enough to read, move on.
   useEffect(() => {
@@ -288,7 +292,9 @@ export function TopicView({
               {ready}% interview ready
             </span>
           </div>
-          <p>{explanation.summary}</p>
+          <p>
+            <Parts parts={summaryLinks} read={false} />
+          </p>
           {topic.story && (
             <button type="button" className="story-teaser" onClick={() => go('story')}>
               <BookOpenText size={18} aria-hidden />
@@ -784,7 +790,7 @@ export function TopicView({
                 {now.speaking && now.source === `section:${topic.id}:${section}` ? (
                   <ReadingView sentences={now.sentences} current={now.sentence} word={now.word} />
                 ) : (
-                  <Body text={explanation.sections[section].body} />
+                  <Body text={explanation.sections[section].body} from={topic.id} here={explanation.sections[section].heading} />
                 )}
                 <div className="pager">
                   <button type="button" className="btn btn-ghost" disabled={section === 0} onClick={() => setSection(section - 1)}>
@@ -833,7 +839,22 @@ export function TopicView({
 
             {explanation.related.length > 0 && (
               <p className="related">
-                Learn next: {explanation.related.join(' · ')}
+                Learn next:{' '}
+                {explanation.related.map((name, i) => {
+                  const target = topicNamed(name)
+                  return (
+                    <span key={name}>
+                      {i > 0 && ' · '}
+                      {target && target.id !== topic.id ? (
+                        <TopicLink rule={{ topic: target.id, terms: [] }} read={false}>
+                          {name}
+                        </TopicLink>
+                      ) : (
+                        name
+                      )}
+                    </span>
+                  )
+                })}
               </p>
             )}
           </div>
@@ -844,8 +865,10 @@ export function TopicView({
             <Lightbulb size={18} /> Key takeaways
           </h2>
           <ol>
-            {topic.takeaways.map((t) => (
-              <li key={t}>{t}</li>
+            {topic.takeaways.map((t, i) => (
+              <li key={t}>
+                <Parts parts={takeawayLinks[i]} read={false} />
+              </li>
             ))}
           </ol>
           {onNote && <TopicNotes topic={topic} onNote={onNote} />}

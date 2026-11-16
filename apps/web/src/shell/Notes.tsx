@@ -319,8 +319,10 @@ function Text({ r, index, onNote }: { r: Rich[]; index?: NotesIndex; onNote: (id
         if (marks.includes('i')) el = <em>{el}</em>
         if (marks.includes('s')) el = <s>{el}</s>
         if (marks.includes('u')) el = <u>{el}</u>
-        // Links to /?topic=… stay in the app (read mode handles the click).
-        if (href?.startsWith('/?')) el = <a href={href}>{el}</a>
+        // Links to topics stay in the app: /topic/… deep links (learn/links.ts) are opened
+        // by App.tsx, /?topic=… by read mode.
+        if (href?.startsWith('/topic/')) el = <a href={href} className="topic-link" data-topic-link>{el}</a>
+        else if (href?.startsWith('/?')) el = <a href={href}>{el}</a>
         else if (href) {
           const target = index ? noteIdIn(href, index) : null
           el = target ? (

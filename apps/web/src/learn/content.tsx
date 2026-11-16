@@ -1,32 +1,59 @@
-import { useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react'
+import { useMemo, useState, useSyncExternalStore, type FormEvent } from 'react'
 import type { CodeLanguage, CodeSnippet } from '@structura/shared'
 import type { Simulator } from '../topics/simulator'
+import { Parts } from './Linked'
+import { linkText, type Linked } from './links'
 
 // Building blocks for a topic's written content: section text, code blocks and
 // the "try it with your own input" form.
 
-/** Renders a section body: paragraphs split by blank lines, "- " lines as bullet lists. */
-export function Body({ text }: { text: string }) {
-  const blocks: ReactNode[] = []
-  text.split(/\n\s*\n/).forEach((block, b) => {
-    const lines = block.split('\n').filter((line) => line.trim())
-    let bullets: string[] = []
-    const flush = () => {
-      if (bullets.length) blocks.push(<ul key={`${b}-${blocks.length}`}>{bullets.map((item, i) => <li key={i}>{item}</li>)}</ul>)
-      bullets = []
-    }
-    for (const line of lines) {
-      const bullet = line.match(/^\s*[-•*]\s+(.*)/)
-      if (bullet) {
-        bullets.push(bullet[1])
-      } else {
-        flush()
-        blocks.push(<p key={`${b}-${blocks.length}`}>{line}</p>)
+/**
+ * Renders a section body: paragraphs split by blank lines, "- " lines as bullet lists.
+ * With `from` (the topic it belongs to), first mentions of other topics become links;
+ * `here` is the section's heading (never linked to) and `read` makes links open Read mode.
+ */
+export function Body({ text, from, here, read = false }: { text: string; from?: string; here?: string; read?: boolean }) {
+  const blocks = useMemo(() => {
+    const used = new Set<string>()
+    const link = (line: string): Linked[] => (from ? linkText(line, from, used, here) : [{ text: line }])
+    const out: ({ kind: 'p'; parts: Linked[] } | { kind: 'ul'; items: Linked[][] })[] = []
+    for (const block of text.split(/\n\s*\n/)) {
+      let bullets: Linked[][] = []
+      const flush = () => {
+        if (bullets.length) out.push({ kind: 'ul', items: bullets })
+        bullets = []
       }
+      for (const line of block.split('\n').filter((l) => l.trim())) {
+        const bullet = line.match(/^\s*[-•*]\s+(.*)/)
+        if (bullet) bullets.push(link(bullet[1]))
+        else {
+          flush()
+          out.push({ kind: 'p', parts: link(line) })
+        }
+      }
+      flush()
     }
-    flush()
-  })
-  return <>{blocks}</>
+    return out
+  }, [text, from, here])
+  return (
+    <>
+      {blocks.map((b, i) =>
+        b.kind === 'p' ? (
+          <p key={i}>
+            <Parts parts={b.parts} read={read} />
+          </p>
+        ) : (
+          <ul key={i}>
+            {b.items.map((item, j) => (
+              <li key={j}>
+                <Parts parts={item} read={read} />
+              </li>
+            ))}
+          </ul>
+        ),
+      )}
+    </>
+  )
 }
 
 // The language a learner picked on any code block. Every block on the page follows it,
