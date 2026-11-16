@@ -23,6 +23,7 @@ import { kafkaBasics } from './kafka-basics'
 import { kafkaReliability } from './kafka-reliability'
 import { redisBasics } from './redis-basics'
 import { redisPersistence } from './redis-persistence'
+import { redisReplication } from './redis-replication'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { messageQueue } from './message-queue'
@@ -99,6 +100,7 @@ const BASE_TOPICS: StaticTopic[] = [
   loadBalancer,
   redisBasics,
   redisPersistence,
+  redisReplication,
   awsBasics,
   awsIam,
   awsDisasterRecovery,

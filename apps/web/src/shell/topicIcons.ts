@@ -1,4 +1,4 @@
-import { Activity, DoorOpen, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, CopyCheck, Crown, DatabaseBackup, DatabaseZap, Earth, FingerprintPattern, FileCode2, FileLock, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
+import { Activity, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FingerprintPattern, FileCode2, FileLock, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Trophy, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -43,6 +43,7 @@ const ICONS: Record<string, LucideIcon> = {
   'aws-ecs-fullstack': Ship,
   'redis-basics': Layers,
   'redis-persistence': DatabaseBackup,
+  'redis-replication': Copy,
   'aws-basics': Cloud,
   'aws-iam': KeyRound,
   'aws-disaster-recovery': LifeBuoy,

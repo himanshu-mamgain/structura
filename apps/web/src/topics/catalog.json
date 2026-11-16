@@ -2145,6 +2145,51 @@
   "story": true
  },
  {
+  "id": "redis-replication",
+  "title": "Redis Replication, Sentinel and Cluster",
+  "blurb": "How replicas sync, how Sentinel fails over, and how Redis Cluster shards keys into 16,384 slots",
+  "difficulty": "Advanced",
+  "area": "databases",
+  "guides": [
+   "how-redis-architecture-evolve",
+   "scale-replication",
+   "scale-sharding",
+   "scale-scaling-redis-at-twitter",
+   "scale-redis-fleet-at-heroku",
+   "how-does-redis-persist-data"
+  ],
+  "explanation": {
+   "summary": "Replication keeps copies of a Redis primary on other machines. Sentinel watches a primary and promotes a replica when it dies. Redis Cluster splits the keys into 16,384 slots across several primaries, each with its own replicas, and fails each shard over by itself. All three copy data asynchronously, so a failover can lose the last few writes.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-basics",
   "title": "AWS Basics: What the Cloud Is and Why",
   "blurb": "Buying servers or renting them, regions and Availability Zones, Auto Scaling and Lambda, and what each one costs",
