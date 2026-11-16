@@ -43,6 +43,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Query Cache for a Search Engine | Intermediate | | | |
 | Scaling to Millions of Users on AWS | Intermediate | | | |
 | Rate Limiter | Intermediate | | | |
+| API Gateway | Intermediate | | | |
 | Consistent Hashing | Intermediate | | | |
 | Chat System (WhatsApp-style) | Intermediate | | | |
 | CDN: Content Delivery Network | Intermediate | | | |

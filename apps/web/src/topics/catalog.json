@@ -909,6 +909,51 @@
   "simulator": true
  },
  {
+  "id": "api-gateway",
+  "title": "API Gateway",
+  "blurb": "One front door for many services: tokens, rate limits, routing, caching and circuit breakers",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "api-gateway-101",
+   "what-does-api-gateway-do",
+   "top-3-api-gateway-use-cases",
+   "reverse-proxy-vs-api-gateway-vs-load-balancer",
+   "scale-circuit-breaker",
+   "scale-architecture-of-api-gateway-at-uber"
+  ],
+  "explanation": {
+   "summary": "An API gateway is the one front door for all the services behind it. It checks who is calling, limits how often, picks the right service, can cache answers, and stops calling a service that is failing. Services then focus on business logic. The hard parts are keeping the gateway fast and thin, and deciding what to do when a service behind it breaks.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "consistent-hashing",
   "title": "Consistent Hashing",
   "blurb": "How a cache or database cluster adds and loses nodes without reshuffling every key",

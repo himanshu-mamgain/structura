@@ -1,3 +1,4 @@
+import { apiGateway } from './api-gateway'
 import { aiAgent } from './ai-agent'
 import { awsAlb } from './aws-alb'
 import { awsEcsFargate } from './aws-ecs-fargate'
@@ -72,6 +73,7 @@ const BASE_TOPICS: StaticTopic[] = [
   queryCache,
   scalingAws,
   rateLimiter,
+  apiGateway,
   consistentHashing,
   chatSystem,
   cdn,
