@@ -6438,3 +6438,8 @@ a.topic-link:focus-visible {
     animation: none;
   }
 }
+
+/* Share on WhatsApp (Share.tsx): the only share option, so its icon wears WhatsApp's green. */
+.share-wa svg {
+  color: #1c8a49;
+}

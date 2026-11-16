@@ -21,6 +21,7 @@ import type { StaticTopic } from '../topics/types'
 import type { AreaId } from '../topics/areas'
 import { AreaTag } from './Areas'
 import { Blocks } from './Notes'
+import { ShareWhatsApp } from './Share'
 import { topicIcon } from './topicIcons'
 
 // Read mode: a topic as one article, top to bottom, like a guide or a newsletter
@@ -246,6 +247,7 @@ export function Reader({
             {playing ? <Pause size={16} /> : <Headphones size={16} />} <span>{playing ? 'Pause' : `Listen ${Math.round(lesson.duration / 60)} min`}</span>
           </button>
         )}
+        <ShareWhatsApp text={`${topic.title} on Structura: ${topic.blurb}`} path={`/topic/${topic.id}/?read`} label="WhatsApp" />
         <span className="reader-progress" aria-hidden>
           <span style={{ width: `${scrolled * 100}%` }} />
         </span>
