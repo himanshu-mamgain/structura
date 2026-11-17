@@ -68,6 +68,7 @@ export const ROADMAP: RoadmapPart[] = [
       { id: 'sd-notifications', title: 'A notification system', detail: 'Queues, retries and fan-out to push, email and SMS.', topic: 'notification-system' },
       { id: 'sd-queue', title: 'A distributed message queue', detail: 'Acks, visibility timeouts, dead-letter queues and at-least-once delivery.', topic: 'message-queue', guides: ['types-of-message-queue'] },
       { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
+      { id: 'sd-resilience', title: 'Surviving a slow dependency', detail: 'Timeouts, retries with backoff, circuit breakers and bulkheads.', topic: 'circuit-breaker', guides: ['resiliency-patterns'] },
       { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
     ],
   },

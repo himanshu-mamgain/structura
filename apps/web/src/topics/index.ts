@@ -5,6 +5,7 @@ import { awsEcsFargate } from './aws-ecs-fargate'
 import { awsEcsFullstack } from './aws-ecs-fullstack'
 import { awsVpc } from './aws-vpc'
 import { cdn } from './cdn'
+import { circuitBreaker } from './circuit-breaker'
 import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
@@ -83,6 +84,7 @@ const BASE_TOPICS: StaticTopic[] = [
   proximityService,
   videoStreaming,
   metricsMonitoring,
+  circuitBreaker,
   fileSync,
   leaderElection,
   messageQueue,
