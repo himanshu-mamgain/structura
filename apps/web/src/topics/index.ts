@@ -36,6 +36,7 @@ import { proximityService } from './proximity-service'
 import { queryCache } from './query-cache'
 import { ragPipeline } from './rag-pipeline'
 import { rateLimiter } from './rate-limiter'
+import { retryBackoff } from './retry-backoff'
 import { rbac } from './rbac'
 import { salesRank } from './sales-rank'
 import { terraformBasics } from './terraform-basics'
@@ -73,6 +74,7 @@ const BASE_TOPICS: StaticTopic[] = [
   queryCache,
   scalingAws,
   rateLimiter,
+  retryBackoff,
   apiGateway,
   consistentHashing,
   chatSystem,
