@@ -23,6 +23,46 @@ Builds on [Docker](/?topic=docker-vs-vm&read), [VPC Networking](/?topic=aws-vpc&
 
 ---
 
+## What Fargate is
+
+ECS decides **what** runs: which image, how many copies, on which network. But every container still needs a machine to run on, with CPU, memory and a network card. **Fargate** is the part of AWS that supplies that machine, so you never see it.
+
+Without Fargate, you use the **EC2 launch type** and run the machines yourself:
+
+- You start EC2 instances and join them to the cluster.
+- You choose their instance types, and update and patch their operating system.
+- You scale the instances, so there is free room before ECS can place a new task.
+- Many tasks share one instance, so one busy task can slow the others down.
+
+With **Fargate**, you only describe the task. You say "0.5 vCPU and 1 GB", and AWS finds the room, starts the task, and removes it when it stops. There is no instance to log in to, patch or scale. This is why Fargate is called **serverless** for containers: the servers still exist, but AWS runs them.
+
+```json
+{
+  "family": "orders-api",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024"
+}
+```
+
+That is all the "machine" you ask for: 512 CPU units (0.5 vCPU) and 1,024 MiB. There is no EC2 instance in your account at all.
+
+Three things follow from this:
+
+- **You pay per task, not per machine.** You pay for the task's size while it runs: from when the image download starts until the task stops, by the second, with a 1-minute minimum on Linux. A 0.5 vCPU / 1 GB task costs about $0.025 an hour in us-east-1 (see "Task sizes and what they cost" below).
+- **Each task is walled off.** A Fargate task doesn't share its kernel, CPU, memory or network card with any other task. Each one gets its own network card (ENI) and private IP in your subnet.
+- **Some things aren't possible.** No GPUs, no privileged containers, no logging in to the host, and at most 16 vCPU and 120 GB per task. For those, use the EC2 launch type.
+
+| | You look after | AWS looks after |
+| --- | --- | --- |
+| ECS on EC2 | The image, the task definition, **and the EC2 instances**: type, OS patches, scaling, free room | Placing tasks on your instances |
+| ECS on Fargate | The image and the task definition: size, roles, network | Placing tasks **and the machines they run on** |
+
+Fargate isn't only for ECS: it can also run Kubernetes pods on EKS, in the same way.
+
+---
+
 ## Fargate, EC2 launch type, EKS or Lambda?
 
 | | ECS on Fargate | ECS on EC2 | EKS | Lambda |
