@@ -149,7 +149,9 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
      real code, a "How to choose" guide, `## ⚠️ Critical Mistakes`, `## Interview Q&As`
      (`**Q: …**` then `A: …`), related topics (`/?topic=<id>&read` links), sources and
      `## Why This Matters`. `docker-vs-vm.md` is the model; `src/learn/markdown.ts` lists the
-     Markdown it reads (tables, code fences, callouts, nested lists).
+     Markdown it reads (tables, code fences, callouts, nested lists). **Every note follows
+     "Notes that explain everything" below**; `npm run catalog` (so every build) stops if a note fails
+     its checks.
    - **Lesson** (`src/topics/lessons/<id>.ts`, recommended): Lesson mode's cards, in Simple
      English (see "Style"). 7 to 10 cards, each a `title`, a `text` of 2 to 4 short sentences, and
      optionally `focus` (exact node labels to light up), an `example` (a command, a worked number,
@@ -165,13 +167,67 @@ Use `apps/web/src/topics/twitter-timeline.ts` as the model; it has every part.
    **Find where it's asked** (see "Asked at" below) and add what you find to `src/topics/askedAt.json`.
 3. **Pick an icon** in `src/shell/topicIcons.ts` (any `lucide-react` icon), and draw its
    link-preview card with `npm run og -w @structura/web` (it only draws topics that have none).
-4. **Check** `npm run typecheck` and `npm run build -w @structura/web`.
+4. **Check** `npm run typecheck`, `npm run test:notes` and `npm run build -w @structura/web`.
 5. **Make its video and audio lesson** (see below) if the Kokoro setup is available.
 6. **Open a PR** titled `feat: add <title> topic`, saying what the walkthrough and
    simulator show and which source it is based on (with licence).
 
 Numbers in examples must be correct: compute them (base62 codes, capacity
 estimates, hashes) rather than guessing. Use realistic example data.
+
+## Notes that explain everything
+
+A learner reads a deep note on their own, often on a phone, with no one to ask. So a note must
+answer every "what is that?" before the reader has to ask it. These rules apply to new notes and to
+every edit of an old one. They come from real gaps the owner hit: the ECS note used "Fargate" all
+the way through without ever saying what it is; "0.25 vCPU" was used before vCPU was explained; the
+token bucket said "one token every 6 s" in one place and "0.167 a second" in another without linking them.
+
+1. **Say what the subject is, first.** In the TL;DR or the section right after it, define in plain
+   words everything the title names: what it is, what problem it solves, and what you would do
+   without it. If the title names two things ("ECS on Fargate"), define both, each in its own
+   paragraph or a "What X is" section.
+2. **Explain every term where it first appears**, in the same sentence: "A hypervisor is software
+   that…", "each task gets an ENI (elastic network interface: a network card)". A term you **bold**
+   is a term you are teaching, so it is explained right there. A link to the Structura topic that
+   teaches the term also counts.
+3. **Spell out every abbreviation** the first time: `ENI (elastic network interface)` or
+   `elastic network interface (ENI)`, even if another topic explained it. Only the everyday ones in
+   `KNOWN_ABBREVIATIONS` (`src/learn/noteRules.ts`: API, HTTP, JSON, CPU…) are exempt. Commands,
+   signals, states and setting names are code, not words: `SIGTERM`, `INCR`, `PENDING`, `"cpu": "512"`.
+4. **Explain every number.** Give its unit, show where it comes from (60 s ÷ 10 = 6 s), and say
+   what it means for the reader. When a quantity can be written two ways (a rate and a period:
+   0.167 tokens a second is one token every 6 s), give both, side by side, and say which the code
+   uses. Compute numbers; never guess them.
+5. **Explain every code or config block**: a sentence before it says what it does, and the values
+   that aren't obvious are explained after it (`"cpu": "512"` is 0.5 vCPU).
+6. **Follow one real example all the way through**: one request, one order, one client, with real
+   numbers, usually as a table of steps. A rule stated only in the abstract isn't explained yet.
+7. **Say what it costs and where it stops**: what happens without it, the trade-offs, the limits
+   (Fargate: no GPUs, at most 16 vCPU), and what to use instead.
+8. **Check facts that change** (prices, limits, quotas, defaults) against the official docs. Name
+   the region or version, and link the page under `## Sources`.
+9. **Answer the newcomer's six questions** somewhere in the note: What is it? Why does it exist? How
+   does it work underneath? What does it cost and where does it stop? What goes wrong? How do I choose?
+10. **Tables and lists stand alone**: every header and cell makes sense without the paragraph above
+    it, and every term in them follows rules 2 and 3.
+
+Before you finish a note, read it top to bottom as someone new to the topic. For every noun in the
+TL;DR and every bold term, point to where it is explained; if you can't, explain it.
+
+What `npm run test:notes` (and `npm run catalog`) checks, from `src/learn/noteRules.ts`:
+
+- The note starts with `# Title`, then the `> 💡 **TL;DR**:` callout.
+- It has `## How to choose` (a heading that starts with it is fine), `## ⚠️ Critical Mistakes`,
+  `## Interview Q&As` with at least 3 `**Q: …**` each answered by `A: …`, `## Related topics`,
+  `## Sources` and `## Why This Matters`. No section is empty.
+- Every abbreviation (two or more capitals, such as ENI or EC2) is explained where it first
+  appears outside code and headings: followed by `(…)` (up to two words may come between, as in
+  "NAT gateway (…)"), written as `full name (ABBR)`, followed by "is" or "means", alone in a table
+  cell, or inside a link to a Structura topic. `## Sources` is skipped: those are other people's titles.
+
+The check can't tell whether an explanation is good, only that one is there; rules 1, 2 and 4 to 10
+are yours to keep.
 
 ## Asked at (which companies ask a topic)
 

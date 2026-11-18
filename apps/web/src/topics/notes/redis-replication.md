@@ -14,7 +14,7 @@
 
 ## How replication works
 
-A replica starts with one line: `replicaof 10.0.1.11 6379`. It connects to the primary and says how much it already has with **PSYNC**, sending two things:
+A replica starts with one line: `replicaof 10.0.1.11 6379`. It connects to the primary and says how much it already has with **`PSYNC`**, sending two things:
 
 - the **replication ID**: a random 40-character name for one history of the dataset;
 - the **offset**: how many bytes of that history it has applied.
@@ -77,13 +77,13 @@ sentinel parallel-syncs carts 1
 
 What happens when the primary dies:
 
-1. Each Sentinel PINGs the primary every second. After `down-after-milliseconds` with no valid reply, it marks the primary **subjectively down** (`+sdown`).
+1. Each Sentinel `PINGs` the primary every second. After `down-after-milliseconds` with no valid reply, it marks the primary **subjectively down** (`+sdown`).
 2. It asks the other Sentinels. When the **quorum** (2 here) agree, the primary is **objectively down** (`+odown`).
 3. The Sentinels elect a **leader** for this failover. It needs the votes of a **majority** of all Sentinels, 2 of 3. So a lone Sentinel cut off with the primary can never start a failover.
 4. The leader picks a replica: the lowest `replica-priority` first (0 means never), then the highest replication offset, then the smallest run ID. It sends that replica `REPLICAOF NO ONE`.
 5. It points the other replicas at the new primary and announces `+switch-master`. Clients that ask `SENTINEL get-master-addr-by-name carts` get the new address.
 
-The other replicas don't need a full sync. The new primary keeps the old replication ID as a second ID (`master_replid2`), so they can continue with PSYNC. With these settings the whole failover takes about 6 s.
+The other replicas don't need a full sync. The new primary keeps the old replication ID as a second ID (`master_replid2`), so they can continue with `PSYNC`. With these settings the whole failover takes about 6 s.
 
 ## Redis Cluster: sharding with failover
 
@@ -109,8 +109,8 @@ On the minority side of a network split, a primary stops accepting writes once `
 
 To rebalance, you move slots between shards (`redis-cli --cluster reshard`, or `rebalance`). Clients see two kinds of redirect:
 
-- **ASK**, while a slot is moving. The old owner has already sent this key to the new one, so it replies `-ASK 5712 10.0.1.23:6379`. The client sends `ASKING` and the command to the new node, just this once.
-- **MOVED**, after the move. `-MOVED 5712 10.0.1.23:6379` means the slot lives there now. The client updates its slot map.
+- **`ASK`**, while a slot is moving. The old owner has already sent this key to the new one, so it replies `-ASK 5712 10.0.1.23:6379`. The client sends `ASKING` and the command to the new node, just this once.
+- **`MOVED`**, after the move. `-MOVED 5712 10.0.1.23:6379` means the slot lives there now. The client updates its slot map.
 
 Cluster clients (node-redis `createCluster`, Jedis `RedisClusterClient`, `redis-cli -c`) handle both for you.
 
@@ -136,11 +136,11 @@ Cluster clients (node-redis `createCluster`, Jedis `RedisClusterClient`, `redis-
 
 **Q: How does a Redis replica catch up after a disconnect?**
 
-A: It sends PSYNC with the replication ID and the offset it reached. If that offset is still in the primary's replication backlog, the primary replies +CONTINUE and sends just the missing bytes. If not, or if the replica knows a different history, the primary replies +FULLRESYNC: it forks, sends a snapshot of the whole dataset, then streams the writes it buffered meanwhile. Size the backlog so normal disconnects stay partial.
+A: It sends `PSYNC` with the replication ID and the offset it reached. If that offset is still in the primary's replication backlog, the primary replies +CONTINUE and sends just the missing bytes. If not, or if the replica knows a different history, the primary replies +FULLRESYNC: it forks, sends a snapshot of the whole dataset, then streams the writes it buffered meanwhile. Size the backlog so normal disconnects stay partial.
 
 **Q: Why can Redis lose a write it acknowledged?**
 
-A: Replication is asynchronous. The primary replies before the replicas have the write, so if the primary dies, the writes in that gap (a few milliseconds' worth) are gone after the failover. A network split can lose more: the old primary keeps accepting writes until min-replicas-to-write or cluster-node-timeout stops it. WAIT shrinks the window, but Redis never gives a hard guarantee.
+A: Replication is asynchronous. The primary replies before the replicas have the write, so if the primary dies, the writes in that gap (a few milliseconds' worth) are gone after the failover. A network split can lose more: the old primary keeps accepting writes until min-replicas-to-write or cluster-node-timeout stops it. `WAIT` shrinks the window, but Redis never gives a hard guarantee.
 
 **Q: What are Sentinel's quorum and majority?**
 
@@ -148,7 +148,7 @@ A: The quorum is how many Sentinels must agree the primary is unreachable before
 
 **Q: How does a client find the right node in Redis Cluster?**
 
-A: It computes CRC16(key) mod 16384 to get the slot, using only the hash tag inside {} if there is one. It looks the slot up in its slot map and sends the command to that primary. If the map is out of date, the node replies MOVED with the right address and the client refreshes. During a slot migration it may get ASK, which means "send ASKING and the command there, this once".
+A: It computes `CRC16(key) mod 16384` to get the slot (CRC16 is a 16-bit checksum), using only the hash tag inside {} if there is one. It looks the slot up in its slot map and sends the command to that primary. If the map is out of date, the node replies `MOVED` with the right address and the client refreshes. During a slot migration it may get `ASK`, which means "send `ASKING` and the command there, this once".
 
 **Q: Sentinel or Cluster for 10 GB of sessions? For 500 GB?**
 
@@ -160,7 +160,7 @@ A: That shard's slots have no owner. With the default cluster-require-full-cover
 
 ## Related topics
 
-- [Redis Persistence and Replication](/?topic=redis-persistence&read): RDB, the AOF, and what each failure loses from the disk.
+- [Redis Persistence and Replication](/?topic=redis-persistence&read): RDB (Redis's snapshot file), the AOF (Redis's append-only file), and what each failure loses from the disk.
 - [Distributed Cache](/?topic=distributed-cache&read): cache-aside on a Redis cluster, with eviction and stampedes.
 - [Consistent Hashing](/?topic=consistent-hashing&read): the other way to spread keys, with a hash ring.
 - [Leader Election (Raft)](/?topic=leader-election&read): elections with terms and majorities, like Sentinel's and Cluster's.

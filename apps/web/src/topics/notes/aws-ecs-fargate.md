@@ -15,10 +15,10 @@ Builds on [Docker](/?topic=docker-vs-vm&read), [VPC Networking](/?topic=aws-vpc&
 | Task definition | A versioned recipe: containers, size, roles, network mode | `orders-api:42` (family:revision) |
 | Task | One running copy of a task definition | `arn:aws:ecs:…:task/prod/4c1e…` |
 | Service | Keeps N tasks running, registers them with the load balancer, deploys new versions | `orders-api`, desired count 2 |
-| Launch type / capacity provider | Where tasks run: Fargate, Fargate Spot, or your own EC2 instances | `FARGATE` |
+| Launch type / capacity provider | Where tasks run: Fargate, Fargate Spot, or your own EC2 (Elastic Compute Cloud: AWS's virtual servers) instances | `FARGATE` |
 | Task role | AWS permissions for **your code** | Write to the `Orders` table |
 | Execution role | AWS permissions for **ECS**, to start the task | Pull from ECR, write logs, read secrets |
-| `awsvpc` networking | Each task gets its own ENI and private IP | Security groups per task |
+| `awsvpc` networking | Each task gets its own ENI (elastic network interface: a network card) and private IP | Security groups per task |
 | Service Connect / Cloud Map | Service-to-service discovery by name | `http://payments:3000` |
 
 ---
@@ -52,14 +52,14 @@ Three things follow from this:
 
 - **You pay per task, not per machine.** You pay for the task's size while it runs: from when the image download starts until the task stops, by the second, with a 1-minute minimum on Linux. A 0.5 vCPU / 1 GB task costs about $0.025 an hour in us-east-1 (see "Task sizes and what they cost" below).
 - **Each task is walled off.** A Fargate task doesn't share its kernel, CPU, memory or network card with any other task. Each one gets its own network card (ENI) and private IP in your subnet.
-- **Some things aren't possible.** No GPUs, no privileged containers, no logging in to the host, and at most 16 vCPU and 120 GB per task. For those, use the EC2 launch type.
+- **Some things aren't possible.** No GPUs (graphics processors), no privileged containers, no logging in to the host, and at most 16 vCPU and 120 GB per task. For those, use the EC2 launch type.
 
 | | You look after | AWS looks after |
 | --- | --- | --- |
 | ECS on EC2 | The image, the task definition, **and the EC2 instances**: type, OS patches, scaling, free room | Placing tasks on your instances |
 | ECS on Fargate | The image and the task definition: size, roles, network | Placing tasks **and the machines they run on** |
 
-Fargate isn't only for ECS: it can also run Kubernetes pods on EKS, in the same way.
+Fargate isn't only for ECS: it can also run Kubernetes pods on EKS (Elastic Kubernetes Service), in the same way.
 
 ---
 
@@ -67,7 +67,7 @@ Fargate isn't only for ECS: it can also run Kubernetes pods on EKS, in the same 
 
 | | ECS on Fargate | ECS on EC2 | EKS | Lambda |
 | --- | --- | --- | --- | --- |
-| You manage | Task definitions only | Plus the instances: AMIs, patching, scaling | Kubernetes itself, plus nodes (or Fargate) | Functions only |
+| You manage | Task definitions only | Plus the instances: AMIs (Amazon Machine Images: the disk images servers start from), patching, scaling | Kubernetes itself, plus nodes (or Fargate) | Functions only |
 | Billed | Per task vCPU and GB, per second | Per instance, whatever runs on it | Control plane per hour plus nodes | Per request and GB-second |
 | Good for | Most web services and workers | GPUs, very large tasks, dense packing with Savings Plans | Teams already on Kubernetes, its ecosystem, portability | Spiky, event-driven, short work |
 | Limits | No GPUs, no privileged containers; max 16 vCPU / 120 GB per task | You run the fleet | More moving parts | 15-minute limit, cold starts |
@@ -81,10 +81,10 @@ For a small team shipping web services, **ECS on Fargate** is the shortest path 
 1. **Build and push** the image to ECR, tagged with the git commit.
 2. **Register** a new task definition revision that points at that tag.
 3. **Update the service** to the new revision.
-4. The ECS scheduler picks subnets across your AZs and asks Fargate for capacity.
+4. The ECS scheduler picks subnets across your AZs (Availability Zones: separate data centres in a region) and asks Fargate for capacity.
 5. Fargate attaches an **ENI** (a network interface with a private IP) from your subnet to the task.
 6. ECS uses the **execution role** to pull the image from ECR and fetch secrets, then starts the containers.
-7. When the container is running, the service **registers the task's IP** in the target group; the ALB health check must pass before it gets traffic.
+7. When the container is running, the service **registers the task's IP** in the target group; the ALB (Application Load Balancer) health check must pass before it gets traffic.
 8. Logs from stdout and stderr go to **CloudWatch Logs** through the `awslogs` driver.
 
 In the topic's simulator, steps 4 to 7 take about **2 minutes**, and that start-up time is what limits how fast the service can react to a spike.
@@ -135,11 +135,11 @@ In the topic's simulator, steps 4 to 7 take about **2 minutes**, and that start-
 | `cpu`, `memory` | Task size, in CPU units (1,024 = 1 vCPU) and MiB; must be a valid Fargate pair |
 | `runtimePlatform` | `ARM64` runs on Graviton, about 20% cheaper; the image must be built for arm64 |
 | `executionRoleArn` | Lets ECS pull from ECR, write logs and read the `secrets` |
-| `taskRoleArn` | What your code may call: DynamoDB, S3, SQS… |
+| `taskRoleArn` | What your code may call: DynamoDB, S3 (Simple Storage Service), SQS (Simple Queue Service)… |
 | `image` | Pin a commit tag or digest, never `latest` |
 | `secrets` | Injected as environment variables **when the task starts**; a rotated secret needs new tasks |
 | `essential` | If this container stops, the whole task stops |
-| `stopTimeout` | Seconds between SIGTERM and SIGKILL (Fargate allows up to 120) |
+| `stopTimeout` | Seconds between `SIGTERM` and `SIGKILL` (Fargate allows up to 120) |
 
 ---
 
@@ -200,7 +200,7 @@ Smaller tasks scale in finer steps; bigger tasks waste less on per-task overhead
 ## Networking and the two roles
 
 - `awsvpc` mode: every task has its **own private IP and security group**. The API tasks' security group accepts the app port only from the ALB's security group.
-- Tasks run in **private subnets** with no public IP. To pull images and send logs they need a way out: a **NAT gateway**, or VPC endpoints for `ecr.api`, `ecr.dkr`, `logs`, `secretsmanager`, plus the **S3 gateway endpoint** (image layers are stored in S3).
+- Tasks run in **private subnets** with no public IP. To pull images and send logs they need a way out: a **NAT gateway** (network address translation: it lets private servers reach out), or VPC endpoints for `ecr.api`, `ecr.dkr`, `logs`, `secretsmanager`, plus the **S3 gateway endpoint** (image layers are stored in S3).
 - One IP per task: **size subnets for twice the maximum task count**, because a rolling deploy runs old and new side by side.
 
 | | Execution role | Task role |
@@ -300,7 +300,7 @@ resource "aws_ecs_service" "api" {
 
 ### Graceful shutdown
 
-When a task is stopped, ECS deregisters it from the target group (the ALB stops sending new requests and waits up to the **deregistration delay**), sends **SIGTERM**, waits `stopTimeout`, then **SIGKILL**. Handle SIGTERM in the app (stop accepting, finish in-flight, exit), and set the target group's deregistration delay to a little more than your longest request rather than the default 300 s.
+When a task is stopped, ECS deregisters it from the target group (the ALB stops sending new requests and waits up to the **deregistration delay**), sends **`SIGTERM`**, waits `stopTimeout`, then **`SIGKILL`**. Handle `SIGTERM` in the app (stop accepting, finish in-flight, exit), and set the target group's deregistration delay to a little more than your longest request rather than the default 300 s.
 
 ---
 
@@ -309,7 +309,7 @@ When a task is stopped, ECS deregisters it from the target group (the ALB stops 
 | Stopped reason | Usually means | Fix |
 | --- | --- | --- |
 | `CannotPullContainerError` | No route to ECR (no NAT or endpoints), wrong image tag, or the execution role can't read the repo | Check routes, the tag, and the execution role |
-| `ResourceInitializationError: unable to pull secrets` | The execution role can't read the secret, or no route to Secrets Manager | Permissions on the secret (and its KMS key), endpoint or NAT |
+| `ResourceInitializationError: unable to pull secrets` | The execution role can't read the secret, or no route to Secrets Manager | Permissions on the secret and its KMS key (Key Management Service: AWS's encryption keys), endpoint or NAT |
 | `Essential container in task exited` (exit 1) | The app crashed on start | Read its CloudWatch logs: often a missing environment variable |
 | `OutOfMemoryError: Container killed due to memory usage` (exit 137) | Over the task's memory | More memory, or cap Node's heap below it |
 | `Task failed ELB health checks` | The health check path, port or timing is wrong, or the app is slow to start | Health check grace period, the right path, a shallow `/status` |
@@ -353,7 +353,7 @@ Need test traffic, gradual shift and instant rollback?       → blue/green (Cod
 - Private subnets with **no NAT and no endpoints**: every task fails with `CannotPullContainerError`.
 - **/24 subnets** for a service that scales to hundreds of tasks: deploys stick in `PENDING`.
 - No **circuit breaker**: a bad image is retried for hours.
-- No SIGTERM handling, or a 300 s deregistration delay on a fast API: slow deploys and dropped requests.
+- No `SIGTERM` handling, or a 300 s deregistration delay on a fast API: slow deploys and dropped requests.
 - A health check that calls the database: one slow query marks every task unhealthy.
 - Building an **x86 image** for an `ARM64` task (or the reverse): `exec format error`.
 - **No maximum** on auto scaling, or one higher than the database can take.
@@ -387,7 +387,7 @@ A: Application Auto Scaling changes the service's desired count based on a targe
 
 **Q: How do you deploy without downtime?**
 
-A: Rolling update with minimum healthy 100% and maximum 200%: new tasks start and pass health checks before old ones stop. Add the deployment circuit breaker with rollback for releases that can't start. Handle SIGTERM and tune the deregistration delay. For gradual exposure with instant rollback, use blue/green with alarms.
+A: Rolling update with minimum healthy 100% and maximum 200%: new tasks start and pass health checks before old ones stop. Add the deployment circuit breaker with rollback for releases that can't start. Handle `SIGTERM` and tune the deregistration delay. For gradual exposure with instant rollback, use blue/green with alarms.
 
 **Q: Your tasks keep stopping right after they start. How do you debug?**
 

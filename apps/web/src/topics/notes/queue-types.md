@@ -1,6 +1,6 @@
 # Types of Queues
 
-> 💡 **TL;DR**: Every queue holds messages until a worker takes them. What changes is the **promise**. A **standard** queue is fast but keeps order only roughly, and now and then delivers a message twice. A **FIFO** queue keeps order within a **group**, such as one order id. A **priority** queue serves urgent work first. A **delay** queue hides a message until later. **Pub/sub** copies a message to every subscriber, while **point-to-point** gives it to one worker. **Request/reply** sends an answer back. An **in-memory** queue (Redis) trades safety for speed. And a **bounded** queue has a size limit, so you must choose what happens when it's full: the sender waits, gets refused, or the oldest message is dropped.
+> 💡 **TL;DR**: Every queue holds messages until a worker takes them. What changes is the **promise**. A **standard** queue is fast but keeps order only roughly, and now and then delivers a message twice. A **FIFO** (first in, first out) queue keeps order within a **group**, such as one order id. A **priority** queue serves urgent work first. A **delay** queue hides a message until later. **Pub/sub** copies a message to every subscriber, while **point-to-point** gives it to one worker. **Request/reply** sends an answer back. An **in-memory** queue (Redis) trades safety for speed. And a **bounded** queue has a size limit, so you must choose what happens when it's full: the sender waits, gets refused, or the oldest message is dropped.
 
 ## At a glance
 
@@ -9,7 +9,7 @@
 | Standard | Almost no throughput limit; rough order; at least once | Receipt emails | Messages out of order, and the odd duplicate |
 | FIFO | Order within a group; no duplicate sends | Each order's status updates | Lower throughput; one stuck message blocks its group |
 | Priority | Higher priority comes out first | Couriers for Gold members first | Low priority can wait forever |
-| Delay | Hidden until a time | Cancel an unpaid order after 15 minutes | SQS stops at 15 minutes |
+| Delay | Hidden until a time | Cancel an unpaid order after 15 minutes | SQS (Simple Queue Service) stops at 15 minutes |
 | Pub/sub | Every subscriber gets a copy | "Order placed" to tracking, email and couriers | Each subscriber needs its own queue |
 | Request/reply | An answer comes back | Ask the Pricing Service for a fee | The caller waits; set a timeout |
 | In memory (Redis) | Very fast | Resize a menu photo | A crash can lose jobs |
@@ -89,7 +89,7 @@ There are two ways to hand out a message:
 
 Real designs combine them. The Order Service publishes "order placed" once to a **topic**. The topic copies it into three queues: tracking, email and couriers. Each queue then has its own competing workers. This is **fan-out**.
 
-In AWS, the topic is **Amazon SNS** and each subscriber is an SQS queue:
+In AWS, the topic is **Amazon SNS** (Simple Notification Service: pub/sub topics) and each subscriber is an SQS queue:
 
 ```bash
 aws sns subscribe \
@@ -277,7 +277,7 @@ A: For quick jobs that can be redone, where speed matters more than never losing
 - [Distributed Message Queue](/?topic=message-queue&read): visibility timeouts, acks and dead-letter queues inside one queue.
 - [Kafka Basics](/?topic=kafka-basics&read): a log instead of a queue, with partitions and consumer groups.
 - [Retries: Backoff and Jitter](/?topic=retry-backoff&read): how workers should retry a failed job.
-- [Notification System](/?topic=notification-system&read): fan-out and priorities for push, email and SMS.
+- [Notification System](/?topic=notification-system&read): fan-out and priorities for push, email and SMS (text message).
 - [Redis Basics](/?topic=redis-basics&read): lists, sorted sets and streams.
 - [Idempotent Payments](/?topic=payment-idempotency&read): handlers that are safe to run twice.
 

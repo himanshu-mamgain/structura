@@ -13,7 +13,7 @@ Related: [Rate Limiter](/?topic=rate-limiter&read), [Load Balancer](/?topic=load
 | Main job | Spread traffic over copies of one service | Sit in front of servers, hide them, terminate TLS | Be the front door of an API |
 | Looks at | IP and port, or the HTTP host and path | HTTP requests | Tokens, API keys, routes, plans |
 | Typical extras | Health checks | Caching, compression | Auth, rate limits, routing, retries, circuit breaking |
-| Example | AWS ALB, HAProxy | Nginx | Kong, AWS API Gateway, Envoy-based gateways |
+| Example | AWS ALB (Application Load Balancer), HAProxy | Nginx | Kong, AWS API Gateway, Envoy-based gateways |
 
 They overlap, and one product can do all three. A common set-up is a load balancer in front of several gateway copies.
 
@@ -22,7 +22,7 @@ They overlap, and one product can do all three. A common set-up is a load balanc
 ## The life of one request
 
 1. **Request.** The app sends `GET /v1/orders/42` with a bearer token.
-2. **Token check.** The gateway verifies the JWT signature with a cached public key, then the `exp` time and the scope. Fail: **401**.
+2. **Token check.** The gateway verifies the JWT (JSON Web Token: a signed token that says who the caller is) signature with a cached public key, then the `exp` time and the scope. Fail: **401**.
 3. **Rate limit.** The user's counter goes up. Over the limit: **429** with `Retry-After`.
 4. **Route.** The longest matching path prefix gives the service, its timeout and its retry rule.
 5. **Cache.** For a safe GET, a fresh copy is returned at once. A stale copy is kept for step 7.
@@ -85,7 +85,7 @@ async function callOrders(req) {
 
 1. **No timeout.** A hung service then holds a connection forever. Always set one, per route.
 2. **Retrying POST.** A retry can create a second order or payment. Retry only safe methods, or use an idempotency key.
-3. **Retries without a limit.** Three layers that each retry 3 times send 27 calls for one request. Retry in one place, once or twice, with a pause.
+3. **Retries without a limit.** Three layers that each make 3 tries send up to 3 × 3 × 3 = 27 calls for one request. Retry in one place, once or twice, with a pause.
 4. **Business logic in the gateway.** It becomes a bottleneck that every team must change. Keep policy in the gateway and rules in services.
 5. **Trusting the gateway only.** Services still decide what a user may do with each record. A gateway check on the route is not enough.
 6. **A single gateway copy.** It is on every path. Run three or more, in different zones.
@@ -113,6 +113,26 @@ A: Yes, so it is built to be replaceable. It keeps no state, runs as several cop
 
 **Q: How do you capacity-plan it?**
 A: Take peak requests per second and divide by what one copy handles. At 30,000 a second and 8,000 per copy, that is 3.75, so 4 copies, plus 1 spare for failure: 5.
+
+---
+
+## Related topics
+
+- [Rate Limiter](/?topic=rate-limiter&read): the limit check the gateway runs on every request.
+- [Circuit Breaker and Resilience Patterns](/?topic=circuit-breaker&read): timeouts, breakers, bulkheads and fallbacks in depth.
+- [Retries: Backoff and Jitter](/?topic=retry-backoff&read): which calls to retry, and how long to wait.
+- [Load Balancer](/?topic=load-balancer&read): what sits in front of the gateway copies.
+- [Role-Based Access Control](/?topic=rbac&read): what a user may do once the gateway knows who they are.
+- [Idempotent Payments](/?topic=payment-idempotency&read): making a retried POST safe.
+- [LLM Gateway](/?topic=llm-gateway&read): the same idea for calls to AI models.
+
+## Sources
+
+- Martin Fowler: [CircuitBreaker](https://martinfowler.com/bliki/CircuitBreaker.html)
+- Microsoft Azure Architecture Center: [Gateway Offloading pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/gateway-offloading) and [Backends for Frontends pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)
+- Envoy docs: [Circuit breaking](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/circuit_breaking)
+- Amazon API Gateway: [Developer Guide](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html)
+- RFC 7519: [JSON Web Token](https://www.rfc-editor.org/rfc/rfc7519)
 
 ---
 

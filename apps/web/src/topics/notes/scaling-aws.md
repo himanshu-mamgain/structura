@@ -1,6 +1,6 @@
 # Scaling to Millions of Users on AWS: Five Stages, One Bottleneck at a Time
 
-> 💡 **TL;DR**: Nobody starts with a giant system. Start with **one server**, then add one idea each time a number you **measure** runs out. Move the **database** to its own managed server. Put a **load balancer** in front of several **stateless** servers (they keep nothing about users in memory) across zones, with sessions in a **cache**, **read-only copies** of the database, and a **CDN** for files. Add **Auto Scaling**, split the web and API servers, and move slow work to **queues and workers**. Only at the very top, **split the database into shards** or move the busiest data to **DynamoDB**. Measure, find the slowest part, fix that one thing, and repeat.
+> 💡 **TL;DR**: Nobody starts with a giant system. Start with **one server**, then add one idea each time a number you **measure** runs out. Move the **database** to its own managed server. Put a **load balancer** in front of several **stateless** servers (they keep nothing about users in memory) across zones, with sessions in a **cache**, **read-only copies** of the database, and a **CDN** (content delivery network: servers near users that cache content) for files. Add **Auto Scaling**, split the web and API servers, and move slow work to **queues and workers**. Only at the very top, **split the database into shards** or move the busiest data to **DynamoDB**. Measure, find the slowest part, fix that one thing, and repeat.
 
 Builds on [AWS Basics](/?topic=aws-basics&read). Each stage leans on another topic: [Application Load Balancer](/?topic=aws-alb&read), [Distributed Cache](/?topic=distributed-cache&read), [Database Sharding](/?topic=database-sharding&read).
 
@@ -10,10 +10,10 @@ Builds on [AWS Basics](/?topic=aws-basics&read). Each stage leans on another top
 
 | Stage | Users | What breaks first | What you add |
 | --- | --- | --- | --- |
-| 1 | Up to ~10,000 | Nothing yet; one box is fine | One EC2 instance with the app and the database, DNS, backups |
-| 2 | ~10,000 to 100,000 | App and database fight for the same CPU, memory and disk | RDS for the database, S3 for files, a private subnet |
-| 3 | ~100,000 to 1 million | One web server can't keep up; the database is mostly busy with reads | Load balancer, 2+ stateless servers in 2 AZs, ElastiCache, read replicas, CloudFront |
-| 4 | ~1 to 10 million | Traffic swings; slow work blocks requests; one tier needs scaling separately | Auto Scaling, separate web and API tiers, SQS and workers, monitoring and alarms |
+| 1 | Up to ~10,000 | Nothing yet; one box is fine | One EC2 (Elastic Compute Cloud: AWS's virtual servers) instance with the app and the database, DNS, backups |
+| 2 | ~10,000 to 100,000 | App and database fight for the same CPU, memory and disk | RDS (Relational Database Service: managed Postgres or MySQL) for the database, S3 (Simple Storage Service) for files, a private subnet |
+| 3 | ~100,000 to 1 million | One web server can't keep up; the database is mostly busy with reads | Load balancer, 2+ stateless servers in 2 AZs (Availability Zones: separate data centres in a region), ElastiCache, read replicas, CloudFront |
+| 4 | ~1 to 10 million | Traffic swings; slow work blocks requests; one tier needs scaling separately | Auto Scaling, separate web and API tiers, SQS (Simple Queue Service) and workers, monitoring and alarms |
 | 5 | 10 million+ | Every write still goes to one primary database | Federation, sharding, denormalisation, DynamoDB for simple hot data |
 
 The user counts are rough guides. What moves you to the next stage is a **number** (CPU, p99 latency, connections, replica lag, error rate), not a headcount.
@@ -46,8 +46,8 @@ Users → Route 53 → Elastic IP → EC2 (Nginx + Node + Postgres) → EBS
 
 - One EC2 instance runs everything. An **Elastic IP** keeps its address when you replace it; **Route 53** points your domain at it.
 - **Scale up** (a bigger instance type) when it's busy: the simplest fix there is, and often good for a long time.
-- Turn on **EBS snapshots** (daily backups) from the first day.
-- Security group: 443 and 80 open; SSH through SSM Session Manager, not port 22.
+- Turn on **EBS (Elastic Block Store: a disk for one server) snapshots** (daily backups) from the first day.
+- Security group: 443 and 80 open; SSH (secure shell: a remote login) through SSM (AWS Systems Manager) Session Manager, not port 22.
 
 What it can't do: survive the instance or its AZ failing, or grow past the largest instance.
 
@@ -120,7 +120,7 @@ ALB ─► Web tier (Auto Scaling) ─► API tier (Auto Scaling)
 CloudWatch: p99 latency, 5xx rate, CPU, queue age, replica lag → alarms
 ```
 
-- **Auto Scaling groups** (or ECS services) for each tier, with **target tracking** (say average CPU 50 to 70%, or requests per target). Minimum 2, in different AZs.
+- **Auto Scaling groups**, or ECS (Elastic Container Service) services, for each tier, with **target tracking** (say average CPU 50 to 70%, or requests per target). Minimum 2, in different AZs.
 - **Split tiers** that scale differently: the web tier (pages), the API tier (business logic), workers (background jobs).
 - **Queues** for anything slow or failure-prone: emails, image resizing, payments webhooks, reports. The request returns at once; a worker does the job.
 - **Monitoring** becomes a requirement: you can't scale what you can't see.
@@ -183,7 +183,7 @@ export function shardFor(userId) {
 
 | Problem | What happens | Fix |
 | --- | --- | --- |
-| Stale data | Cache serves an old value after a write | Delete or update the key on write; short TTLs for things that change |
+| Stale data | Cache serves an old value after a write | Delete or update the key on write; short TTLs (times to live: how long each value is kept) for things that change |
 | Stampede | A hot key expires and 1,000 requests hit the database at once | A lock so one request refills it, or refresh before expiry |
 | Cache node dies | The whole read load lands on the database | Replicas in ElastiCache, headroom on the database, rate limits |
 | Cold start after deploy | Empty cache, slow first minutes | Warm the hottest keys; don't flush on every deploy |
@@ -212,7 +212,7 @@ Users on other continents, or region-level failure?     → multi-region (see di
 - Scaling without **measuring**: adding servers when the database is the bottleneck.
 - **Sessions in server memory**: users get logged out whenever a server goes or the load balancer switches them.
 - Writing user uploads to the **server's disk** instead of S3.
-- **One AZ** for everything, or one NAT gateway for all zones.
+- **One AZ** for everything, or one NAT gateway (network address translation: it lets private servers reach out) for all zones.
 - Reading from a **replica right after a write** and showing the user stale data.
 - Cache keys with **no TTL** and no invalidation: stale data forever.
 - Doing slow work **inside the request** (emails, PDFs, image processing).
@@ -227,11 +227,11 @@ Users on other continents, or region-level failure?     → multi-region (see di
 
 **Q: How would you design a system that scales to millions of users on AWS?**
 
-A: Start simple and evolve on measurements. One instance; then RDS for the database and S3 for files; then an ALB over stateless servers in two AZs, sessions in ElastiCache, read replicas and CloudFront; then Auto Scaling, separate web and API tiers, SQS with workers and proper monitoring; and at the top, federation, sharding or DynamoDB to scale writes. At each step, say which number told you to move on.
+A: Start simple and evolve on measurements. One instance; then RDS for the database and S3 for files; then an ALB (Application Load Balancer) over stateless servers in two AZs, sessions in ElastiCache, read replicas and CloudFront; then Auto Scaling, separate web and API tiers, SQS with workers and proper monitoring; and at the top, federation, sharding or DynamoDB to scale writes. At each step, say which number told you to move on.
 
 **Q: How do you know it's time to move to the next stage?**
 
-A: A metric crosses a line you set: CPU or memory sustained over about 70%, p99 latency over your target, database connections or IOPS near the limit, replica lag growing, error rate rising, or queue age climbing. Load test to find the next bottleneck before users do.
+A: A metric crosses a line you set: CPU or memory sustained over about 70%, p99 latency over your target, database connections or IOPS (input/output operations per second) near the limit, replica lag growing, error rate rising, or queue age climbing. Load test to find the next bottleneck before users do.
 
 **Q: What breaks if web servers keep sessions in memory?**
 

@@ -2,7 +2,7 @@
 
 > 💡 **TL;DR**: A **container** is your app running as a normal program on a shared Linux kernel (the core of the operating system), with walls around it. It brings its own files and libraries, but not its own operating system, so it's small and starts in about a second. An **image** is the read-only template a container starts from: a stack of cached **layers** plus a start command. You write the recipe for an image in a **Dockerfile**. Data that must survive goes in a **volume**. Containers on the same **network** find each other by name, and one **Compose** file starts a whole set of them. A **virtual machine** is the heavier cousin: it boots a whole operating system with its own kernel. That makes it slower and bigger, but its walls are stronger.
 
-This is where the roadmap starts: everything later (ECS, Kubernetes, CI/CD) runs these images. Next, [ECS on Fargate](/?topic=aws-ecs-fargate&read) runs them on AWS.
+This is where the roadmap starts: everything later, such as ECS (Elastic Container Service), Kubernetes and CI/CD (continuous integration and delivery), runs these images. Next, [ECS on Fargate](/?topic=aws-ecs-fargate&read) runs them on AWS.
 
 ---
 
@@ -14,7 +14,7 @@ This is where the roadmap starts: everything later (ECS, Kubernetes, CI/CD) runs
 | Container | A running (or stopped) instance of an image: an isolated process plus a thin writable layer | `docker run`, `docker ps` |
 | Dockerfile | The recipe that builds an image, one instruction per line | `FROM`, `RUN`, `COPY`, `CMD` |
 | Layer | The filesystem change made by one instruction, cached and shared between images | `docker history shop/api:1.4` |
-| Registry | Where images are stored and shared | Docker Hub, Amazon ECR, GitHub Container Registry |
+| Registry | Where images are stored and shared | Docker Hub, Amazon ECR (Elastic Container Registry: AWS's store for Docker images), GitHub Container Registry |
 | Tag / digest | A movable name / an unchangeable content hash | `shop/api:1.4` / `shop/api@sha256:4c2e…` |
 | Volume | Storage that outlives the container | `-v pgdata:/var/lib/postgresql/data` |
 | Network | How containers reach each other and the outside world | `-p 8080:3000`, `docker network create` |
@@ -26,7 +26,7 @@ This is where the roadmap starts: everything later (ECS, Kubernetes, CI/CD) runs
 
 The classic bug report: "it works on my machine". Your laptop has Node 22, the server has Node 18. Your laptop has one OpenSSL, the server another. A system library is missing, an environment variable is set differently.
 
-A container image packs the app **and everything it needs except the kernel**: the runtime, system libraries, your `node_modules`, config defaults and the start command. The same image then runs the same way on your laptop, in CI and in production. Deploying stops meaning "set up the server" and becomes "run this image".
+A container image packs the app **and everything it needs except the kernel**: the runtime, system libraries, your `node_modules`, config defaults and the start command. The same image then runs the same way on your laptop, in CI (continuous integration: the server that builds and tests every change) and in production. Deploying stops meaning "set up the server" and becomes "run this image".
 
 ---
 
@@ -47,14 +47,14 @@ Virtual machines                          Containers
 | | Virtual machine | Container |
 | --- | --- | --- |
 | What is virtualised | The hardware: CPU, memory, disk, network card | The operating system's view: processes, files, network, hostname |
-| Kernel | Its own, one per VM | Shared with the host |
+| Kernel | Its own, one per VM (virtual machine) | Shared with the host |
 | Size | Gigabytes (a whole OS) | Megabytes to a few hundred MB |
 | Start time | Tens of seconds to minutes: it boots an OS | Usually under a second: it starts a process |
 | Isolation | Strong: the hypervisor is a small, hard boundary | Weaker: a kernel bug can reach the host |
 | Density | Tens per server | Hundreds per server |
 | Runs | Any OS (Windows on a Linux host, and so on) | Linux containers need a Linux kernel |
 
-- A **hypervisor** splits one physical machine into VMs. Type 1 runs on the hardware (KVM, ESXi, Hyper-V, Xen; EC2 runs on AWS's KVM-based Nitro). Type 2 runs as an app on your OS (VirtualBox, VMware Workstation).
+- A **hypervisor** splits one physical machine into VMs. Type 1 runs on the hardware: KVM (Kernel-based Virtual Machine), ESXi, Hyper-V or Xen. EC2 (Elastic Compute Cloud), AWS's virtual servers, runs on AWS's KVM-based Nitro. Type 2 runs as an app on your OS (VirtualBox, VMware Workstation).
 - On a Mac or Windows laptop, **Docker Desktop runs a small Linux VM** and your containers run inside it. That's why file mounts there are slower than on Linux.
 - In the cloud, containers usually run **inside VMs** anyway: an EC2 instance hosts the containers. You get the VM's isolation between customers and the container's speed inside.
 - **Sandboxes** sit in between. Firecracker microVMs (built by AWS for Lambda) and Kata Containers give each container its own tiny VM; gVisor puts a kernel written in user space in front of it. They start almost as fast as containers and are what you use to run untrusted code.
@@ -69,7 +69,7 @@ A container is not a special object in the kernel. It is an ordinary process sta
 
 | Namespace | Gives the container its own… | So that |
 | --- | --- | --- |
-| `pid` | Process tree | Your app is PID 1 and can't see host processes |
+| `pid` | Process tree | Your app is PID (process ID) 1 and can't see host processes |
 | `net` | Network interfaces, IP address, ports | Two containers can both listen on port 3000 |
 | `mnt` | Filesystem tree | It sees the image's files, not the host's |
 | `uts` | Hostname | `hostname` prints the container id |
@@ -77,7 +77,7 @@ A container is not a special object in the kernel. It is an ordinary process sta
 | `user` | User ids | Root inside can map to an unprivileged user outside (rootless mode) |
 | `cgroup` | View of its cgroup tree | It can't see the host's resource groups |
 
-**cgroups** (control groups) decide what it can **use**: memory, CPU time, number of processes, disk I/O. `--memory 512m` writes `memory.max = 512M`. Go over it and the kernel's OOM killer ends the process (exit code 137).
+**cgroups** (control groups) decide what it can **use**: memory, CPU time, number of processes, disk I/O. `--memory 512m` writes `memory.max = 512M`. Go over it and the kernel's OOM (out of memory) killer ends the process (exit code 137).
 
 **A layered filesystem** (the `overlay2` driver) gives it files: the image's read-only layers stacked up, plus one thin **writable layer** per container. Changing a file from a lower layer first copies it up into the writable layer (**copy-on-write**). Ten containers from one image share the same layers on disk. `docker rm` deletes the writable layer and anything written there.
 
@@ -97,11 +97,11 @@ sudo unshare --pid --fork --mount-proc bash -c 'ps'
 
 ## What happens on docker run
 
-1. The `docker` CLI sends the request to the Docker daemon (`dockerd`) over its API socket, `/var/run/docker.sock`.
+1. The `docker` CLI (command-line tool) sends the request to the Docker daemon (`dockerd`) over its API socket, `/var/run/docker.sock`.
 2. If the image isn't on the machine, the daemon pulls it from the registry: first the **manifest** (the list of layers), then only the layers it doesn't already have, each checked against its sha256 digest.
-3. The layers are stacked with overlayfs into a root filesystem, and the daemon hands an OCI bundle (that filesystem plus a `config.json`) to **containerd**.
+3. The layers are stacked with overlayfs into a root filesystem, and the daemon hands an OCI (Open Container Initiative: the standard image format) bundle (that filesystem plus a `config.json`) to **containerd**.
 4. containerd starts a small **shim**, which runs **runc**. runc creates the namespaces and the cgroup with your limits, switches the root filesystem, drops capabilities and starts your `CMD` as PID 1. Then runc exits. The shim stays as the parent, so restarting the daemon doesn't kill your containers.
-5. Networking: Docker makes a **veth pair**, a virtual cable. One end is `eth0` inside the container (say `172.17.0.2`), the other plugs into the `docker0` bridge. `-p 8080:3000` adds a NAT rule: traffic to the host's port 8080 goes to the container's port 3000.
+5. Networking: Docker makes a **veth pair**, a virtual cable. One end is `eth0` inside the container (say `172.17.0.2`), the other plugs into the `docker0` bridge. `-p 8080:3000` adds a NAT (network address translation) rule: traffic to the host's port 8080 goes to the container's port 3000.
 6. Whatever the app writes to stdout and stderr goes to a logging driver (`json-file` by default), which is what `docker logs` reads.
 
 ---
@@ -145,7 +145,7 @@ CMD ["node", "server.js"]   # exec form: node is PID 1 and receives SIGTERM
 CMD node server.js          # shell form: /bin/sh -c is PID 1 and doesn't pass SIGTERM on
 ```
 
-With the shell form, `docker stop` sends SIGTERM to the shell, the shell ignores it, and after 10 seconds Docker sends SIGKILL. Every deploy waits 10 s and cuts off requests mid-flight.
+With the shell form, `docker stop` sends `SIGTERM` to the shell, the shell ignores it, and after 10 seconds Docker sends `SIGKILL`. Every deploy waits 10 s and cuts off requests mid-flight.
 
 ### Order layers from least to most often changed
 
@@ -240,7 +240,7 @@ docker build --secret id=npmrc,src=$HOME/.npmrc -t shop/api:1.4 .
 | `-v` | A volume or bind mount | `-v pgdata:/var/lib/postgresql/data` |
 | `--restart` | Restart policy: `no`, `on-failure`, `always`, `unless-stopped` | `--restart unless-stopped` |
 | `--memory`, `--cpus` | Resource limits (cgroups) | `--memory 512m --cpus 1` |
-| `--init` | A tiny init as PID 1 that forwards signals and reaps zombie processes | Apps that don't handle SIGTERM |
+| `--init` | A tiny init as PID 1 that forwards signals and reaps zombie processes | Apps that don't handle `SIGTERM` |
 | `--read-only` | Makes the container's filesystem read-only | Hardening; add `--tmpfs /tmp` |
 | `--network` | Which network to join | `--network shop` |
 
@@ -260,12 +260,12 @@ docker rm api                   # delete it, and its writable layer
 | --- | --- | --- |
 | 0 | The app finished normally | |
 | 1 | The app crashed or exited with an error | `docker logs api` |
-| 137 | 128 + 9: killed with SIGKILL, by the OOM killer or after the stop timeout | `docker inspect api --format '{{.State.OOMKilled}}'` |
-| 143 | 128 + 15: ended by SIGTERM | Usually a normal `docker stop` |
+| 137 | 128 + 9: killed with `SIGKILL`, by the OOM killer or after the stop timeout | `docker inspect api --format '{{.State.OOMKilled}}'` |
+| 143 | 128 + 15: ended by `SIGTERM` | Usually a normal `docker stop` |
 
 ### Shutting down gracefully
 
-The kernel doesn't apply the default "terminate" action to PID 1 in a container: a SIGTERM with no handler is simply ignored. Node installs no SIGTERM handler by default, so handle it yourself (or run with `--init`):
+The kernel doesn't apply the default "terminate" action to PID 1 in a container: a `SIGTERM` with no handler is simply ignored. Node installs no `SIGTERM` handler by default, so handle it yourself (or run with `--init`):
 
 ```javascript
 const server = app.listen(3000);
@@ -421,7 +421,7 @@ Many containers across many machines, with scaling and healing?   → an orchest
 - `COPY . .` before `npm ci`: every code change reinstalls every package.
 - Secrets in `ENV`, `ARG` or a copied `.env`: anyone who can pull the image can read them with `docker history` or `docker inspect`. Pass them at run time, or use build secrets.
 - Running as root: if someone breaks out of the container, they're root on the host. Add `USER`.
-- Shell-form `CMD`, or no SIGTERM handler: every stop waits 10 s and then kills in-flight requests.
+- Shell-form `CMD`, or no `SIGTERM` handler: every stop waits 10 s and then kills in-flight requests.
 - `:latest` in production: you can't tell what's running or roll back. Tag with the commit; deploy by digest.
 - A database in the container's writable layer: gone at `docker rm`. Use a named volume.
 - `localhost` to reach another container: use its service name.
@@ -443,9 +443,9 @@ A: A VM virtualises hardware: a hypervisor gives each VM virtual CPU, memory and
 
 A: Each `RUN`, `COPY` or `ADD` saves its filesystem changes as a layer, cached by the instruction and its inputs. When one layer changes, every layer after it is rebuilt. So put what changes least first: base image, system packages, then the dependency manifest and install, and your source code last. Then a code change rebuilds only the last layer instead of reinstalling every package.
 
-**Q: CMD vs ENTRYPOINT? Exec form vs shell form?**
+**Q: `CMD` vs ENTRYPOINT? Exec form vs shell form?**
 
-A: `ENTRYPOINT` is the executable that always runs; `CMD` is the default command, or default arguments to the entrypoint, and `docker run image …` replaces it. Exec form (`["node", "server.js"]`) runs the program directly as PID 1, so it gets SIGTERM. Shell form (`node server.js`) runs it under `/bin/sh -c`, which doesn't pass signals on, so `docker stop` waits 10 s and kills it.
+A: `ENTRYPOINT` is the executable that always runs; `CMD` is the default command, or default arguments to the entrypoint, and `docker run image …` replaces it. Exec form (`["node", "server.js"]`) runs the program directly as PID 1, so it gets `SIGTERM`. Shell form (`node server.js`) runs it under `/bin/sh -c`, which doesn't pass signals on, so `docker stop` waits 10 s and kills it.
 
 **Q: How is a container isolated from the host and from other containers?**
 
@@ -453,7 +453,7 @@ A: Namespaces limit what it sees (its own process tree, network stack, filesyste
 
 **Q: Your container keeps exiting with code 137. What's happening?**
 
-A: 137 is 128 + 9: the process got SIGKILL. Either the kernel's OOM killer ended it for going over the memory limit (`docker inspect` shows `OOMKilled: true`), or it ignored SIGTERM and Docker killed it after the stop timeout. For memory, raise the limit or cap the heap below it (`--max-old-space-size` for Node) and look for a leak. For stops, handle SIGTERM or run with `--init`.
+A: 137 is 128 + 9: the process got `SIGKILL`. Either the kernel's OOM killer ended it for going over the memory limit (`docker inspect` shows `OOMKilled: true`), or it ignored `SIGTERM` and Docker killed it after the stop timeout. For memory, raise the limit or cap the heap below it (`--max-old-space-size` for Node) and look for a leak. For stops, handle `SIGTERM` or run with `--init`.
 
 **Q: How do you make an image smaller and safer?**
 
@@ -461,7 +461,7 @@ A: Multi-stage builds, so compilers and dev dependencies stay out of the final i
 
 **Q: Where should a database in a container keep its data?**
 
-A: In a named volume mounted at its data directory, for example `/var/lib/postgresql/data` for Postgres 17. The container's writable layer is deleted with the container and is slow for heavy writes. In production, many teams skip running the database in a container at all and use a managed service like RDS.
+A: In a named volume mounted at its data directory, for example `/var/lib/postgresql/data` for Postgres 17. The container's writable layer is deleted with the container and is slow for heavy writes. In production, many teams skip running the database in a container at all and use a managed service like RDS (Relational Database Service: managed Postgres or MySQL).
 
 **Q: Two containers need to talk to each other. How?**
 
@@ -469,7 +469,7 @@ A: Put them on the same user-defined network (Compose does this for you) and use
 
 **Q: Why does docker stop take 10 seconds for my Node app?**
 
-A: `docker stop` sends SIGTERM and waits 10 s before SIGKILL. Your app is PID 1 in its container, and PID 1 ignores a SIGTERM it has no handler for. Node adds no SIGTERM handler by default, and a shell-form `CMD` makes `sh` PID 1, which doesn't pass the signal on. Use exec form, handle SIGTERM (close the server, then exit), or add `--init`.
+A: `docker stop` sends `SIGTERM` and waits 10 s before `SIGKILL`. Your app is PID 1 in its container, and PID 1 ignores a `SIGTERM` it has no handler for. Node adds no `SIGTERM` handler by default, and a shell-form `CMD` makes `sh` PID 1, which doesn't pass the signal on. Use exec form, handle `SIGTERM` (close the server, then exit), or add `--init`.
 
 **Q: Docker vs Kubernetes?**
 
@@ -509,4 +509,4 @@ A: Not by itself, because every container shares the host kernel. For untrusted 
 
 ✅ Knowing that a container is a process on a shared kernel (namespaces, cgroups) explains its speed, its limits and its security trade-off in one go.
 
-✅ Layer order, multi-stage builds, SIGTERM and exit code 137 are what separate "I've run docker" from "I've shipped containers", and interviewers ask exactly these.
+✅ Layer order, multi-stage builds, `SIGTERM` and exit code 137 are what separate "I've run docker" from "I've shipped containers", and interviewers ask exactly these.

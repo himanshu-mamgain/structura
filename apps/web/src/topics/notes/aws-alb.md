@@ -1,6 +1,6 @@
 # Application Load Balancer: Listeners, Rules, Target Groups, Health Checks and 502s
 
-> 💡 **TL;DR**: An **Application Load Balancer** gives many servers or containers one HTTPS address. A **listener** (a port and a protocol) decrypts HTTPS with a certificate from ACM, then checks its **rules** in order: host, path, header, method, query or source IP. The first rule that matches **forwards** the request to a **target group**, redirects it, or sends a fixed answer. Target groups hold servers, IP addresses (ECS tasks) or Lambda functions, and **health checks** decide which ones get traffic. The ALB runs a piece in every zone you give it and grows on its own. Most real trouble comes from three places: a broad rule placed too early that catches everything, health checks that test too much (or too slowly), and idle-connection timeouts that cause **502 errors**.
+> 💡 **TL;DR**: An **Application Load Balancer** gives many servers or containers one HTTPS address. A **listener** (a port and a protocol) decrypts HTTPS with a certificate from ACM (AWS Certificate Manager), then checks its **rules** in order: host, path, header, method, query or source IP. The first rule that matches **forwards** the request to a **target group**, redirects it, or sends a fixed answer. Target groups hold servers, IP addresses or Lambda functions; tasks on ECS (Elastic Container Service) join by their IP address. **Health checks** decide which targets get traffic. The ALB (Application Load Balancer) runs a piece in every zone you give it and grows on its own. Most real trouble comes from three places: a broad rule placed too early that catches everything, health checks that test too much (or too slowly), and idle-connection timeouts that cause **502 errors**.
 
 Builds on [VPC Networking](/?topic=aws-vpc&read): the ALB lives in the public subnets and forwards into the private ones. Next: [ECS on Fargate](/?topic=aws-ecs-fargate&read) registers its tasks here.
 
@@ -10,7 +10,7 @@ Builds on [VPC Networking](/?topic=aws-vpc&read): the ALB lives in the public su
 
 | Type | Layer | Understands | Pick it for |
 | --- | --- | --- | --- |
-| **Application LB** | 7 (HTTP) | Hosts, paths, headers, cookies; HTTP/2, gRPC, WebSockets | Websites and APIs: almost always |
+| **Application LB** (load balancer) | 7 (HTTP) | Hosts, paths, headers, cookies; HTTP/2, gRPC, WebSockets | Websites and APIs: almost always |
 | **Network LB** | 4 (TCP, UDP, TLS) | Connections, not requests | Static IPs, non-HTTP protocols, millions of connections, lowest latency |
 | **Gateway LB** | 3 (IP packets) | Nothing above IP | Sending traffic through firewall appliances |
 | Classic LB | 4 and 7 | A little of both | Nothing new: it's the old generation |
@@ -204,16 +204,16 @@ Watch the green group's 5xx rate and latency in CloudWatch, then move the weight
 
 ## Cost and capacity
 
-- An ALB is billed per hour (about $0.0225 in us-east-1) plus **LCUs** (Load Balancer Capacity Units, about $0.008 per LCU-hour). An LCU-hour is the most you use of any one dimension: 25 new connections a second, 3,000 active connections a minute, 1 GB of traffic an hour to EC2 or IP targets, or 1,000 rule evaluations a second (the first 10 rules are free).
+- An ALB is billed per hour (about $0.0225 in us-east-1) plus **LCUs** (Load Balancer Capacity Units, about $0.008 per LCU-hour). An LCU-hour is the most you use of any one dimension: 25 new connections a second, 3,000 active connections a minute, 1 GB of traffic an hour to EC2 (Elastic Compute Cloud: AWS's virtual servers) or IP targets, or 1,000 rule evaluations a second (the first 10 rules are free).
 - The ALB scales its nodes by itself, in minutes. For a launch or sale with a sudden 10× jump, reserve capacity ahead of time (LCU reservation) instead of hoping it scales fast enough.
-- Access logs: 600 req/s × 86,400 s × about 400 bytes ≈ **20.7 GB a day** in S3. Set a lifecycle rule.
+- Access logs: 600 req/s × 86,400 s × about 400 bytes ≈ **20.7 GB a day** in S3 (Simple Storage Service). Set a lifecycle rule.
 
 ---
 
 ## Security
 
 - The ALB's security group: 443 (and 80 for the redirect) from `0.0.0.0/0`. The targets' security group: the app port **from the ALB's security group only**.
-- Attach **AWS WAF** to block common attacks (SQL injection, bad bots, rate-based rules) before they reach the app.
+- Attach **AWS WAF** (web application firewall) to block common attacks (SQL injection, bad bots, rate-based rules) before they reach the app.
 - `fixed-response` 404 for paths you never serve (`/wp-admin`, `/.env`) keeps scanners off your app.
 - `authenticate-oidc` can put a login in front of an internal tool with no code in the tool.
 - Internal services use an **internal** ALB (private subnets, no public address).
@@ -256,7 +256,7 @@ A: The one with the lower priority number: rules are evaluated in priority order
 
 **Q: How long can a dead target keep getting traffic, and how would you shorten it?**
 
-A: Up to the unhealthy threshold times the interval: with the defaults, 2 × 30 s = 60 s. Lower the interval and threshold (say 10 s × 3 = 30 s) to detect sooner, at the cost of reacting to short pauses, such as a GC pause. Pair it with client retries for idempotent requests.
+A: Up to the unhealthy threshold times the interval: with the defaults, 2 × 30 s = 60 s. Lower the interval and threshold (say 10 s × 3 = 30 s) to detect sooner, at the cost of reacting to short pauses, such as a GC (garbage collection) pause. Pair it with client retries for idempotent requests.
 
 **Q: Why does an ALB route to unhealthy targets when they're all unhealthy?**
 
@@ -264,7 +264,7 @@ A: Fail-open. If every target fails, it's more likely the health check is wrong 
 
 **Q: When would you choose a Network Load Balancer instead?**
 
-A: For non-HTTP protocols (TCP, UDP, TLS passthrough), when clients need static IP addresses to allow-list, when you need the client's source IP preserved at the target, or for very high connection counts at the lowest latency. NLBs don't route by path or host.
+A: For non-HTTP protocols (TCP, UDP, TLS passthrough), when clients need static IP addresses to allow-list, when you need the client's source IP preserved at the target, or for very high connection counts at the lowest latency. NLBs (Network Load Balancers) don't route by path or host.
 
 **Q: How do you send 5% of real traffic to a new version?**
 
@@ -272,7 +272,7 @@ A: A forward action with weighted target groups: the current version's group at 
 
 **Q: Deploys cause a burst of 502 errors. What would you look at?**
 
-A: Tasks being stopped before they're deregistered (stop timeout shorter than in-flight work, no SIGTERM handling), keep-alive timeouts on the app shorter than the ALB's idle timeout, new tasks registered before they're ready (health check passes too early), and the access logs to see whether the target returned anything.
+A: Tasks being stopped before they're deregistered (stop timeout shorter than in-flight work, no `SIGTERM` handling), keep-alive timeouts on the app shorter than the ALB's idle timeout, new tasks registered before they're ready (health check passes too early), and the access logs to see whether the target returned anything.
 
 **Q: What's the difference between a 502, a 503 and a 504 from an ALB?**
 

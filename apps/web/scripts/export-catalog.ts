@@ -12,6 +12,7 @@ import { STATIC_TOPICS } from '../src/topics'
 import { AREA_OF } from '../src/topics/areas'
 import type { TopicMeta } from '../src/topics/catalog'
 import type { Lesson } from '../src/topics/lessonTypes'
+import { checkNote } from '../src/learn/noteRules'
 
 // Every topic must belong to an area: Explore, Home and the roadmap are organised by them.
 const unplaced = STATIC_TOPICS.filter((t) => !AREA_OF[t.id]).map((t) => t.id)
@@ -43,6 +44,18 @@ for (const file of readdirSync(lessonDir).filter((f) => f.endsWith('.ts'))) {
 }
 if (lessonErrors.length) {
   console.error(lessonErrors.join('\n'))
+  process.exit(1)
+}
+
+// Deep notes must explain what they use: see CLAUDE.md, "Notes that explain everything".
+const noteDir = join(dirname(fileURLToPath(import.meta.url)), '../src/topics/notes')
+const noteErrors: string[] = []
+for (const file of readdirSync(noteDir).filter((f) => f.endsWith('.md'))) {
+  if (!STATIC_TOPICS.some((t) => `${t.id}.md` === file)) noteErrors.push(`${file}: no topic with this id`)
+  for (const problem of checkNote(readFileSync(join(noteDir, file), 'utf8'))) noteErrors.push(`${file}: ${problem}`)
+}
+if (noteErrors.length) {
+  console.error(noteErrors.join('\n'))
   process.exit(1)
 }
 

@@ -8,14 +8,14 @@ Related: [Kafka basics](/?topic=kafka-basics&read) (a log, not a queue), [Notifi
 
 ## Queue or log at a glance
 
-| | Message queue (SQS, RabbitMQ) | Log (Kafka) |
+| | Message queue: Amazon SQS (Simple Queue Service) or RabbitMQ | Log: Kafka |
 | --- | --- | --- |
 | Unit | A job to do once | An event that happened |
 | After it is read | Hidden, then deleted on ack | Stays; the reader keeps an offset |
 | Many readers of the same message | No: one worker gets it | Yes: each group reads it all |
 | Replay | No (unless you kept a copy) | Yes, by moving the offset |
 | Retries | Built in: visibility timeout, dead-letter queue | You build them (retry topics) |
-| Ordering | None, or per FIFO group | Per partition |
+| Ordering | None, or per FIFO (first in, first out) group | Per partition |
 | Best for | Background jobs, task fan-out, smoothing bursts | Event streams, analytics, many consumers |
 
 ---

@@ -1,8 +1,8 @@
 # AWS IAM: Users, Roles, Policies, STS, Boundaries and SCPs
 
-> 💡 **TL;DR**: Every request to AWS is **signed by an identity**, and IAM checks it. People sign in through **IAM Identity Center** (or as IAM users) with MFA, a second check such as a code on their phone. Software uses **roles**, which get **temporary credentials** from STS, so there are no long-lived keys to leak. Permissions are JSON **policies**: Effect, Action, Resource and an optional Condition. AWS gathers every policy that applies, then decides. **An explicit Deny anywhere wins.** Every guardrail that applies (SCPs, permissions boundaries, session policies) must allow the request. And if nothing says Allow, the answer is **no**. Give each identity the least it needs, write what must never happen as a Deny, and use boundaries and SCPs so nobody can hand out more power than they have.
+> 💡 **TL;DR**: Every request to AWS is **signed by an identity**, and IAM (Identity and Access Management: who can do what) checks it. People sign in through **IAM Identity Center** (or as IAM users) with MFA (multi-factor authentication), a second check such as a code on their phone. Software uses **roles**, which get **temporary credentials** from STS (Security Token Service), so there are no long-lived keys to leak. Permissions are JSON **policies**: Effect, Action, Resource and an optional Condition. AWS gathers every policy that applies, then decides. **An explicit Deny anywhere wins.** Every guardrail that applies must allow the request too: SCPs (service control policies), permissions boundaries and session policies. And if nothing says Allow, the answer is **no**. Give each identity the least it needs, write what must never happen as a Deny, and use boundaries and SCPs so nobody can hand out more power than they have.
 
-Builds on [AWS Basics](/?topic=aws-basics&read). Every other AWS topic uses roles from here: ECS task roles, deploy roles, cross-account access.
+Builds on [AWS Basics](/?topic=aws-basics&read). Every other AWS topic uses roles from here: ECS (Elastic Container Service: AWS's container runner) task roles, deploy roles, cross-account access.
 
 ---
 
@@ -22,7 +22,7 @@ Builds on [AWS Basics](/?topic=aws-basics&read). Every other AWS topic uses role
 | Organizations / SCP | Many accounts managed together; guardrail policies over whole accounts | "Nobody works outside Mumbai" |
 | CloudTrail | The log of every API call, allowed or denied | Who deleted that bucket? |
 
-ARN format: `arn:partition:service:region:account-id:resource`. Some services leave parts empty: S3 buckets have no region or account (`arn:aws:s3:::bucket/key`), and IAM has no region (`arn:aws:iam::111122223333:role/x`).
+ARN format: `arn:partition:service:region:account-id:resource`. Some services leave parts empty: S3 (Simple Storage Service) buckets have no region or account (`arn:aws:s3:::bucket/key`), and IAM has no region (`arn:aws:iam::111122223333:role/x`).
 
 ---
 
@@ -57,7 +57,7 @@ ARN format: `arn:partition:service:region:account-id:resource`. Some services le
 | `Action` / `NotAction` | API calls, `service:Operation`, wildcards allowed | `NotAction` means "every action except these" |
 | `Resource` / `NotResource` | ARNs the statement covers | `*` means all; some actions only work with `*` |
 | `Principal` | Who the statement applies to | Only in resource-based and trust policies |
-| `Condition` | Extra tests on the request | MFA, tags, IP, region, VPC endpoint, time |
+| `Condition` | Extra tests on the request | MFA, tags, IP, region, VPC (Virtual Private Cloud: your private network in AWS) endpoint, time |
 
 Wildcards match within an ARN or action: `s3:Get*` covers `GetObject` and `GetBucketPolicy`; `arn:aws:s3:::priya-menu-photos/*` covers every object but **not the bucket itself**, which is why read policies list both `bucket` and `bucket/*`.
 
@@ -68,10 +68,10 @@ Wildcards match within an ARN or action: `s3:Get*` covers `GetObject` and `GetBu
 | Type | Attached to | Grants? | Use for |
 | --- | --- | --- | --- |
 | **Identity-based** (managed or inline) | Users, groups, roles | Yes | What this person or service may do |
-| **Resource-based** | A resource: S3 bucket, SQS queue, KMS key, Lambda | Yes, to the principals it names | Sharing with other accounts and services; "never delete this bucket" |
-| **Trust policy** | A role (it's a resource policy) | Who may **assume** the role | The service, account or CI provider allowed in |
+| **Resource-based** | A resource: S3 bucket, SQS (Simple Queue Service) queue, KMS (Key Management Service: encryption keys) key, Lambda | Yes, to the principals it names | Sharing with other accounts and services; "never delete this bucket" |
+| **Trust policy** | A role (it's a resource policy) | Who may **assume** the role | The service, account or CI (continuous integration: the server that builds and tests every change) provider allowed in |
 | **Permissions boundary** | A user or role | No: sets the most it can ever do | Letting teams or pipelines create roles safely |
-| **Service control policy (SCP)** | An account or OU in Organizations | No: caps every identity in the account | Company-wide guardrails: regions, no leaving the org |
+| **Service control policy (SCP)** | An account or OU (organizational unit: a folder of accounts) in Organizations | No: caps every identity in the account | Company-wide guardrails: regions, no leaving the org |
 | **Resource control policy (RCP)** | An account or OU in Organizations | No: caps access to the account's resources | "Our buckets are never readable from outside the org" |
 | **Session policy** | Passed when assuming a role | No: narrows that one session | Handing a job a slice of a role's power |
 
@@ -100,7 +100,7 @@ Request: who (principal) wants to do what (action) to which resource, with what 
 - Guardrails (SCPs, RCPs, boundaries, session policies) **only take away**: they never grant. The effective permissions are the **intersection**.
 - **Cross-account** requests need **both sides**: the other account's resource policy (or role trust policy) must allow you, and your own identity policy must allow the call.
 
-Worked example (from the topic's simulator): the deploy role has `AdministratorAccess`, but its boundary only allows ECS, ECR, EC2, Auto Scaling, load balancers, two S3 actions and `iam:PassRole` for one role. It calls `iam:CreateUser`. The identity policy allows it, the boundary doesn't, so the result is **implicit deny**: an admin that can't make admins.
+Worked example (from the topic's simulator): the deploy role has `AdministratorAccess`, but its boundary only allows ECS, ECR (Elastic Container Registry: AWS's store for Docker images), EC2 (Elastic Compute Cloud: AWS's virtual servers), Auto Scaling, load balancers, two S3 actions and `iam:PassRole` for one role. It calls `iam:CreateUser`. The identity policy allows it, the boundary doesn't, so the result is **implicit deny**: an admin that can't make admins.
 
 ---
 
@@ -110,13 +110,13 @@ A role has two policies: the **trust policy** (who may assume it) and **permissi
 
 Where software gets its role, so nobody writes a key anywhere:
 
-| Runs on | Role is | The SDK finds credentials at |
+| Runs on | Role is | The SDK (software development kit: the library your code calls AWS with) finds credentials at |
 | --- | --- | --- |
 | EC2 | An **instance profile** | The instance metadata service (IMDSv2) |
 | ECS task | The **task role** (your app's permissions) | The container credentials endpoint |
 | ECS agent | The **task execution role** (pull the image, write logs, read secrets at start) | Used by ECS, not your code |
 | Lambda | The **execution role** | Environment variables set by Lambda |
-| GitHub Actions, GitLab CI | A role trusted through **OIDC** | `AssumeRoleWithWebIdentity` with the CI's signed token |
+| GitHub Actions, GitLab CI | A role trusted through **OIDC** (OpenID Connect: a standard way to prove who you are) | `AssumeRoleWithWebIdentity` with the CI's signed token |
 | Your laptop | A permission set in **IAM Identity Center** | `aws configure sso` → short-lived credentials |
 
 ### CI without stored keys: GitHub Actions with OIDC
@@ -183,7 +183,7 @@ await reports.send(new GetObjectCommand({ Bucket: 'finance-reports', Key: '2026/
 | --- | --- | --- |
 | `aws:MultiFactorAuthPresent` | The caller signed in with MFA | Deny sensitive actions without MFA |
 | `aws:RequestedRegion` | The region the call goes to | Keep everyone in Mumbai |
-| `aws:PrincipalTag/…`, `aws:ResourceTag/…` | Tags on the caller and the resource | ABAC: "team=payments may touch team=payments" |
+| `aws:PrincipalTag/…`, `aws:ResourceTag/…` | Tags on the caller and the resource | ABAC (attribute-based access control): "team=payments may touch team=payments" |
 | `aws:SourceIp` | The caller's public IP | Office-only console access |
 | `aws:SourceVpce`, `aws:SourceVpc` | The call came through your VPC endpoint | Bucket readable only from inside your network |
 | `aws:PrincipalOrgID` | The caller belongs to your Organization | Share with every account in the org at once |
@@ -364,7 +364,7 @@ A: CloudTrail: look up the event (`DeleteBucket`, `TerminateInstances`…) by na
 
 A: Deactivate the key at once, then check CloudTrail for what it did and clean up (unknown instances, users, roles, keys). Rotate anything it could read, check the bill, and replace the key with a role or OIDC so there is no long-lived key to leak again.
 
-**Q: What is ABAC and when is it better than RBAC?**
+**Q: What is ABAC and when is it better than RBAC (role-based access control)?**
 
 A: Attribute-based access control: policies compare tags on the caller with tags on the resource ("you may manage instances whose `team` tag equals your own `team` tag"). One policy covers every team, and new resources are covered as soon as they're tagged. Role-based access needs a new policy per team or project, which grows quickly.
 
