@@ -1520,6 +1520,51 @@
   "simulator": true
  },
  {
+  "id": "circuit-breaker",
+  "title": "Circuit Breaker and Resilience Patterns",
+  "blurb": "Timeouts, retries with backoff, circuit breakers and bulkheads: keeping one slow service from taking everything down",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "resiliency-patterns",
+   "scale-circuit-breaker",
+   "scale-circuit-breaking-in-distributed-systems",
+   "scale-bulkheads-partition-and-tolerate-failure-in-one-part",
+   "how-do-we-retry-on-failures",
+   "scale-design-for-resiliency"
+  ],
+  "explanation": {
+   "summary": "When a service you call gets slow, your threads pile up waiting for it, and soon your whole app is down too. A few small patterns stop that: timeouts bound the wait, retries with backoff ride out short glitches, a circuit breaker stops calling a service that is failing, and a bulkhead keeps its trouble in one corner of your app.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "file-sync",
   "title": "File Sync (Dropbox-style)",
   "blurb": "Block-level sync: chunk and hash files, upload only what changed, and tell other devices",

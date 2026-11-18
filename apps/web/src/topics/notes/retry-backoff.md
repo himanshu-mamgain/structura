@@ -235,6 +235,7 @@ A: "Payment pending", not "failed", because an earlier try may have worked. The 
 ## Related topics
 
 - [Idempotent Payments](/?topic=payment-idempotency&read): the idempotency keys that make retries safe.
+- [Circuit Breaker and Resilience Patterns](/?topic=circuit-breaker&read): timeouts, the circuit breaker, bulkheads and fallbacks around a slow dependency.
 - [API Gateway](/?topic=api-gateway&read): where the circuit breaker and timeouts usually live.
 - [Rate Limiter](/?topic=rate-limiter&read): the other side: refusing too many requests, and sending Retry-After.
 - [Distributed Message Queue](/?topic=message-queue&read): retries of queue messages, and dead-letter queues.

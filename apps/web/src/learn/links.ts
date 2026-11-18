@@ -53,7 +53,9 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'retry-backoff', section: 'Limits: tries, budgets and layers', terms: ['retry budget', 'retry budgets'], inTopic: true },
   { topic: 'retry-backoff', section: 'Jitter: the random part', terms: ['Backoff + Jitter', 'full jitter', 'equal jitter', 'decorrelated jitter', 'jittered backoff', 'jitter'], far: /bandwidth|latency|buffering/i, inTopic: true },
   { topic: 'retry-backoff', section: 'How exponential backoff works', terms: ['exponential backoff', 'exponential back-off', 'backoff'], inTopic: true },
-  { topic: 'api-gateway', section: 'Circuit breaker: three states', terms: ['circuit breaker', 'circuit breakers'], far: /deploy|rollback|rolling/i },
+  // Retries, backoff and jitter link to retry-backoff above; the breaker itself links to its own topic.
+  { topic: 'circuit-breaker', section: 'Circuit breaker: the three states', terms: ['circuit breaker', 'circuit breakers', 'half-open', 'cascading failure', 'cascading failures'], far: /deploy|rollback|rolling|\btasks?\b|task definition|bad image/i },
+  { topic: 'circuit-breaker', section: 'Bulkheads: separate pools', terms: ['bulkhead', 'bulkheads'] },
   { topic: 'api-gateway', terms: ['API gateway', 'API gateways', 'API Gateway'] },
   { topic: 'consistent-hashing', terms: ['consistent hashing', 'hash ring', 'virtual nodes', 'vnodes'] },
   { topic: 'database-sharding', terms: ['shard key', 'shard keys', 'sharding', 'sharded', 'shards', 'resharding', 'scatter-gather'] },

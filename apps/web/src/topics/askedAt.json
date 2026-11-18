@@ -43,7 +43,8 @@
     "mercor": "Mercor",
     "clickup": "ClickUp",
     "sierra": "Sierra",
-    "decagon": "Decagon"
+    "decagon": "Decagon",
+    "general-motors": "General Motors"
   },
   "topics": {
     "ai-agent": [
@@ -1275,6 +1276,23 @@
         "url": "https://prachub.com/interview-questions/design-a-durable-delayed-task-scheduler",
         "source": "prachub",
         "date": "2026-08-29",
+        "similar": true
+      }
+    ],
+    "circuit-breaker": [
+      {
+        "company": "databricks",
+        "question": "Design Circuit-Breaker-Aware Database Routing",
+        "url": "https://prachub.com/interview-questions/design-circuit-breaker-aware-database-routing",
+        "source": "prachub",
+        "date": "2026-08-13"
+      },
+      {
+        "company": "general-motors",
+        "question": "Connect Monitoring, Circuit Breakers, Rollback, and CI/CD",
+        "url": "https://prachub.com/interview-questions/connect-monitoring-circuit-breakers-rollback-and-ci-cd",
+        "source": "prachub",
+        "date": "2026-08-30",
         "similar": true
       }
     ]

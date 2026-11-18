@@ -31,6 +31,7 @@ export const AREA_OF: Record<string, AreaId> = {
   rbac: 'development',
   'rate-limiter': 'development',
   'retry-backoff': 'development',
+  'circuit-breaker': 'development',
   'api-gateway': 'development',
   'payment-idempotency': 'development',
   'unique-id-generator': 'development',
