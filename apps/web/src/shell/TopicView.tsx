@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlertTriangle, BookOpenText, Check, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, GraduationCap, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
+import { AlertTriangle, BookOpenText, Check, Clapperboard, Cpu, Headphones, MousePointerClick, Route, Volume2, Bookmark, BookmarkCheck, BookOpen, Box, CheckCircle2, ChevronLeft, ChevronRight, Circle, Code2, Database, ExternalLink, Footprints, GraduationCap, Lightbulb, Pause, Play, Power, Square, Video, X, Zap } from 'lucide-react'
 import type { Trace } from '@structura/shared'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { failureEffect, responsibilitiesOf, responsibility, sameComponent, stepsThrough, subtitleOf, technologiesOf } from '../diagram/inspect'
@@ -15,6 +15,7 @@ import { speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/s
 import type { WalkCommand } from '../learn/assistant'
 import { erdToDbml, schemaSnippet } from '../learn/dbml'
 import type { StaticTopic } from '../topics'
+import { fullCoverOnError, smallCover } from '../topics/catalog'
 import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
 import { NoteBox, TopicNotes } from './Notes'
@@ -71,6 +72,7 @@ export function TopicView({
   onRead,
   onLearn,
   onArea,
+  onReel,
 }: {
   topic: StaticTopic
   openLoad?: boolean
@@ -78,6 +80,8 @@ export function TopicView({
   onRead?: () => void
   onLearn?: () => void
   onArea?: (area: AreaId) => void
+  /** Plays one of the topic's reels in the Reels feed. */
+  onReel?: (id: string) => void
 }) {
   const narrow = useNarrow()
   const [diagramView, setDiagramView] = useState<'architecture' | 'data'>('architecture')
@@ -400,7 +404,7 @@ export function TopicView({
         )}
       </nav>
 
-      <div className={`topic-grid${topic.video || showLoad ? '' : ' no-side'}`}>
+      <div className={`topic-grid${topic.video || topic.reels?.length || showLoad ? '' : ' no-side'}`}>
         <section className="card diagram-card" aria-label="Diagram" ref={diagramCard}>
           <header className="card-head">
             <div className="seg" role="group" aria-label="Diagram">
@@ -666,12 +670,13 @@ export function TopicView({
           </div>
         </section>
 
-        <aside className="side-col" hidden={!topic.video && !showLoad}>
+        <aside className="side-col" hidden={!topic.video && !topic.reels?.length && !showLoad}>
           {showLoad && topic.loadTest && (
             <Suspense fallback={<p className="card d2-loading">Loading the simulator…</p>}>
               <LoadPanel test={topic.loadTest} onStats={setLoad} onClose={() => setShowLoad(false)} />
             </Suspense>
           )}
+          {topic.reels && topic.reels.length > 0 && onReel && <TopicReels topic={topic} onReel={onReel} />}
           {topic.video && (
             <section className="card video-card" aria-label="Video walkthrough">
               <header className="card-head">
@@ -917,5 +922,45 @@ function ReadingView({ sentences, current, word }: { sentences: string[]; curren
         ),
       )}
     </p>
+  )
+}
+
+/** A topic's short reels (one per algorithm, say), as covers that open the Reels feed. */
+function TopicReels({ topic, onReel }: { topic: StaticTopic; onReel: (id: string) => void }) {
+  const progress = useProgress()
+  const reels = topic.reels ?? []
+  return (
+    <section className="card topic-reels" aria-label="Reels">
+      <header className="card-head">
+        <h2>
+          <Clapperboard size={17} /> {reels.length} short reels
+        </h2>
+      </header>
+      <div className="topic-reels-grid">
+        {reels.map((r, i) => {
+          const place = progress.reels?.[r.id]
+          const watched = place ? Math.min(1, place.time / place.duration) : 0
+          return (
+            <button key={r.id} type="button" className="topic-reel" onClick={() => onReel(r.id)}>
+              <img src={smallCover(r.video)} alt="" loading="lazy" onError={fullCoverOnError} />
+              <span className="reel-tile-shade" aria-hidden />
+              <Play className="reel-tile-play" size={15} fill="currentColor" aria-hidden />
+              <span className="topic-reel-text">
+                <small>
+                  {i + 1} of {reels.length}
+                  {watched >= 0.97 ? ' · Watched' : ''}
+                </small>
+                <strong>{r.title}</strong>
+              </span>
+              {watched > 0 && watched < 0.97 && (
+                <span className="reel-tile-progress" aria-label={`${Math.round(watched * 100)}% watched`}>
+                  <span style={{ width: `${watched * 100}%` }} />
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </section>
   )
 }

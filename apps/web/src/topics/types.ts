@@ -24,6 +24,8 @@ export interface StaticTopic {
   video?: string
   /** The video's chapters: start second and title (from apps/video scripts/chapters.ts). */
   chapters?: [number, string][]
+  /** Short reels besides the main video, such as one per algorithm. They play in the Reels feed. */
+  reels?: TopicReel[]
   /** A story to read first: a real-feeling incident told in chapters (learn/story.tsx renders it). */
   story?: Story
   /** The few points worth remembering, shown beside the explanation. */
@@ -52,4 +54,14 @@ export interface Story {
     /** Simulator inputs that replay this moment on the diagram. */
     replay?: { label: string; values: Record<string, string> }
   }[]
+}
+
+/** A short reel that belongs to a topic (apps/video renders it into public/videos). */
+export interface TopicReel {
+  /** Unique across topics and reels: it's the reel's address, ?page=reels&reel=<id>. */
+  id: string
+  title: string
+  blurb: string
+  video: string
+  chapters?: [number, string][]
 }

@@ -23,6 +23,22 @@ const VIDEOS: Record<string, { narration: string; scenes: [string | null, number
     narration: 'payment-idempotency',
     scenes: [['hook', 60, 'The panic'], ['lost', 60, 'What actually happened'], ['trap', 60, 'The retry trap'], ['key', 60, 'The fix: idempotency keys'], ['cases', 60, 'Edge cases'], ['takeaway', 60, 'The takeaway'], ['cta', 220, 'Try it']],
   },
+  'rate-limiter-fixed-window': {
+    narration: 'rate-limiter-fixed-window',
+    scenes: [['hook', 60, 'Who counts?'], ['count', 60, 'One counter per minute'], ['edge', 60, 'The edge problem'], ['takeaway', 60, 'The takeaway'], ['cta', 220, 'Try it']],
+  },
+  'rate-limiter-sliding-log': {
+    narration: 'rate-limiter-sliding-log',
+    scenes: [['hook', 60, 'Remember every request'], ['log', 60, 'A log of times'], ['edge', 60, 'The edge, fixed'], ['cost', 60, 'The cost'], ['cta', 220, 'Try it']],
+  },
+  'rate-limiter-sliding-counter': {
+    narration: 'rate-limiter-sliding-counter',
+    scenes: [['hook', 60, 'Almost exact, almost free'], ['counters', 60, 'The estimate'], ['worked', 60, 'Worked example'], ['close', 60, 'Close enough'], ['cta', 220, 'Try it']],
+  },
+  'rate-limiter-token-bucket': {
+    narration: 'rate-limiter-token-bucket',
+    scenes: [['hook', 60, 'Allow a burst'], ['bucket', 60, 'The bucket'], ['timeline', 60, 'Second by second'], ['redis', 60, 'In Redis'], ['takeaway', 60, 'The takeaway'], ['cta', 220, 'Try it']],
+  },
   'docker-vs-vm': {
     narration: 'docker-vs-vm',
     scenes: [[null, 120, 'Introduction'], ['problem', 210, 'The classic problem'], ['vm', 570, 'Virtual machines'], ['containers', 540, 'Containers'], ['compare', 420, 'Side by side'], ['when', 360, 'When to use which'], ['workflow', 300, 'Dockerfile to container'], [null, 120, 'Recap']],

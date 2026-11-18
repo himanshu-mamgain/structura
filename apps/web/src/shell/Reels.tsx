@@ -1,15 +1,51 @@
 import { type PointerEvent, useEffect, useRef, useState } from 'react'
-import { ArrowUpRight, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Clapperboard, ListVideo, Pause, Play, RotateCcw, Send, SkipForward, Volume2, VolumeX } from 'lucide-react'
+import { ArrowUpRight, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Clapperboard, ListVideo, MessageCircle, Pause, Play, RotateCcw, SkipForward, Volume2, VolumeX } from 'lucide-react'
 import { toggle as toggleCommute, useCommute } from '../learn/commute'
-import { updateTopic, useProgress, videoFraction } from '../learn/progress'
+import { type Progress, updateReel, updateTopic, useProgress, videoFraction } from '../learn/progress'
 import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
+import { whatsappHref } from './Share'
 import { topicIcon } from './topicIcons'
 
 // Reels: every topic video, full screen, one after another, swiped like
 // Instagram. Home shows them as a row of covers; the Reels tab plays them.
+// A topic's main video is one reel; a topic can add short ones of its own
+// (the rate limiter has one per algorithm).
 
-export const REELS = TOPICS.filter((t) => t.video)
-const cover = (t: TopicMeta) => t.video!.replace(/\.mp4$/, '.jpg')
+export interface ReelItem {
+  /** The reel's address, ?page=reels&reel=<id>: the topic's id for its main video. */
+  id: string
+  topic: TopicMeta
+  title: string
+  /** "Rate Limiter · 1 of 4", for a topic's own short reels. */
+  series?: string
+  blurb: string
+  video: string
+  chapters?: [number, string][]
+}
+
+export const REELS: ReelItem[] = TOPICS.flatMap((t) => [
+  ...(t.video ? [{ id: t.id, topic: t, title: t.title, blurb: t.blurb, video: t.video, chapters: t.chapters }] : []),
+  ...(t.reels ?? []).map((r, i, all) => ({ id: r.id, topic: t, title: r.title, series: `${t.title} · ${i + 1} of ${all.length}`, blurb: r.blurb, video: r.video, chapters: r.chapters })),
+])
+
+const cover = (item: ReelItem) => item.video.replace(/\.mp4$/, '.jpg')
+const isMain = (item: ReelItem) => item.id === item.topic.id
+
+/** Where the learner left a reel: the topic's video progress for its main video, its own for the rest. */
+function placeOf(item: ReelItem, progress: Progress): { time: number; duration: number } | null {
+  if (isMain(item)) {
+    const p = progress.topics[item.topic.id]
+    return p?.videoTime && p.videoDuration ? { time: p.videoTime, duration: p.videoDuration } : null
+  }
+  const r = progress.reels?.[item.id]
+  return r ? { time: r.time, duration: r.duration } : null
+}
+
+export function watchedFraction(item: ReelItem, progress: Progress): number {
+  if (isMain(item)) return videoFraction(progress.topics[item.topic.id])
+  const place = placeOf(item, progress)
+  return place ? Math.min(1, place.time / place.duration) : 0
+}
 
 /** The row of reel covers on Home. */
 export function ReelsRow({ onPlay, onAll }: { onPlay: (id: string) => void; onAll: () => void }) {
@@ -26,16 +62,16 @@ export function ReelsRow({ onPlay, onAll }: { onPlay: (id: string) => void; onAl
         </button>
       </div>
       <div className="reel-tiles">
-        {REELS.map((t) => {
-          const watched = videoFraction(progress.topics[t.id])
+        {REELS.map((item) => {
+          const watched = watchedFraction(item, progress)
           return (
-            <button key={t.id} type="button" className={`reel-tile${watched >= 0.97 ? ' is-watched' : ''}`} onClick={() => onPlay(t.id)}>
-              <img src={smallCover(t.video!)} alt="" loading="lazy" onError={fullCoverOnError} />
+            <button key={item.id} type="button" className={`reel-tile${watched >= 0.97 ? ' is-watched' : ''}`} onClick={() => onPlay(item.id)}>
+              <img src={smallCover(item.video)} alt="" loading="lazy" onError={fullCoverOnError} />
               <span className="reel-tile-shade" aria-hidden />
               <Play className="reel-tile-play" size={15} fill="currentColor" aria-hidden />
               <span className="reel-tile-text">
-                <strong>{t.title}</strong>
-                <small>{watched >= 0.97 ? 'Watched' : t.chapters ? `${t.chapters.length} chapters` : t.difficulty}</small>
+                <strong>{item.title}</strong>
+                <small>{watched >= 0.97 ? 'Watched' : (item.series ?? (item.chapters ? `${item.chapters.length} chapters` : item.topic.difficulty))}</small>
               </span>
               {watched > 0 && watched < 0.97 && (
                 <span className="reel-tile-progress" aria-label={`${Math.round(watched * 100)}% watched`}>
@@ -60,7 +96,7 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
   const commute = useCommute()
   const feed = useRef<HTMLDivElement>(null)
   const videos = useRef<(HTMLVideoElement | null)[]>([])
-  const [initial] = useState(() => Math.max(0, REELS.findIndex((t) => t.id === start)))
+  const [initial] = useState(() => Math.max(0, REELS.findIndex((r) => r.id === start)))
   const [active, setActive] = useState(initial)
   const [muted, setMuted] = useState(false)
   const [paused, setPaused] = useState(false)
@@ -68,7 +104,6 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
   const [time, setTime] = useState({ at: 0, of: 0 })
   const [more, setMore] = useState(false)
   const [flash, setFlash] = useState<{ icon: 'play' | 'pause'; key: number } | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
   // Read inside event handlers and effects without re-running them.
   const live = useRef({ muted, progress, commute })
   live.current = { muted, progress, commute }
@@ -76,10 +111,14 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
 
   const reel = REELS[active]
 
-  function save(v: HTMLVideoElement, t: TopicMeta) {
+  function save(v: HTMLVideoElement, item: ReelItem) {
     if (!v.duration) return
     lastSaved.current = Date.now()
-    updateTopic(t.id, { videoTime: v.currentTime, videoDuration: v.duration, lastWatchedAt: Date.now() })
+    if (isMain(item)) updateTopic(item.topic.id, { videoTime: v.currentTime, videoDuration: v.duration, lastWatchedAt: Date.now() })
+    else {
+      updateReel(item.id, v.currentTime, v.duration)
+      updateTopic(item.topic.id, { lastWatchedAt: Date.now() })
+    }
   }
 
   function play(v: HTMLVideoElement) {
@@ -137,8 +176,8 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
     videos.current.forEach((v, i) => i !== active && v?.pause())
     const v = videos.current[active]
     if (!v) return
-    const saved = live.current.progress.topics[t.id]
-    const resume = saved?.videoTime && saved.videoDuration && saved.videoTime > 5 && saved.videoTime < saved.videoDuration - 5 ? saved.videoTime : 0
+    const saved = placeOf(t, live.current.progress)
+    const resume = saved && saved.time > 5 && saved.time < saved.duration - 5 ? saved.time : 0
     if (resume && v.currentTime < 1) v.currentTime = resume
     play(v)
     return () => {
@@ -191,30 +230,6 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
     return () => window.clearTimeout(timer)
   }, [flash])
 
-  useEffect(() => {
-    if (!toast) return
-    const timer = window.setTimeout(() => setToast(null), 2000)
-    return () => window.clearTimeout(timer)
-  }, [toast])
-
-  async function share(t: TopicMeta) {
-    const url = `${window.location.origin}/?page=reels&reel=${t.id}`
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `${t.title} · Structura`, text: t.blurb, url })
-      } catch {
-        // Closed the share sheet.
-      }
-      return
-    }
-    try {
-      await navigator.clipboard.writeText(url)
-      setToast('Link copied')
-    } catch {
-      setToast(url)
-    }
-  }
-
   function scrub(e: PointerEvent<HTMLDivElement>) {
     const v = videos.current[active]
     if (!v?.duration) return
@@ -228,22 +243,23 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
   return (
     <div className="reels">
       <div className="reels-feed" ref={feed}>
-        {REELS.map((t, i) => {
+        {REELS.map((item, i) => {
+          const t = item.topic
           const near = Math.abs(i - active) <= 1
           const here = i === active
           const Icon = topicIcon(t.id)
           const saved = progress.topics[t.id]?.bookmarked
           return (
-            <section key={t.id} className="reel" data-index={i} aria-label={t.title}>
+            <section key={item.id} className="reel" data-index={i} aria-label={item.title}>
               <div className="reel-stage" onClick={() => here && togglePlay()}>
-                <img className="reel-backdrop" src={cover(t)} alt="" aria-hidden />
+                <img className="reel-backdrop" src={cover(item)} alt="" aria-hidden />
                 {near ? (
                   <video
                     ref={(el) => {
                       videos.current[i] = el
                     }}
-                    src={t.video}
-                    poster={cover(t)}
+                    src={item.video}
+                    poster={cover(item)}
                     playsInline
                     preload={here ? 'auto' : 'metadata'}
                     onPlay={(e) => {
@@ -254,23 +270,23 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
                       if (!here) return
                       const v = e.currentTarget
                       setTime({ at: v.currentTime, of: v.duration || 0 })
-                      if (Date.now() - lastSaved.current > 5000) save(v, t)
+                      if (Date.now() - lastSaved.current > 5000) save(v, item)
                     }}
                     onPause={(e) => {
                       if (here) {
                         setPaused(true)
-                        save(e.currentTarget, t)
+                        save(e.currentTarget, item)
                       }
                     }}
                     onPlaying={() => here && setPaused(false)}
                     onEnded={(e) => {
                       if (!here) return
-                      save(e.currentTarget, t)
+                      save(e.currentTarget, item)
                       setEnded(true)
                     }}
                   />
                 ) : (
-                  <img className="reel-poster" src={cover(t)} alt="" />
+                  <img className="reel-poster" src={cover(item)} alt="" />
                 )}
               </div>
 
@@ -287,7 +303,7 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
 
               {here && ended && (
                 <div className="reel-end">
-                  <strong>{t.title}</strong>
+                  <strong>{item.title}</strong>
                   <span>Now try it: follow a request, switch parts off, put load on it.</span>
                   <button type="button" className="btn btn-primary" onClick={() => onOpen(t)}>
                     <ArrowUpRight size={17} /> Open the topic
@@ -310,11 +326,11 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
                   <span className="reel-avatar" aria-hidden>
                     <Icon size={17} />
                   </span>
-                  <strong>{t.title}</strong>
-                  <span className="reel-level">{t.difficulty}</span>
+                  <strong>{item.title}</strong>
+                  <span className="reel-level">{item.series ?? t.difficulty}</span>
                 </button>
                 <button type="button" className={`reel-blurb${here && more ? ' is-open' : ''}`} onClick={() => setMore(!more)}>
-                  {t.blurb}
+                  {item.blurb}
                 </button>
                 {here && chapter && (
                   <p className="reel-chapter">
@@ -328,10 +344,11 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
                   {saved ? <BookmarkCheck size={26} /> : <Bookmark size={26} />}
                   <span>{saved ? 'Saved' : 'Save'}</span>
                 </button>
-                <button type="button" onClick={() => void share(t)}>
-                  <Send size={25} />
-                  <span>Share</span>
-                </button>
+                {/* Sharing is WhatsApp only (Share.tsx). */}
+                <a href={whatsappHref(`${item.title} · Structura: ${item.blurb}`, `/?page=reels&reel=${item.id}`)} target="_blank" rel="noreferrer" aria-label="Share on WhatsApp">
+                  <MessageCircle size={25} />
+                  <span>WhatsApp</span>
+                </a>
                 <button type="button" onClick={() => onOpen(t)}>
                   <ArrowUpRight size={27} />
                   <span>Topic</span>
@@ -365,11 +382,6 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
         </button>
       </div>
 
-      {toast && (
-        <p className="reels-toast" role="status">
-          {toast}
-        </p>
-      )}
     </div>
   )
 }

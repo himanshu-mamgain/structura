@@ -25,8 +25,16 @@ export interface TopicProgress {
   lastOpenedAt?: number
 }
 
+/** Where the learner is in one of a topic's extra reels (its main video's place is in TopicProgress). */
+export interface ReelProgress {
+  time: number
+  duration: number
+  at: number
+}
+
 export interface Progress {
   topics: Record<string, TopicProgress>
+  reels?: Record<string, ReelProgress>
   quizBest?: number
   /** Roadmap steps without a topic, ticked off by hand: step id → when. */
   roadmap?: Record<string, number>
@@ -60,6 +68,10 @@ export function updateTopic(id: string, patch: Partial<TopicProgress> | ((p: Top
   const current = state.topics[id] ?? {}
   const change = typeof patch === 'function' ? patch(current) : patch
   save({ ...state, topics: { ...state.topics, [id]: { ...current, ...change } } })
+}
+
+export function updateReel(id: string, time: number, duration: number) {
+  save({ ...state, reels: { ...state.reels, [id]: { time, duration, at: Date.now() } } })
 }
 
 /** Tick a hand-checked roadmap step on or off. */

@@ -103,6 +103,38 @@ In the topic's simulator, steps 4 to 7 take about **2 minutes**, and that start-
 
 ---
 
+## What a vCPU is
+
+A **vCPU** (virtual CPU) is the unit clouds sell processing in. It is one **hardware thread** of a real processor:
+
+- A **core** is the part of a chip that runs instructions. A server chip has dozens of them.
+- An Intel or AMD core can run **two threads at once** by sharing its parts. This is called simultaneous multithreading (SMT); Intel calls it Hyper-Threading. On AWS x86 instances, **each thread is one vCPU**.
+- So on x86, **1 vCPU is about half a core**. An `m6i.large` has 2 vCPUs: one core and its two threads.
+- **Graviton** (AWS's ARM chip) runs one thread per core, so there **1 vCPU is a whole core**.
+
+Two threads on one core share it, so each runs slower than a core of its own would. That's one reason a Graviton vCPU often does more work.
+
+### What 0.25 vCPU means
+
+Fargate counts CPU in **CPU units: 1,024 units = 1 vCPU**. So `"cpu": "256"` in the task definition is 0.25 vCPU.
+
+You don't get a quarter of a chip. You get **a quarter of one vCPU's time**. Linux enforces it as a hard ceiling for the task: roughly, the task may run for **25 ms in every 100 ms**. Once it has used its 25 ms, it waits for the next 100 ms to start. That wait is called **throttling**.
+
+Here, one vCPU of the app serves about 400 requests a second, so each request uses about **2.5 ms** of CPU:
+
+| Size | Units | CPU time / s | Requests / s |
+| --- | --- | --- | --- |
+| 0.25 vCPU | 256 | 250 ms | 100 |
+| 0.5 vCPU | 512 | 500 ms | 200 |
+| 1 vCPU | 1,024 | 1,000 ms | 400 |
+| 2 vCPU | 2,048 | 2,000 ms | 800 |
+
+What throttling looks like: 300 requests arrive at once at a 0.25 vCPU task. They need 300 × 2.5 ms = 750 ms of CPU, and the task gets 250 ms a second, so the last ones wait about **3 seconds**. Nothing crashes. The task is just slow, and its CPU graph sits at 100%.
+
+- **CPU over the limit: slow.** The task is throttled and requests queue up.
+- **Memory over the limit: killed.** The container stops with exit code 137 (out of memory).
+- **CPUUtilization in CloudWatch** is measured against the task's own size: 100% on a 0.25 vCPU task means it is using its whole quarter.
+
 ## Task sizes and what they cost
 
 | vCPU | Memory choices |
@@ -285,12 +317,17 @@ Need test traffic, gradual shift and instant rollback?       → blue/green (Cod
 - A health check that calls the database: one slow query marks every task unhealthy.
 - Building an **x86 image** for an `ARM64` task (or the reverse): `exec format error`.
 - **No maximum** on auto scaling, or one higher than the database can take.
+- Reading 0.25 vCPU as "a small but fast slice". It's a quarter of the time: a burst queues behind the 25 ms in every 100 ms. Watch CPU at 100% and rising latency, not just errors.
 - Terraform managing `desired_count` while auto scaling also changes it: every apply resets it.
 - Fargate Spot as the **only** capacity for a customer-facing API.
 
 ---
 
 ## Interview Q&As
+
+**Q: What does 0.25 vCPU mean on Fargate?**
+
+A: A vCPU is one hardware thread of a real processor: half a core on x86, a whole core on Graviton. Fargate counts in CPU units, 1,024 per vCPU, so 0.25 vCPU is 256 units. The task gets a quarter of one vCPU's time, enforced by Linux as a hard ceiling: about 25 ms of CPU in every 100 ms. If it needs more, it is throttled and gets slow; it doesn't crash. Running out of memory, by contrast, kills the container.
 
 **Q: What's the difference between a task definition, a task and a service?**
 

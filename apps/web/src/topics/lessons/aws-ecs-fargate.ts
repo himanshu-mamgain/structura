@@ -14,6 +14,13 @@ const lesson: Lesson = {
       example: '0.5 vCPU + 1 GB ≈ $0.0247 an hour ≈ $18 a month per task',
     },
     {
+      title: 'What 0.25 vCPU means',
+      text: 'A vCPU is one hardware thread of a real processor: about half a core on Intel and AMD, a whole core on Graviton. A 0.25 vCPU task gets a quarter of its time, about 25 ms in every 100 ms. Need more? The task waits and gets slow, but it does not crash.',
+      focus: ['Fargate Task (zone a)'],
+      example: 'CPU units: 1,024 = 1 vCPU, so "cpu": "256" = 0.25 vCPU\n0.25 vCPU = 250 ms of CPU each second\nat 2.5 ms a request → about 100 requests a second',
+      remember: 'Too little CPU makes a task slow; too little memory gets it killed.',
+    },
+    {
       title: 'The task definition is the recipe',
       text: 'A task definition says which image to run, how much CPU and memory, which ports, which secrets, and where the logs go. Every change makes a new numbered revision, so you can always go back.',
       focus: ['Task Definition', 'ECR Repository'],

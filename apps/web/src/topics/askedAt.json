@@ -1,6 +1,6 @@
 {
   "$comment": "Which companies asked each topic in interviews, from public candidate reports. Edit by hand; every entry needs a link. See CLAUDE.md, \"Asked at\".",
-  "checked": "2026-11-16",
+  "checked": "2026-11-18",
   "sources": {
     "prachub": {
       "name": "PracHub",
@@ -41,7 +41,13 @@
     "uipath": "UiPath",
     "illumio": "Illumio",
     "mercor": "Mercor",
-    "clickup": "ClickUp"
+    "clickup": "ClickUp",
+    "sierra": "Sierra",
+    "decagon": "Decagon",
+    "general-motors": "General Motors",
+    "affirm": "Affirm",
+    "scale-ai": "Scale AI",
+    "axon": "Axon"
   },
   "topics": {
     "ai-agent": [
@@ -1204,6 +1210,158 @@
         "url": "https://prachub.com/interview-questions/design-an-image-crawler-for-unlimited-urls",
         "source": "prachub",
         "date": "2026-01-05",
+        "similar": true
+      }
+    ],
+    "retry-backoff": [
+      {
+        "company": "airbnb",
+        "question": "Design an extensible request Retryer",
+        "url": "https://prachub.com/interview-questions/design-an-extensible-request-retryer",
+        "source": "prachub"
+      },
+      {
+        "company": "airbnb",
+        "question": "Implement retry wrapper and interdependent validators",
+        "url": "https://prachub.com/interview-questions/implement-retry-wrapper-and-interdependent-validators",
+        "source": "prachub",
+        "similar": true
+      },
+      {
+        "company": "sierra",
+        "question": "Fixing a flaky async Python call path with timeouts and exponential-backoff retries",
+        "url": "https://prachub.com/interview-questions/fixing-a-flaky-async-python-call-path-with-timeouts-and-exponential-backoff-retries",
+        "source": "prachub",
+        "date": "2026-05-17"
+      }
+    ],
+    "queue-types": [
+      {
+        "company": "amazon",
+        "question": "Design an In-Memory Pub-Sub Model",
+        "url": "https://prachub.com/interview-questions/design-an-in-memory-pub-sub-model",
+        "source": "prachub",
+        "date": "2026-04-10"
+      },
+      {
+        "company": "amazon",
+        "question": "Implement a Single-Node Priority Pub/Sub",
+        "url": "https://prachub.com/interview-questions/implement-a-single-node-priority-pub-sub",
+        "source": "prachub",
+        "date": "2026-04-09",
+        "similar": true
+      },
+      {
+        "company": "google",
+        "question": "Design high-throughput event subscription system",
+        "url": "https://prachub.com/interview-questions/design-high-throughput-event-subscription-system",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "pinterest",
+        "question": "Implement DelayQueue with Idempotent Task Execution",
+        "url": "https://prachub.com/interview-questions/implement-delayqueue-with-idempotent-task-execution",
+        "source": "prachub"
+      },
+      {
+        "company": "decagon",
+        "question": "Design a Delayed Job Scheduler",
+        "url": "https://prachub.com/interview-questions/design-a-delayed-job-scheduler",
+        "source": "prachub",
+        "date": "2026-10-18",
+        "similar": true
+      },
+      {
+        "company": "decagon",
+        "question": "Design a Durable Delayed Task Scheduler",
+        "url": "https://prachub.com/interview-questions/design-a-durable-delayed-task-scheduler",
+        "source": "prachub",
+        "date": "2026-08-29",
+        "similar": true
+      }
+    ],
+    "circuit-breaker": [
+      {
+        "company": "databricks",
+        "question": "Design Circuit-Breaker-Aware Database Routing",
+        "url": "https://prachub.com/interview-questions/design-circuit-breaker-aware-database-routing",
+        "source": "prachub",
+        "date": "2026-08-13"
+      },
+      {
+        "company": "general-motors",
+        "question": "Connect Monitoring, Circuit Breakers, Rollback, and CI/CD",
+        "url": "https://prachub.com/interview-questions/connect-monitoring-circuit-breakers-rollback-and-ci-cd",
+        "source": "prachub",
+        "date": "2026-08-30",
+        "similar": true
+      }
+    ],
+    "ticket-booking": [
+      {
+        "company": "amazon",
+        "question": "System Design for an Online Event Ticketing Site: Seat Holds, Checkout and Spikes",
+        "url": "https://prachub.com/interview-questions/system-design-for-an-online-event-ticketing-site-seat-holds-checkout-and-spikes",
+        "source": "prachub",
+        "date": "2024-08-21"
+      },
+      {
+        "company": "google",
+        "question": "Design an Event Ticketing Platform With Seat Holds and High-Demand On-Sales",
+        "url": "https://prachub.com/interview-questions/design-an-event-ticketing-platform-with-seat-holds-and-high-demand-on-sales",
+        "source": "prachub",
+        "date": "2025-08-20"
+      },
+      {
+        "company": "meta",
+        "question": "Design ticketing system with seat hold",
+        "url": "https://prachub.com/interview-questions/design-ticketing-system-with-seat-hold",
+        "source": "prachub",
+        "date": "2025-12-08"
+      },
+      {
+        "company": "meta",
+        "question": "Design a ticketing purchase system",
+        "url": "https://prachub.com/interview-questions/design-a-ticketing-purchase-system",
+        "source": "prachub",
+        "date": "2025-08-14"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design an online ticket booking system",
+        "url": "https://prachub.com/interview-questions/design-an-online-ticket-booking-system",
+        "source": "prachub",
+        "date": "2026-01-03"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design an Event Booking System",
+        "url": "https://prachub.com/interview-questions/design-an-event-booking-system",
+        "source": "prachub",
+        "date": "2026-02-22"
+      },
+      {
+        "company": "affirm",
+        "question": "Design a Ticketmaster-like ticketing system",
+        "url": "https://prachub.com/interview-questions/design-a-ticketmaster-like-ticketing-system",
+        "source": "prachub",
+        "date": "2025-11-06"
+      },
+      {
+        "company": "scale-ai",
+        "question": "Design a large-scale ticketing system",
+        "url": "https://prachub.com/interview-questions/design-a-large-scale-ticketing-system",
+        "source": "prachub",
+        "date": "2025-12-08"
+      },
+      {
+        "company": "axon",
+        "question": "Design an airline booking system",
+        "url": "https://prachub.com/interview-questions/design-an-airline-booking-system",
+        "source": "prachub",
+        "date": "2025-08-07",
         "similar": true
       }
     ]

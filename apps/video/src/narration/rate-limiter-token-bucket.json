@@ -1,0 +1,36 @@
+{
+  "voice": "am_michael",
+  "speed": 1.08,
+  "gap": 7,
+  "scenes": {
+    "hook": [
+      { "id": "tb-hook-1", "text": "Stripe rate limits its API with a token bucket.", "say": "Stripe rate limits its A P I with a token bucket.", "frames": 40 },
+      { "id": "tb-hook-2", "text": "It allows a burst, but holds the average.", "frames": 40 }
+    ],
+    "bucket": [
+      { "id": "tb-bucket-1", "text": "Picture a bucket that holds 10 tokens.", "say": "Picture a bucket that holds ten tokens.", "frames": 35 },
+      { "id": "tb-bucket-2", "text": "Each request takes one token.", "frames": 30 },
+      { "id": "tb-bucket-3", "text": "One token drips back every 6 seconds: 60 divided by 10.", "say": "One token drips back every six seconds: sixty divided by ten.", "frames": 50 },
+      { "id": "tb-bucket-4", "text": "No whole token? Refused, with a time to retry.", "frames": 40 }
+    ],
+    "timeline": [
+      { "id": "tb-time-1", "text": "At 0 seconds, 10 requests. All pass. The bucket is empty.", "say": "At zero seconds, ten requests. All pass. The bucket is empty.", "frames": 50 },
+      { "id": "tb-time-2", "text": "At 3 seconds, half a token has dripped in. Not enough: refused.", "say": "At three seconds, half a token has dripped in. Not enough: refused.", "frames": 50 },
+      { "id": "tb-time-3", "text": "At 6 seconds, one whole token. Allowed.", "say": "At six seconds, one whole token. Allowed.", "frames": 40 },
+      { "id": "tb-time-4", "text": "Wait a minute or more, and it's full again. 10, never more.", "say": "Wait a minute or more, and it's full again. Ten, never more.", "frames": 50 }
+    ],
+    "redis": [
+      { "id": "tb-redis-1", "text": "Redis stores just two numbers: tokens, and the time.", "frames": 40 },
+      { "id": "tb-redis-2", "text": "One Lua script refills and takes a token in one step,", "frames": 40 },
+      { "id": "tb-redis-3", "text": "so two gateways never take the last token together.", "frames": 40 }
+    ],
+    "takeaway": [
+      { "id": "tb-take-1", "text": "Bursts up to 10, then 10 a minute on average.", "say": "Bursts up to ten, then ten a minute on average.", "frames": 40 },
+      { "id": "tb-take-2", "text": "So the first minute can see up to 19.", "say": "So the first minute can see up to nineteen.", "frames": 40 },
+      { "id": "tb-take-3", "text": "Want fewer? Make the bucket smaller.", "frames": 35 }
+    ],
+    "cta": [
+      { "id": "tb-cta-1", "text": "Try all four in Structura's rate limiter simulator.", "frames": 90 }
+    ]
+  }
+}

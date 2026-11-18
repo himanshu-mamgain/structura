@@ -1,4 +1,4 @@
-import { Activity, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FingerprintPattern, FileCode2, FileLock, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, Router, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Waypoints } from 'lucide-react'
+import { Activity, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FingerprintPattern, FileCode2, FileLock, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, RefreshCw, Router, Rows3, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Unplug, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -17,8 +17,11 @@ const ICONS: Record<string, LucideIcon> = {
   'query-cache': DatabaseZap,
   'scaling-aws': ServerCog,
   'rate-limiter': Gauge,
+  'retry-backoff': RefreshCw,
+  'circuit-breaker': Unplug,
   'api-gateway': DoorOpen,
   'message-queue': Inbox,
+  'queue-types': Rows3,
   'metrics-monitoring': Activity,
   'consistent-hashing': Orbit,
   'chat-system': MessagesSquare,

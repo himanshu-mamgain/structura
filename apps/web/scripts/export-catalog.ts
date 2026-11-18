@@ -54,6 +54,7 @@ const catalog: TopicMeta[] = STATIC_TOPICS.map((t) => ({
   area: AREA_OF[t.id],
   ...(t.video ? { video: t.video } : {}),
   ...(t.chapters ? { chapters: t.chapters } : {}),
+  ...(t.reels?.length ? { reels: t.reels } : {}),
   ...(t.guides?.length ? { guides: t.guides } : {}),
   explanation: {
     summary: t.explanation.summary,

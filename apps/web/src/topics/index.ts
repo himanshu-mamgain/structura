@@ -5,6 +5,7 @@ import { awsEcsFargate } from './aws-ecs-fargate'
 import { awsEcsFullstack } from './aws-ecs-fullstack'
 import { awsVpc } from './aws-vpc'
 import { cdn } from './cdn'
+import { circuitBreaker } from './circuit-breaker'
 import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
@@ -27,6 +28,7 @@ import { redisReplication } from './redis-replication'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { messageQueue } from './message-queue'
+import { queueTypes } from './queue-types'
 import { metricsMonitoring } from './metrics-monitoring'
 import { mint } from './mint'
 import { notificationSystem } from './notification-system'
@@ -36,6 +38,7 @@ import { proximityService } from './proximity-service'
 import { queryCache } from './query-cache'
 import { ragPipeline } from './rag-pipeline'
 import { rateLimiter } from './rate-limiter'
+import { retryBackoff } from './retry-backoff'
 import { rbac } from './rbac'
 import { salesRank } from './sales-rank'
 import { terraformBasics } from './terraform-basics'
@@ -74,6 +77,7 @@ const BASE_TOPICS: StaticTopic[] = [
   queryCache,
   scalingAws,
   rateLimiter,
+  retryBackoff,
   apiGateway,
   consistentHashing,
   chatSystem,
@@ -85,9 +89,11 @@ const BASE_TOPICS: StaticTopic[] = [
   proximityService,
   videoStreaming,
   metricsMonitoring,
+  circuitBreaker,
   fileSync,
   leaderElection,
   messageQueue,
+  queueTypes,
   locking,
   distributedCache,
   databaseSharding,

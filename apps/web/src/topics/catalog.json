@@ -870,6 +870,124 @@
   "blurb": "Token bucket, fixed and sliding windows, and what to do when the counter store is down",
   "difficulty": "Intermediate",
   "area": "development",
+  "reels": [
+   {
+    "id": "rate-limiter-fixed-window",
+    "title": "Fixed window",
+    "blurb": "One counter per minute: the cheapest limit, and why it can let 20 through in 10 seconds",
+    "video": "/videos/rate-limiter-fixed-window.mp4",
+    "chapters": [
+     [
+      0,
+      "Who counts?"
+     ],
+     [
+      7,
+      "One counter per minute"
+     ],
+     [
+      19,
+      "The edge problem"
+     ],
+     [
+      32,
+      "The takeaway"
+     ],
+     [
+      41,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-sliding-log",
+    "title": "Sliding window log",
+    "blurb": "Keep the time of every request: exact, and how much memory that costs",
+    "video": "/videos/rate-limiter-sliding-log.mp4",
+    "chapters": [
+     [
+      0,
+      "Remember every request"
+     ],
+     [
+      8,
+      "A log of times"
+     ],
+     [
+      19,
+      "The edge, fixed"
+     ],
+     [
+      35,
+      "The cost"
+     ],
+     [
+      51,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-sliding-counter",
+    "title": "Sliding window counter",
+    "blurb": "Two counters and a weighted sum: 10 × 0.917 + 0 = 9.17, worked through",
+    "video": "/videos/rate-limiter-sliding-counter.mp4",
+    "chapters": [
+     [
+      0,
+      "Almost exact, almost free"
+     ],
+     [
+      7,
+      "The estimate"
+     ],
+     [
+      17,
+      "Worked example"
+     ],
+     [
+      39,
+      "Close enough"
+     ],
+     [
+      57,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-token-bucket",
+    "title": "Token bucket",
+    "blurb": "10 tokens, one back every 6 seconds: bursts allowed, the average held",
+    "video": "/videos/rate-limiter-token-bucket.mp4",
+    "chapters": [
+     [
+      0,
+      "Allow a burst"
+     ],
+     [
+      6,
+      "The bucket"
+     ],
+     [
+      18,
+      "Second by second"
+     ],
+     [
+      33,
+      "In Redis"
+     ],
+     [
+      44,
+      "The takeaway"
+     ],
+     [
+      51,
+      "Try it"
+     ]
+    ]
+   }
+  ],
   "guides": [
    "scale-rate-limiting",
    "scale-scaling-api-with-rate-limiters-at-stripe",
@@ -879,6 +997,49 @@
   ],
   "explanation": {
    "summary": "A rate limiter caps how many requests a caller can make in a period. It protects services from abuse and overload, keeps one noisy client from starving the rest, and enforces paid plans. The hard parts are choosing the counting algorithm, counting correctly across many servers, and deciding what happens when the counter store is down.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "retry-backoff",
+  "title": "Retries: Backoff and Jitter",
+  "blurb": "Why retrying at once makes an outage worse: exponential backoff, jitter, retry budgets and dead letters",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "how-do-we-retry-on-failures",
+   "scale-fault-tolerance-timeouts-and-retries-thread-separation-semaphores-circ",
+   "top-6-cases-to-apply-idempotency",
+   "scale-circuit-breaker"
+  ],
+  "explanation": {
+   "summary": "When a call fails, trying again often works: the server was busy for a moment, or a packet was lost. But if every client retries at once, and keeps retrying, the extra traffic keeps the server down. Exponential backoff waits longer after each failure; jitter makes each client wait a random part of that time; limits and budgets stop retries from multiplying.",
    "sections": [
     {
      "heading": "Overview"
@@ -1403,6 +1564,51 @@
   "simulator": true
  },
  {
+  "id": "circuit-breaker",
+  "title": "Circuit Breaker and Resilience Patterns",
+  "blurb": "Timeouts, retries with backoff, circuit breakers and bulkheads: keeping one slow service from taking everything down",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "resiliency-patterns",
+   "scale-circuit-breaker",
+   "scale-circuit-breaking-in-distributed-systems",
+   "scale-bulkheads-partition-and-tolerate-failure-in-one-part",
+   "how-do-we-retry-on-failures",
+   "scale-design-for-resiliency"
+  ],
+  "explanation": {
+   "summary": "When a service you call gets slow, your threads pile up waiting for it, and soon your whole app is down too. A few small patterns stop that: timeouts bound the wait, retries with backoff ride out short glitches, a circuit breaker stops calling a service that is failing, and a bulkhead keeps its trouble in one corner of your app.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "file-sync",
   "title": "File Sync (Dropbox-style)",
   "blurb": "Block-level sync: chunk and hash files, upload only what changed, and tell other devices",
@@ -1511,6 +1717,50 @@
   ],
   "explanation": {
    "summary": "A message queue sits between a producer that has work and the workers that do it. The producer drops a message and moves on; workers take messages at their own pace. The interesting part is failure: a worker that crashes must not lose the message, and one bad message must not block the rest. Queues solve this with acknowledgements, a visibility timeout, retries and a dead-letter queue, and the price is that a message can be delivered more than once.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "queue-types",
+  "title": "Types of Queues",
+  "blurb": "Standard, FIFO, priority, delay, pub/sub, request/reply, in-memory and bounded queues: what each promises",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "types-of-message-queue",
+   "explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram",
+   "scale-pub-sub-messaging",
+   "scale-dynein-distributed-delayed-job-queueing-system-at-airbnb",
+   "scale-scaling-job-queue-with-redis-at-slack"
+  ],
+  "explanation": {
+   "summary": "A queue holds messages until a worker takes them, but queues make different promises. A standard queue is fast and keeps order only roughly. A FIFO queue keeps order within a group. A priority queue serves urgent work first. A delay queue hides a message until later. Pub/sub copies one message to many queues, request/reply sends an answer back, an in-memory queue trades safety for speed, and a bounded queue decides what happens when it is full.",
    "sections": [
     {
      "heading": "Overview"
