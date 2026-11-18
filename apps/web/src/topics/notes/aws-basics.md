@@ -1,6 +1,6 @@
 # AWS Basics: Regions, Compute, Storage, Pricing and the Shared Responsibility Model
 
-> 💡 **TL;DR**: AWS rents you computers, storage, databases and networks, which you control **through an API** and pay for by the second, the request or the gigabyte. Pick a **Region** near your users (Mumbai is `ap-south-1`), and spread across at least two **Availability Zones** (separate data centres), so one failure doesn't take you down. Run code on **EC2** (virtual servers), in **containers** (ECS, EKS, Fargate) or as **Lambda** functions (run once per request). Keep files in **S3** and data in **RDS** or **DynamoDB**. **IAM** decides who can do what, and **CloudWatch** watches everything. AWS protects the data centres; **you** protect your accounts, your data and your settings. The cloud is cheap when it grows and shrinks with your traffic, and expensive when you forget something is running.
+> 💡 **TL;DR**: AWS rents you computers, storage, databases and networks, which you control **through an API** and pay for by the second, the request or the gigabyte. Pick a **Region** near your users (Mumbai is `ap-south-1`), and spread across at least two **Availability Zones** (separate data centres), so one failure doesn't take you down. Run code on **EC2** (virtual servers), in **containers** on ECS (Elastic Container Service) or EKS (Elastic Kubernetes Service), or as **Lambda** functions (run once per request). Keep files in **S3** (Simple Storage Service) and data in **RDS** (Relational Database Service: managed Postgres or MySQL) or **DynamoDB**. **IAM** (Identity and Access Management) decides who can do what, and **CloudWatch** watches everything. AWS protects the data centres; **you** protect your accounts, your data and your settings. The cloud is cheap when it grows and shrinks with your traffic, and expensive when you forget something is running.
 
 This is the first step of the AWS part of the roadmap. Next: [Scaling to Millions of Users on AWS](/?topic=scaling-aws&read) puts these pieces together, and [AWS IAM](/?topic=aws-iam&read) covers who can touch them.
 
@@ -19,12 +19,12 @@ This is the first step of the AWS part of the roadmap. Next: [Scaling to Million
 | Key-value database | **DynamoDB** | Single-digit-millisecond reads at any scale, pay per request |
 | Cache | **ElastiCache** | Managed Redis or Valkey |
 | Your private network | **VPC** | Subnets, route tables and firewalls for your resources |
-| Spreading traffic | **ELB** (ALB, NLB) | Load balancers across servers and zones |
-| DNS and CDN | **Route 53**, **CloudFront** | Domain names, and caching close to users |
-| Messaging | **SQS**, **SNS**, **EventBridge** | Queues, fan-out notifications, event routing |
-| Streaming | **Kinesis**, **MSK** | Event streams; MSK is managed Kafka |
+| Spreading traffic | **ELB** (Elastic Load Balancing): the ALB (Application Load Balancer) and NLB (Network Load Balancer) | Load balancers across servers and zones |
+| DNS and CDN (content delivery network: servers near users that cache content) | **Route 53**, **CloudFront** | Domain names, and caching close to users |
+| Messaging | **SQS** (Simple Queue Service), **SNS** (Simple Notification Service: pub/sub topics), **EventBridge** | Queues, fan-out notifications, event routing |
+| Streaming | **Kinesis**, **MSK** (Managed Streaming for Apache Kafka) | Event streams; MSK is managed Kafka |
 | Who can do what | **IAM** | Users, roles and policies for every API call |
-| Secrets and keys | **Secrets Manager**, **KMS** | Store passwords; manage encryption keys |
+| Secrets and keys | **Secrets Manager**, **KMS** (Key Management Service: encryption keys) | Store passwords; manage encryption keys |
 | Watching it all | **CloudWatch**, **CloudTrail** | Metrics, logs and alarms; a record of every API call |
 | Infrastructure as code | **CloudFormation**, **CDK** (or Terraform) | Describe resources in files instead of clicking |
 
@@ -65,7 +65,7 @@ Region: ap-south-2 (Hyderabad)  ← a separate region: independent, far away
 Edge locations: hundreds of small sites for CloudFront and Route 53, close to users
 ```
 
-- A **Region** is a geographic area with its own, independent copy of AWS: more than 30 worldwide, each with **three or more AZs**. India has Mumbai (`ap-south-1`) and Hyderabad (`ap-south-2`).
+- A **Region** is a geographic area with its own, independent copy of AWS: more than 30 worldwide, each with **three or more AZs** (Availability Zone: a separate data centre in a region). India has Mumbai (`ap-south-1`) and Hyderabad (`ap-south-2`).
 - An **Availability Zone** is one or more data centres with independent power and networking. Zones in a region are close enough for synchronous database copies, far enough apart that one fire or flood doesn't hit two.
 - **Choose a region by**: latency to your users, where your data is legally allowed to live, which services and instance types it offers, and price (US East is usually cheapest; Mumbai costs a little more).
 - **Spread across at least two AZs** for anything that must stay up. Surviving a whole region going down is a disaster-recovery decision: see [Disaster Recovery Across AWS Regions](/?topic=aws-disaster-recovery&read).
@@ -77,19 +77,19 @@ Edge locations: hundreds of small sites for CloudFront and Route 53, close to us
 
 ### EC2: a virtual server
 
-An EC2 **instance** is a VM on AWS's Nitro hypervisor. You choose an **AMI** (the disk image: Amazon Linux, Ubuntu), an **instance type** (CPU and memory), a subnet, a security group and a disk.
+An EC2 **instance** is a VM (virtual machine) on AWS's Nitro hypervisor. You choose an **AMI** (the disk image: Amazon Linux, Ubuntu), an **instance type** (CPU and memory), a subnet, a security group and a disk.
 
 How to read an instance type, `m6i.large`:
 
 | Part | Means | Other values |
 | --- | --- | --- |
-| `m` | Family: general purpose | `c` compute, `r` memory, `t` burstable, `g`/`p` GPU, `i` storage |
+| `m` | Family: general purpose | `c` compute, `r` memory, `t` burstable, `g`/`p` GPU (graphics processor), `i` storage |
 | `6` | Generation | Newer is usually faster and cheaper per unit of work |
 | `i` | Processor: Intel | `a` AMD, `g` Graviton (AWS's ARM chips, usually the best price for performance) |
 | `large` | Size | `large` = 2 vCPU and 8 GiB for `m`; each step up (`xlarge`, `2xlarge`) doubles it |
 
 - **EBS** volumes are network disks: they survive a stop and start. **Instance store** disks are physically attached and fast, but wiped when the instance stops.
-- **`t` instances** are burstable: they earn CPU credits while idle and spend them when busy. Under steady load they run out. T3 and newer default to unlimited mode, which bills extra for the CPU above the baseline; in standard mode they slow down instead.
+- **`t` instances** are burstable: they earn CPU credits while idle and spend them when busy. Under steady load they run out. T3 (a burstable instance family) and newer default to unlimited mode, which bills extra for the CPU above the baseline; in standard mode they slow down instead.
 
 ### Auto Scaling
 
@@ -107,15 +107,7 @@ You upload a function; AWS runs a copy for every request in flight and bills $0.
 
 **Where Lambda stops being cheap**: at 100 ms and 512 MB, a request costs about $1.03 per million, so sustained traffic costs about $0.0037 an hour per req/s. One m6i.large ($0.101/hour) serves about 200 req/s. They cost the same at about **27 req/s** of steady traffic, and above that servers win. That's why Lambda is the most expensive option in the simulator's busy month, and the cheapest for a quiet one.
 
-### How to choose
-
-```text
-Spiky or low traffic, event-driven glue (S3 upload → resize)?   → Lambda
-You have Docker images, steady traffic, no wish to manage VMs?    → ECS on Fargate
-Steady high traffic, need full control, cheapest per request?     → EC2 (or ECS on EC2) with Auto Scaling
-Already run Kubernetes, or need its ecosystem?                    → EKS
-Long jobs, GPUs, special hardware?                                → EC2
-```
+Which one to use is in "How to choose" near the end.
 
 ---
 
@@ -149,7 +141,7 @@ RDS primary (zone a) ──sync──► RDS standby (zone b)
 ```
 
 - A **VPC** is your private network in a region, split into **subnets**, each in one AZ.
-- **Public subnets** route to the internet through an Internet Gateway; **private subnets** reach out through a NAT gateway and can't be reached from outside.
+- **Public subnets** route to the internet through an Internet Gateway; **private subnets** reach out through a NAT gateway (network address translation: it lets private servers reach out) and can't be reached from outside.
 - **Security groups** are firewalls on each resource: "the database accepts port 5432 only from the app's security group".
 - The details are in [VPC Networking](/?topic=aws-vpc&read) and [Application Load Balancer](/?topic=aws-alb&read).
 
@@ -162,7 +154,7 @@ RDS primary (zone a) ──sync──► RDS standby (zone b)
 | **On-Demand** | none | Anything new, spiky or short-lived |
 | **Savings Plans** | up to 72% | Steady use you'll keep for 1 or 3 years (commit to $ per hour) |
 | **Reserved Instances** | up to 72% | Same idea, tied to an instance type (RDS, ElastiCache, older setups) |
-| **Spot** | up to 90% | Work that can stop: batch jobs, CI, workers. AWS can take it back with 2 minutes' notice |
+| **Spot** | up to 90% | Work that can stop: batch jobs, CI (continuous integration: the server that builds and tests every change), workers. AWS can take it back with 2 minutes' notice |
 | **Free Tier** | free | New accounts get credits and a free plan to try things; some services have always-free amounts (Lambda: 1 million requests a month) |
 
 Where surprise bills come from:
@@ -182,7 +174,7 @@ Set an **AWS Budget** with an email alert on day one, and tag everything with an
 
 | AWS secures ("security **of** the cloud") | You secure ("security **in** the cloud") |
 | --- | --- |
-| Data centres, guards, power, cooling | Your AWS accounts, users, roles and MFA |
+| Data centres, guards, power, cooling | Your AWS accounts, users, roles and MFA (multi-factor authentication: a second check, such as a code on your phone) |
 | Physical servers, storage, network | Who can reach what: security groups, public buckets |
 | The hypervisor and the managed service software | Your OS patches on EC2, your container images, your code |
 | Availability of the services as promised | Encryption settings, backups you turned on, keys |
@@ -197,7 +189,7 @@ The more managed the service, the more AWS takes on: on EC2 you patch the OS; on
 2. **Create a day-to-day sign-in** with IAM Identity Center (or an IAM user with MFA), with admin rights only while you're learning alone.
 3. **Set a budget alert** at a number you'd be unhappy to pay.
 4. **Pick your region** (`ap-south-1`) and stay in it, so nothing hides in a region you never look at.
-5. **Install the AWS CLI** and sign in with `aws configure sso`: short-lived credentials, no keys in files.
+5. **Install the AWS CLI** (command-line tool) and sign in with `aws configure sso`: short-lived credentials, no keys in files.
 6. **Tag everything** you create, and delete it when you're done.
 
 ```bash
@@ -258,10 +250,37 @@ Each box is a managed service that scales on its own, every tier runs in at leas
 
 ---
 
+## How to choose
+
+**Where to run code:**
+
+```text
+Spiky or low traffic, event-driven glue (S3 upload → resize)?   → Lambda
+You have Docker images, steady traffic, no wish to manage VMs?    → ECS on Fargate
+Steady high traffic, need full control, cheapest per request?     → EC2 (or ECS on EC2) with Auto Scaling
+Already run Kubernetes, or need its ecosystem?                    → EKS
+Long jobs, GPUs, special hardware?                                → EC2
+```
+
+**Where to keep data:**
+
+```text
+Files, uploads, images, backups?                          → S3
+Orders, users, payments: tables, joins, transactions?     → RDS or Aurora, Multi-AZ
+Huge scale, every read is "get by key"?                   → DynamoDB
+The same hot data read again and again?                   → ElastiCache in front of the database
+A disk for one server?                                    → EBS
+Files that many servers must share?                       → EFS
+```
+
+**Which region:** the one closest to most of your users, where your data is allowed to live, that has the services you need. Compare prices last: the difference is usually small.
+
+---
+
 ## ⚠️ Critical Mistakes
 
 - Using the **root user** day to day, or without MFA. If it leaks, everything goes with it.
-- **Access keys in code** or in a public repo: bots find them within minutes. Use roles and SSO.
+- **Access keys in code** or in a public repo: bots find them within minutes. Use roles and SSO (single sign-on).
 - **No budget alert**: the first sign of a mistake is the invoice.
 - **Everything in one AZ**: one data centre problem takes the whole app down. Use at least two.
 - A **public S3 bucket** holding private files. Keep Block Public Access on; share with presigned URLs.

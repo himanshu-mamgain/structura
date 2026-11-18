@@ -1,8 +1,8 @@
 # Disaster Recovery Across AWS Regions: RTO, RPO, the Four Strategies and Why Replicas Aren't Backups
 
-> 💡 **TL;DR**: Disaster recovery is planning for the day **a whole region**, or your data itself, is gone. Two numbers drive every choice: **RTO**, how long you may be down, and **RPO**, how much recent data you may lose. AWS's four strategies trade cost for those numbers: **backup and restore** (hours, cheapest), **pilot light** (tens of minutes: data copied, servers off), **warm standby** (minutes: a small copy always running) and **active/active in two regions** (seconds, about double the cost). **Running in several zones keeps you up; it isn't disaster recovery.** **Copies of a database copy mistakes instantly**, so you still need point-in-time backups, copied to another region and ideally another account. And a recovery plan you've never tried doesn't work.
+> 💡 **TL;DR**: Disaster recovery is planning for the day **a whole region**, or your data itself, is gone. Two numbers drive every choice: **RTO** (recovery time objective), how long you may be down, and **RPO** (recovery point objective), how much recent data you may lose. AWS's four strategies trade cost for those numbers: **backup and restore** (hours, cheapest), **pilot light** (tens of minutes: data copied, servers off), **warm standby** (minutes: a small copy always running) and **active/active in two regions** (seconds, about double the cost). **Running in several zones keeps you up; it isn't disaster recovery.** **Copies of a database copy mistakes instantly**, so you still need point-in-time backups, copied to another region and ideally another account. And a recovery plan you've never tried doesn't work.
 
-Builds on [AWS Basics](/?topic=aws-basics&read) (regions and AZs) and [Scaling to Millions of Users on AWS](/?topic=scaling-aws&read). The example: an orders system in **Mumbai** (`ap-south-1`) recovering to **Hyderabad** (`ap-south-2`).
+Builds on [AWS Basics](/?topic=aws-basics&read), which explains regions and Availability Zones (AZs), and [Scaling to Millions of Users on AWS](/?topic=scaling-aws&read). The example: an orders system in **Mumbai** (`ap-south-1`) recovering to **Hyderabad** (`ap-south-2`).
 
 ---
 
@@ -12,7 +12,7 @@ Builds on [AWS Basics](/?topic=aws-basics&read) (regions and AZs) and [Scaling t
 | --- | --- | --- |
 | **RTO** (recovery time objective) | The longest you can be down | "Back within 30 minutes" |
 | **RPO** (recovery point objective) | The most recent data you can lose, as time | "Lose at most 1 minute of orders" |
-| High availability | Surviving the failure of a part: a server, an AZ | Multi-AZ RDS, an ALB over 2 AZs |
+| High availability | Surviving the failure of a part: a server, an AZ | Multi-AZ RDS (Relational Database Service: managed Postgres or MySQL), an ALB (Application Load Balancer) over 2 AZs |
 | Disaster recovery | Surviving the loss of a region, the data, or the account | A second region, backups elsewhere |
 | Failover | Moving users to the recovery side | Route 53 starts answering with Hyderabad |
 | Failback | Moving them home again | A second migration, planned like the first |
@@ -94,7 +94,7 @@ Ask: what does an hour down cost? What does losing ten minutes of data cost (ref
 | **Aurora** | **Global Database**: storage-level replication, typically under a second; managed failover | PITR up to 35 days; snapshots copied cross-region |
 | **DynamoDB** | **Global tables**: every region writable, conflicts resolved last-writer-wins | PITR up to 35 days; on-demand backups |
 | **S3** | Cross-Region Replication (Replication Time Control for a 15-minute target) | **Versioning** (undo deletes and overwrites), **Object Lock** (can't be deleted) |
-| **EBS / EC2** | Copy snapshots and AMIs to the other region | Snapshots on a schedule (AWS Backup) |
+| **EBS** (Elastic Block Store: disks) and **EC2** (Elastic Compute Cloud: servers) | Copy snapshots and AMIs (Amazon Machine Images: the disk images servers start from) to the other region | Snapshots on a schedule (AWS Backup) |
 | **ElastiCache** | Global Datastore for Redis/Valkey | Usually rebuilt from the database instead |
 
 **AWS Backup** puts it in one place: a backup plan per resource type, **copy rules** to another region and **another account**, and **Vault Lock** in compliance mode so nobody, not even the root user, can delete backups before they expire.
@@ -151,7 +151,7 @@ resource "aws_route53_record" "api_secondary" {
 }
 ```
 
-- Route 53 **health checks** plus **failover** (or latency) routing move users when the primary is unhealthy. Alias records to load balancers follow the change quickly; for plain records keep the **TTL low** (60 s) on anything that moves.
+- Route 53 **health checks** plus **failover** (or latency) routing move users when the primary is unhealthy. Alias records to load balancers follow the change quickly; for plain records keep the **TTL** (time to live: how long resolvers keep the answer) **low** (60 s) on anything that moves.
 - **Application Recovery Controller** adds manual "routing controls" and readiness checks, so a human can flip regions with one safe, pre-tested switch.
 - Prefer **data plane** actions during an incident (health checks flipping DNS, promoting a replica) over **control plane** ones (creating new resources), which may be slow or impaired in a regional event. That's called **static stability**: the recovery side already exists and only needs traffic.
 
@@ -174,7 +174,7 @@ resource "aws_route53_record" "api_secondary" {
 
 - **Everything as code**: the recovery region is built from the same Terraform, so it matches production. See [Terraform Modules](/?topic=terraform-modules&read).
 - **Quotas** in the recovery region (vCPUs, Fargate tasks, IPs, RDS instances) raised **before** the day you need them.
-- **Images, secrets and config** replicated too: ECR replication, Secrets Manager replica secrets, parameters in both regions.
+- **Images, secrets and config** replicated too: ECR (Elastic Container Registry: AWS's store for Docker images) replication, Secrets Manager replica secrets, parameters in both regions.
 - **Game days**: fail over for real, at least twice a year, and time it. AWS **Fault Injection Service** can stop instances or block an AZ on purpose; **Resilience Hub** checks your setup against your RTO and RPO.
 - **Watch the replication lag** with an alarm: a replica that's an hour behind is a one-hour RPO, whatever the diagram says.
 
@@ -215,7 +215,7 @@ Worried about bugs, deletes, ransomware?                  → PITR + versioning 
 
 A: RTO is how long you can be down: the time from the disaster until users are served again. RPO is how much data you can lose, measured as time: with nightly backups the RPO is up to a day; with a replica a few seconds behind, a few seconds.
 
-**Q: What are AWS's four DR strategies, and how do you pick one?**
+**Q: What are AWS's four DR (disaster recovery) strategies, and how do you pick one?**
 
 A: Backup and restore (rebuild from code and backups: hours, cheapest), pilot light (data replicated, compute off: tens of minutes), warm standby (a small working copy that scales up: minutes) and multi-site active/active (both regions serve: seconds, roughly double the cost). Pick the cheapest that meets the RTO and RPO the business agreed for that system.
 
@@ -250,7 +250,7 @@ A: Test it: scheduled game days where you actually fail over, timed against the 
 - [AWS Basics](/?topic=aws-basics&read): regions and Availability Zones
 - [Scaling to Millions of Users on AWS](/?topic=scaling-aws&read): the stack being recovered
 - [Terraform Modules](/?topic=terraform-modules&read): building the recovery region from the same code
-- [Redis Persistence](/?topic=redis-persistence&read): RDB, AOF and failover for the cache tier
+- [Redis Persistence](/?topic=redis-persistence&read): RDB (Redis's snapshot file), AOF (Redis's append-only file) and failover for the cache tier
 - [Kafka Reliability](/?topic=kafka-reliability&read): not losing events when things fail
 
 ---

@@ -1,6 +1,6 @@
 # AWS VPC Networking: CIDR, Subnets, Route Tables, NAT, Security Groups and Endpoints
 
-> 💡 **TL;DR**: A **VPC** is your own private network in one AWS region, with a range of addresses you choose, such as `10.0.0.0/16`. You split it into **subnets**, each in one Availability Zone. A subnet is **public** only because its **route table** sends `0.0.0.0/0` ("every other address") to an **Internet Gateway**. **Private** subnets reach out through a **NAT gateway**, and nothing outside can reach in. **Security groups** are firewalls on each network card; they remember connections, and a rule can name another security group ("the database accepts port 5432 from the app"). Send S3 and DynamoDB traffic through the free **gateway endpoints**, give each zone **its own NAT gateway**, and choose a range big enough that you never run out.
+> 💡 **TL;DR**: A **VPC** is your own private network in one AWS region, with a range of addresses you choose, such as `10.0.0.0/16`. You split it into **subnets**, each in one Availability Zone. A subnet is **public** only because its **route table** sends `0.0.0.0/0` ("every other address") to an **Internet Gateway**. **Private** subnets reach out through a **NAT gateway** (network address translation: it lets private servers reach out), and nothing outside can reach in. **Security groups** are firewalls on each network card; they remember connections, and a rule can name another security group ("the database accepts port 5432 from the app"). Send S3 (Simple Storage Service) and DynamoDB traffic through the free **gateway endpoints**, give each zone **its own NAT gateway**, and choose a range big enough that you never run out.
 
 Builds on [AWS Basics](/?topic=aws-basics&read). The [Application Load Balancer](/?topic=aws-alb&read) sits in the public subnets described here, and [ECS on Fargate](/?topic=aws-ecs-fargate&read) tasks run in the private ones.
 
@@ -10,15 +10,15 @@ Builds on [AWS Basics](/?topic=aws-basics&read). The [Application Load Balancer]
 
 | Piece | What it does | Remember |
 | --- | --- | --- |
-| VPC | A private network in one region, with a CIDR range | The main range can't change later; you can add more ranges |
+| VPC | A private network in one region, with a CIDR (a range of addresses written like 10.0.0.0/16) range | The main range can't change later; you can add more ranges |
 | CIDR block | An address range: `10.0.0.0/16` = first 16 bits fixed | Use private ranges: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` |
-| Subnet | A slice of the VPC in **one** AZ | 5 addresses in every subnet are reserved |
+| Subnet | A slice of the VPC in **one** AZ (Availability Zone: a separate data centre in a region) | 5 addresses in every subnet are reserved |
 | Route table | Where packets for each destination go | Longest (most specific) prefix wins |
 | Internet Gateway (IGW) | The VPC's door to the internet | Makes a subnet public when its route table points at it |
 | NAT gateway | Lets private subnets open connections out, not in | Zonal; billed per hour and per GB |
 | Elastic IP | A fixed public IPv4 address | Billed hourly, attached or not |
 | Security group | Stateful firewall on a network interface | Allow rules only; can reference other security groups |
-| Network ACL | Stateless firewall on a subnet | Allow and deny, numbered rules, both directions |
+| Network ACL (access control list) | Stateless firewall on a subnet | Allow and deny, numbered rules, both directions |
 | Gateway endpoint | Free private route to S3 or DynamoDB | A route table entry, no hourly charge |
 | Interface endpoint | A private IP in your subnet for an AWS API (PrivateLink) | Billed per hour per AZ and per GB |
 | Peering / Transit Gateway | Connect VPCs together | Peering isn't transitive; ranges must not overlap |
@@ -59,8 +59,8 @@ The usual design: three tiers, repeated in every zone.
 | Tier | Holds | Route to the internet | Example (3 AZs in Mumbai) |
 | --- | --- | --- | --- |
 | Public | Load balancers, NAT gateways | `0.0.0.0/0 → igw` | `10.0.0.0/24`, `10.0.1.0/24`, `10.0.2.0/24` |
-| Private (app) | ECS tasks, EC2, Lambda in a VPC | `0.0.0.0/0 → nat` in the same AZ | `10.0.16.0/20`, `10.0.32.0/20`, `10.0.48.0/20` |
-| Database | RDS, ElastiCache | none | `10.0.3.0/24`, `10.0.4.0/24`, `10.0.5.0/24` |
+| Private (app) | ECS tasks, EC2 (Elastic Compute Cloud: AWS's virtual servers), Lambda in a VPC | `0.0.0.0/0 → nat` in the same AZ | `10.0.16.0/20`, `10.0.32.0/20`, `10.0.48.0/20` |
+| Database | RDS (Relational Database Service: managed Postgres or MySQL), ElastiCache | none | `10.0.3.0/24`, `10.0.4.0/24`, `10.0.5.0/24` |
 
 Nine subnets use 3 × 251 + 3 × 4,091 + 3 × 251 = 13,779 usable addresses, about a fifth of the `/16`, leaving room for more tiers or zones later. Container subnets are the big ones, because every Fargate task takes its own address, and a rolling deploy briefly needs twice the usual number.
 
@@ -140,7 +140,7 @@ What a NAT gateway costs (us-east-1 list prices, the ones the topic's simulator 
 | Rules | Allow only | Allow and deny |
 | Evaluation | All rules together | In order by rule number; first match wins |
 | Source can be | CIDRs, prefix lists, **other security groups** | CIDRs only |
-| Default | Deny all in, allow all out | The default NACL allows everything |
+| Default | Deny all in, allow all out | The default NACL (network access control list) allows everything |
 
 Chain security groups by reference, not by IP range, so scaling and replacement never need rule changes:
 
@@ -158,12 +158,12 @@ NACLs are a coarse second layer, for example blocking an abusive range for a who
 
 | | Gateway endpoint | Interface endpoint (PrivateLink) |
 | --- | --- | --- |
-| Services | S3 and DynamoDB only | Most AWS APIs (ECR, Secrets Manager, CloudWatch Logs, STS, SQS…) and partner services |
+| Services | S3 and DynamoDB only | Most AWS APIs: ECR (Elastic Container Registry), Secrets Manager, CloudWatch Logs, STS (Security Token Service), SQS (Simple Queue Service)… and partner services |
 | How it works | A prefix-list route in your route tables | A network interface with a private IP in your subnets; DNS points the service name at it |
 | Cost | Free | About $0.01 an hour per AZ plus $0.01 per GB (us-east-1) |
 | Use when | Always, if you use S3 or DynamoDB | Private subnets with no NAT, heavy AWS API traffic, or compliance |
 
-Endpoints also work with IAM conditions: a bucket policy with `aws:SourceVpce` makes the bucket readable **only** through your endpoint.
+Endpoints also work with IAM (Identity and Access Management: who can do what) conditions: a bucket policy with `aws:SourceVpce` makes the bucket readable **only** through your endpoint.
 
 ---
 
@@ -172,7 +172,7 @@ Endpoints also work with IAM conditions: a bucket policy with `aws:SourceVpce` m
 | Option | Connects | Notes |
 | --- | --- | --- |
 | VPC peering | Two VPCs (any account or region) | Not transitive: A–B and B–C doesn't give A–C; no overlapping ranges |
-| Transit Gateway | Many VPCs and VPNs through a hub | Per-attachment hourly fee plus per-GB processing |
+| Transit Gateway | Many VPCs and VPNs (virtual private networks) through a hub | Per-attachment hourly fee plus per-GB processing |
 | PrivateLink | One service, exposed to other VPCs | Consumers see an interface endpoint; overlapping ranges are fine |
 | Site-to-Site VPN | Your office or data centre, over the internet | Encrypted IPsec tunnels, quick to set up |
 | Direct Connect | Your data centre, over a dedicated line | Consistent latency and bandwidth; weeks to provision |
@@ -275,10 +275,10 @@ Admin access to private servers?                 → SSM Session Manager (no ope
 - **Databases in public subnets**, or with a public IP "for debugging".
 - Security groups with `0.0.0.0/0` on 22, 3306, 5432 or 6379.
 - Rules by **IP range** between your own tiers instead of by **security group reference**: break on every scale-out.
-- Tight **/24 subnets for Fargate**: a rolling deploy needs double the addresses and gets stuck in PENDING.
+- Tight **/24 subnets for Fargate**: a rolling deploy needs double the addresses and gets stuck in `PENDING`.
 - **NACL rules without ephemeral ports**: requests go out, replies never come back.
 - Leaving **unused Elastic IPs and NAT gateways** running in dev: both bill by the hour.
-- Opening **port 22** to the world for SSH, instead of SSM Session Manager.
+- Opening **port 22** to the world for SSH (secure shell: a remote login), instead of SSM (AWS Systems Manager) Session Manager.
 - No **flow logs**: debugging network issues by guessing.
 
 ---

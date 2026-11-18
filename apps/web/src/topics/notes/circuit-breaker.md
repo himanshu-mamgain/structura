@@ -139,6 +139,21 @@ Run it with 10 orders a second against a hanging Payment Service for 10 seconds 
 
 Nothing can make a hanging service pay. The difference is that the protected app stays up and keeps every order.
 
+## How to choose
+
+Every call to another service needs a **timeout**. Add the rest by what the call is like:
+
+| The call | Add | Why |
+|---|---|---|
+| Any network call | A timeout, a little above the slowest normal answer | Without one, a hanging service holds your threads for ever |
+| A read, or a write with an idempotency key | Up to 2 retries with backoff and jitter | Most glitches pass in a moment; a retry is safe if it can't do the work twice |
+| A write without an idempotency key | No retry | A second try might charge or order twice |
+| A dependency that can be slow for minutes | A circuit breaker | Stop calling it, so failures are fast and the service can recover |
+| Several dependencies sharing your threads | A bulkhead per dependency | One slow service can only use its own pool |
+| Something users can live without for a while | A fallback, chosen in advance | Show a cached price or "pending" instead of an error |
+
+Start small: timeouts everywhere, then a breaker and a bulkhead around the one or two dependencies that have hurt you before. Every extra pattern is another setting to tune and test.
+
 ## ⚠️ Critical Mistakes
 
 - **No timeout.** The default in many HTTP clients is "wait for ever" or minutes.

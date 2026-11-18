@@ -1,6 +1,6 @@
 # Full-stack App on ECS: From git push to Production with Blue/Green and Automatic Rollback
 
-> 💡 **TL;DR**: A real AWS app is the pieces you already know (a VPC, load balancers, ECS services on Fargate, DynamoDB or RDS, S3) plus a **pipeline** that ships every change the same way. A push starts **CodePipeline**. **CodeBuild** builds the Docker image, tags it with the commit and pushes it to **ECR**. **CodeDeploy** starts the new version (**green**) next to the old one (**blue**), moves traffic over **all at once, as a canary, or step by step**, and **rolls back** to blue if the deploy fails or a **CloudWatch alarm** goes off. The circuit breaker catches releases that can't even start; only **alarms on what users see** catch releases that start fine but are wrong. Keep blue running for a few minutes after the switch, and rolling back is instant.
+> 💡 **TL;DR**: A real AWS app is the pieces you already know, plus a **pipeline** that ships every change the same way. The pieces: a VPC (Virtual Private Cloud: your private network in AWS), load balancers, ECS (Elastic Container Service) services on Fargate, DynamoDB or RDS (Relational Database Service: managed Postgres or MySQL), and S3 (Simple Storage Service). A push starts **CodePipeline**. **CodeBuild** builds the Docker image, tags it with the commit and pushes it to **ECR** (Elastic Container Registry: AWS's store for Docker images). **CodeDeploy** starts the new version (**green**) next to the old one (**blue**), moves traffic over **all at once, as a canary, or step by step**, and **rolls back** to blue if the deploy fails or a **CloudWatch alarm** goes off. The circuit breaker catches releases that can't even start; only **alarms on what users see** catch releases that start fine but are wrong. Keep blue running for a few minutes after the switch, and rolling back is instant.
 
 Follows the open-source sample **Amazon ECS fullstack app with Terraform** (MIT-0). Builds on [VPC Networking](/?topic=aws-vpc&read), [Application Load Balancer](/?topic=aws-alb&read) and [ECS on Fargate](/?topic=aws-ecs-fargate&read).
 
@@ -20,8 +20,8 @@ Developer ── git push ──► GitHub ──► CodePipeline
 
 | Piece | Role in the sample | Production note |
 | --- | --- | --- |
-| VPC, 2 AZs, **one** NAT gateway | Networking | Use one NAT per AZ in production |
-| Two internet-facing ALBs | One for the client, one for the server | One ALB with host or path rules costs less |
+| VPC, 2 AZs (Availability Zones: separate data centres in a region), **one** NAT gateway (network address translation: it lets private servers reach out) | Networking | Use one NAT per AZ in production |
+| Two internet-facing ALBs (Application Load Balancers) | One for the client, one for the server | One ALB with host or path rules costs less |
 | Two ECS services on Fargate | Client and server, 0.25 vCPU / 0.5 GB each | Right-size after measuring |
 | Auto scaling | Target tracking at 50% CPU and memory, 1 to 4 tasks | Minimum 2 across AZs for availability |
 | ECR | One repository per service | Lifecycle policy to expire old images |
@@ -39,7 +39,7 @@ Developer ── git push ──► GitHub ──► CodePipeline
 3. CodePipeline's **ECS (Blue/Green)** action registers a new task definition revision with the new image and hands it to **CodeDeploy**.
 4. CodeDeploy starts **green** tasks on the **replacement target group**, waits for them to pass health checks, and (optionally) routes a **test listener** to them first.
 5. It **shifts production traffic** from blue to green according to the deployment configuration.
-6. If a **deployment step fails** or a listed **CloudWatch alarm** goes into ALARM, it moves the listener back to blue: instant, because blue is still running.
+6. If a **deployment step fails** or a listed **CloudWatch alarm** goes into `ALARM`, it moves the listener back to blue: instant, because blue is still running.
 7. After the **termination wait** (5 minutes in the sample), blue tasks are stopped, and SNS reports the result.
 
 ---
@@ -82,7 +82,7 @@ Resources:
           ContainerPort: 3001
 ```
 
-The pipeline swaps `<IMAGE1_NAME>` in `taskdef.json` for the image in `imageDetail.json`, registers that task definition, and puts its ARN in place of `<TASK_DEFINITION>`.
+The pipeline swaps `<IMAGE1_NAME>` in `taskdef.json` for the image in `imageDetail.json`, registers that task definition, and puts its ARN (Amazon Resource Name: the full name of an AWS resource) in place of `<TASK_DEFINITION>`.
 
 ---
 
@@ -200,7 +200,7 @@ The sample keeps Terraform state on one laptop. For a team:
 
 - **Remote state** in S3 with locking, so two `apply`s can't run at once: see [Terraform Remote State](/?topic=terraform-state&read).
 - **One root module per environment** (dev, staging, prod) sharing versioned modules: see [Terraform Modules](/?topic=terraform-modules&read).
-- **Plan in CI** on every pull request, apply only after review, from the pipeline's role.
+- **Plan in CI** (continuous integration: the server that builds and tests every change) on every pull request, apply only after review, from the pipeline's role.
 - The pipeline's **GitHub token** or connection lives in Secrets Manager or a CodeStar connection, never in a `.tfvars` file.
 - Let the pipeline own the **image tag** and task definition revisions; tell Terraform to ignore them (`ignore_changes`) so an apply doesn't roll production back to an old image.
 

@@ -240,7 +240,7 @@ Neither is right everywhere, so the choice is made **per rule**, in the `fail_mo
 |---|---|---|
 | `GET /v1/orders`, search, most reads | open | The app servers can take a little extra load for a minute |
 | `POST /v1/login`, password reset | closed | Unlimited tries let an attacker guess passwords |
-| `POST /v1/sms`, sending one-time codes | closed | Each SMS costs money, and fraudsters send thousands |
+| `POST /v1/sms`, sending one-time codes | closed | Each SMS (text message) costs money, and fraudsters send thousands |
 | Everything else | fallback | A rough limit is better than none, and better than an outage |
 
 Stripe's rate limiters fail open: a bug or a Redis outage must never block API requests. Envoy's rate limit filter also lets requests through when its rate limit service fails, unless you set `failure_mode_deny: true`; then it returns 500.
@@ -301,7 +301,7 @@ export async function check(key, rule, countInRedis) {
 // 20 requests at once on one gateway, Redis down: the first 2 pass, the other 18 are refused.
 ```
 
-The same in Java. A `LinkedHashMap` in access order with `removeEldestEntry` is a ready-made LRU cache:
+The same in Java. A `LinkedHashMap` in access order with `removeEldestEntry` is a ready-made LRU (least recently used) cache:
 
 ```java
 import java.util.LinkedHashMap;
@@ -395,7 +395,7 @@ A: In a small table, one row per plan and route, with the algorithm, limit, wind
 
 **Q: How do you make the limit hold across ten gateways?**
 
-A: Keep the count in a shared Redis, and update it with one atomic step: INCR for a fixed window, or a Lua script that reads, refills and takes a token. Redis runs one script at a time, so two gateways can't both take the last token. Shard Redis by key so each key's count lives on one node.
+A: Keep the count in a shared Redis, and update it with one atomic step: `INCR` for a fixed window, or a Lua script that reads, refills and takes a token. Redis runs one script at a time, so two gateways can't both take the last token. Shard Redis by key so each key's count lives on one node.
 
 **Q: Redis is down. Do you fail open or closed?**
 
@@ -416,7 +416,7 @@ A: The counter resets at the start of each minute. 10 requests at 0:55 fill the 
 ## Related topics
 
 - [API Gateway](/?topic=api-gateway&read): where the limiter runs, next to authentication and the circuit breaker.
-- [Redis: Basics](/?topic=redis-basics&read): hashes, INCR, expiry and Lua scripts.
+- [Redis: Basics](/?topic=redis-basics&read): hashes, `INCR`, expiry and Lua scripts.
 - [Redis Replication, Sentinel and Cluster](/?topic=redis-replication&read): what a failover does to the counters, and how keys are spread over shards.
 - [Distributed Cache](/?topic=distributed-cache&read): the same "copy in memory, refresh it" idea for other data.
 - [Consistent Hashing](/?topic=consistent-hashing&read): one way to spread keys over Redis shards.
@@ -426,7 +426,7 @@ A: The counter resets at the start of each minute. 10 requests at 0:55 fill the 
 - Stripe: [Scaling your API with rate limiters](https://stripe.com/blog/rate-limiters)
 - Cloudflare: [How we built rate limiting capable of scaling to millions of domains](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/)
 - Envoy docs: [Rate limit filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter) (`failure_mode_deny`)
-- Redis docs: [INCR, and its rate limiter pattern](https://redis.io/docs/latest/commands/incr/)
+- Redis docs: [`INCR`, and its rate limiter pattern](https://redis.io/docs/latest/commands/incr/)
 - RFC 6585: [429 Too Many Requests](https://www.rfc-editor.org/rfc/rfc6585#section-4)
 
 ## Why This Matters

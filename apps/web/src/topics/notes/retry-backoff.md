@@ -112,7 +112,7 @@ The value is seconds (`30`) or a date. When it's there, wait that long instead o
 
 Backoff and jitter spread retries out. Limits stop them from multiplying.
 
-- **Tries per request.** Give up after a few tries: 3 to 5 when a user is waiting on a screen, more, spread over minutes, for a background job. Google's SRE book uses up to 3 attempts per request.
+- **Tries per request.** Give up after a few tries: 3 to 5 when a user is waiting on a screen, more, spread over minutes, for a background job. Google's SRE (site reliability engineering) book uses up to 3 attempts per request.
 - **A retry budget per client.** Only retry while retries are under 10% of this client's requests, counted over the last minute. Then a storm adds at most 10% more load (1.1×), not 3× or 5×. When the budget is spent, fail fast: the dependency is clearly in trouble.
 - **One layer only.** If the app, the API and the service each make 4 tries, one click becomes **4 × 4 × 4 = 64** calls to the database. Retry at the layer just above the one that failed. If that layer gives up, it returns an "overloaded, don't retry" error, so the layers above don't retry too.
 
