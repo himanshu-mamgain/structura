@@ -47,6 +47,7 @@ import { terraformState } from './terraform-state'
 import { scalingAws } from './scaling-aws'
 import { searchAutocomplete } from './search-autocomplete'
 import { socialGraph } from './social-graph'
+import { ticketBooking } from './ticket-booking'
 import { twitterTimeline } from './twitter-timeline'
 import type { StaticTopic } from './types'
 import { uberSurge } from './uber-surge'
@@ -83,6 +84,7 @@ const BASE_TOPICS: StaticTopic[] = [
   cdn,
   notificationSystem,
   uniqueIdGenerator,
+  ticketBooking,
   searchAutocomplete,
   proximityService,
   videoStreaming,

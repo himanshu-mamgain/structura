@@ -44,7 +44,10 @@
     "clickup": "ClickUp",
     "sierra": "Sierra",
     "decagon": "Decagon",
-    "general-motors": "General Motors"
+    "general-motors": "General Motors",
+    "affirm": "Affirm",
+    "scale-ai": "Scale AI",
+    "axon": "Axon"
   },
   "topics": {
     "ai-agent": [
@@ -1293,6 +1296,72 @@
         "url": "https://prachub.com/interview-questions/connect-monitoring-circuit-breakers-rollback-and-ci-cd",
         "source": "prachub",
         "date": "2026-08-30",
+        "similar": true
+      }
+    ],
+    "ticket-booking": [
+      {
+        "company": "amazon",
+        "question": "System Design for an Online Event Ticketing Site: Seat Holds, Checkout and Spikes",
+        "url": "https://prachub.com/interview-questions/system-design-for-an-online-event-ticketing-site-seat-holds-checkout-and-spikes",
+        "source": "prachub",
+        "date": "2024-08-21"
+      },
+      {
+        "company": "google",
+        "question": "Design an Event Ticketing Platform With Seat Holds and High-Demand On-Sales",
+        "url": "https://prachub.com/interview-questions/design-an-event-ticketing-platform-with-seat-holds-and-high-demand-on-sales",
+        "source": "prachub",
+        "date": "2025-08-20"
+      },
+      {
+        "company": "meta",
+        "question": "Design ticketing system with seat hold",
+        "url": "https://prachub.com/interview-questions/design-ticketing-system-with-seat-hold",
+        "source": "prachub",
+        "date": "2025-12-08"
+      },
+      {
+        "company": "meta",
+        "question": "Design a ticketing purchase system",
+        "url": "https://prachub.com/interview-questions/design-a-ticketing-purchase-system",
+        "source": "prachub",
+        "date": "2025-08-14"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design an online ticket booking system",
+        "url": "https://prachub.com/interview-questions/design-an-online-ticket-booking-system",
+        "source": "prachub",
+        "date": "2026-01-03"
+      },
+      {
+        "company": "microsoft",
+        "question": "Design an Event Booking System",
+        "url": "https://prachub.com/interview-questions/design-an-event-booking-system",
+        "source": "prachub",
+        "date": "2026-02-22"
+      },
+      {
+        "company": "affirm",
+        "question": "Design a Ticketmaster-like ticketing system",
+        "url": "https://prachub.com/interview-questions/design-a-ticketmaster-like-ticketing-system",
+        "source": "prachub",
+        "date": "2025-11-06"
+      },
+      {
+        "company": "scale-ai",
+        "question": "Design a large-scale ticketing system",
+        "url": "https://prachub.com/interview-questions/design-a-large-scale-ticketing-system",
+        "source": "prachub",
+        "date": "2025-12-08"
+      },
+      {
+        "company": "axon",
+        "question": "Design an airline booking system",
+        "url": "https://prachub.com/interview-questions/design-an-airline-booking-system",
+        "source": "prachub",
+        "date": "2025-08-07",
         "similar": true
       }
     ]

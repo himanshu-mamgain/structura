@@ -52,6 +52,7 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Distributed Message Queue | Intermediate | | | |
 | Types of Queues | Intermediate | | | |
 | Unique ID Generator (Snowflake) | Intermediate | | | |
+| Ticket Booking System (BookMyShow-style) | Intermediate | | | |
 | Search Autocomplete (Typeahead) | Intermediate | | | |
 | Proximity Service (Nearby Places) | Intermediate | | | |
 | Video Streaming (YouTube-style) | Intermediate | | | |

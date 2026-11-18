@@ -1342,6 +1342,50 @@
   "simulator": true
  },
  {
+  "id": "ticket-booking",
+  "title": "Ticket Booking System (BookMyShow-style)",
+  "blurb": "Sell 18,000 seats to 600,000 fans in minutes: waiting room, timed seat holds and no double booking",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "design-stock-exchange",
+   "how-to-avoid-double-payment",
+   "payment-system",
+   "shortlong-polling-sse-websocket",
+   "how-do-we-retry-on-failures"
+  ],
+  "explanation": {
+   "summary": "Selling tickets looks like a shop, but for a popular show many thousands of fans want the same few seats at the same second. A good design lets fans in at a safe speed, holds a seat for a short time while they pay, and makes it impossible to sell one seat twice.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "search-autocomplete",
   "title": "Search Autocomplete (Typeahead)",
   "blurb": "Prefix trie with precomputed top-k, layered caches, and a pipeline that learns from searches",
