@@ -1,0 +1,33 @@
+{
+  "voice": "am_michael",
+  "speed": 1.08,
+  "gap": 7,
+  "scenes": {
+    "hook": [
+      { "id": "fw-hook-1", "text": "Your API allows 10 requests a minute for each key.", "say": "Your A P I allows ten requests a minute for each key.", "frames": 45 },
+      { "id": "fw-hook-2", "text": "How does the server count them?", "frames": 30 },
+      { "id": "fw-hook-3", "text": "The simplest way is a fixed window.", "frames": 40 }
+    ],
+    "count": [
+      { "id": "fw-count-1", "text": "Cut time into whole minutes.", "frames": 30 },
+      { "id": "fw-count-2", "text": "Each minute gets one counter in Redis.", "frames": 35 },
+      { "id": "fw-count-3", "text": "Every request adds one to it.", "frames": 35 },
+      { "id": "fw-count-4", "text": "Request 11 finds 10 already there, and gets refused with 429.", "say": "Request eleven finds ten already there, and gets refused with four twenty-nine.", "frames": 50 }
+    ],
+    "edge": [
+      { "id": "fw-edge-1", "text": "But watch the edge of a minute.", "frames": 30 },
+      { "id": "fw-edge-2", "text": "10 requests at 0:55. All allowed.", "say": "Ten requests at fifty-five seconds. All allowed.", "frames": 40 },
+      { "id": "fw-edge-3", "text": "A new minute starts, with a new counter at zero.", "frames": 40 },
+      { "id": "fw-edge-4", "text": "10 more at 1:05. All allowed too.", "say": "Ten more at one minute and five seconds. All allowed too.", "frames": 40 },
+      { "id": "fw-edge-5", "text": "That's 20 requests in 10 seconds.", "say": "That's twenty requests in ten seconds.", "frames": 45 }
+    ],
+    "takeaway": [
+      { "id": "fw-take-1", "text": "Fixed windows are cheap: one number and one command.", "frames": 40 },
+      { "id": "fw-take-2", "text": "Use them when a short burst at the edge is fine.", "frames": 40 },
+      { "id": "fw-take-3", "text": "Next: the sliding window log fixes the edge.", "frames": 45 }
+    ],
+    "cta": [
+      { "id": "fw-cta-1", "text": "Try it in Structura: send 10 at 55 seconds, then 10 at 65.", "say": "Try it in Structura: send ten at fifty-five seconds, then ten at sixty-five.", "frames": 90 }
+    ]
+  }
+}

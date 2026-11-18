@@ -3,6 +3,7 @@ import * as DockerVsVm from './DockerVsVm'
 import * as Ep01 from './episodes/Ep01UrlShortener'
 import * as IdempotentPayments from './IdempotentPayments'
 import * as Rbac from './Rbac'
+import * as RL from './RateLimiterReels'
 import { FPS, HEIGHT, WIDTH } from './theme'
 import * as UberSurge from './UberSurge'
 import * as UrlShortener from './UrlShortener'
@@ -73,6 +74,11 @@ export function Root() {
         durationInFrames={IdempotentPayments.duration(null)}
         {...common}
       />
+      {/* Rate limiting in four reels, one algorithm each. */}
+      <Composition id="RateLimiterFixedWindow" component={RL.FixedWindowReel} calculateMetadata={withVoice(RL.FIXED, RL.fixedDuration)} durationInFrames={RL.fixedDuration(null)} {...common} />
+      <Composition id="RateLimiterSlidingLog" component={RL.SlidingLogReel} calculateMetadata={withVoice(RL.LOG, RL.logDuration)} durationInFrames={RL.logDuration(null)} {...common} />
+      <Composition id="RateLimiterSlidingCounter" component={RL.SlidingCounterReel} calculateMetadata={withVoice(RL.COUNTER, RL.counterDuration)} durationInFrames={RL.counterDuration(null)} {...common} />
+      <Composition id="RateLimiterTokenBucket" component={RL.TokenBucketReel} calculateMetadata={withVoice(RL.BUCKET, RL.bucketDuration)} durationInFrames={RL.bucketDuration(null)} {...common} />
       <Composition
         id="Ep01UrlShortener"
         component={Ep01.Ep01UrlShortener}

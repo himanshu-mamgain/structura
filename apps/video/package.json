@@ -13,6 +13,7 @@
     "render:url": "remotion render src/index.ts UrlShortener ../web/public/videos/url-shortener.mp4",
     "render:rbac": "remotion render src/index.ts Rbac ../web/public/videos/rbac.mp4",
     "render:payments": "remotion render src/index.ts IdempotentPayments ../web/public/videos/payment-idempotency.mp4",
+    "render:rate-limiter": "remotion render src/index.ts RateLimiterFixedWindow ../web/public/videos/rate-limiter-fixed-window.mp4 && remotion render src/index.ts RateLimiterSlidingLog ../web/public/videos/rate-limiter-sliding-log.mp4 && remotion render src/index.ts RateLimiterSlidingCounter ../web/public/videos/rate-limiter-sliding-counter.mp4 && remotion render src/index.ts RateLimiterTokenBucket ../web/public/videos/rate-limiter-token-bucket.mp4",
     "typecheck": "tsc --noEmit",
     "voice": "node scripts/voice.mjs",
     "voices": "node scripts/voices.mjs",
