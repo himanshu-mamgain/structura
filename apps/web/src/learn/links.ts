@@ -110,6 +110,7 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'aws-alb', section: 'Health checks', terms: ['health check', 'health checks'], near: /\b(ALB|target|load balancer)/i, nearTopics: ['aws-alb', 'aws-ecs-fargate', 'aws-ecs-fullstack', 'load-balancer'] },
   { topic: 'aws-alb', terms: ['Application Load Balancer', 'Application Load Balancers', 'target group', 'target groups'] },
   { topic: 'aws-alb', terms: ['ALB', 'ALBs'], exact: true },
+  { topic: 'aws-ecs-fargate', section: 'What a vCPU is', terms: ['vCPU', 'vCPUs', 'CPU units', 'CPU unit'], exact: true, inTopic: true },
   { topic: 'aws-ecs-fargate', section: 'A task definition, line by line', terms: ['task definition', 'task definitions'] },
   { topic: 'aws-ecs-fargate', terms: ['Fargate', 'ECS'], exact: true },
   { topic: 'aws-ecs-fullstack', section: 'Blue/green on ECS, underneath', terms: ['blue/green', 'blue-green'] },
