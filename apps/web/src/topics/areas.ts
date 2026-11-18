@@ -36,6 +36,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'unique-id-generator': 'development',
   'notification-system': 'development',
   'message-queue': 'development',
+  'queue-types': 'development',
   'chat-system': 'development',
   'twitter-timeline': 'development',
   'search-autocomplete': 'development',

@@ -27,6 +27,7 @@ import { redisReplication } from './redis-replication'
 import { keyValueStore } from './key-value-store'
 import { rbacLoad, urlShortenerLoad } from './loadtests'
 import { messageQueue } from './message-queue'
+import { queueTypes } from './queue-types'
 import { metricsMonitoring } from './metrics-monitoring'
 import { mint } from './mint'
 import { notificationSystem } from './notification-system'
@@ -88,6 +89,7 @@ const BASE_TOPICS: StaticTopic[] = [
   fileSync,
   leaderElection,
   messageQueue,
+  queueTypes,
   locking,
   distributedCache,
   databaseSharding,

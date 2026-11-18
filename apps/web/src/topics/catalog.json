@@ -1658,6 +1658,50 @@
   "simulator": true
  },
  {
+  "id": "queue-types",
+  "title": "Types of Queues",
+  "blurb": "Standard, FIFO, priority, delay, pub/sub, request/reply, in-memory and bounded queues: what each promises",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "types-of-message-queue",
+   "explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram",
+   "scale-pub-sub-messaging",
+   "scale-dynein-distributed-delayed-job-queueing-system-at-airbnb",
+   "scale-scaling-job-queue-with-redis-at-slack"
+  ],
+  "explanation": {
+   "summary": "A queue holds messages until a worker takes them, but queues make different promises. A standard queue is fast and keeps order only roughly. A FIFO queue keeps order within a group. A priority queue serves urgent work first. A delay queue hides a message until later. Pub/sub copies one message to many queues, request/reply sends an answer back, an in-memory queue trades safety for speed, and a bounded queue decides what happens when it is full.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "locking",
   "title": "Locking: Redis & Database",
   "blurb": "Shared, exclusive, update and intent locks, Redis locks with fencing, and when to use which",
