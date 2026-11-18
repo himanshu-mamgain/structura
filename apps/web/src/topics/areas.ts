@@ -36,6 +36,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'notification-system': 'development',
   'message-queue': 'development',
   'chat-system': 'development',
+  'ticket-booking': 'development',
   'twitter-timeline': 'development',
   'search-autocomplete': 'development',
   'web-crawler': 'development',
