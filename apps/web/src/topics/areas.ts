@@ -30,6 +30,7 @@ export const AREA_OF: Record<string, AreaId> = {
   pastebin: 'development',
   rbac: 'development',
   'rate-limiter': 'development',
+  'retry-backoff': 'development',
   'api-gateway': 'development',
   'payment-idempotency': 'development',
   'unique-id-generator': 'development',

@@ -1,6 +1,6 @@
 {
   "$comment": "Which companies asked each topic in interviews, from public candidate reports. Edit by hand; every entry needs a link. See CLAUDE.md, \"Asked at\".",
-  "checked": "2026-11-16",
+  "checked": "2026-11-18",
   "sources": {
     "prachub": {
       "name": "PracHub",
@@ -41,7 +41,8 @@
     "uipath": "UiPath",
     "illumio": "Illumio",
     "mercor": "Mercor",
-    "clickup": "ClickUp"
+    "clickup": "ClickUp",
+    "sierra": "Sierra"
   },
   "topics": {
     "ai-agent": [
@@ -1205,6 +1206,28 @@
         "source": "prachub",
         "date": "2026-01-05",
         "similar": true
+      }
+    ],
+    "retry-backoff": [
+      {
+        "company": "airbnb",
+        "question": "Design an extensible request Retryer",
+        "url": "https://prachub.com/interview-questions/design-an-extensible-request-retryer",
+        "source": "prachub"
+      },
+      {
+        "company": "airbnb",
+        "question": "Implement retry wrapper and interdependent validators",
+        "url": "https://prachub.com/interview-questions/implement-retry-wrapper-and-interdependent-validators",
+        "source": "prachub",
+        "similar": true
+      },
+      {
+        "company": "sierra",
+        "question": "Fixing a flaky async Python call path with timeouts and exponential-backoff retries",
+        "url": "https://prachub.com/interview-questions/fixing-a-flaky-async-python-call-path-with-timeouts-and-exponential-backoff-retries",
+        "source": "prachub",
+        "date": "2026-05-17"
       }
     ]
   }

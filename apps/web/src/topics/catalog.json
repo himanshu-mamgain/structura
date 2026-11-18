@@ -1027,6 +1027,49 @@
   "simulator": true
  },
  {
+  "id": "retry-backoff",
+  "title": "Retries: Backoff and Jitter",
+  "blurb": "Why retrying at once makes an outage worse: exponential backoff, jitter, retry budgets and dead letters",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "how-do-we-retry-on-failures",
+   "scale-fault-tolerance-timeouts-and-retries-thread-separation-semaphores-circ",
+   "top-6-cases-to-apply-idempotency",
+   "scale-circuit-breaker"
+  ],
+  "explanation": {
+   "summary": "When a call fails, trying again often works: the server was busy for a moment, or a packet was lost. But if every client retries at once, and keeps retrying, the extra traffic keeps the server down. Exponential backoff waits longer after each failure; jitter makes each client wait a random part of that time; limits and budgets stop retries from multiplying.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "api-gateway",
   "title": "API Gateway",
   "blurb": "One front door for many services: tokens, rate limits, routing, caching and circuit breakers",
