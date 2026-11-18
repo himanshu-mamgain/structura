@@ -1,6 +1,6 @@
 {
   "$comment": "Which companies asked each topic in interviews, from public candidate reports. Edit by hand; every entry needs a link. See CLAUDE.md, \"Asked at\".",
-  "checked": "2026-11-16",
+  "checked": "2026-11-18",
   "sources": {
     "prachub": {
       "name": "PracHub",
@@ -41,7 +41,10 @@
     "uipath": "UiPath",
     "illumio": "Illumio",
     "mercor": "Mercor",
-    "clickup": "ClickUp"
+    "clickup": "ClickUp",
+    "sierra": "Sierra",
+    "decagon": "Decagon",
+    "general-motors": "General Motors"
   },
   "topics": {
     "ai-agent": [
@@ -1204,6 +1207,92 @@
         "url": "https://prachub.com/interview-questions/design-an-image-crawler-for-unlimited-urls",
         "source": "prachub",
         "date": "2026-01-05",
+        "similar": true
+      }
+    ],
+    "retry-backoff": [
+      {
+        "company": "airbnb",
+        "question": "Design an extensible request Retryer",
+        "url": "https://prachub.com/interview-questions/design-an-extensible-request-retryer",
+        "source": "prachub"
+      },
+      {
+        "company": "airbnb",
+        "question": "Implement retry wrapper and interdependent validators",
+        "url": "https://prachub.com/interview-questions/implement-retry-wrapper-and-interdependent-validators",
+        "source": "prachub",
+        "similar": true
+      },
+      {
+        "company": "sierra",
+        "question": "Fixing a flaky async Python call path with timeouts and exponential-backoff retries",
+        "url": "https://prachub.com/interview-questions/fixing-a-flaky-async-python-call-path-with-timeouts-and-exponential-backoff-retries",
+        "source": "prachub",
+        "date": "2026-05-17"
+      }
+    ],
+    "queue-types": [
+      {
+        "company": "amazon",
+        "question": "Design an In-Memory Pub-Sub Model",
+        "url": "https://prachub.com/interview-questions/design-an-in-memory-pub-sub-model",
+        "source": "prachub",
+        "date": "2026-04-10"
+      },
+      {
+        "company": "amazon",
+        "question": "Implement a Single-Node Priority Pub/Sub",
+        "url": "https://prachub.com/interview-questions/implement-a-single-node-priority-pub-sub",
+        "source": "prachub",
+        "date": "2026-04-09",
+        "similar": true
+      },
+      {
+        "company": "google",
+        "question": "Design high-throughput event subscription system",
+        "url": "https://prachub.com/interview-questions/design-high-throughput-event-subscription-system",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "pinterest",
+        "question": "Implement DelayQueue with Idempotent Task Execution",
+        "url": "https://prachub.com/interview-questions/implement-delayqueue-with-idempotent-task-execution",
+        "source": "prachub"
+      },
+      {
+        "company": "decagon",
+        "question": "Design a Delayed Job Scheduler",
+        "url": "https://prachub.com/interview-questions/design-a-delayed-job-scheduler",
+        "source": "prachub",
+        "date": "2026-10-18",
+        "similar": true
+      },
+      {
+        "company": "decagon",
+        "question": "Design a Durable Delayed Task Scheduler",
+        "url": "https://prachub.com/interview-questions/design-a-durable-delayed-task-scheduler",
+        "source": "prachub",
+        "date": "2026-08-29",
+        "similar": true
+      }
+    ],
+    "circuit-breaker": [
+      {
+        "company": "databricks",
+        "question": "Design Circuit-Breaker-Aware Database Routing",
+        "url": "https://prachub.com/interview-questions/design-circuit-breaker-aware-database-routing",
+        "source": "prachub",
+        "date": "2026-08-13"
+      },
+      {
+        "company": "general-motors",
+        "question": "Connect Monitoring, Circuit Breakers, Rollback, and CI/CD",
+        "url": "https://prachub.com/interview-questions/connect-monitoring-circuit-breakers-rollback-and-ci-cd",
+        "source": "prachub",
+        "date": "2026-08-30",
         "similar": true
       }
     ]

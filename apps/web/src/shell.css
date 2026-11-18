@@ -915,6 +915,9 @@ button {
 }
 
 .trace-step {
+  /* A block, so the list number sits by the first line, not the last. */
+  display: block;
+  width: 100%;
   padding: 0;
   border: 0;
   background: none;

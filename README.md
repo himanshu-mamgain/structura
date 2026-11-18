@@ -43,12 +43,14 @@ Everything runs in your browser: no backend, no accounts, no AI services. The vo
 | Query Cache for a Search Engine | Intermediate | | | |
 | Scaling to Millions of Users on AWS | Intermediate | | | |
 | Rate Limiter | Intermediate | | | |
+| Retries: Backoff and Jitter | Intermediate | | | |
 | API Gateway | Intermediate | | | |
 | Consistent Hashing | Intermediate | | | |
 | Chat System (WhatsApp-style) | Intermediate | | | |
 | CDN: Content Delivery Network | Intermediate | | | |
 | Notification System | Intermediate | | | |
 | Distributed Message Queue | Intermediate | | | |
+| Types of Queues | Intermediate | | | |
 | Unique ID Generator (Snowflake) | Intermediate | | | |
 | Search Autocomplete (Typeahead) | Intermediate | | | |
 | Proximity Service (Nearby Places) | Intermediate | | | |

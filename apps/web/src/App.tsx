@@ -341,6 +341,7 @@ export default function App() {
                       onRead={() => openRead(meta)}
                       onLearn={() => openLearn(meta)}
                       onArea={openArea}
+                      onReel={openReel}
                     />
                   )}
                 </Suspense>

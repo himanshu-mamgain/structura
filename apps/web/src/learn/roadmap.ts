@@ -66,9 +66,11 @@ export const ROADMAP: RoadmapPart[] = [
     steps: [
       { id: 'sd-ids', title: 'Unique IDs at scale', detail: 'Snowflake IDs: sortable, unique and generated without coordination.', topic: 'unique-id-generator' },
       { id: 'sd-notifications', title: 'A notification system', detail: 'Queues, retries and fan-out to push, email and SMS.', topic: 'notification-system' },
-      { id: 'sd-queue', title: 'A distributed message queue', detail: 'Acks, visibility timeouts, dead-letter queues and at-least-once delivery.', topic: 'message-queue', guides: ['types-of-message-queue'] },
-      { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
+      { id: 'sd-retries', title: 'Retries without a retry storm', detail: 'Exponential backoff, jitter, retry budgets and dead letters.', topic: 'retry-backoff', guides: ['how-do-we-retry-on-failures'] },
       { id: 'sd-resilience', title: 'Surviving a slow dependency', detail: 'Timeouts, retries with backoff, circuit breakers and bulkheads.', topic: 'circuit-breaker', guides: ['resiliency-patterns'] },
+      { id: 'sd-queue', title: 'A distributed message queue', detail: 'Acks, visibility timeouts, dead-letter queues and at-least-once delivery.', topic: 'message-queue', guides: ['types-of-message-queue'] },
+      { id: 'sd-queue-types', title: 'Which kind of queue', detail: 'Standard or FIFO, priority, delay, pub/sub, request/reply, in memory, and what to do when a queue is full.', topic: 'queue-types', guides: ['explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram'] },
+      { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
       { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
     ],
   },
