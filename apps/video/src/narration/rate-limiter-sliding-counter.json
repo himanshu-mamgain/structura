@@ -1,0 +1,33 @@
+{
+  "voice": "am_michael",
+  "speed": 1.08,
+  "gap": 7,
+  "scenes": {
+    "hook": [
+      { "id": "sc-hook-1", "text": "The log is exact, but it stores every request.", "frames": 40 },
+      { "id": "sc-hook-2", "text": "The sliding window counter keeps just two numbers per key.", "frames": 45 }
+    ],
+    "counters": [
+      { "id": "sc-counters-1", "text": "One counter for last minute, one for this minute.", "frames": 40 },
+      { "id": "sc-counters-2", "text": "To guess the last 60 seconds,", "say": "To guess the last sixty seconds,", "frames": 30 },
+      { "id": "sc-counters-3", "text": "take last minute's count, times the part of it still inside,", "frames": 45 },
+      { "id": "sc-counters-4", "text": "plus this minute's count.", "frames": 30 }
+    ],
+    "worked": [
+      { "id": "sc-worked-1", "text": "10 requests at 0:55.", "say": "Ten requests at fifty-five seconds.", "frames": 30 },
+      { "id": "sc-worked-2", "text": "At 1:05, we're 5 seconds into the new minute,", "say": "At one minute and five seconds, we're five seconds into the new minute,", "frames": 40 },
+      { "id": "sc-worked-3", "text": "so 55 of last minute's 60 seconds still count.", "say": "so fifty-five of last minute's sixty seconds still count.", "frames": 40 },
+      { "id": "sc-worked-4", "text": "10 times 0.917 is 9.17. One more makes 10.17: refused.", "say": "Ten times zero point nine one seven is nine point one seven. One more makes ten point one seven: refused.", "frames": 60 },
+      { "id": "sc-worked-5", "text": "At 1:06 it's exactly 9. One more makes 10: allowed.", "say": "At one minute and six seconds it's exactly nine. One more makes ten: allowed.", "frames": 50 }
+    ],
+    "close": [
+      { "id": "sc-close-1", "text": "It assumes last minute's requests were spread evenly.", "frames": 40 },
+      { "id": "sc-close-2", "text": "Cloudflare checked 400 million requests: only 0.003% were wrongly allowed or limited.", "say": "Cloudflare checked four hundred million requests: only zero point zero zero three percent were wrongly allowed or limited.", "frames": 60 },
+      { "id": "sc-close-3", "text": "Two numbers, no edge spike. A great default.", "frames": 40 },
+      { "id": "sc-close-4", "text": "Next: the token bucket, which allows bursts on purpose.", "frames": 45 }
+    ],
+    "cta": [
+      { "id": "sc-cta-1", "text": "Try it in Structura: pick the sliding window counter.", "frames": 90 }
+    ]
+  }
+}

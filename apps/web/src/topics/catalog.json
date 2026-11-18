@@ -870,6 +870,124 @@
   "blurb": "Token bucket, fixed and sliding windows, and what to do when the counter store is down",
   "difficulty": "Intermediate",
   "area": "development",
+  "reels": [
+   {
+    "id": "rate-limiter-fixed-window",
+    "title": "Fixed window",
+    "blurb": "One counter per minute: the cheapest limit, and why it can let 20 through in 10 seconds",
+    "video": "/videos/rate-limiter-fixed-window.mp4",
+    "chapters": [
+     [
+      0,
+      "Who counts?"
+     ],
+     [
+      7,
+      "One counter per minute"
+     ],
+     [
+      19,
+      "The edge problem"
+     ],
+     [
+      32,
+      "The takeaway"
+     ],
+     [
+      41,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-sliding-log",
+    "title": "Sliding window log",
+    "blurb": "Keep the time of every request: exact, and how much memory that costs",
+    "video": "/videos/rate-limiter-sliding-log.mp4",
+    "chapters": [
+     [
+      0,
+      "Remember every request"
+     ],
+     [
+      8,
+      "A log of times"
+     ],
+     [
+      19,
+      "The edge, fixed"
+     ],
+     [
+      35,
+      "The cost"
+     ],
+     [
+      51,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-sliding-counter",
+    "title": "Sliding window counter",
+    "blurb": "Two counters and a weighted sum: 10 × 0.917 + 0 = 9.17, worked through",
+    "video": "/videos/rate-limiter-sliding-counter.mp4",
+    "chapters": [
+     [
+      0,
+      "Almost exact, almost free"
+     ],
+     [
+      7,
+      "The estimate"
+     ],
+     [
+      17,
+      "Worked example"
+     ],
+     [
+      39,
+      "Close enough"
+     ],
+     [
+      57,
+      "Try it"
+     ]
+    ]
+   },
+   {
+    "id": "rate-limiter-token-bucket",
+    "title": "Token bucket",
+    "blurb": "10 tokens, one back every 6 seconds: bursts allowed, the average held",
+    "video": "/videos/rate-limiter-token-bucket.mp4",
+    "chapters": [
+     [
+      0,
+      "Allow a burst"
+     ],
+     [
+      6,
+      "The bucket"
+     ],
+     [
+      18,
+      "Second by second"
+     ],
+     [
+      33,
+      "In Redis"
+     ],
+     [
+      44,
+      "The takeaway"
+     ],
+     [
+      51,
+      "Try it"
+     ]
+    ]
+   }
+  ],
   "guides": [
    "scale-rate-limiting",
    "scale-scaling-api-with-rate-limiters-at-stripe",

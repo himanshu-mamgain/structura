@@ -1,6 +1,6 @@
 import type { AreaId } from './areas'
 import data from './catalog.json'
-import type { StaticTopic } from './types'
+import type { StaticTopic, TopicReel } from './types'
 
 /**
  * What the app knows about a topic before it's opened (scripts/export-catalog.ts writes
@@ -16,6 +16,7 @@ export interface TopicMeta {
   area?: AreaId
   video?: string
   chapters?: [number, string][]
+  reels?: TopicReel[]
   guides?: string[]
   explanation: { summary: string; sections: { heading: string }[]; trace?: unknown }
   /** Truthy when the topic has one; the real thing loads with the topic. */

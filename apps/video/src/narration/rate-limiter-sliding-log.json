@@ -1,0 +1,33 @@
+{
+  "voice": "am_michael",
+  "speed": 1.08,
+  "gap": 7,
+  "scenes": {
+    "hook": [
+      { "id": "sl-hook-1", "text": "A fixed window can let 20 requests through in 10 seconds.", "say": "A fixed window can let twenty requests through in ten seconds.", "frames": 45 },
+      { "id": "sl-hook-2", "text": "The sliding window log is exact.", "frames": 30 },
+      { "id": "sl-hook-3", "text": "It keeps the time of every request.", "frames": 35 }
+    ],
+    "log": [
+      { "id": "sl-log-1", "text": "Each key gets a sorted set in Redis.", "frames": 35 },
+      { "id": "sl-log-2", "text": "First, drop the times older than 60 seconds.", "say": "First, drop the times older than sixty seconds.", "frames": 40 },
+      { "id": "sl-log-3", "text": "Then count what's left. Already 10? Refuse.", "say": "Then count what's left. Already ten? Refuse.", "frames": 40 },
+      { "id": "sl-log-4", "text": "If not, add this request's time, and let it through.", "frames": 40 }
+    ],
+    "edge": [
+      { "id": "sl-edge-1", "text": "Back to the edge: 10 requests at 0:55.", "say": "Back to the edge: ten requests at fifty-five seconds.", "frames": 40 },
+      { "id": "sl-edge-2", "text": "At 1:05, the window covers the last 60 seconds.", "say": "At one minute and five seconds, the window covers the last sixty seconds.", "frames": 40 },
+      { "id": "sl-edge-3", "text": "All 10 are still inside, so the request is refused.", "say": "All ten are still inside, so the request is refused.", "frames": 40 },
+      { "id": "sl-edge-4", "text": "Room opens at 1:55, when the first ones are a minute old.", "say": "Room opens at one minute fifty-five, when the first ones are a minute old.", "frames": 50 }
+    ],
+    "cost": [
+      { "id": "sl-cost-1", "text": "The price: one entry for every request.", "frames": 35 },
+      { "id": "sl-cost-2", "text": "100 a minute for 10 million keys is about 16 gigabytes.", "say": "A hundred a minute, for ten million keys, is about sixteen gigabytes.", "frames": 50 },
+      { "id": "sl-cost-3", "text": "Use it for small, exact limits, like 5 logins a minute.", "say": "Use it for small, exact limits, like five logins a minute.", "frames": 40 },
+      { "id": "sl-cost-4", "text": "Next: the sliding window counter gets close with just two numbers.", "frames": 50 }
+    ],
+    "cta": [
+      { "id": "sl-cta-1", "text": "Try the edge yourself in Structura's rate limiter.", "frames": 90 }
+    ]
+  }
+}

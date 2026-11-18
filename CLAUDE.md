@@ -257,6 +257,15 @@ locally, `TTS_ENGINE=sarvam TTS_VOICE=<speaker> TTS_PACE=1` (or `--engine=sarvam
   first use), which also masters the audio and writes word timings for the karaoke
   captions. `npm run voice -w @structura/video -- payment-idempotency`, then
   `npm run render:payments -w @structura/video`.
+- **A topic's own short reels**: a topic can list extra reels besides its main video
+  (`reels: [{ id, title, blurb, video, chapters }]` in the topic file). They play in the Reels feed
+  (`?page=reels&reel=<id>`, each with its own progress) and show as covers on the topic page. The
+  Rate Limiter has one per algorithm (`apps/video/src/RateLimiterReels.tsx`, the card kit, Kokoro):
+  `npm run voice -w @structura/video -- rate-limiter-fixed-window …`, then
+  `npm run render:rate-limiter -w @structura/video`, and a cover with `remotion still … --scale=0.5`
+  plus its `-sm.jpg` copy. Chapters: `npx tsx scripts/chapters.ts <video>` in `apps/video`. Here,
+  Remotion can't download its own Chrome: pass `--browser-executable=` the Playwright
+  `chrome-headless-shell` under `/opt/pw-browsers`.
 
 ## Notifications
 
