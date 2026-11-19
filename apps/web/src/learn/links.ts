@@ -85,6 +85,7 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'load-balancer', terms: ['load balancer', 'load balancers', 'load balancing', 'round robin', 'least connections'] },
   { topic: 'cdn', terms: ['CDN', 'CDNs'], exact: true },
   { topic: 'cdn', terms: ['content delivery network', 'edge cache', 'edge caches'] },
+  { topic: 'url-shortener', section: 'URL, URI and URN', terms: ['URI', 'URIs', 'URN', 'URNs'], exact: true, inTopic: true },
   { topic: 'url-shortener', terms: ['base62', 'base 62', 'URL shortener'] },
   { topic: 'twitter-timeline', terms: ['fan-out on write', 'fan-out on read', 'fanout', 'home timeline'] },
   { topic: 'notification-system', terms: ['push notification', 'push notifications'] },

@@ -194,6 +194,24 @@
    "section": "Request Journey"
   },
   {
+   "term": "URL",
+   "def": "Uniform Resource Locator: an address that says where a resource is and how to fetch it, such as https://sho.rt/aZ3k9Qx. Every URL is a URI.",
+   "section": "Request Journey",
+   "by": "Structura"
+  },
+  {
+   "term": "URI",
+   "def": "Uniform Resource Identifier: any string that identifies a resource. A URL is a URI that also gives its location; a URN is a URI that only names it.",
+   "section": "Request Journey",
+   "by": "Structura"
+  },
+  {
+   "term": "URN",
+   "def": "Uniform Resource Name: a URI that names a resource for ever without saying where it is, such as urn:isbn:9780134685991 for a book.",
+   "section": "Request Journey",
+   "by": "Structura"
+  },
+  {
    "term": "CDN",
    "def": "Content Delivery Network — a distributed network of servers that cache content close to users geographically, reducing latency.",
    "section": "Caching"

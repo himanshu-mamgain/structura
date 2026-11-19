@@ -4,12 +4,16 @@ import course from '../learn/course.json'
 import { recordQuiz } from '../learn/progress'
 
 // Practice pages built from Mominur Rahman's System Design 101 course (MIT):
-// a quiz and a glossary. The credit and MIT notice show under each.
+// a quiz and a glossary. The credit and MIT notice show under each. Glossary terms
+// Structura wrote itself carry `"by": "Structura"` in course.json and are named apart.
 
-function Credit() {
+/** The glossary terms Structura added to the course's own. */
+const OWN_TERMS = course.glossary.filter((t) => 'by' in t).map((t) => t.term)
+
+function Credit({ own = [] }: { own?: string[] }) {
   return (
     <p className="practice-credit">
-      From the{' '}
+      {own.length ? 'Most terms are from the ' : 'From the '}
       <a href={course.source.repo} target="_blank" rel="noreferrer">
         {course.source.name}
       </a>
@@ -17,7 +21,7 @@ function Credit() {
       <a href={course.source.notice} target="_blank" rel="noreferrer">
         MIT licence
       </a>
-      .
+      .{own.length ? ` ${new Intl.ListFormat('en', { type: 'conjunction' }).format(own)} ${own.length === 1 ? 'is' : 'are'} Structura's own.` : ''}
     </p>
   )
 }
@@ -143,7 +147,7 @@ export function Glossary() {
         </section>
       ))}
       {!terms.length && <p className="practice-empty">No term matches “{query}”.</p>}
-      <Credit />
+      <Credit own={OWN_TERMS} />
     </div>
   )
 }
