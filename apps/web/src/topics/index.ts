@@ -11,6 +11,7 @@ import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
 import { fileSync } from './file-sync'
+import { jobScheduler } from './job-scheduler'
 import { leaderElection } from './leader-election'
 import { loadBalancer } from './load-balancer'
 import { llmGateway } from './llm-gateway'
@@ -85,6 +86,7 @@ const BASE_TOPICS: StaticTopic[] = [
   notificationSystem,
   uniqueIdGenerator,
   ticketBooking,
+  jobScheduler,
   searchAutocomplete,
   proximityService,
   videoStreaming,

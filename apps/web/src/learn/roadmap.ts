@@ -71,6 +71,7 @@ export const ROADMAP: RoadmapPart[] = [
       { id: 'sd-queue', title: 'A distributed message queue', detail: 'Acks, visibility timeouts, dead-letter queues and at-least-once delivery.', topic: 'message-queue', guides: ['types-of-message-queue'] },
       { id: 'sd-queue-types', title: 'Which kind of queue', detail: 'Standard or FIFO, priority, delay, pub/sub, request/reply, in memory, and what to do when a queue is full.', topic: 'queue-types', guides: ['explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram'] },
       { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
+      { id: 'sd-scheduler', title: 'A distributed job scheduler', detail: 'Cron at scale: due-time polling, leased runs, retries and dead letters.', topic: 'job-scheduler', guides: ['scale-distributed-task-scheduling-3-parts-at-pagerduty'] },
       { id: 'sd-tickets', title: 'A ticket booking system', detail: 'Waiting rooms, timed seat holds and never selling a seat twice.', topic: 'ticket-booking' },
       { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
     ],

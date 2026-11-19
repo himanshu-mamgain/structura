@@ -1386,6 +1386,51 @@
   "simulator": true
  },
  {
+  "id": "job-scheduler",
+  "title": "Distributed Job Scheduler (Cron at Scale)",
+  "blurb": "Run millions of jobs on time: a due-time poller, leased runs, retries with backoff and no double runs",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "scale-distributed-task-scheduling-3-parts-at-pagerduty",
+   "scale-building-cron-at-google",
+   "scale-distributed-cron-architecture-at-quora",
+   "scale-dynein-distributed-delayed-job-queueing-system-at-airbnb",
+   "why-do-we-need-to-use-a-distributed-lock",
+   "how-do-we-retry-on-failures"
+  ],
+  "explanation": {
+   "summary": "Cron runs a command at a set time on one machine. A distributed scheduler does the same for millions of jobs on many machines, and must still run each job once at its time, survive crashed workers and retry failures without hiding them.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "search-autocomplete",
   "title": "Search Autocomplete (Typeahead)",
   "blurb": "Prefix trie with precomputed top-k, layered caches, and a pipeline that learns from searches",
