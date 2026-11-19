@@ -67,6 +67,7 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'leader-election', terms: ['consensus'], far: /\bSentinel/ },
   { topic: 'unique-id-generator', terms: ['Snowflake ID', 'Snowflake IDs', 'Snowflake-style', 'Snowflake'], exact: true },
   { topic: 'unique-id-generator', terms: ['unique ID generator', 'ID generator'] },
+  { topic: 'job-scheduler', terms: ['job scheduler', 'distributed scheduler', 'cron job', 'cron jobs', 'lease reaper'] },
   { topic: 'ticket-booking', terms: ['ticket booking', 'seat hold', 'seat holds', 'waiting room', 'virtual waiting room', 'double booking'] },
   { topic: 'payment-idempotency', terms: ['idempotency key', 'idempotency keys', 'Idempotency-Key'] },
   { topic: 'queue-types', section: 'Standard and FIFO queues', terms: ['FIFO queue', 'FIFO queues', 'standard queue', 'standard queues', 'message group id'], inTopic: true },
