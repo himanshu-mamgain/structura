@@ -13,4 +13,9 @@ export const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_KEY, {
     secure: window.location.protocol === 'https:',
     maxAge: 60 * 60 * 24 * 400, // the longest a browser keeps a cookie: 400 days
   },
+  auth: {
+    // Sessions handed over by the Studia site arrive as #access_token=…; account.ts takes those
+    // itself. Left to the client, this PKCE client would reject them. ?code= is still handled here.
+    detectSessionInUrl: () => false,
+  },
 })
