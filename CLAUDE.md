@@ -384,7 +384,7 @@ domain, `studia.dev`, with each app on a subdomain (`structura.studia.dev`, `sch
 `atlas.studia.dev`). `ECOSYSTEM_NAME` and `ECOSYSTEM_DOMAIN` are in `src/ecosystem.ts`; the app URLs
 there stay on `netlify.app` until the domain is live.
 
-- **Signing in happens on the Studia site** (`VITE_STUDIA_URL`, `studia-web.netlify.app`; its code
+- **Signing in happens on the Studia site** (`VITE_STUDIA_URL`, `studia-hub.netlify.app`; its code
   is `web/` in the studia repo). The account button (`src/account/AccountButton.tsx`) shows only
   when the build has Supabase settings; "Continue with GitHub" opens
   `<Studia>/login?app=structura&next=<this page>`. Studia signs in with GitHub, then sends the
@@ -414,7 +414,7 @@ there stay on `netlify.app` until the domain is live.
   has a `studia-auth` cookie or is coming back from signing in (`?code=`, `#access_token=`).
 - **Settings** (Netlify environment variables, read at build time):
   `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (public by design: row-level security decides
-  what each user may read or write), `VITE_STUDIA_URL=https://studia-web.netlify.app`,
+  what each user may read or write), `VITE_STUDIA_URL=https://studia-hub.netlify.app`,
   `VITE_REQUIRE_SIGN_IN=true` and, after the move, `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`.
   Without the first two the account button is hidden, nothing is loaded and nobody is sent away.
 - The table, its policies and the owner's setup steps (Supabase project, GitHub OAuth app, redirect
