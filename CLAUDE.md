@@ -377,9 +377,8 @@ to topics; add words to its `ALIASES` to link more). Format and encryption:
 
 ## Studia accounts (Supabase)
 
-**Studia** is the name of the family: Structura, Schemata and DSA Atlas. Its repo,
-[himanshu-mamgain/studia](https://github.com/himanshu-mamgain/studia), holds what they share: the
-Supabase migrations, the account contract (`docs/accounts.md`) and the setup steps. The plan is a
+**Studia** is the name of the family: Structura, Schemata and DSA Atlas. Its own repo, `studia`
+(next to this one on the owner's GitHub), holds what they share: the Supabase migrations, the account contract (`docs/accounts.md`) and the setup steps. The plan is a
 domain, `studia.dev`, with each app on a subdomain (`structura.studia.dev`, `schemata.studia.dev`,
 `atlas.studia.dev`). `ECOSYSTEM_NAME` and `ECOSYSTEM_DOMAIN` are in `src/ecosystem.ts`; the app URLs
 there stay on `netlify.app` until the domain is live.
