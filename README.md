@@ -22,7 +22,7 @@ Every topic is a live architecture, not a static picture:
 - **Interview prep.** In the Practice tab: the best free repositories for DSA, system design, JavaScript and Node.js, and the whole interview process, linked with a note on what each is good for.
 - **App-style navigation.** Five tabs, as in Instagram: Home, Explore, Reels, Listen and Practice. They sit along the bottom on phones and in the top bar on desktop.
 
-Everything runs in your browser: no backend of its own and no AI services. An optional **Studia account** (sign in with GitHub, through Supabase) keeps your progress in step across devices and across [Structura, Schemata and DSA Atlas](https://github.com/himanshu-mamgain/studia); nothing needs it. The voice is [Kokoro](https://github.com/hexgrad/kokoro), an open-weight speech model that runs on the device.
+Everything runs in your browser: no backend of its own and no AI services. An optional **Studia account** (sign in with GitHub, through Supabase) keeps your progress in step across devices and across Structura, Schemata and DSA Atlas; nothing needs it. The voice is [Kokoro](https://github.com/hexgrad/kokoro), an open-weight speech model that runs on the device.
 
 ## Topics
 
