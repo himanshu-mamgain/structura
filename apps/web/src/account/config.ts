@@ -7,7 +7,7 @@
 //                                   row-level security decides what each user may touch
 //   VITE_AUTH_COOKIE_DOMAIN         .studia.dev once the apps live there, so one sign-in
 //                                   covers every subdomain; empty until then
-//   VITE_STUDIA_URL                 the Studia site (https://studia-web.netlify.app): sign in and
+//   VITE_STUDIA_URL                 the Studia site (https://studia-hub.netlify.app): sign in and
 //                                   out there, so one login serves every app
 //   VITE_REQUIRE_SIGN_IN            "true": a signed-out visitor is sent to Studia's login first,
 //                                   then straight back to the page they asked for
