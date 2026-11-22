@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LayoutGrid, X } from 'lucide-react'
-import { ECOSYSTEM, type EcoAppId } from '../ecosystem'
+import { ECOSYSTEM, ECOSYSTEM_NAME, type EcoAppId } from '../ecosystem'
 
 const THIS_APP: EcoAppId = 'structura'
 
@@ -23,9 +23,9 @@ export function AppSwitcher() {
       {open && (
         <>
           <div className="notify-scrim" onClick={() => setOpen(false)} />
-          <section className="card notify-panel apps-panel" role="dialog" aria-label="Your apps">
+          <section className="card notify-panel apps-panel" role="dialog" aria-label={`${ECOSYSTEM_NAME} apps`}>
             <div className="notify-head">
-              <h2>Your apps</h2>
+              <h2>{ECOSYSTEM_NAME} apps</h2>
               <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Close">
                 <X size={18} />
               </button>

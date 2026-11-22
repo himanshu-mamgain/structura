@@ -3,6 +3,7 @@ import { BookA, Boxes, Briefcase, Clapperboard, GraduationCap, Headphones, House
 import { InstallButton } from './pwa/InstallButton'
 import { updateReady } from './pwa/updates'
 import { AppSwitcher } from './shell/AppSwitcher'
+import { AccountButton } from './account/AccountButton'
 import { Home } from './shell/Home'
 import { NotificationBell, useNotificationEngine } from './shell/Notifications'
 import { MiniPlayer } from './shell/MiniPlayer'
@@ -320,6 +321,7 @@ export default function App() {
               window.scrollTo({ top: 0 })
             }}
           />
+          <AccountButton />
           <AppSwitcher />
         </header>
 
