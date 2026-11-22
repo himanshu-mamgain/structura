@@ -7,6 +7,15 @@
 
 export type EcoAppId = 'structura' | 'dsa-atlas' | 'schemata'
 
+/**
+ * The family's name. The apps will move to subdomains of studia.dev (structura.studia.dev,
+ * schemata.studia.dev, atlas.studia.dev), which lets one Studia account sign in to all of
+ * them: the session cookie is set on .studia.dev. Until the domain is live, the URLs below
+ * stay on netlify.app (see CLAUDE.md, "Studia accounts").
+ */
+export const ECOSYSTEM_NAME = 'Studia'
+export const ECOSYSTEM_DOMAIN = 'studia.dev'
+
 export interface EcoApp {
   id: EcoAppId
   name: string

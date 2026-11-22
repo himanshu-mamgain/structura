@@ -3941,6 +3941,100 @@ html {
   }
 }
 
+/* The Studia account (src/account): same panel as the notifications. */
+.notify.account {
+  margin-left: 0;
+}
+
+.account-btn {
+  padding: 0;
+  overflow: hidden;
+}
+
+.account-avatar {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.account-avatar.big {
+  width: 44px;
+  height: 44px;
+}
+
+.account-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: #b4443a;
+}
+
+.account-body {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
+.account-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-who div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account-who span,
+.account-fine {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
+.account-note,
+.account-sync,
+.account-fine {
+  margin: 0;
+}
+
+.account-sync {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.account-error {
+  margin: 0;
+  color: #b4443a;
+  font-size: 0.9rem;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-signin {
+  justify-content: center;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .account-panel {
+    width: 340px;
+  }
+}
+
 /* Links styled as buttons (e.g. "Practice DSA" on a topic). */
 a.btn {
   text-decoration: none;

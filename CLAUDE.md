@@ -18,6 +18,11 @@ static site from `main`: https://structura-web.netlify.app
   Notion notes are fetched at **build** time, not at runtime: see "Notion notes". The
   second, owner-approved exception is `/api/notion-note`, which only appends a note the
   owner writes and seals with his notes key; nothing else may write to Notion.)
+  **The third, owner-approved exception is the Studia account** (Supabase, see "Studia
+  accounts"): an optional GitHub sign-in shared by Structura, Schemata and DSA Atlas, and each
+  signed-in learner's own progress row, guarded by row-level security. Every page works signed
+  out; nothing else goes to Supabase, and there is no server code of ours. Don't grow it into
+  more without the owner asking.
 - **Work on a branch and open a pull request, then merge it. Never push to `main`.**
   Every change lands through a PR, and the owner wants Claude to merge its own PRs
   (including the daily topic routine's) once the Netlify deploy preview and any CI
@@ -79,6 +84,8 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - Sharing is **WhatsApp only** (the owner's choice): `src/shell/Share.tsx` makes a `wa.me` link with the
     title, blurb and page address, on each topic page, Read mode's bar and Home. Don't add other share options.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
+  - `src/account/`: the Studia account (see "Studia accounts"): the app bar's account button,
+    GitHub sign-in through Supabase, and progress sync (`merge.ts`, `npm run test:sync`).
   - **Deep links** (`src/learn/links.ts`): when a topic's text mentions what another topic teaches
     ("Redis Sentinel", "rate limiter", "circuit breaker"), the first mention in each section links
     there, to the exact Read-mode section when the rule names one (`/topic/<id>/?read#read-<heading>`).
@@ -367,6 +374,43 @@ to topics; add words to its `ALIASES` to link more). Format and encryption:
   and appends it to *<root> / Notes from Structura / <topic title>*. Those pages come back
   into the app on the next build. The integration needs the "Insert content" capability.
 - Never commit the token or generated notes, and never log note content.
+
+## Studia accounts (Supabase)
+
+**Studia** is the name of the family: Structura, Schemata and DSA Atlas. Its repo,
+[himanshu-mamgain/studia](https://github.com/himanshu-mamgain/studia), holds what they share: the
+Supabase migrations, the account contract (`docs/accounts.md`) and the setup steps. The plan is a
+domain, `studia.dev`, with each app on a subdomain (`structura.studia.dev`, `schemata.studia.dev`,
+`atlas.studia.dev`). `ECOSYSTEM_NAME` and `ECOSYSTEM_DOMAIN` are in `src/ecosystem.ts`; the app URLs
+there stay on `netlify.app` until the domain is live.
+
+- **Signing in is optional.** The account button (`src/account/AccountButton.tsx`) shows only when
+  the build has Supabase settings. It signs in with GitHub (Supabase Auth, PKCE flow) and returns to
+  the same page; `account.ts` tidies `?code=` away.
+- **One session for every app.** `client.ts` keeps the session in a cookie named `studia-auth`. With
+  `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`, every subdomain reads the same cookie, so signing in once
+  signs you in everywhere. On `*.netlify.app` it can't: browsers don't let one Netlify site set
+  cookies for another, so each app signs in on its own until the move.
+- **Progress sync.** The `structura:progress:v1` object (`src/learn/progress.ts`) is saved to the
+  shared `app_progress` table, one row per user and app (`app = 'structura'`). Sync is
+  read-merge-write (`account.ts`): fetch the account's copy, merge it with this device's
+  (`merge.ts`), save the result in both places, 4 seconds after a change. Anything that only grows
+  (sections read, lessons finished, best scores) is combined; switches that can be turned off
+  (bookmarked, completed) come from the copy that changed that topic last (`updatedAt`). Other
+  local settings (voice, code language, the notes key) are never synced.
+- **Supabase stays out of start-up.** The client is a separate chunk, loaded only when the browser
+  has a `studia-auth` cookie, is coming back from GitHub, or the learner taps "Continue with GitHub".
+- **Settings** (Netlify environment variables, read at build time):
+  `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (public by design: row-level security decides
+  what each user may read or write) and, after the move, `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`.
+  Without the first two the account button is hidden and nothing is loaded.
+- The table, its policies and the owner's setup steps (Supabase project, GitHub OAuth app, redirect
+  URLs, Netlify variables, the move to `studia.dev`) are in the studia repo. The schema there is the
+  source of truth for all three apps.
+- Test the merge with `npm run test:sync`. To test the sign-in flow without a real project, build
+  with a fake `VITE_SUPABASE_URL` and answer its requests in Playwright (`/auth/v1/authorize`
+  redirects back with `?code=`, `/auth/v1/token` returns a session, `/rest/v1/app_progress` reads and
+  upserts the row).
 
 ## Style
 

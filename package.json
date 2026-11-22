@@ -16,7 +16,8 @@
     "test:dbml": "tsx --test apps/web/src/learn/dbml.test.ts",
     "test:links": "tsx --test apps/web/src/learn/links.test.ts",
     "test:asked": "tsx --test apps/web/src/learn/askedAt.test.ts",
-    "test:notes": "tsx --test apps/web/src/learn/noteRules.test.ts"
+    "test:notes": "tsx --test apps/web/src/learn/noteRules.test.ts",
+    "test:sync": "tsx --test apps/web/src/account/merge.test.ts"
   },
   "engines": {
     "node": ">=20"

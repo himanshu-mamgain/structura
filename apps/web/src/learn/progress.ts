@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 import type { TopicMeta } from '../topics/catalog'
 
 // Learning progress, kept in this browser (localStorage). One small object per
-// topic; the shape is plain JSON so it can later sync to a backend as-is.
+// topic, plain JSON. When the learner signs in to their Studia account, the same
+// object is synced to Supabase (src/account/sync.ts, merged by src/account/merge.ts).
 
 export interface TopicProgress {
   bookmarked?: boolean
@@ -23,6 +24,8 @@ export interface TopicProgress {
   videoDuration?: number
   lastWatchedAt?: number
   lastOpenedAt?: number
+  /** When anything here last changed: on sync, the newer copy's switches (bookmarked, completed) win. */
+  updatedAt?: number
 }
 
 /** Where the learner is in one of a topic's extra reels (its main video's place is in TopicProgress). */
@@ -67,7 +70,7 @@ function save(next: Progress) {
 export function updateTopic(id: string, patch: Partial<TopicProgress> | ((p: TopicProgress) => Partial<TopicProgress>)) {
   const current = state.topics[id] ?? {}
   const change = typeof patch === 'function' ? patch(current) : patch
-  save({ ...state, topics: { ...state.topics, [id]: { ...current, ...change } } })
+  save({ ...state, topics: { ...state.topics, [id]: { ...current, ...change, updatedAt: Date.now() } } })
 }
 
 export function updateReel(id: string, time: number, duration: number) {
@@ -84,6 +87,20 @@ export function toggleRoadmapStep(id: string) {
 
 export function recordQuiz(score: number) {
   if (score > (state.quizBest ?? -1)) save({ ...state, quizBest: score })
+}
+
+/** The progress as it is now, for sync. */
+export const getProgress = () => state
+
+/** Called on every change, from this tab or another. */
+export function subscribeProgress(listener: () => void) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+/** Replace everything, e.g. with the copy merged from the learner's account. */
+export function replaceProgress(next: Progress) {
+  save(next)
 }
 
 // Other tabs update us too.
