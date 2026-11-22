@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { getProgress, replaceProgress, subscribeProgress, type Progress } from '../learn/progress'
-import { accountsEnabled, APP_ID, hasSessionCookie, returningFromSignIn } from './config'
+import { accountsEnabled, APP_ID, handoffTokens, hasSessionCookie, returningFromSignIn, signInRequired, studiaLogin, studiaLogout, viaStudia } from './config'
 import { mergeProgress, stable } from './merge'
 
 // The learner's Studia account in this app: who is signed in, and keeping their progress
@@ -108,24 +108,55 @@ function signedOut() {
 }
 
 let started = false
+/** Why signing in failed, when the address says it did. */
+let failed: string | null = null
+/** Leaving for Studia (to sign in or out): don't also send the learner to the login page. */
+let leaving = false
+
+/** The address says signing in just failed: show that, rather than trying again in a loop. */
+function signInFailed(): string | null {
+  const q = new URLSearchParams(window.location.search)
+  const hash = new URLSearchParams(window.location.hash.slice(1))
+  return q.get('error_description') ?? hash.get('error_description')
+}
+
+function toStudiaLogin() {
+  if (leaving || failed) return
+  leaving = true
+  window.location.replace(studiaLogin())
+}
 
 /** Load Supabase and follow the session. Called at start-up only when there may be one. */
 async function start() {
   if (started) return
   started = true
   set({ status: 'loading' })
+  // Read the address before anything tidies it.
+  const handed = handoffTokens()
+  failed = signInFailed()
   const supabase = await client()
   supabase.auth.onAuthStateChange((event, session) => {
     if (session) signedIn(session)
-    else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') signedOut()
+    else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
+      signedOut()
+      if (failed) set({ error: `Sign-in didn't finish: ${failed}` })
+      // No session, or it has run out: sign in at Studia. (Not while a handed-over one is being kept.)
+      if (signInRequired && !handed) toStudiaLogin()
+    }
   })
-  // Back from GitHub: the client has swapped the one-time code for a session; tidy the address.
+  // Tokens, codes and errors from signing in don't stay in the address (or in the history).
   const url = new URL(window.location.href)
-  const failed = url.searchParams.get('error_description')
-  if (url.searchParams.has('code') || failed) {
-    for (const key of ['code', 'error', 'error_code', 'error_description', 'state']) url.searchParams.delete(key)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-    if (failed) set({ error: `GitHub sign-in didn't finish: ${failed}` })
+  const keys = ['code', 'error', 'error_code', 'error_description', 'state'].filter((key) => url.searchParams.has(key))
+  // Only rewrite the query when there's something to take out: rewriting turns "?read" into "?read=".
+  for (const key of keys) url.searchParams.delete(key)
+  const hash = new URLSearchParams(url.hash.slice(1))
+  const tokensInHash = hash.has('access_token') || hash.has('error_description')
+  if (tokensInHash) url.hash = ''
+  if (keys.length || tokensInHash) window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
+  // A session handed over by the Studia site: keep it.
+  if (handed) {
+    const { error } = await supabase.auth.setSession(handed)
+    if (error) set({ status: 'signed-out', error: `Signing in through Studia didn't finish: ${error.message}` })
   }
   // Save what's waiting before the page goes away, and catch up after being offline.
   document.addEventListener('visibilitychange', () => {
@@ -134,13 +165,35 @@ async function start() {
   window.addEventListener('online', () => userId && void syncNow())
 }
 
-/** At start-up: only load Supabase if this browser is signed in or coming back from GitHub. */
-export function startAccount() {
-  if (accountsEnabled && (hasSessionCookie() || returningFromSignIn())) void start()
+const CRAWLER = /bot\b|crawler|spider|Googlebot|bingbot|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|WhatsApp|Slackbot|Twitterbot|LinkedInBot|Lighthouse/i
+
+/**
+ * At start-up: only load Supabase if this browser is signed in or coming back from signing in.
+ * When signing in is required and nobody is, send the learner to Studia's login instead and
+ * return true, so the app doesn't start only to leave.
+ */
+export function startAccount(): boolean {
+  if (!accountsEnabled) return false
+  if (hasSessionCookie() || returningFromSignIn()) {
+    void start()
+    return false
+  }
+  // Offline, Studia can't be reached: let the app open with what this device has. Search engines
+  // aren't sent away either, so they can still read the pages.
+  if (signInRequired && navigator.onLine && !CRAWLER.test(navigator.userAgent)) {
+    toStudiaLogin()
+    return true
+  }
+  return false
 }
 
-/** Sign in with GitHub, then come back to this same page. */
+/** Sign in with GitHub, then come back to this same page. With a Studia site, that's where it happens. */
 export async function signIn() {
+  if (viaStudia) {
+    leaving = true
+    window.location.assign(studiaLogin())
+    return
+  }
   await start()
   set({ status: 'loading', error: undefined })
   const supabase = await client()
@@ -155,6 +208,9 @@ export async function signOut() {
   if (timer) await syncNow()
   const supabase = await client()
   // 'local': this browser only (and, on studia.dev, the other apps sharing its cookie), not every device.
+  leaving = viaStudia
   await supabase.auth.signOut({ scope: 'local' })
   signedOut()
+  // Sign out of Studia too, or its login would sign this app straight back in.
+  if (viaStudia) window.location.assign(studiaLogout())
 }

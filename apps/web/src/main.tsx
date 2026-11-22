@@ -12,11 +12,14 @@ import { startAccount } from './account/account'
 initInstallPrompt()
 keepLinksInApp()
 watchForUpdates()
-// Loads Supabase only if this browser is signed in to Studia, or is coming back from GitHub.
-startAccount()
+// Loads Supabase only if this browser is signed in to Studia, or is coming back from signing in.
+// When signing in is required and nobody is, the learner goes to Studia's login instead.
+const leaving = startAccount()
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+if (!leaving) {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+}

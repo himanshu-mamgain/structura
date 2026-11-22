@@ -19,10 +19,11 @@ static site from `main`: https://structura-web.netlify.app
   second, owner-approved exception is `/api/notion-note`, which only appends a note the
   owner writes and seals with his notes key; nothing else may write to Notion.)
   **The third, owner-approved exception is the Studia account** (Supabase, see "Studia
-  accounts"): an optional GitHub sign-in shared by Structura, Schemata and DSA Atlas, and each
-  signed-in learner's own progress row, guarded by row-level security. Every page works signed
-  out; nothing else goes to Supabase, and there is no server code of ours. Don't grow it into
-  more without the owner asking.
+  accounts"): a GitHub sign-in on the Studia site, shared by Structura, Schemata and DSA Atlas, and
+  each signed-in learner's own progress row, guarded by row-level security. The owner chose to put
+  the app behind it (`VITE_REQUIRE_SIGN_IN=true`); keep that a switch, so with it off every page
+  works signed out. Nothing else goes to Supabase, and there is no server code of ours. Don't grow
+  it into more without the owner asking.
 - **Work on a branch and open a pull request, then merge it. Never push to `main`.**
   Every change lands through a PR, and the owner wants Claude to merge its own PRs
   (including the daily topic routine's) once the Netlify deploy preview and any CI
@@ -383,9 +384,21 @@ domain, `studia.dev`, with each app on a subdomain (`structura.studia.dev`, `sch
 `atlas.studia.dev`). `ECOSYSTEM_NAME` and `ECOSYSTEM_DOMAIN` are in `src/ecosystem.ts`; the app URLs
 there stay on `netlify.app` until the domain is live.
 
-- **Signing in is optional.** The account button (`src/account/AccountButton.tsx`) shows only when
-  the build has Supabase settings. It signs in with GitHub (Supabase Auth, PKCE flow) and returns to
-  the same page; `account.ts` tidies `?code=` away.
+- **Signing in happens on the Studia site** (`VITE_STUDIA_URL`, `studia-web.netlify.app`; its code
+  is `web/` in the studia repo). The account button (`src/account/AccountButton.tsx`) shows only
+  when the build has Supabase settings; "Continue with GitHub" opens
+  `<Studia>/login?app=structura&next=<this page>`. Studia signs in with GitHub, then sends the
+  learner back with a session of Structura's own in the address's fragment
+  (`#access_token=…&refresh_token=…`); `account.ts` keeps it with `setSession` and removes the
+  fragment. (`client.ts` sets `detectSessionInUrl: () => false`: the PKCE client would reject it.)
+  "Sign out" signs out here, then opens `<Studia>/logout`, or Studia would sign the app straight
+  back in. Without `VITE_STUDIA_URL`, the button signs in with GitHub directly (PKCE, `?code=`).
+- **Sign-in required** (`VITE_REQUIRE_SIGN_IN=true`, the owner's choice): `startAccount()` in
+  `main.tsx` runs before React. With no `studia-auth` cookie it sends the visitor to Studia's login
+  and the app never starts. It doesn't when the browser is offline (the installed app still opens),
+  when the address says signing in just failed (that would loop; the panel shows the error), or for
+  search engines and link-preview bots (`CRAWLER` in `account.ts`), so the ready-made pages still
+  reach them. A session that runs out sends the learner to the login again.
 - **One session for every app.** `client.ts` keeps the session in a cookie named `studia-auth`. With
   `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`, every subdomain reads the same cookie, so signing in once
   signs you in everywhere. On `*.netlify.app` it can't: browsers don't let one Netlify site set
@@ -398,18 +411,21 @@ there stay on `netlify.app` until the domain is live.
   (bookmarked, completed) come from the copy that changed that topic last (`updatedAt`). Other
   local settings (voice, code language, the notes key) are never synced.
 - **Supabase stays out of start-up.** The client is a separate chunk, loaded only when the browser
-  has a `studia-auth` cookie, is coming back from GitHub, or the learner taps "Continue with GitHub".
+  has a `studia-auth` cookie or is coming back from signing in (`?code=`, `#access_token=`).
 - **Settings** (Netlify environment variables, read at build time):
   `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (public by design: row-level security decides
-  what each user may read or write) and, after the move, `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`.
-  Without the first two the account button is hidden and nothing is loaded.
+  what each user may read or write), `VITE_STUDIA_URL=https://studia-web.netlify.app`,
+  `VITE_REQUIRE_SIGN_IN=true` and, after the move, `VITE_AUTH_COOKIE_DOMAIN=.studia.dev`.
+  Without the first two the account button is hidden, nothing is loaded and nobody is sent away.
 - The table, its policies and the owner's setup steps (Supabase project, GitHub OAuth app, redirect
   URLs, Netlify variables, the move to `studia.dev`) are in the studia repo. The schema there is the
   source of truth for all three apps.
 - Test the merge with `npm run test:sync`. To test the sign-in flow without a real project, build
   with a fake `VITE_SUPABASE_URL` and answer its requests in Playwright (`/auth/v1/authorize`
-  redirects back with `?code=`, `/auth/v1/token` returns a session, `/rest/v1/app_progress` reads and
-  upserts the row).
+  redirects back with `?code=` when it has a `code_challenge`, or with `#access_token=…` when it
+  doesn't; `/auth/v1/token` returns a session; `/rest/v1/app_progress` reads and upserts the row).
+  For the login gate, also serve the Studia site's build on `127.0.0.1` (not `localhost`: cookies
+  ignore the port, so the two sites would share one) and point `VITE_STUDIA_URL` at it.
 
 ## Style
 
