@@ -81,6 +81,7 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'kafka-reliability', terms: ['exactly-once', 'idempotent producer', 'acks=all', 'in-sync replicas', 'ISR'] },
   { topic: 'kafka-basics', terms: ['consumer group', 'consumer groups', 'Kafka partition', 'Kafka partitions', 'Kafka topic', 'Kafka topics'] },
   { topic: 'kafka-basics', terms: ['Kafka'], exact: true },
+  { topic: 'ad-click-aggregator', section: 'How it works underneath', terms: ['watermark', 'watermarks', 'tumbling window', 'tumbling windows', 'lambda architecture'] },
   { topic: 'kafka', terms: ['event streaming', 'event stream', 'change data capture'] },
   { topic: 'load-balancer', terms: ['load balancer', 'load balancers', 'load balancing', 'round robin', 'least connections'] },
   { topic: 'cdn', terms: ['CDN', 'CDNs'], exact: true },
