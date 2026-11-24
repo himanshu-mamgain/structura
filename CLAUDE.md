@@ -65,7 +65,11 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     `dist/topic/<id>/index.html` with its own title, description, canonical link, Open Graph and
     JSON-LD, and its explanation as plain HTML in Read mode's classes, so search engines and link
     previews read it without JavaScript, and the text shows while the app loads. Also
-    `dist/sitemap.xml`. Static files only: there's still no server. `index.html` holds the home page's
+    `dist/sitemap.xml`, and `dist/llms.txt` ([llmstxt.org](https://llmstxt.org)) with a Markdown copy of every
+    topic (`dist/md/<id>.md`: the deep note, or the explanation and takeaways), so any AI assistant can read
+    the site. It asks an assistant to suggest changes only as a pre-filled GitHub issue
+    (`.github/ISSUE_TEMPLATE/suggestion.md`, label `suggestion`), which the owner checks before anything is
+    added. Static files only: there's still no server. `index.html` holds the home page's
     tags between `<!-- seo` and `<!-- /seo -->`; keep those markers.
   - **Icons**: `public/favicon.svg` (the app bar's green tile with lucide's "boxes" glyph) is the source of the
     favicon and every app icon; `pwa-assets.config.ts` makes the PNGs from it at build, and
