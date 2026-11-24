@@ -1744,6 +1744,49 @@
   "simulator": true
  },
  {
+  "id": "collaborative-editing",
+  "title": "Collaborative Editing (Google Docs-style)",
+  "blurb": "Many people typing in one document: operational transformation, a server that orders edits, and snapshots",
+  "difficulty": "Advanced",
+  "area": "development",
+  "guides": [
+   "how-to-design-google-docs",
+   "shortlong-polling-sse-websocket",
+   "primer-consistency-patterns",
+   "differences-in-event-sourcing-system-design"
+  ],
+  "explanation": {
+   "summary": "In a shared document, two people can type at the same moment. Each edit says \"put this at position 4\", but if someone else's edit lands first, position 4 is no longer the right place. Operational transformation rewrites each edit against the edits before it, and one server puts all edits of a document in a single order, so every screen ends with the same text.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "leader-election",
   "title": "Leader Election (Raft)",
   "blurb": "How a cluster agrees on one leader: terms, votes, heartbeats and fencing",

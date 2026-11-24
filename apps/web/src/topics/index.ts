@@ -9,6 +9,7 @@ import { awsVpc } from './aws-vpc'
 import { cdn } from './cdn'
 import { circuitBreaker } from './circuit-breaker'
 import { chatSystem } from './chat-system'
+import { collaborativeEditing } from './collaborative-editing'
 import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
@@ -100,6 +101,7 @@ const BASE_TOPICS: StaticTopic[] = [
   metricsMonitoring,
   circuitBreaker,
   fileSync,
+  collaborativeEditing,
   leaderElection,
   messageQueue,
   queueTypes,
