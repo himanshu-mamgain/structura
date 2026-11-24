@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -107,7 +108,7 @@ export function simulate(strategy: string, outage: number, clients: number, seed
   return { perSecond, peakTick, peakSecond: Math.max(...perSecond.slice(Math.ceil(outage))), total, succeeded, gaveUp: clients - succeeded, lastOk: last, sample }
 }
 
-const n = (x: number) => x.toLocaleString('en-US')
+const n = (x: number) => shortNumber(x)
 const s1 = (x: number) => `${Number(x.toFixed(1))} s`
 
 /**
@@ -318,7 +319,7 @@ export const retryBackoff: StaticTopic = {
     sections: [
       {
         heading: 'Overview',
-        body: 'A retry is a second try at a call that failed. It is the cheapest fix for short failures: a dropped connection, a server restarting, a 503 during a deploy.\n\nRetries are also dangerous. 10,000 phones that failed at the same moment will, by default, retry at the same moment. That burst hits a server that is just recovering and knocks it down again. This is called a retry storm.\n\nThree ideas keep retries safe: wait longer each time (exponential backoff), wait a random amount (jitter), and limit how much retrying anyone may do (retry budgets).',
+        body: 'A retry is a second try at a call that failed. It is the cheapest fix for short failures: a dropped connection, a server restarting, a 503 during a deploy.\n\nRetries are also dangerous. 10k phones that failed at the same moment will, by default, retry at the same moment. That burst hits a server that is just recovering and knocks it down again. This is called a retry storm.\n\nThree ideas keep retries safe: wait longer each time (exponential backoff), wait a random amount (jitter), and limit how much retrying anyone may do (retry budgets).',
       },
       {
         heading: 'Requirements',
@@ -326,7 +327,7 @@ export const retryBackoff: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: the Payment Provider serves 2,000 requests a second, so 200 in each tenth of a second. It goes down for 10 seconds while 10,000 phones are paying.\n- Without jitter, every phone retries in the same tenth of a second: 10,000 requests against room for 200. 200 get through, and the other 9,800 come back together at the next step.\n- With full jitter, after the 5th failed try each phone waits a random time between 0 and 16 seconds. 10,000 phones over 16 seconds is about 625 a second, or 63 in each tenth: well under 200.\n- Retrying every second, forever: the 10,000 phones need 50 waves of 200, so about 50 seconds and 355,000 requests, 35.5 for each payment.',
+        body: 'An example: the Payment Provider serves 2k requests a second, so 200 in each tenth of a second. It goes down for 10 seconds while 10k phones are paying.\n- Without jitter, every phone retries in the same tenth of a second: 10k requests against room for 200. 200 get through, and the other 9,800 come back together at the next step.\n- With full jitter, after the 5th failed try each phone waits a random time between 0 and 16 seconds. 10k phones over 16 seconds is about 625 a second, or 63 in each tenth: well under 200.\n- Retrying every second, forever: the 10k phones need 50 waves of 200, so about 50 seconds and 355k requests, 35.5 for each payment.',
       },
       {
         heading: 'Step by step',
@@ -334,7 +335,7 @@ export const retryBackoff: StaticTopic = {
       },
       {
         heading: 'Components',
-        body: "- Client Apps: the phones paying; each one retries on its own.\n- API Gateway: the front door; it passes on the provider's Retry-After when there is one.\n- Order Service: makes the call and owns the retry policy.\n- Circuit Breaker: stops calling a provider that keeps failing, so retries fail fast for a while.\n- Payment Provider: the dependency that fails; it can serve 2,000 requests a second.\n- Retryable?: decides which failures are worth another try.\n- Backoff + Jitter: works out how long to wait before the next try.\n- Retry Budget: keeps retries below a share of all requests, such as 10%.\n- Dead-Letter Queue: holds payments that ran out of tries, to finish later.\n- Metrics & Alerts: retries, give-ups and their share of traffic, per dependency.",
+        body: "- Client Apps: the phones paying; each one retries on its own.\n- API Gateway: the front door; it passes on the provider's Retry-After when there is one.\n- Order Service: makes the call and owns the retry policy.\n- Circuit Breaker: stops calling a provider that keeps failing, so retries fail fast for a while.\n- Payment Provider: the dependency that fails; it can serve 2k requests a second.\n- Retryable?: decides which failures are worth another try.\n- Backoff + Jitter: works out how long to wait before the next try.\n- Retry Budget: keeps retries below a share of all requests, such as 10%.\n- Dead-Letter Queue: holds payments that ran out of tries, to finish later.\n- Metrics & Alerts: retries, give-ups and their share of traffic, per dependency.",
       },
       {
         heading: 'Key decisions',

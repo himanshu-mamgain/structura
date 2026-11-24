@@ -271,7 +271,7 @@ export const fileSync: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions (round numbers, not any company\'s real figures): 100 million users, 2 GB stored on average, 20% of users active each day with 10 file changes each, and an average of 2 MB actually uploaded per change thanks to block-level sync.\n- Logical data: 100 M × 2 GB = 200 PB.\n- After deduplication (assume 30% saved): 140 PB. With erasure coding at about 1.5× overhead that is roughly 210 PB on disk, versus 420 PB with 3 full copies.\n- Changes: 20 M × 10 = 200 M commits per day, about 2,300 per second on average and roughly 7,000 per second at a 3× peak.\n- Upload traffic: 200 M × 2 MB = 400 TB per day, about 4.6 GB/s.\n- Block index: 200 PB ÷ 4 MB = 5 × 10¹⁰ blocks (3.5 × 10¹⁰ unique after dedup); at 100 bytes per row that is about 3.5 to 5 TB, so it must be sharded.\n- File metadata: 100 M users × 1,000 files × 200 bytes = 20 TB, also sharded (by user id, so one user\'s tree lives on one shard).',
+        body: 'Assumptions (round numbers, not any company\'s real figures): 100 million users, 2 GB stored on average, 20% of users active each day with 10 file changes each, and an average of 2 MB actually uploaded per change thanks to block-level sync.\n- Logical data: 100 M × 2 GB = 200 PB.\n- After deduplication (assume 30% saved): 140 PB. With erasure coding at about 1.5× overhead that is roughly 210 PB on disk, versus 420 PB with 3 full copies.\n- Changes: 20 M × 10 = 200 M commits per day, about 2,300 per second on average and roughly 7k per second at a 3× peak.\n- Upload traffic: 200 M × 2 MB = 400 TB per day, about 4.6 GB/s.\n- Block index: 200 PB ÷ 4 MB = 5 × 10¹⁰ blocks (3.5 × 10¹⁰ unique after dedup); at 100 bytes per row that is about 3.5 to 5 TB, so it must be sharded.\n- File metadata: 100 M users × 1k files × 200 bytes = 20 TB, also sharded (by user id, so one user\'s tree lives on one shard).',
       },
       {
         heading: 'Step by step',
@@ -291,7 +291,7 @@ export const fileSync: StaticTopic = {
       },
       {
         heading: 'Interview follow-ups',
-        body: '- How would you detect and resolve a conflict when a laptop edits a file while offline?\n- Why is deduplication across different users a privacy risk, and how can it be limited?\n- How would you add end-to-end encryption without losing deduplication?\n- How would you do version history and "restore this file to Tuesday"?\n- What changes when the shared folder has 10,000 members?',
+        body: '- How would you detect and resolve a conflict when a laptop edits a file while offline?\n- Why is deduplication across different users a privacy risk, and how can it be limited?\n- How would you add end-to-end encryption without losing deduplication?\n- How would you do version history and "restore this file to Tuesday"?\n- What changes when the shared folder has 10k members?',
       },
     ],
     get trace() {

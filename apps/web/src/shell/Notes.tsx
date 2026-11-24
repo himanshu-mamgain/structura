@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { type FormEvent, Fragment, type ReactNode, useEffect, useState } from 'react'
 import { ArrowUpRight, Check, ChevronRight, FileText, KeyRound, Link2, Loader2, Lock, NotebookPen, Send } from 'lucide-react'
 import { ago } from '../learn/progress'
@@ -249,6 +250,7 @@ export function NoteView({ id, onNote, onOpen }: { id: string; onNote: (id: stri
           <NoteIcon note={note} size={34} />
         </span>
         <h1>{note.title}</h1>
+        <CopyLink className="btn btn-ghost page-copy" />
         <p className="note-meta">
           Edited {edited(note.edited)} · {note.words.toLocaleString()} words ·{' '}
           <a href={note.url} target="_blank" rel="noreferrer">

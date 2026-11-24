@@ -1,5 +1,6 @@
 import { adClickAggregator } from './ad-click-aggregator'
 import { apiGateway } from './api-gateway'
+import { agentContext } from './agent-context'
 import { aiAgent } from './ai-agent'
 import { awsAlb } from './aws-alb'
 import { awsEcsFargate } from './aws-ecs-fargate'
@@ -11,11 +12,14 @@ import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
+import { globalLoadBalancing } from './global-load-balancing'
 import { fileSync } from './file-sync'
 import { jobScheduler } from './job-scheduler'
 import { leaderElection } from './leader-election'
 import { loadBalancer } from './load-balancer'
 import { llmGateway } from './llm-gateway'
+import { llmGuardrails } from './llm-guardrails'
+import { llmInference } from './llm-inference'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
 import { awsBasics } from './aws-basics'
@@ -59,6 +63,7 @@ import { vectorDatabase } from './vector-database'
 import { videoStreaming } from './video-streaming'
 import autoVideos from './videos.json'
 import { webCrawler } from './web-crawler'
+import { websocketScaling } from './websocket-scaling'
 
 export type { StaticTopic } from './types'
 
@@ -83,6 +88,7 @@ const BASE_TOPICS: StaticTopic[] = [
   apiGateway,
   consistentHashing,
   chatSystem,
+  websocketScaling,
   cdn,
   notificationSystem,
   uniqueIdGenerator,
@@ -104,8 +110,12 @@ const BASE_TOPICS: StaticTopic[] = [
   vectorDatabase,
   llmGateway,
   aiAgent,
+  llmInference,
+  llmGuardrails,
+  agentContext,
   awsVpc,
   awsAlb,
+  globalLoadBalancing,
   awsEcsFargate,
   awsEcsFullstack,
   loadBalancer,

@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -96,7 +97,7 @@ const EXPIRY: Record<string, number | null> = {
 const ACTIONS = ['Create a paste', 'Read it (cache hit)', 'Read it (cache miss)', 'Read it after it expired']
 
 const iso = (ms: number) => new Date(ms).toISOString().replace('.000Z', 'Z')
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 const kb = (bytes: number) => (bytes >= 1000 ? `${(bytes / 1000).toFixed(bytes >= 10_000 ? 0 : 1)} KB` : `${bytes} B`)
 
 /** Keys are made from "ip + timestamp"; a repeat key means another paste already has it. */
@@ -314,7 +315,7 @@ export const pastebin: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer:\n- 1 million new pastes a month and 10 million reads a month (10:1 read to write).\n- About 1 KB of text per paste.\n\nWhich works out to:\n- About 0.4 writes per second and about 4 reads per second.\n- 1 GB of new text a month; 36 GB, and 36 million pastes, in 3 years.\n- 62^7 = 3.5 trillion possible 7-character keys, about 98,000 times more than the 36 million needed.\n\nHandy rule: 400 requests per second ≈ 1 billion requests per month. This is a small system; the point is the structure, not the scale.',
+        body: 'Assumptions from the System Design Primer:\n- 1 million new pastes a month and 10 million reads a month (10:1 read to write).\n- About 1 KB of text per paste.\n\nWhich works out to:\n- About 0.4 writes per second and about 4 reads per second.\n- 1 GB of new text a month; 36 GB, and 36 million pastes, in 3 years.\n- 62^7 = 3.5 trillion possible 7-character keys, about 98k times more than the 36 million needed.\n\nHandy rule: 400 requests per second ≈ 1 billion requests per month. This is a small system; the point is the structure, not the scale.',
       },
       {
         heading: 'Step by step',

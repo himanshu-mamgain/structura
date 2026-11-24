@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator, stableHash } from './simulator'
 import type { StaticTopic } from './types'
@@ -270,7 +271,7 @@ function simulate(o: Options) {
 
 // ---------- the walkthrough ----------
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 const clip = (t: string, n = 44) => (t.length > n ? `${t.slice(0, n - 1)}…` : t)
 
@@ -431,9 +432,9 @@ export const llmGateway: StaticTopic = {
         body: `By spring, a 300-person online shop in Hyderabad had three features built on large language models: a **Support Bot**, a **Code Review** bot and a **Doc Summariser**. Each team had signed up with the model provider on its own, pasted an API key into its own config, and called the provider directly.
 
 One Monday, finance forwarded the provider's invoice with one line circled. Over the weekend, a summariser job had hit an error and retried the same request three times a second, for 60 hours:
-- 3 × 60 × 60 × 60 = 648,000 calls
+- 3 × 60 × 60 × 60 = 648k calls
 - each call: 7,500 tokens in at $3 per million, 600 out at $15 per million = $0.0315
-- 648,000 × $0.0315 = **$20,412**
+- 648k × $0.0315 = **$20,412**
 
 Nobody could say which team owned the job, because two teams shared that key. Rotating it broke both. A third key turned out to be committed to a public repository.
 
@@ -453,7 +454,7 @@ The second provider costs a little more, $11.93 a minute instead of $10.22 on a 
       },
       {
         heading: 'Sale day',
-        body: `On the first big sale, traffic went from 1,000 requests a minute to 6,000. The provider limits each account to a number of **tokens a minute**, here 6 million for the large model. That day needed 14.6 million.
+        body: `On the first big sale, traffic went from 1k requests a minute to 6k. The provider limits each account to a number of **tokens a minute**, here 6 million for the large model. That day needed 14.6 million.
 
 More than half of all requests, 3,300 a minute, came back with \`429 Too Many Requests\`. The Support Bot went quiet exactly when most customers were asking it questions.
 
@@ -603,11 +604,11 @@ A normal minute now costs $6.41 instead of $10.22, 37% less, with no wrong cache
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- One API for every model and provider, with streaming.\n- Virtual keys per team, with allowed models, a tokens-a-minute limit and a monthly budget.\n- Routing by task, and failover to another provider.\n- Exact and (optionally) semantic caching.\n- Mask personal data before it leaves the company.\n- A usage log: team, model, tokens, cost, latency and status for every call.\n\nNon-functional:\n- Adds under 20 ms at p99, excluding the model itself.\n- 6,000 requests a minute at peak.\n- More available than any single provider: 99.95%.',
+        body: 'Functional:\n- One API for every model and provider, with streaming.\n- Virtual keys per team, with allowed models, a tokens-a-minute limit and a monthly budget.\n- Routing by task, and failover to another provider.\n- Exact and (optionally) semantic caching.\n- Mask personal data before it leaves the company.\n- A usage log: team, model, tokens, cost, latency and status for every call.\n\nNon-functional:\n- Adds under 20 ms at p99, excluding the model itself.\n- 6k requests a minute at peak.\n- More available than any single provider: 99.95%.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Normal day: 1,000 requests a minute = 1.44 million a day.\n- Tokens: the sample averages (28 × 970 + 6 × 3,650 + 6 × 8,100) ÷ 40 ≈ 2,442 tokens a request, so 2.44 million tokens a minute, and 14.6 million on a 6,000-a-minute sale day.\n- Cost with the large model for everything: $10.22 a minute ≈ $14,720 a day. Routing support to the small model and caching brings it to $6.41 a minute.\n- Open streams (Little\'s law): 1,000 a minute ÷ 60 × 4 seconds a response ≈ 67 at once; 400 on a sale day.\n- Usage log: 1.44 million rows a day × about 1 KB = 1.44 GB a day, without prompt text.',
+        body: '- Normal day: 1k requests a minute = 1.44 million a day.\n- Tokens: the sample averages (28 × 970 + 6 × 3,650 + 6 × 8,100) ÷ 40 ≈ 2,442 tokens a request, so 2.44 million tokens a minute, and 14.6 million on a 6k-a-minute sale day.\n- Cost with the large model for everything: $10.22 a minute ≈ $14,720 a day. Routing support to the small model and caching brings it to $6.41 a minute.\n- Open streams (Little\'s law): 1k a minute ÷ 60 × 4 seconds a response ≈ 67 at once; 400 on a sale day.\n- Usage log: 1.44 million rows a day × about 1 KB = 1.44 GB a day, without prompt text.',
       },
       {
         heading: 'Step by step',

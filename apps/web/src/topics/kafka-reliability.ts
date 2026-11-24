@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -52,7 +53,7 @@ const TOPIC_CONFIG: Record<TopicCfg, string> = {
   unclean: 'replication.factor=3\nmin.insync.replicas=1\nunclean.leader.election.enable=true',
 }
 
-const n = (x: number) => Math.round(x).toLocaleString('en-US')
+const n = (x: number) => shortNumber(Math.round(x))
 const dur = (s: number) => (s < 60 ? `${n(s)} s` : `${n(s / 60)} min`)
 
 interface Outcome {
@@ -185,7 +186,7 @@ function consumerCrash(p: Producer): Outcome {
       {
         text: exactlyOnce
           ? `The new member's producer, with the same transactional.id, fences the dead one and aborts its open transaction. Consumers of invoices use isolation.level=read_committed, so they never saw the ${CRASH_AFTER} aborted invoices. The batch is processed again, and committed once.`
-          : `The new member starts from offset 90,000 and processes the whole batch again. The ${CRASH_AFTER} invoices produced before the crash are produced a second time: at-least-once delivery means duplicates.`,
+          : `The new member starts from offset 90k and processes the whole batch again. The ${CRASH_AFTER} invoices produced before the crash are produced a second time: at-least-once delivery means duplicates.`,
         nodes: ['Standby Invoicer', 'Invoices Topic', 'Ledger Consumer'],
         data: exactlyOnce
           ? `initTransactions(): epoch 1 fences epoch 0, aborts its transaction\nread_committed consumers: skip the ${CRASH_AFTER} aborted records\nvisible invoices for the batch: ${BATCH}, each once`
@@ -252,7 +253,7 @@ The producer's \`acks\` setting decides when a write counts as done. \`acks=1\`:
       },
       {
         heading: 'acks=all is only as good as the ISR',
-        body: `They switched to \`acks=all\`. Weeks later two followers' disks slowed down; after 30 seconds Kafka dropped them from the ISR, leaving the leader alone. \`acks=all\` now meant "all of one": writes kept being confirmed with a single copy. Then the leader died, and the partition was offline for five minutes until it came back. Had its disk died with it, 30,000 confirmed payments would have gone too.
+        body: `They switched to \`acks=all\`. Weeks later two followers' disks slowed down; after 30 seconds Kafka dropped them from the ISR, leaving the leader alone. \`acks=all\` now meant "all of one": writes kept being confirmed with a single copy. Then the leader died, and the partition was offline for five minutes until it came back. Had its disk died with it, 30k confirmed payments would have gone too.
 
 The fix is **min.insync.replicas**: with \`acks=all\`, a write is refused unless at least that many replicas are in sync. With replication factor 3, the usual setting is 2. The producer got \`NOT_ENOUGH_REPLICAS\` errors instead of confirmations it couldn't trust.`,
         replay: { label: 'The ISR shrinks to one', values: run('acks=all, idempotent (default)', 'RF 3, min.insync.replicas=1', 'Leader dies while followers lag') },
@@ -332,7 +333,7 @@ An **idempotent producer** fixes that: it gets a producer id and numbers its bat
     sections: [
       {
         heading: 'Overview',
-        body: '- Replication factor: how many copies of each partition there are: one leader, the rest followers.\n- ISR (in-sync replicas): the leader plus the followers that have kept up within the last 30 seconds (replica.lag.time.max.ms).\n- acks: 0 (don\'t wait), 1 (the leader has it), or all (every in-sync copy has it).\n- min.insync.replicas: the fewest in-sync copies an acks=all write needs; with fewer, the write is refused.\n- Unclean leader election: whether a copy that has fallen behind may become leader when no in-sync copy is left.\n- Idempotent producer: the producer\'s ID plus a sequence number per partition, so the broker drops batches it already has.\n- Transactions: writes to several partitions, plus the consumer\'s offset commit, that all happen or none do. Consumers reading with read_committed skip cancelled data.\n- Rebalance: when consumers join or leave a group, the partitions are handed out again.\n\nThe simulator applies these rules to a payments topic at 1,000 messages a second and counts confirmed messages lost, repeats, and downtime.',
+        body: '- Replication factor: how many copies of each partition there are: one leader, the rest followers.\n- ISR (in-sync replicas): the leader plus the followers that have kept up within the last 30 seconds (replica.lag.time.max.ms).\n- acks: 0 (don\'t wait), 1 (the leader has it), or all (every in-sync copy has it).\n- min.insync.replicas: the fewest in-sync copies an acks=all write needs; with fewer, the write is refused.\n- Unclean leader election: whether a copy that has fallen behind may become leader when no in-sync copy is left.\n- Idempotent producer: the producer\'s ID plus a sequence number per partition, so the broker drops batches it already has.\n- Transactions: writes to several partitions, plus the consumer\'s offset commit, that all happen or none do. Consumers reading with read_committed skip cancelled data.\n- Rebalance: when consumers join or leave a group, the partitions are handed out again.\n\nThe simulator applies these rules to a payments topic at 1k messages a second and counts confirmed messages lost, repeats, and downtime.',
       },
       {
         heading: 'Requirements',
@@ -340,7 +341,7 @@ An **idempotent producer** fixes that: it gets a producer id and numbers its bat
       },
       {
         heading: 'Capacity estimates',
-        body: '- acks=1 and the leader crashes: about 10 ms of writes not yet copied × 1,000 a second ≈ 10 messages lost.\n- ISR shrunk to just the leader for 30 seconds, with min.insync.replicas=1: 30 × 1,000 = 30,000 confirmed messages kept on only one copy.\n- Picking a new leader after a broker dies: about 9 seconds (KRaft\'s broker.session.timeout.ms).\n- A consumer crash with session.timeout.ms at 45 seconds: 45 × 1,000 = 45,000 messages waiting before another member takes over.\n- 3 copies means three times the storage and the traffic between brokers.',
+        body: '- acks=1 and the leader crashes: about 10 ms of writes not yet copied × 1k a second ≈ 10 messages lost.\n- ISR shrunk to just the leader for 30 seconds, with min.insync.replicas=1: 30 × 1k = 30k confirmed messages kept on only one copy.\n- Picking a new leader after a broker dies: about 9 seconds (KRaft\'s broker.session.timeout.ms).\n- A consumer crash with session.timeout.ms at 45 seconds: 45 × 1k = 45k messages waiting before another member takes over.\n- 3 copies means three times the storage and the traffic between brokers.',
       },
       {
         heading: 'Step by step',

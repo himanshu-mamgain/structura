@@ -71,6 +71,7 @@ export const ROADMAP: RoadmapPart[] = [
       { id: 'sd-queue', title: 'A distributed message queue', detail: 'Acks, visibility timeouts, dead-letter queues and at-least-once delivery.', topic: 'message-queue', guides: ['types-of-message-queue'] },
       { id: 'sd-queue-types', title: 'Which kind of queue', detail: 'Standard or FIFO, priority, delay, pub/sub, request/reply, in memory, and what to do when a queue is full.', topic: 'queue-types', guides: ['explaining-the-4-most-commonly-used-types-of-queues-in-a-single-diagram'] },
       { id: 'sd-chat', title: 'A chat system', detail: 'WebSockets, presence and message ordering.', topic: 'chat-system' },
+      { id: 'sd-websockets', title: 'Scaling WebSockets vs HTTP', detail: 'Connections not requests, pub/sub between servers, pings, reconnect storms and Socket.IO.', topic: 'websocket-scaling', guides: ['shortlong-polling-sse-websocket'] },
       { id: 'sd-scheduler', title: 'A distributed job scheduler', detail: 'Cron at scale: due-time polling, leased runs, retries and dead letters.', topic: 'job-scheduler', guides: ['scale-distributed-task-scheduling-3-parts-at-pagerduty'] },
       { id: 'sd-tickets', title: 'A ticket booking system', detail: 'Waiting rooms, timed seat holds and never selling a seat twice.', topic: 'ticket-booking' },
       { id: 'sd-timeline', title: 'A timeline with fan-out', detail: 'Push vs pull, and the celebrity problem.', topic: 'twitter-timeline' },
@@ -220,6 +221,7 @@ export const ROADMAP: RoadmapPart[] = [
     why: 'Blue/green deploys that roll back on their own, and recovering from a lost region.',
     steps: [
       { id: 'aws-cicd', title: 'CI/CD with blue/green deploys', detail: 'CodePipeline, CodeBuild and CodeDeploy, with an alarm that rolls back.', topic: 'aws-ecs-fullstack', guides: ['aws-ecs-fullstack-cicd', 'cicd-pipeline-explained-in-simple-terms'] },
+      { id: 'aws-global-lb', title: 'Global vs local load balancing', detail: 'Route 53 or Global Accelerator picks the region, API Gateway checks the request, the ALB picks the server.', topic: 'global-load-balancing' },
       { id: 'aws-dr', title: 'Disaster recovery across regions', detail: 'RTO and RPO, the four strategies from backup and restore to active/active, and why replicas are not backups.', topic: 'aws-disaster-recovery', guides: ['cloud-disaster-recovery-strategies'] },
     ],
   },
@@ -335,6 +337,16 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
+    id: 'ai-guardrails',
+    area: 'ai',
+    stage: 'Intermediate',
+    title: 'Guardrails and evals',
+    why: 'Stop an assistant making things up, and prove it with an eval set.',
+    steps: [
+      { id: 'ai-guardrails', title: 'LLM guardrails', detail: 'Grounding, citation checks, a judge model, handing over, and evals.', topic: 'llm-guardrails', guides: ['how-does-chatgpt-work'] },
+    ],
+  },
+  {
     id: 'ai-vector',
     area: 'ai',
     stage: 'Advanced',
@@ -352,6 +364,17 @@ export const ROADMAP: RoadmapPart[] = [
     why: 'The agent loop, tool policy, prompt injection and safe actions.',
     steps: [
       { id: 'ai-agent', title: 'AI agent with tools', detail: 'The agent loop, tool policy, prompt injection and idempotent actions.', topic: 'ai-agent' },
+      { id: 'ai-agent-context', title: 'Context engineering for long-running agents', detail: 'Compaction, notes, clearing tool results and sub-agents.', topic: 'agent-context', guides: ['what-is-an-ai-agent'] },
+    ],
+  },
+  {
+    id: 'ai-inference',
+    area: 'ai',
+    stage: 'Expert',
+    title: 'Running your own model',
+    why: 'Model weights, GPU memory, quantization and the KV cache, served with vLLM.',
+    steps: [
+      { id: 'ai-inference', title: 'Model weights & LLM inference', detail: 'How big a model is, which GPU it needs, and how fast it answers.', topic: 'llm-inference', guides: ['the-open-source-ai-stack', 'scale-scaling-aiml-infrastructure-at-uber'] },
     ],
   },
   // Final project

@@ -101,7 +101,7 @@ New instances take minutes (boot, start the app, pass health checks). So the fir
 
 You upload a function; AWS runs a copy for every request in flight and bills $0.20 per million requests plus $0.0000166667 per GB-second.
 
-- **Concurrency** = requests per second × seconds per request. 4,000 req/s at 100 ms is 400 copies at once (the default limit is 1,000 per region; ask for more before you need it).
+- **Concurrency** = requests per second × seconds per request. 4k req/s at 100 ms is 400 copies at once (the default limit is 1k per region; ask for more before you need it).
 - **Cold start**: the first request to a new copy waits while it starts (from about a hundred milliseconds to over a second, longer for big packages or Java).
 - Limits: up to 15 minutes per run, 128 MB to 10 GB of memory.
 

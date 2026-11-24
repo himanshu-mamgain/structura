@@ -37,7 +37,7 @@ const lesson: Lesson = {
       title: 'Plan for losing a server',
       text: 'Size the group so that the others can carry the load when one server dies. Running every server near its limit leaves no room for a failure.',
       focus: ['App Server 1', 'App Server 2', 'App Server 3'],
-      example: '20,000 requests/s at peak; one server handles 2,500\n8 servers: just enough, and losing one overloads the rest\n11 servers at 73%: lose one, and the other 10 run at 80%',
+      example: '20k requests/s at peak; one server handles 2,500\n8 servers: just enough, and losing one overloads the rest\n11 servers at 73%: lose one, and the other 10 run at 80%',
     },
     {
       title: 'The load balancer can\'t be the weak spot',

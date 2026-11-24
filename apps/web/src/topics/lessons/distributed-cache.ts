@@ -23,13 +23,13 @@ const lesson: Lesson = {
       title: 'How big, how many',
       text: 'Work out the memory from the number of entries and their size, then how many servers that needs, with room to spare.',
       focus: ['Cache Shard 1', 'Cache Shard 2', 'Cache Shard 3'],
-      example: '20 million products × 1,100 B = 22 GB\n12 GB usable per server → 2 needed, 3 for room\n50,000 reads/s ÷ 3 ≈ 16,700 per shard',
+      example: '20 million products × 1,100 B = 22 GB\n12 GB usable per server → 2 needed, 3 for room\n50k reads/s ÷ 3 ≈ 16.7k per shard',
     },
     {
       title: 'The hit rate is everything',
       text: 'The share of reads answered by the cache decides how much work reaches the database. A cache with a falling hit rate is usually too small for what people read.',
       focus: ['Cache hit?', 'Primary Database'],
-      example: '50,000 reads/s at 95% hits\n→ 2,500 queries/s reach the database, 20 times fewer',
+      example: '50k reads/s at 95% hits\n→ 2,500 queries/s reach the database, 20 times fewer',
     },
     {
       title: 'When memory is full',
@@ -63,10 +63,10 @@ const lesson: Lesson = {
       why: 'Deleting avoids races where an old value is written back after the new one.',
     },
     {
-      question: 'A hot key expires and 5,000 requests arrive at once. What stops them all hitting the database?',
+      question: 'A hot key expires and 5k requests arrive at once. What stops them all hitting the database?',
       options: ['A single-flight lock: one request rebuilds, the rest wait', 'A longer timeout', 'More database servers', 'LFU eviction'],
       answer: 0,
-      why: '5,000 identical queries become one.',
+      why: '5k identical queries become one.',
     },
   ],
 }

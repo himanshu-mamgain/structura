@@ -47,6 +47,18 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# llms.txt and the Markdown copy of each topic (/md/<id>.md, kept out of search results), for AI assistants (scripts/prerender.tsx).
+[[headers]]
+  for = "/llms.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/md/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Content-Type = "text/markdown; charset=utf-8"
+
 # Hashed build assets never change.
 [[headers]]
   for = "/assets/*"

@@ -19,7 +19,7 @@ import { fullCoverOnError, smallCover } from '../topics/catalog'
 import { guidesFor, sourceOf } from '../topics/library'
 import { hasLesson, lessonLabel } from '../topics/lessonsIndex'
 import { NoteBox, TopicNotes } from './Notes'
-import { ShareWhatsApp } from './Share'
+import { CopyLink, ShareWhatsApp } from './Share'
 import { AskedAt } from './AskedAt'
 import { OfflineVideoButton } from './OfflineVideo'
 import { VoiceSettingsButton } from './VoiceGuide'
@@ -355,6 +355,7 @@ export function TopicView({
             {progress?.bookmarked ? <BookmarkCheck size={19} /> : <Bookmark size={19} />}
           </button>
           <ShareWhatsApp text={`${topic.title} on Structura: ${topic.blurb}`} path={`/topic/${topic.id}/`} className="btn btn-ghost" />
+          <CopyLink path={`/topic/${topic.id}/`} className="btn btn-ghost" />
           <button
             type="button"
             className={`btn btn-ghost${progress?.completed ? ' is-on' : ''}`}

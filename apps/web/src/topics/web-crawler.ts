@@ -169,7 +169,7 @@ export const webCrawler: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer:\n- 1 billion links, refreshed about weekly: 4 billion crawls a month.\n- 500 KB stored per page; 100 billion searches a month.\n\nWhich works out to:\n- 2 PB of page content a month, 72 PB in three years.\n- About 1,600 page writes per second.\n- About 40,000 searches per second.',
+        body: 'Assumptions from the System Design Primer:\n- 1 billion links, refreshed about weekly: 4 billion crawls a month.\n- 500 KB stored per page; 100 billion searches a month.\n\nWhich works out to:\n- 2 PB of page content a month, 72 PB in three years.\n- About 1,600 page writes per second.\n- About 40k searches per second.',
       },
       {
         heading: 'Step by step',

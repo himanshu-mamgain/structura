@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -25,7 +26,7 @@ const STRATEGIES: Record<string, { name: string; shares: (t: number) => number }
   'Linear: 10% every minute': { name: 'CodeDeployDefault.ECSLinear10PercentEvery1Minutes', shares: (t) => Math.min(1, 0.1 * (t + 1)) },
 }
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 
 function simulate(bad: boolean, strategyKey: string, alarm: boolean) {
   const s = STRATEGIES[strategyKey] ?? STRATEGIES['All at once']
@@ -187,7 +188,7 @@ The sample shifts traffic **all at once** and rolls back automatically only when
 
 All traffic moved at once. CodeDeploy saw a healthy green, waited its 5 minutes, and terminated blue. The errors were noticed 15 minutes after they started, when the old version no longer existed. Rolling back meant pushing the previous commit through the whole pipeline again.
 
-23,400 requests failed. The deployment, as far as CodeDeploy was concerned, had succeeded.
+23.4k requests failed. The deployment, as far as CodeDeploy was concerned, had succeeded.
 
 > A health check says a task is alive. It doesn't say the release is right.`,
         replay: { label: 'Replay the broken release, all at once', values: run({ release: 'Returns 500 for 30% of requests' }) },
@@ -200,7 +201,7 @@ First, a **CloudWatch alarm** on the green target group's 5xx count: more than 5
 
 Second, a **canary**: \`CodeDeployDefault.ECSCanary10Percent5Minutes\` sends 10% of traffic to green for 5 minutes before the rest. A bad release now hurts a tenth of users, briefly, and the alarm catches it while blue is still taking 90% of the load.
 
-The same bug, shipped again by accident a month later, failed 180 requests instead of 23,400, and the team learned about it from an SNS email saying the deployment had been rolled back.`,
+The same bug, shipped again by accident a month later, failed 180 requests instead of 23.4k, and the team learned about it from an SNS email saying the deployment had been rolled back.`,
         replay: { label: 'Replay with a canary and the alarm', values: run({ release: 'Returns 500 for 30% of requests', strategy: 'Canary: 10% for 5 minutes', alarm: 'Also when the 5xx alarm fires' }) },
       },
       {
@@ -318,7 +319,7 @@ What made it work wasn't one service. It was the pieces together:
       },
       {
         heading: 'Capacity estimates',
-        body: '- API traffic: 3,000 requests a minute (50 a second) to the server\'s load balancer.\n- A release that breaks 30% of requests: 3,000 × 0.3 = 900 failures a minute at full traffic.\n- All at once, no alarm, noticed after 15 minutes, the old version already gone, and 10 more minutes to redeploy: errors in minutes 0 to 25, so 26 × 900 = 23,400 failed requests.\n- A 10% canary with an alarm at more than 50 errors a minute for 2 minutes: 90 failures a minute × 2 = 180 failed requests.\n- Blue/green briefly doubles the server tasks (4 blue + 4 green), so subnets and service limits need room for twice the usual number.',
+        body: '- API traffic: 3k requests a minute (50 a second) to the server\'s load balancer.\n- A release that breaks 30% of requests: 3k × 0.3 = 900 failures a minute at full traffic.\n- All at once, no alarm, noticed after 15 minutes, the old version already gone, and 10 more minutes to redeploy: errors in minutes 0 to 25, so 26 × 900 = 23.4k failed requests.\n- A 10% canary with an alarm at more than 50 errors a minute for 2 minutes: 90 failures a minute × 2 = 180 failed requests.\n- Blue/green briefly doubles the server tasks (4 blue + 4 green), so subnets and service limits need room for twice the usual number.',
       },
       {
         heading: 'Step by step',

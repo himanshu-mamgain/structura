@@ -53,7 +53,7 @@ Put the cheapest, most likely to fail checks first. A flood of bad tokens then c
 - **Open:** after 5 failures in a row, block every call for 20 seconds. Answer from the fallback in under a millisecond.
 - **Half-open:** when the timer ends, let **one** probe through. Success closes the circuit. Failure opens it again for another 20 seconds.
 
-**Why it matters (Little's law).** Connections waiting = requests per second × seconds each waits. If 10,000 requests a second go to a hung service with an 800 ms timeout, 10,000 × 0.8 = **8,000** connections wait at once. Add a retry and it doubles. An open breaker brings this near zero.
+**Why it matters (Little's law).** Connections waiting = requests per second × seconds each waits. If 10k requests a second go to a hung service with an 800 ms timeout, 10k × 0.8 = **8k** connections wait at once. Add a retry and it doubles. An open breaker brings this near zero.
 
 ```js
 const breaker = new CircuitBreaker({ tripAfter: 5, openMs: 20_000 })
@@ -112,7 +112,7 @@ A: Reads (GET) and anything idempotent. A POST is not, unless it carries an idem
 A: Yes, so it is built to be replaceable. It keeps no state, runs as several copies behind a load balancer in different zones, and gets slow, careful deploys.
 
 **Q: How do you capacity-plan it?**
-A: Take peak requests per second and divide by what one copy handles. At 30,000 a second and 8,000 per copy, that is 3.75, so 4 copies, plus 1 spare for failure: 5.
+A: Take peak requests per second and divide by what one copy handles. At 30k a second and 8k per copy, that is 3.75, so 4 copies, plus 1 spare for failure: 5.
 
 ---
 

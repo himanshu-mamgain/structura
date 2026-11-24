@@ -115,11 +115,11 @@ The service needs **two target groups** and the ECS service's deployment control
 
 ### What a bad release costs (the topic's simulator)
 
-Traffic: **3,000 API requests a minute**. The broken release fails **30%** of them, so **900 failures a minute** at full traffic.
+Traffic: **3k API requests a minute**. The broken release fails **30%** of them, so **900 failures a minute** at full traffic.
 
 | Setup | What happens | Failed requests |
 | --- | --- | --- |
-| All at once, **no alarm** | Someone notices after 15 minutes; blue is already gone (5-minute wait), so a fresh redeploy takes 10 more minutes: errors for 26 minutes | 26 × 900 = **23,400** |
+| All at once, **no alarm** | Someone notices after 15 minutes; blue is already gone (5-minute wait), so a fresh redeploy takes 10 more minutes: errors for 26 minutes | 26 × 900 = **23.4k** |
 | Canary 10%, **alarm** at more than 50 errors a minute for 2 minutes | 10% of traffic sees errors: 90 a minute; the alarm fires after 2 minutes and CodeDeploy points the listener back at blue | 2 × 90 = **180** |
 
 The alarm and the canary together cut the damage by more than 99%, and nobody had to be awake.
@@ -291,6 +291,6 @@ A: So a task definition always means one exact build: you can see what's running
 
 ✅ "How do you deploy safely?" is a standard follow-up to any design, and blue/green with canaries and alarm-driven rollback is the strong answer.
 
-✅ The 23,400-vs-180 comparison is a concrete way to explain why alarms and canaries are worth setting up.
+✅ The 23.4k-vs-180 comparison is a concrete way to explain why alarms and canaries are worth setting up.
 
 ✅ Expand/contract migrations, commit-tagged images and keeping blue for a few minutes are the habits that make rollback actually work.

@@ -3,7 +3,7 @@ import { ArrowUpRight, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Clapperb
 import { toggle as toggleCommute, useCommute } from '../learn/commute'
 import { type Progress, updateReel, updateTopic, useProgress, videoFraction } from '../learn/progress'
 import { fullCoverOnError, smallCover, TOPICS, type TopicMeta } from '../topics/catalog'
-import { whatsappHref } from './Share'
+import { CopyLink, whatsappHref } from './Share'
 import { topicIcon } from './topicIcons'
 
 // Reels: every topic video, full screen, one after another, swiped like
@@ -344,11 +344,12 @@ function Feed({ start, onOpen }: { start: string | null; onOpen: (topic: TopicMe
                   {saved ? <BookmarkCheck size={26} /> : <Bookmark size={26} />}
                   <span>{saved ? 'Saved' : 'Save'}</span>
                 </button>
-                {/* Sharing is WhatsApp only (Share.tsx). */}
+                {/* Sharing is WhatsApp and Copy link (Share.tsx). */}
                 <a href={whatsappHref(`${item.title} · Structura: ${item.blurb}`, `/?page=reels&reel=${item.id}`)} target="_blank" rel="noreferrer" aria-label="Share on WhatsApp">
                   <MessageCircle size={25} />
                   <span>WhatsApp</span>
                 </a>
+                <CopyLink path={`/?page=reels&reel=${item.id}`} className="" size={25} />
                 <button type="button" onClick={() => onOpen(t)}>
                   <ArrowUpRight size={27} />
                   <span>Topic</span>

@@ -11,7 +11,7 @@ const lesson: Lesson = {
       title: 'One command at a time',
       text: 'Redis runs commands one after another on a single thread, called the event loop. A command never sees another one half done, so every command is atomic: it happens completely, or not at all.',
       focus: ['App Server', 'Event Loop'],
-      remember: 'Even with one thread, one Redis server handles about 100,000 simple commands a second.',
+      remember: 'Even with one thread, one Redis server handles about 100k simple commands a second.',
     },
     {
       title: 'Every key holds a type',
