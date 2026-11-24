@@ -2384,6 +2384,46 @@
   "story": true
  },
  {
+  "id": "global-load-balancing",
+  "title": "Global vs Local Load Balancing",
+  "blurb": "Route 53, Global Accelerator, API Gateway and ALB: which layer picks the region, which checks the request, which picks the server, and how fast each fails over",
+  "difficulty": "Intermediate",
+  "area": "infra",
+  "guides": [
+   "api-gateway-101"
+  ],
+  "explanation": {
+   "summary": "An app that runs in two regions needs three kinds of routing. A global load balancer (Route 53 with DNS, or Global Accelerator with anycast IP addresses) sends each user to a healthy region near them. An API gateway checks each request (tokens, rate limits) and routes it to the right service. A local load balancer (an ALB) spreads requests across healthy servers in the region's zones. Each layer handles a different failure, at a different speed.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-ecs-fargate",
   "title": "ECS on Fargate",
   "blurb": "Running containers with no servers to manage: task definitions, services, scaling on CPU and safe deploys",

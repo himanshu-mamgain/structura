@@ -219,6 +219,7 @@ export const ROADMAP: RoadmapPart[] = [
     why: 'Blue/green deploys that roll back on their own, and recovering from a lost region.',
     steps: [
       { id: 'aws-cicd', title: 'CI/CD with blue/green deploys', detail: 'CodePipeline, CodeBuild and CodeDeploy, with an alarm that rolls back.', topic: 'aws-ecs-fullstack', guides: ['aws-ecs-fullstack-cicd', 'cicd-pipeline-explained-in-simple-terms'] },
+      { id: 'aws-global-lb', title: 'Global vs local load balancing', detail: 'Route 53 or Global Accelerator picks the region, API Gateway checks the request, the ALB picks the server.', topic: 'global-load-balancing' },
       { id: 'aws-dr', title: 'Disaster recovery across regions', detail: 'RTO and RPO, the four strategies from backup and restore to active/active, and why replicas are not backups.', topic: 'aws-disaster-recovery', guides: ['cloud-disaster-recovery-strategies'] },
     ],
   },
