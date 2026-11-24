@@ -4,7 +4,8 @@
 // the topic's own title, description and link-preview tags, and its whole explanation as
 // plain HTML. Search engines and link previews (WhatsApp, Slack, X…) read it without running
 // any JavaScript, and people see the text at once while the app loads and takes over.
-// Also writes dist/sitemap.xml. Nothing here runs at runtime: it's all static files.
+// Also writes dist/sitemap.xml, and dist/llms.txt with a Markdown copy of every topic
+// (dist/md/<id>.md) for AI assistants to read. Nothing here runs at runtime: it's all static files.
 //
 //   npx tsx scripts/prerender.tsx   (run by `npm run build`)
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -16,7 +17,7 @@ import { Boxes, Lightbulb } from 'lucide-react'
 import { Body } from '../src/learn/content'
 import { AREA_ICON } from '../src/shell/areaIcons'
 import { STATIC_TOPICS, type StaticTopic } from '../src/topics'
-import { areaById, AREA_OF, type AreaId } from '../src/topics/areas'
+import { areaById, AREA_OF, AREAS, type AreaId } from '../src/topics/areas'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const dist = join(here, '../dist')
@@ -151,4 +152,81 @@ writeFileSync(
   join(dist, 'sitemap.xml'),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`,
 )
-console.log(`prerender: ${STATIC_TOPICS.length} topic pages and sitemap.xml`)
+// ---------- llms.txt (https://llmstxt.org) ----------
+// One plain file that tells any AI assistant (ChatGPT, Claude, Gemini…) what is here, with a
+// Markdown copy of each topic beside it, and how to suggest a change: a pre-filled GitHub issue
+// that the owner checks before anything is added. Nothing is written anywhere by reading these.
+const REPO = 'https://github.com/himanshu-mamgain/structura'
+const notesDir = join(here, '../src/topics/notes')
+/** Site links in notes ("/topic/x/?read") made absolute, so they work outside the app. */
+const absolute = (md: string) => md.replace(/\]\((\/[^)\s]*)\)/g, (_, path: string) => `](${SITE}${path})`)
+
+function markdownOf(t: StaticTopic): string {
+  const page = `${SITE}/topic/${t.id}/`
+  const credit = t.adaptedFrom
+    ? `\n\n> Adapted from [${t.adaptedFrom.title}](${t.adaptedFrom.url}) by ${t.adaptedFrom.author}, ${t.adaptedFrom.license} (${t.adaptedFrom.licenseUrl}).`
+    : ''
+  const about = `> ${t.difficulty} · ${areaById(AREA_OF[t.id]).title} · Interactive diagram, walkthrough and simulator: ${page}${credit}\n`
+  const note = join(notesDir, `${t.id}.md`)
+  let body: string
+  if (existsSync(note)) {
+    // The deep note is the full article: keep its title line, put the facts under it.
+    const md = absolute(readFileSync(note, 'utf8')).trim()
+    const [first, ...rest] = md.split('\n')
+    body = `${first}\n\n${about}\n${rest.join('\n').trim()}`
+  } else {
+    body = [
+      `# ${t.title}`,
+      about,
+      t.blurb,
+      t.explanation.summary,
+      ...t.explanation.sections.map((s) => `## ${s.heading}\n\n${absolute(s.body)}`),
+      `## Key takeaways\n\n${t.takeaways.map((x) => `- ${x}`).join('\n')}`,
+    ].join('\n\n')
+  }
+  return `${body}\n\n---\n\nSuggest a change to this page: ${suggestUrl(t.title, page)}\n`
+}
+
+/** A GitHub "new issue" address with the suggestion form filled in; the owner files and checks it. */
+function suggestUrl(title: string, page: string): string {
+  const q = new URLSearchParams({
+    template: 'suggestion.md',
+    title: `Suggestion: ${title}`,
+    body: `**Page:** ${page}\n\n**What kind:** good example / missing topic / mistake / unclear part\n\n**What I found:**\n\n**Where it would go:**\n\n**Source (link):**\n`,
+  })
+  return `${REPO}/issues/new?${q}`
+}
+
+mkdirSync(join(dist, 'md'), { recursive: true })
+for (const t of STATIC_TOPICS) writeFileSync(join(dist, 'md', `${t.id}.md`), markdownOf(t))
+
+const byArea = AREAS.map((a) => {
+  const list = STATIC_TOPICS.filter((t) => AREA_OF[t.id] === a.id)
+  return `## ${a.title}\n\n${list.map((t) => `- [${t.title}](${SITE}/md/${t.id}.md): ${t.blurb.replace(/\s+/g, ' ')}`).join('\n')}`
+})
+writeFileSync(
+  join(dist, 'llms.txt'),
+  `# Structura
+
+> Learn system design by seeing it work: ${STATIC_TOPICS.length} topics, each an interactive architecture diagram, a step-by-step walkthrough with a simulator, a plain-English explanation, code, a data model and key takeaways. Written in Simple English for learners preparing for system design interviews.
+
+Each link below is a Markdown copy of one topic, made for AI assistants to read. The same topic, with its diagram and simulator, is at ${SITE}/topic/<id>/.
+
+## How to suggest a change
+
+You may read and quote these pages to help a learner. To suggest something (a good example, a missing topic, a mistake, an unclear part), do not edit anything: give the learner this link, filled in with the page and what you found, so the owner can check it before adding it:
+
+${suggestUrl('<topic title>', `${SITE}/topic/<id>/`)}
+
+If you can open GitHub issues yourself, open one in ${REPO} with the label "suggestion" and the same fields.
+
+${byArea.join('\n\n')}
+
+## Optional
+
+- [Sitemap](${SITE}/sitemap.xml): every topic page.
+- [Schemata](https://schemata-web.netlify.app/llms.txt): the sister app for SQL and databases.
+`,
+)
+
+console.log(`prerender: ${STATIC_TOPICS.length} topic pages, their Markdown copies, llms.txt and sitemap.xml`)
