@@ -1,6 +1,6 @@
 {
   "$comment": "Which companies asked each topic in interviews, from public candidate reports. Edit by hand; every entry needs a link. See CLAUDE.md, \"Asked at\".",
-  "checked": "2026-11-18",
+  "checked": "2026-11-24",
   "sources": {
     "prachub": {
       "name": "PracHub",
@@ -47,7 +47,10 @@
     "general-motors": "General Motors",
     "affirm": "Affirm",
     "scale-ai": "Scale AI",
-    "axon": "Axon"
+    "axon": "Axon",
+    "baseten": "Baseten",
+    "cresta": "Cresta",
+    "harvey": "Harvey"
   },
   "topics": {
     "ai-agent": [
@@ -1362,6 +1365,70 @@
         "url": "https://prachub.com/interview-questions/design-an-airline-booking-system",
         "source": "prachub",
         "date": "2025-08-07",
+        "similar": true
+      }
+    ],
+    "llm-inference": [
+      {
+        "company": "anthropic",
+        "question": "Design a Batched LLM Inference Service Assuming Each Batch Takes 100 ms",
+        "url": "https://prachub.com/interview-questions/design-a-batched-llm-inference-service-assuming-each-batch-takes-100-ms",
+        "source": "prachub",
+        "date": "2026-10-01"
+      },
+      {
+        "company": "anthropic",
+        "question": "Design a Model Inference API and Optimize Its GPU Usage",
+        "url": "https://prachub.com/interview-questions/design-a-model-inference-api-and-optimize-its-gpu-usage",
+        "source": "prachub",
+        "date": "2026-10-05"
+      },
+      {
+        "company": "anthropic",
+        "question": "Distribute 500 GB of Model Weights to 1,000 GPU Workers: Lower Bound and Design",
+        "url": "https://prachub.com/interview-questions/distribute-500-gb-of-model-weights-to-1-000-gpu-workers-lower-bound-and-design",
+        "source": "prachub",
+        "date": "2026-09-18",
+        "similar": true
+      },
+      {
+        "company": "openai",
+        "question": "Design a Chat Assistant Inference Service: Streaming, Free-Tier Limits, GPU Scheduling",
+        "url": "https://prachub.com/interview-questions/design-a-chat-assistant-inference-service-streaming-free-tier-limits-gpu-scheduling",
+        "source": "prachub",
+        "date": "2026-09-20"
+      },
+      {
+        "company": "baseten",
+        "question": "Design an LLM Inference Serving System",
+        "url": "https://prachub.com/interview-questions/design-an-llm-inference-serving-system",
+        "source": "prachub",
+        "date": "2026-07-26"
+      }
+    ],
+    "llm-guardrails": [
+      {
+        "company": "cresta",
+        "question": "Design an Evaluation Platform for AI Agents Across Prompt and Model Changes",
+        "url": "https://prachub.com/interview-questions/design-an-evaluation-platform-for-ai-agents-across-prompt-and-model-changes",
+        "source": "prachub",
+        "date": "2026-09-20",
+        "similar": true
+      },
+      {
+        "company": "databricks",
+        "question": "Detect Harmful Content in LLM Prompts and Responses",
+        "url": "https://prachub.com/interview-questions/detect-harmful-content-in-llm-prompts-and-responses",
+        "source": "prachub",
+        "date": "2026-09-11",
+        "similar": true
+      },
+      {
+        "company": "harvey",
+        "question": "Design and Evaluate a Retrieval-Augmented Generation Pipeline",
+        "url": "https://prachub.com/interview-questions/design-and-evaluate-a-retrieval-augmented-generation-pipeline",
+        "source": "prachub",
+        "date": "2026-09-01",
         "similar": true
       }
     ]

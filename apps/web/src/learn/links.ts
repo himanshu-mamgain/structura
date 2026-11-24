@@ -108,6 +108,16 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'vector-database', terms: ['vector database', 'vector databases', 'vector search', 'HNSW', 'embeddings', 'embedding'] },
   { topic: 'llm-gateway', terms: ['LLM gateway', 'model gateway'] },
   { topic: 'ai-agent', terms: ['AI agent', 'AI agents'] },
+  { topic: 'llm-inference', section: 'The KV cache', terms: ['KV cache', 'KV caches', 'paged attention', 'PagedAttention'], inTopic: true },
+  { topic: 'llm-inference', section: 'Quantization: fewer bits for each weight', terms: ['quantization', 'quantized', 'quantize'], far: /product quantization|IVF|\bPQ\b|vector/i, inTopic: true },
+  { topic: 'llm-inference', section: 'What model weights are', terms: ['model weights', 'open-weight model', 'open-weight models', 'open weights', 'open-weight'], inTopic: true },
+  { topic: 'llm-inference', section: 'Serving it: batching and vLLM', terms: ['vLLM', 'continuous batching', 'tensor parallelism'], inTopic: true },
+  { topic: 'llm-inference', terms: ['LLM inference', 'self-hosted model', 'self-hosted models'] },
+  { topic: 'llm-guardrails', section: 'A judge model: the generative reward model', terms: ['generative reward model', 'generative reward models', 'reward model', 'reward models', 'LLM-as-a-judge', 'judge model'], inTopic: true },
+  { topic: 'llm-guardrails', section: 'Checking citations with code', terms: ['citation check', 'citation checks', 'citation checker'], inTopic: true },
+  { topic: 'llm-guardrails', section: 'Attacks: prompt injection and rephrasing', terms: ['indirect prompt injection', 'indirect injection'], inTopic: true },
+  { topic: 'llm-guardrails', section: 'Evals: proving it works', terms: ['eval set', 'eval sets'], inTopic: true },
+  { topic: 'llm-guardrails', terms: ['hallucination', 'hallucinations', 'LLM guardrails'] },
 
   // Infra
   { topic: 'docker-vs-vm', section: 'Writing a Dockerfile', terms: ['Dockerfile', 'Dockerfiles'], exact: true },

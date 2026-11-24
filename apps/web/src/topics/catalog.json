@@ -2164,6 +2164,92 @@
   "story": true
  },
  {
+  "id": "llm-inference",
+  "title": "Model Weights & LLM Inference",
+  "blurb": "What model weights are, how much GPU memory a model needs, quantization, the KV cache and serving your own model with vLLM",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack",
+   "scale-scaling-aiml-infrastructure-at-uber",
+   "scale-distributed-machine-learning"
+  ],
+  "explanation": {
+   "summary": "A large language model is a file of numbers called weights, learned in training. Running it, called inference, means loading those weights into GPU memory and passing your tokens through them. The weights' size decides which GPU you need; whatever memory is left holds the KV cache, which decides how many conversations run at once; and because every new token reads all the weights, memory speed decides how fast answers come.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "llm-guardrails",
+  "title": "LLM Guardrails: Hallucinations & Evals",
+  "blurb": "Stop an assistant making things up: grounding, citation checks, a judge model, handing over to a human, and the evals that prove it works",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "how-does-chatgpt-work",
+   "what-is-an-ai-agent",
+   "scale-genie-gen-ai-on-call-copilot-at-uber",
+   "scale-machine-learning-in-content-moderation-at-etsy"
+  ],
+  "explanation": {
+   "summary": "A language model can write a confident answer that is simply wrong: a hallucination. Guardrails are the checks around the model that stop those answers reaching people. Ground the answer in your own documents, check its citations with code, let a judge model score what code can't check, and hand over to a human when a check fails. Evals, a fixed set of questions with known right answers, measure how well all of it works and block changes that make it worse.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-vpc",
   "title": "AWS VPC Networking",
   "blurb": "Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints",

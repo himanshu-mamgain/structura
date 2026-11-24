@@ -88,6 +88,8 @@ export const AREA_OF: Record<string, AreaId> = {
   'rag-pipeline': 'ai',
   'vector-database': 'ai',
   'llm-gateway': 'ai',
+  'llm-inference': 'ai',
+  'llm-guardrails': 'ai',
   'ai-agent': 'ai',
 }
 
