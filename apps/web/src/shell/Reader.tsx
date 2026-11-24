@@ -23,7 +23,7 @@ import type { StaticTopic } from '../topics/types'
 import type { AreaId } from '../topics/areas'
 import { AreaTag } from './Areas'
 import { Blocks } from './Notes'
-import { ShareWhatsApp } from './Share'
+import { CopyLink, ShareWhatsApp } from './Share'
 import { AskedAt } from './AskedAt'
 import { topicIcon } from './topicIcons'
 
@@ -240,7 +240,7 @@ export function Reader({
   return (
     <article ref={article} className="reader" style={{ '--reader-size': `${size}px` } as CSSProperties} onClick={followLink}>
       <div className="reader-bar">
-        <button type="button" className="btn btn-ghost" onClick={onExit} title="Back to the interactive topic page">
+        <button type="button" className="btn btn-ghost" onClick={onExit} title="Back to the interactive topic page" aria-label="Back to the interactive topic page">
           <ArrowLeft size={16} /> <span>Interactive</span>
         </button>
         <div className="reader-size" role="group" aria-label="Text size">
@@ -273,6 +273,7 @@ export function Reader({
           </button>
         )}
         <ShareWhatsApp text={`${topic.title} on Structura: ${topic.blurb}`} path={`/topic/${topic.id}/?read`} label="WhatsApp" />
+        <CopyLink path={`/topic/${topic.id}/?read`} />
         <span className="reader-progress" aria-hidden>
           <span style={{ width: `${scrolled * 100}%` }} />
         </span>

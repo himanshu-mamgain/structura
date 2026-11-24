@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { useState } from 'react'
 import { CheckCircle2, ChevronRight, Clapperboard, Database, ExternalLink, Library, Route } from 'lucide-react'
 import { ECOSYSTEM } from '../ecosystem'
@@ -85,6 +86,7 @@ function AreaIntro({ area, onRoadmap }: { area: AreaId; onRoadmap: () => void })
         <p className="area-intro-count">
           {topics.length} topics · {done} completed
         </p>
+        <CopyLink className="btn btn-ghost page-copy" />
       </div>
       {parts.length > 0 && (
         <button type="button" className="btn btn-wrap area-intro-roadmap" onClick={onRoadmap}>

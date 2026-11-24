@@ -82,8 +82,10 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - `src/sim/`: the load test: the Rust/WASM simulator's worker (`engine.ts`), the knobs (`loadtest.ts`)
     and the panel (`LoadPanel.tsx`), whose results show as a busy badge on each box of the 2D diagram.
     There is no 3D view: it was removed on purpose; don't bring three.js back into the app.
-  - Sharing is **WhatsApp only** (the owner's choice): `src/shell/Share.tsx` makes a `wa.me` link with the
-    title, blurb and page address, on each topic page, Read mode's bar and Home. Don't add other share options.
+  - Sharing is **WhatsApp and Copy link** (the owner's choice): `src/shell/Share.tsx` makes a `wa.me` link with the
+    title, blurb and page address, on each topic page, Read mode's bar, the reels and Home, and `CopyLink` copies
+    the page's address there and under the title of every other page (lesson, note, roadmap, area, quiz,
+    glossary, prep). Don't add other share options.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
   - `src/account/`: the Studia account (see "Studia accounts"): the app bar's account button,
     GitHub sign-in through Supabase, and progress sync (`merge.ts`, `npm run test:sync`).
