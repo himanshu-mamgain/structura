@@ -11,6 +11,7 @@ import { chatSystem } from './chat-system'
 import { consistentHashing } from './consistent-hashing'
 import { databaseSharding } from './database-sharding'
 import { dockerVsVm } from './docker-vs-vm'
+import { globalLoadBalancing } from './global-load-balancing'
 import { fileSync } from './file-sync'
 import { jobScheduler } from './job-scheduler'
 import { leaderElection } from './leader-election'
@@ -111,6 +112,7 @@ const BASE_TOPICS: StaticTopic[] = [
   agentContext,
   awsVpc,
   awsAlb,
+  globalLoadBalancing,
   awsEcsFargate,
   awsEcsFullstack,
   loadBalancer,
