@@ -2250,6 +2250,48 @@
   "simulator": true
  },
  {
+  "id": "agent-context",
+  "title": "Context Engineering for Long-Running Agents",
+  "blurb": "Keep an agent working for hours inside a fixed context window: compaction, notes, clearing tool results, sub-agents, and the harness that runs it all",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "what-is-an-ai-agent",
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "An agent is a language model in a loop: it calls a tool, reads the result, and decides the next step. The model remembers nothing between calls, so every step resends the whole conversation, and the context grows until it fills the window. Context engineering is choosing what the model sees at each step: clearing old tool results, compacting the history into a summary, keeping notes outside the context, and handing exploration to sub-agents.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-vpc",
   "title": "AWS VPC Networking",
   "blurb": "Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints",

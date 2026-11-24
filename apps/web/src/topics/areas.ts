@@ -90,6 +90,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'llm-gateway': 'ai',
   'llm-inference': 'ai',
   'llm-guardrails': 'ai',
+  'agent-context': 'ai',
   'ai-agent': 'ai',
 }
 
