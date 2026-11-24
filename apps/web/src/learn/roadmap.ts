@@ -110,6 +110,7 @@ export const ROADMAP: RoadmapPart[] = [
       { id: 'cl-rank', title: 'Sales rank by category', detail: 'Batch aggregation with MapReduce-style jobs.', topic: 'sales-rank' },
       { id: 'cl-mint', title: 'Personal finance aggregator', detail: 'Pulling bank data on a schedule and categorising it.', topic: 'mint' },
       { id: 'cl-metrics', title: 'Metrics and monitoring', detail: 'Collecting time series, compressing them, and alerting without false pages.', topic: 'metrics-monitoring', guides: ['push-vs-pull-in-metrics-collecting-systems'] },
+      { id: 'cl-ad-clicks', title: 'Ad click aggregator', detail: 'Counting clicks in windows, late events, duplicates and exact billing.', topic: 'ad-click-aggregator', guides: ['scale-stream-data-deduplication'] },
     ],
   },
   {

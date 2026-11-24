@@ -1,3 +1,4 @@
+import { adClickAggregator } from './ad-click-aggregator'
 import { apiGateway } from './api-gateway'
 import { agentContext } from './agent-context'
 import { aiAgent } from './ai-agent'
@@ -129,6 +130,7 @@ const BASE_TOPICS: StaticTopic[] = [
   terraformBasics,
   terraformState,
   terraformModules,
+  adClickAggregator,
 ]
 
 /**

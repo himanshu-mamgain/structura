@@ -3096,5 +3096,50 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "ad-click-aggregator",
+  "title": "Ad Click Aggregator",
+  "blurb": "Counting billions of ad clicks per minute: windows, late events, duplicates and exact billing",
+  "difficulty": "Advanced",
+  "area": "development",
+  "guides": [
+   "scale-stream-data-deduplication",
+   "scale-exactly-once-semantics-with-kafka",
+   "scale-scaling-ad-analytics-with-cassandra-at-yelp",
+   "scale-druid---real-time-analytics-database",
+   "scale-architecture-of-ad-platform-at-twitter",
+   "scale-athenax-streaming-analytics-platform-at-uber"
+  ],
+  "explanation": {
+   "summary": "An advertiser pays each time a viewer clicks an ad, so the count must be right and must show up fast. The design logs every click, counts them in one-minute windows on a stream, skips duplicates, and fixes the numbers every night from the raw log.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
  }
 ]
