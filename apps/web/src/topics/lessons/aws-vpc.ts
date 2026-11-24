@@ -39,7 +39,7 @@ const lesson: Lesson = {
       title: 'A free road to S3',
       text: 'Traffic to S3 through a NAT gateway costs money for every gigabyte. An S3 gateway endpoint adds a route that takes S3 traffic straight there, over AWS\'s own network, for free.',
       focus: ['Private Route Table', 'S3 Gateway Endpoint', 'S3'],
-      example: '30 TB a month to S3\nthrough NAT: 30,000 GB × $0.045 = $1,350\nthrough the endpoint: $0',
+      example: '30 TB a month to S3\nthrough NAT: 30k GB × $0.045 = $1,350\nthrough the endpoint: $0',
     },
     {
       title: 'Databases sit deepest',

@@ -37,7 +37,7 @@ const lesson: Lesson = {
       title: 'What a canary saves',
       text: 'Imagine a release that breaks 30% of requests. The difference between all at once and a canary with an alarm is huge.',
       focus: ['5xx Alarm', 'CodeDeploy'],
-      example: '3,000 requests a minute; 30% fail = 900 a minute\nAll at once, noticed after 15 min, fixed by minute 25:\n  26 × 900 = 23,400 failures\nCanary 10% + alarm after 2 min:\n  2 × 90 = 180 failures',
+      example: '3k requests a minute; 30% fail = 900 a minute\nAll at once, noticed after 15 min, fixed by minute 25:\n  26 × 900 = 23.4k failures\nCanary 10% + alarm after 2 min:\n  2 × 90 = 180 failures',
     },
     {
       title: 'Blue goes, and you hear about it',

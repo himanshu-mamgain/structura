@@ -80,7 +80,7 @@ When to pay for it instead of Route 53: you need fast failover regardless of DNS
 Behind the global layer, each region has an **API Gateway**. For an HTTP API it:
 
 - checks the caller's **JWT** (JSON Web Token: a signed token saying who the user is);
-- applies **throttling**: by default an account may send 10,000 requests a second through API Gateway in each region, with bursts up to 5,000, using a token bucket;
+- applies **throttling**: by default an account may send 10k requests a second through API Gateway in each region, with bursts up to 5k, using a token bucket;
 - routes each path to a service; here `/api/orders/*` goes through a **VPC link** (a private connection into the region's own network, its VPC or virtual private cloud) to an internal ALB;
 - limits each request: up to 10 MB, and up to 30 s for the service to answer.
 
@@ -101,7 +101,7 @@ Inside the region, the ALB checks each target with `GET /status` every 30 s. A t
 
 ## Follow one example: Mumbai goes down
 
-A user in Delhi, 1,000 requests a second from Delhi's users, Route 53 latency routing, health checks every 30 s, TTL 60 s. The round trips are illustrative. To compare like with like, the simulator gives Global Accelerator the same 3 checks to notice a dead region, so the only difference is the DNS cache.
+A user in Delhi, 1k requests a second from Delhi's users, Route 53 latency routing, health checks every 30 s, TTL 60 s. The round trips are illustrative. To compare like with like, the simulator gives Global Accelerator the same 3 checks to notice a dead region, so the only difference is the DNS cache.
 
 | Time | What happens | Delhi's requests |
 |---|---|---|
@@ -111,16 +111,16 @@ A user in Delhi, 1,000 requests a second from Delhi's users, Route 53 latency ro
 | 90 s | Route 53 stops answering with Mumbai | fail until each user's cached answer expires |
 | up to 150 s | the last cached answers expire | served by Frankfurt, 130 ms away |
 
-About 1,000 × 120 = **120,000** requests fail on average. With the alternatives:
+About 1k × 120 = **120k** requests fail on average. With the alternatives:
 
 | Setup | Time users fail | Requests failed |
 |---|---|---|
-| Route 53, checks every 30 s, TTL 60 s | up to 150 s (120 on average) | 120,000 |
-| Route 53, checks every 30 s, TTL 300 s | up to 390 s (240 on average) | 240,000 |
-| Route 53, checks every 10 s, TTL 60 s | up to 90 s (60 on average) | 60,000 |
-| Global Accelerator, checks every 30 s | 90 s | 90,000 |
-| Global Accelerator, checks every 10 s | 30 s | 30,000 |
-| One Mumbai zone down (ALB, checks every 30 s) | half the requests for 60 s | 30,000 |
+| Route 53, checks every 30 s, TTL 60 s | up to 150 s (120 on average) | 120k |
+| Route 53, checks every 30 s, TTL 300 s | up to 390 s (240 on average) | 240k |
+| Route 53, checks every 10 s, TTL 60 s | up to 90 s (60 on average) | 60k |
+| Global Accelerator, checks every 30 s | 90 s | 90k |
+| Global Accelerator, checks every 10 s | 30 s | 30k |
+| One Mumbai zone down (ALB, checks every 30 s) | half the requests for 60 s | 30k |
 
 After the failover, Delhi's users are served from Frankfurt: it works, but each round trip is about 100 ms longer. Two things must already be true: Frankfurt has the data (the databases replicate, usually a few seconds behind), and Frankfurt has spare capacity for Mumbai's users.
 

@@ -40,7 +40,7 @@ const lesson: Lesson = {
       title: 'A circuit breaker protects you',
       text: 'When a service stops answering, every request waits for the timeout and uses up a connection. A circuit breaker counts failures. After 5 in a row it opens and fails at once for 20 seconds. Then it lets one probe through to test the service.',
       focus: ['Circuit Breaker', 'Orders Service', 'Fallback Response'],
-      example: '10,000 requests/s × 0.8 s timeout = 8,000 connections stuck\nBreaker open → almost none',
+      example: '10k requests/s × 0.8 s timeout = 8k connections stuck\nBreaker open → almost none',
       remember: 'Closed means normal. Open means blocked. Half-open means one test request.',
     },
     {
@@ -52,7 +52,7 @@ const lesson: Lesson = {
       title: 'Keep it thin',
       text: 'Every request passes through the gateway, so it must stay fast and simple. Run several copies behind a load balancer. Keep business rules in the services, not in the gateway.',
       focus: ['API Gateway', 'Metrics & Logs'],
-      example: '30,000 requests/s ÷ 8,000 per copy = 3.75 → 4 copies, +1 spare = 5',
+      example: '30k requests/s ÷ 8k per copy = 3.75 → 4 copies, +1 spare = 5',
     },
   ],
   quiz: [

@@ -264,7 +264,7 @@ export const cdn: StaticTopic = {
     'Put a version in file names (logo.4f3a9c.png) and you can cache them for a year: a change is a new address, not a purge.',
     'A shield layer turns misses from many PoPs into one request to your server.',
     'ETags and 304 answers, plus stale-while-revalidate, keep content fresh without making visitors wait.',
-    'Watch the hit ratio: at 50,000 requests a second, going from 95% to 99% cuts your server\'s load from 2,500 to 500 requests a second.',
+    'Watch the hit ratio: at 50k requests a second, going from 95% to 99% cuts your server\'s load from 2,500 to 500 requests a second.',
   ],
   architecture: {
     replace: false,
@@ -345,7 +345,7 @@ export const cdn: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: a shop at its busiest serves 50,000 requests a second, 300 KB each on average.\n- All together: 50,000 × 300 KB = 15 GB a second, or 120 Gbit/s. No single origin can send that.\n- If 95% of requests are hits, the origin sees the other 5%: 2,500 requests a second, 6 Gbit/s.\n- At 99% hits it sees 500 requests a second, 1.2 Gbit/s. Four points more hits means 80% less work for the origin.\n- For a visitor in Mumbai: 3 round trips to Virginia cost about 3 × (12 + 180) = 576 ms, but 3 × 12 = 36 ms to a PoP in Mumbai.\n- A round trip ≈ 2 × distance × 1.4 ÷ 200 km per ms (the 1.4 is for cables not being straight): Mumbai to Singapore (3,904 km) is about 55 ms; Singapore to Virginia (15,522 km) about 217 ms.',
+        body: 'An example: a shop at its busiest serves 50k requests a second, 300 KB each on average.\n- All together: 50k × 300 KB = 15 GB a second, or 120 Gbit/s. No single origin can send that.\n- If 95% of requests are hits, the origin sees the other 5%: 2,500 requests a second, 6 Gbit/s.\n- At 99% hits it sees 500 requests a second, 1.2 Gbit/s. Four points more hits means 80% less work for the origin.\n- For a visitor in Mumbai: 3 round trips to Virginia cost about 3 × (12 + 180) = 576 ms, but 3 × 12 = 36 ms to a PoP in Mumbai.\n- A round trip ≈ 2 × distance × 1.4 ÷ 200 km per ms (the 1.4 is for cables not being straight): Mumbai to Singapore (3,904 km) is about 55 ms; Singapore to Virginia (15,522 km) about 217 ms.',
       },
       {
         heading: 'Step by step',

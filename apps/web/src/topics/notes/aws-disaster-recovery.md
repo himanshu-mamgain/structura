@@ -37,7 +37,7 @@ The single most important line in this note: **a replica is not a backup.** Repl
 
 ## The four strategies
 
-| Strategy | What runs in Hyderabad | RTO (topic) | RPO | Standby cost against a $2,000 stack |
+| Strategy | What runs in Hyderabad | RTO (topic) | RPO | Standby cost against a $2k stack |
 | --- | --- | --- | --- | --- |
 | **Backup and restore** | Nothing: Terraform and copied backups | ~155 min | Hours (to the last copied backup) | $0, plus backup storage |
 | **Pilot light** | The database, as an async replica; servers defined but at zero | ~30 min | Seconds | ~$400 a month |
@@ -61,7 +61,7 @@ At **1,500 orders an hour** (25 a minute), with the disaster at 6 p.m.:
 
 | Data protection | Data lost | Orders lost |
 | --- | --- | --- |
-| Nightly snapshot at 2 a.m., copied to Hyderabad | 16 hours | 16 × 1,500 = **24,000** |
+| Nightly snapshot at 2 a.m., copied to Hyderabad | 16 hours | 16 × 1,500 = **24k** |
 | Nightly snapshot, **same region only** | Can't restore until Mumbai is back | Down for the whole 6-hour outage |
 | Cross-region PITR (logs arrive within ~10 minutes) | ~10 minutes | 10 × 25 = **250** |
 | Cross-region async replica (~5 s behind) | ~5 seconds | 25 ÷ 60 × 5 ≈ **2** |

@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -86,7 +87,7 @@ const dur = (min: number) => {
   return h ? `${h} h${m ? ` ${m} min` : ''}` : `${m} min`
 }
 const orders = (minutes: number) => Math.round((ORDERS_PER_HOUR / 60) * minutes)
-const n = (x: number) => x.toLocaleString('en-US')
+const n = (x: number) => shortNumber(x)
 
 interface Outcome {
   steps: Trace['steps']
@@ -304,7 +305,7 @@ The shop was closed for six hours, until the region came back.`,
       },
       {
         heading: 'Copies, and the cost of rebuilding',
-        body: `The first fix was cheap: copy every snapshot to Hyderabad. Played again, the outage now ended in about two and a half hours: deciding, \`terraform apply\` for the network and servers, an hour to restore 500 GB, tests, DNS. But the newest copy was from 2 a.m., so 16 hours of orders, 24,000 of them, were gone.
+        body: `The first fix was cheap: copy every snapshot to Hyderabad. Played again, the outage now ended in about two and a half hours: deciding, \`terraform apply\` for the network and servers, an hour to restore 500 GB, tests, DNS. But the newest copy was from 2 a.m., so 16 hours of orders, 24k of them, were gone.
 
 **Point-in-time recovery** with cross-region automated backups fixed most of that: RDS replicates its transaction logs to Hyderabad within minutes, so a restore there is about 10 minutes behind, not 16 hours.`,
         replay: { label: 'Replay with copies', values: run('Backup and restore', 'Mumbai region goes down for 6 h', 'Nightly snapshots copied to Hyderabad') },
@@ -399,7 +400,7 @@ It also costs about as much as production again, and the hardest problem moves i
       },
       {
         heading: 'Capacity estimates',
-        body: '- 1,500 orders an hour = 25 a minute. With only a nightly snapshot at 2 a.m. and a disaster at 6 p.m., the RPO is 16 hours: 24,000 orders lost. An RPO of 10 minutes loses 250; 5 seconds loses about 2.\n- Backup and restore RTO: 30 min to decide + 45 min of Terraform + 60 min to restore 500 GB + 15 min of tests + 5 min for DNS = 155 minutes.\n- Pilot light RTO: 15 min to decide + 10 min to promote the database (servers boot at the same time) + 5 min for DNS = 30 minutes.\n- Warm standby RTO: about 2 min for health checks and DNS + 8 min of automatic promotion = 10 minutes.\n- Active/active RTO: about 2 minutes for health checks; RPO about 1 second.\n- Extra cost each month next to a $2,000 production stack (illustrative): $0, $400, $850 and $2,100.',
+        body: '- 1,500 orders an hour = 25 a minute. With only a nightly snapshot at 2 a.m. and a disaster at 6 p.m., the RPO is 16 hours: 24k orders lost. An RPO of 10 minutes loses 250; 5 seconds loses about 2.\n- Backup and restore RTO: 30 min to decide + 45 min of Terraform + 60 min to restore 500 GB + 15 min of tests + 5 min for DNS = 155 minutes.\n- Pilot light RTO: 15 min to decide + 10 min to promote the database (servers boot at the same time) + 5 min for DNS = 30 minutes.\n- Warm standby RTO: about 2 min for health checks and DNS + 8 min of automatic promotion = 10 minutes.\n- Active/active RTO: about 2 minutes for health checks; RPO about 1 second.\n- Extra cost each month next to a $2k production stack (illustrative): $0, $400, $850 and $2,100.',
       },
       {
         heading: 'Step by step',

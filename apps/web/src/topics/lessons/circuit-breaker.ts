@@ -29,9 +29,9 @@ const lesson: Lesson = {
     },
     {
       title: 'Jitter stops a retry storm',
-      text: 'If 1,000 clients fail together and all retry after exactly 200 ms, 1,000 calls arrive at once. Jitter means each client waits a random time between 0 and 200 ms. The retries then spread out.',
+      text: 'If 1k clients fail together and all retry after exactly 200 ms, 1k calls arrive at once. Jitter means each client waits a random time between 0 and 200 ms. The retries then spread out.',
       focus: ['Timeout and Retry'],
-      example: '1,000 retries at once\nvs about 5 every millisecond (1,000 ÷ 200 ms)',
+      example: '1k retries at once\nvs about 5 every millisecond (1k ÷ 200 ms)',
       remember: 'Backoff makes retries slower. Jitter makes them different.',
     },
     {

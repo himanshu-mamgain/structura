@@ -43,7 +43,7 @@ Read the licence before you ship. Qwen2.5-7B and 32B use Apache 2.0. Qwen2.5-72B
 
 Inference has three parts: split the text into tokens, read the prompt, then write the answer one token at a time.
 
-1. **Tokenize.** The tokenizer splits your text into **tokens**, pieces of words, and turns each into an id from a fixed list (about 151,000 pieces for Qwen2.5). "Unbelievable" might become "Un", "believ", "able". On average a token is about three quarters of an English word.
+1. **Tokenize.** The tokenizer splits your text into **tokens**, pieces of words, and turns each into an id from a fixed list (about 151k pieces for Qwen2.5). "Unbelievable" might become "Un", "believ", "able". On average a token is about three quarters of an English word.
 2. **Prefill.** The model turns each token into a list of 3,584 numbers and passes all the prompt's tokens through the 28 layers **at the same time**. Each layer mostly multiplies by its weight matrices. At the end, the model scores every token in its list and picks the next one.
 3. **Decode.** Now it must write the answer. Each new token depends on the one before, so this part goes **one token per step**. Every step passes one token through all 28 layers again.
 
@@ -141,7 +141,7 @@ bytes per token = 2 (key and value) × layers × KV heads × head size × 2 byte
 - **Head size**: 128 numbers (3,584 ÷ 28 heads).
 - **2 bytes**: each number is BF16.
 
-| Model | Calculation | Bytes a token | One 2,000-token chat | One 131,072-token request (the longest allowed) |
+| Model | Calculation | Bytes a token | One 2k-token chat | One 131,072-token request (the longest allowed) |
 |---|---|---|---|---|
 | Qwen2.5-7B | 2 × 28 × 4 × 128 × 2 | 57,344 | 115 MB | 7.52 GB |
 | Qwen2.5-32B | 2 × 64 × 8 × 128 × 2 | 262,144 | 524 MB | 34.36 GB |
@@ -186,7 +186,7 @@ The topic's simulator does this arithmetic. Here is its opening example: Qwen2.5
 | Space for the KV cache | 24 GB × 0.9 − 2 GB − 15.23 GB | 4.37 GB |
 | Cache a token | 2 × 28 × 4 × 128 × 2 | 57,344 bytes |
 | Tokens that fit | 4,368,766,976 ÷ 57,344 | 76,185 tokens |
-| Chats that fit at once | 76,185 ÷ 2,000 | 38: all 16 users run together |
+| Chats that fit at once | 76,185 ÷ 2k | 38: all 16 users run together |
 | Cache read each step | 16 users × (1,500 + 250) tokens on average × 57,344 bytes | 1.61 GB |
 | Time a step | (15.23 + 1.61) GB ÷ 300 GB/s | 56.1 ms |
 | Speed for each user | 1 ÷ 56.1 ms | at most 17.8 tokens a second |

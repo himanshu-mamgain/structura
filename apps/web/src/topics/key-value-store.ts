@@ -248,7 +248,7 @@ export const keyValueStore: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 2 billion keys of 1 KB each, 100,000 reads/s and 20,000 writes/s at peak.\n- Raw data: 2 × 10⁹ × 1 KB = 2 TB; with N = 3 copies, 6 TB.\n- At 1 TB of usable disk per node, run them half full for compaction and growth: 6 TB ÷ 0.5 TB = 12 nodes by disk.\n- Replica operations: writes touch 3 replicas (20,000 × 3 = 60,000/s); reads at R = 2 touch 2 (100,000 × 2 = 200,000/s). Total 260,000/s. At about 20,000 operations/s per node, that is 13 nodes, so around 16 with headroom.\n- A Bloom filter (a compact "definitely not here" check) at a 1% false-positive rate needs about 9.6 bits per key. With 2 × 10⁹ × 3 ÷ 16 = 375 million keys per node, that is about 450 MB of RAM per node, which saves most disk reads for missing keys.',
+        body: 'An example: 2 billion keys of 1 KB each, 100k reads/s and 20k writes/s at peak.\n- Raw data: 2 × 10⁹ × 1 KB = 2 TB; with N = 3 copies, 6 TB.\n- At 1 TB of usable disk per node, run them half full for compaction and growth: 6 TB ÷ 0.5 TB = 12 nodes by disk.\n- Replica operations: writes touch 3 replicas (20k × 3 = 60k/s); reads at R = 2 touch 2 (100k × 2 = 200k/s). Total 260k/s. At about 20k operations/s per node, that is 13 nodes, so around 16 with headroom.\n- A Bloom filter (a compact "definitely not here" check) at a 1% false-positive rate needs about 9.6 bits per key. With 2 × 10⁹ × 3 ÷ 16 = 375 million keys per node, that is about 450 MB of RAM per node, which saves most disk reads for missing keys.',
       },
       {
         heading: 'Step by step',

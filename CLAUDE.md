@@ -439,5 +439,11 @@ there stay on `netlify.app` until the domain is live.
     that splits one real server into several pretend computers."
   - Give one concrete example (a real command, a worked number, the food-delivery app) rather
     than another abstract sentence. No idioms or jokes that don't translate.
+- **Big numbers the short way** (the owner's choice), everywhere a learner reads them: 1k, 200k,
+  1 million, 2.5 billion, not 1,000,000. Shorten only exact values; round others with "about"
+  (1 million ÷ 30 ≈ 33.3k). Keep as they are: numbers under 10,000 that aren't whole thousands
+  (1,200), money that isn't whole thousands (₹11,200), exact technical values (65,536 addresses,
+  16,384 slots, 86,400 seconds, a model's 7,615,616,512 weights) and anything in code or JSON.
+  Simulators format counts with `shortNumber` (`src/learn/numbers.ts`).
 - Comments in code explain why, not what. Match the surrounding code style.
 - Commit messages: conventional (`feat:`, `fix:`), imperative, one subject line.

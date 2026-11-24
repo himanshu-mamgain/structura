@@ -233,7 +233,7 @@ export const uniqueIdGenerator: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- Time: 41 bits is 2^41 = 2,199,023,255,552 ms, about 69.7 years from the custom epoch. Starting the epoch in 2025 means the ids run out in 2094.\n- One worker: 12 bits of sequence is 4,096 ids per millisecond, which is 4,096,000 per second.\n- All workers: 10 machine bits is 1,024 workers, so 4,194,304,000 ids per second in total, far more than any app needs.\n- Example load: 50,000 orders per second is 4.32 billion ids a day. One worker at 4,096,000 per second would be about 1.2% busy; three workers give redundancy, not speed.\n- Storage: 8 bytes per id. 50,000 per second for 5 years is about 7.9 × 10^12 ids, roughly 63 TB of ids alone, which is why a small id matters (a 16-byte UUID would double it).',
+        body: '- Time: 41 bits is 2^41 = 2,199,023,255,552 ms, about 69.7 years from the custom epoch. Starting the epoch in 2025 means the ids run out in 2094.\n- One worker: 12 bits of sequence is 4,096 ids per millisecond, which is 4,096,000 per second.\n- All workers: 10 machine bits is 1,024 workers, so 4,194,304,000 ids per second in total, far more than any app needs.\n- Example load: 50k orders per second is 4.32 billion ids a day. One worker at 4,096,000 per second would be about 1.2% busy; three workers give redundancy, not speed.\n- Storage: 8 bytes per id. 50k per second for 5 years is about 7.9 × 10^12 ids, roughly 63 TB of ids alone, which is why a small id matters (a 16-byte UUID would double it).',
       },
       {
         heading: 'Step by step',
@@ -253,7 +253,7 @@ export const uniqueIdGenerator: StaticTopic = {
       },
       {
         heading: 'Interview follow-ups',
-        body: '- What happens if the system clock goes backwards, and how do you stop duplicate ids?\n- How would you hand out machine ids without setting them by hand?\n- Why can\'t you sort strictly by id across workers to get the real order of events?\n- How would you change the bit layout for a system that needs 100,000 workers, or one that needs 50,000 ids per millisecond?\n- When would you pick UUID v7 or a ticket server over Snowflake?',
+        body: '- What happens if the system clock goes backwards, and how do you stop duplicate ids?\n- How would you hand out machine ids without setting them by hand?\n- Why can\'t you sort strictly by id across workers to get the real order of events?\n- How would you change the bit layout for a system that needs 100k workers, or one that needs 50k ids per millisecond?\n- When would you pick UUID v7 or a ticket server over Snowflake?',
       },
     ],
     get trace() {

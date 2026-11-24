@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -32,7 +33,7 @@ interface Options {
   jitter: boolean
 }
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const mb = (bytes: number) => (bytes >= 1e6 ? `${(bytes / 1e6).toFixed(1)} MB/s` : `${Math.round(bytes / 1e3)} KB/s`)
 
 function plan(o: Options) {
@@ -250,15 +251,15 @@ export const websocketScaling: StaticTopic = {
     sections: [
       {
         heading: 'Overview',
-        body: 'HTTP is request and response: the app asks, the server answers, and the exchange is over. A WebSocket starts as an HTTP request with an Upgrade header; the server answers 101 Switching Protocols, and from then on the same TCP connection carries small messages both ways, for as long as both sides keep it open.\n\nThat makes real-time features simple: a live score, a chat message or a price can be pushed the moment it exists. But the server now holds state (the open connection), and connections live for minutes or hours.\n\nThe simulator follows a live cricket score app with up to 1,000,000 fans, and compares polling, long polling and WebSockets as each problem appears.',
+        body: 'HTTP is request and response: the app asks, the server answers, and the exchange is over. A WebSocket starts as an HTTP request with an Upgrade header; the server answers 101 Switching Protocols, and from then on the same TCP connection carries small messages both ways, for as long as both sides keep it open.\n\nThat makes real-time features simple: a live score, a chat message or a price can be pushed the moment it exists. But the server now holds state (the open connection), and connections live for minutes or hours.\n\nThe simulator follows a live cricket score app with up to 1 million fans, and compares polling, long polling and WebSockets as each problem appears.',
       },
       {
         heading: 'Requirements',
-        body: 'Functional:\n- Show every fan each ball within a second.\n- Reach every fan, whichever server they are connected to.\n- Survive deploys, server failures and quiet periods without losing fans.\n\nNon-functional:\n- 1,000,000 fans online at a big match.\n- Small messages: about 60 bytes per update.\n- Reconnects spread out, never all at once.',
+        body: 'Functional:\n- Show every fan each ball within a second.\n- Reach every fan, whichever server they are connected to.\n- Survive deploys, server failures and quiet periods without losing fans.\n\nNon-functional:\n- 1 million fans online at a big match.\n- Small messages: about 60 bytes per update.\n- Reconnects spread out, never all at once.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Polling every 5 s: 1,000,000 ÷ 5 = 200,000 requests a second. At an illustrative 5,000 a second per server, 40 servers. A ball comes every 30 s, so 5 of every 6 polls (83%) return nothing new, and fans wait 2.5 s on average.\n- Polling traffic: about 700 bytes of headers per poll (illustrative) × 200,000 = about 140 MB a second, mostly headers.\n- WebSockets: 1,000,000 open connections. At an illustrative 50,000 per server, 20 servers. Each ball is 1,000,000 messages of 60 bytes plus 2 bytes of framing: about 2.1 MB a second averaged over 30 s.\n- Heartbeats: one ping every 30 s per connection is 33,333 tiny frames a second.\n- One server restart drops 50,000 connections. Reconnecting at once: 50,000 handshakes in about a second across 19 servers, about 2,632 each. Spread over 30 s: about 1,667 a second in all, 88 per server.',
+        body: '- Polling every 5 s: 1 million ÷ 5 = 200k requests a second. At an illustrative 5k a second per server, 40 servers. A ball comes every 30 s, so 5 of every 6 polls (83%) return nothing new, and fans wait 2.5 s on average.\n- Polling traffic: about 700 bytes of headers per poll (illustrative) × 200k = about 140 MB a second, mostly headers.\n- WebSockets: 1 million open connections. At an illustrative 50k per server, 20 servers. Each ball is 1 million messages of 60 bytes plus 2 bytes of framing: about 2.1 MB a second averaged over 30 s.\n- Heartbeats: one ping every 30 s per connection is about 33.3k tiny frames a second.\n- One server restart drops 50k connections. Reconnecting at once: 50k handshakes in about a second across 19 servers, about 2,632 each. Spread over 30 s: about 1,667 a second in all, 88 per server.',
       },
       {
         heading: 'Step by step',
@@ -266,7 +267,7 @@ export const websocketScaling: StaticTopic = {
       },
       {
         heading: 'Components',
-        body: '- Fan App: the phone or web app; polls, or holds one WebSocket and reconnects with backoff and jitter.\n- Load Balancer: passes HTTP requests to any server, and WebSocket upgrades to one server; closes connections idle longer than its idle timeout (60 s by default on an ALB).\n- HTTP API Servers: stateless; answer polls from the Score Cache.\n- Score Cache: the latest score for each match, read by every poll.\n- WebSocket Servers: hold open connections (an illustrative 50,000 each), subscribe to match channels and push to their fans.\n- Redis Pub/Sub: delivers each published ball to every subscribed server.\n- Scorer App: used by the official scorer to enter each ball.\n- Score Service: records each ball, updates the cache, and publishes it.',
+        body: '- Fan App: the phone or web app; polls, or holds one WebSocket and reconnects with backoff and jitter.\n- Load Balancer: passes HTTP requests to any server, and WebSocket upgrades to one server; closes connections idle longer than its idle timeout (60 s by default on an ALB).\n- HTTP API Servers: stateless; answer polls from the Score Cache.\n- Score Cache: the latest score for each match, read by every poll.\n- WebSocket Servers: hold open connections (an illustrative 50k each), subscribe to match channels and push to their fans.\n- Redis Pub/Sub: delivers each published ball to every subscribed server.\n- Scorer App: used by the official scorer to enter each ball.\n- Score Service: records each ball, updates the cache, and publishes it.',
       },
       {
         heading: 'Key decisions',

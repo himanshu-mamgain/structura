@@ -343,7 +343,7 @@ export const apiGateway: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 30,000 requests per second at peak, and one gateway copy handles about 8,000 per second.\n- Copies needed: 30,000 / 8,000 = 3.75, so 4. Add one spare, so 5 copies, and the system still works if one fails.\n- Log volume at 300 bytes a line: 30,000 × 86,400 s × 300 B = 777.6 GB a day. This is why logs are sampled or sent to a log pipeline, not kept in the gateway.\n- Why the circuit breaker matters (Little\'s law, connections open = rate × time each waits): suppose 10,000 requests per second go to the Orders Service and it hangs. With the 800 ms timeout, 10,000 × 0.8 = 8,000 connections wait at once. Without a timeout, the number grows until the gateway runs out of memory. With the breaker open, the count falls to almost zero.',
+        body: 'An example: 30k requests per second at peak, and one gateway copy handles about 8k per second.\n- Copies needed: 30k / 8k = 3.75, so 4. Add one spare, so 5 copies, and the system still works if one fails.\n- Log volume at 300 bytes a line: 30k × 86,400 s × 300 B = 777.6 GB a day. This is why logs are sampled or sent to a log pipeline, not kept in the gateway.\n- Why the circuit breaker matters (Little\'s law, connections open = rate × time each waits): suppose 10k requests per second go to the Orders Service and it hangs. With the 800 ms timeout, 10k × 0.8 = 8k connections wait at once. Without a timeout, the number grows until the gateway runs out of memory. With the breaker open, the count falls to almost zero.',
       },
       {
         heading: 'Step by step',

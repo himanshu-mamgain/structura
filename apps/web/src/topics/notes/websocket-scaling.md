@@ -45,24 +45,24 @@ The server works out `Sec-WebSocket-Accept` from the key the app sent, which pro
 
 ## Follow one example: a live cricket score app
 
-The topic's simulator: 1,000,000 fans follow a match, and a ball is bowled about every 30 s. The planning numbers are illustrative: an HTTP server handles 5,000 requests a second, a WebSocket server holds 50,000 connections, and a poll's headers are about 700 bytes.
+The topic's simulator: 1 million fans follow a match, and a ball is bowled about every 30 s. The planning numbers are illustrative: an HTTP server handles 5k requests a second, a WebSocket server holds 50k connections, and a poll's headers are about 700 bytes.
 
 | | Polling every 5 s | Long polling | WebSocket |
 |---|---|---|---|
-| Requests a second | 1,000,000 ÷ 5 = 200,000 | 1,000,000 ÷ 30 = 33,333 | none, after connecting |
-| Connections held | none | 1,000,000 | 1,000,000 |
-| Servers | 200,000 ÷ 5,000 = 40 | 1,000,000 ÷ 50,000 = 20 | 20 |
+| Requests a second | 1 million ÷ 5 = 200k | 1 million ÷ 30 ≈ 33.3k | none, after connecting |
+| Connections held | none | 1 million | 1 million |
+| Servers | 200k ÷ 5k = 40 | 1 million ÷ 50k = 20 | 20 |
 | Average delay before a fan sees the ball | 5 ÷ 2 = 2.5 s | about one round trip | about one round trip |
 | Polls with nothing new | 5 of every 6: 83% | none | none |
 | Traffic | about 142 MB a second, mostly headers | about 25 MB a second | about 2.1 MB a second |
 
-Where the WebSocket traffic comes from: each ball is 1,000,000 messages of 60 bytes plus 2 bytes of framing, every 30 s. That's 62,000,000 ÷ 30 ≈ 2.1 MB a second.
+Where the WebSocket traffic comes from: each ball is 1 million messages of 60 bytes plus 2 bytes of framing, every 30 s. That's 62 million ÷ 30 ≈ 2.1 MB a second.
 
 WebSockets win on delay and traffic. But the 20 servers now hold state, and four problems appear that polling never had.
 
 ## Problem 1: a broadcast reaches one server's fans
 
-A ball is bowled, and the Score Service sends it to a WebSocket server. That server writes it to its 50,000 connections, and the other 950,000 fans see nothing. A server only knows its own connections. It worked in testing, with one server.
+A ball is bowled, and the Score Service sends it to a WebSocket server. That server writes it to its 50k connections, and the other 950k fans see nothing. A server only knows its own connections. It worked in testing, with one server.
 
 The fix is **pub/sub** (publish/subscribe): every WebSocket server subscribes to a channel, here `match:IND-AUS`, and the Score Service publishes each ball once. The pub/sub system delivers it to all 20 servers, and each one writes it to its own fans.
 
@@ -78,17 +78,17 @@ Polling never had this problem: every poll reads the latest score from a shared 
 
 ## Problem 2: quiet connections get cut
 
-Load balancers, proxies and mobile networks close connections that carry nothing for a while. An ALB (AWS's Application Load Balancer) closes them after 60 s of silence by default: its **idle timeout**. In a 20-minute innings break with no balls, every connection goes quiet, and all 1,000,000 are cut at about the same moment. Then they all reconnect at once.
+Load balancers, proxies and mobile networks close connections that carry nothing for a while. An ALB (AWS's Application Load Balancer) closes them after 60 s of silence by default: its **idle timeout**. In a 20-minute innings break with no balls, every connection goes quiet, and all 1 million are cut at about the same moment. Then they all reconnect at once.
 
-The fix is a **heartbeat**: the server sends a tiny ping frame every 30 s, shorter than the shortest idle timeout on the path. The app answers with a pong automatically. For 1,000,000 connections that's 1,000,000 ÷ 30 = 33,333 tiny frames a second: cheap. Pings also find dead connections: one that didn't answer the last ping is closed, freeing its memory.
+The fix is a **heartbeat**: the server sends a tiny ping frame every 30 s, shorter than the shortest idle timeout on the path. The app answers with a pong automatically. For 1 million connections that's 1 million ÷ 30 ≈ 33.3k tiny frames a second: cheap. Pings also find dead connections: one that didn't answer the last ping is closed, freeing its memory.
 
 ## Problem 3: a restart drops thousands at once
 
-Deploying a new version means restarting servers. Restarting one WebSocket server drops its 50,000 connections, and those apps reconnect to the other 19. Each reconnect is a TLS handshake (the encryption setup) plus a token check.
+Deploying a new version means restarting servers. Restarting one WebSocket server drops its 50k connections, and those apps reconnect to the other 19. Each reconnect is a TLS handshake (the encryption setup) plus a token check.
 
 | | Reconnects | Per remaining server |
 |---|---|---|
-| All at once | 50,000 in about 1 s | about 2,632 a second |
+| All at once | 50k in about 1 s | about 2,632 a second |
 | Each app waits a random 0 to 30 s first | about 1,667 a second for 30 s | about 88 a second |
 
 That random wait is **jitter**. Add **exponential backoff** too (wait longer after each failed attempt), so a struggling server isn't hammered. See [Retries: Backoff and Jitter](/?topic=retry-backoff&read).
@@ -105,7 +105,7 @@ An HTTP fleet rebalances itself: every new request can go to the new server. Lon
 
 ## What limits connections per server
 
-The 50,000 above is a planning number. The real limit depends on:
+The 50k above is a planning number. The real limit depends on:
 
 - **Memory**: each connection has buffers, plus your own per-user state. Multiply by connections.
 - **File descriptors**: each connection is an open file to the operating system; raise the limit (`ulimit -n`) well above your target.
@@ -169,7 +169,7 @@ A: Load balancers and proxies close connections that send nothing for a while; a
 
 **Q: Polling, long polling, server-sent events or WebSockets?**
 
-A: Polling for rare updates or small audiences: stateless and simple. Long polling when you need quick updates but can't hold WebSockets. Server-sent events for one-way push over plain HTTP. WebSockets for frequent two-way messages. For 1,000,000 fans and a ball every 30 s: polling every 5 s needs 200,000 requests a second and 2.5 s of delay; WebSockets need 1,000,000 held connections and about 2.1 MB a second.
+A: Polling for rare updates or small audiences: stateless and simple. Long polling when you need quick updates but can't hold WebSockets. Server-sent events for one-way push over plain HTTP. WebSockets for frequent two-way messages. For 1 million fans and a ball every 30 s: polling every 5 s needs 200k requests a second and 2.5 s of delay; WebSockets need 1 million held connections and about 2.1 MB a second.
 
 **Q: What does Socket.IO add over WebSockets, and what does it cost?**
 

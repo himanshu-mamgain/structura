@@ -40,7 +40,7 @@ const lesson: Lesson = {
       title: 'The hit ratio is what matters',
       text: 'The share of requests answered from the cache decides how many reach your server. A few points make a big difference.',
       focus: ['Edge Cache (nearest PoP)', 'Origin Server'],
-      example: '50,000 requests/s at peak\n95% hits → 2,500/s reach the origin\n99% hits → 500/s: 80% less',
+      example: '50k requests/s at peak\n95% hits → 2,500/s reach the origin\n99% hits → 500/s: 80% less',
     },
     {
       title: 'Changing a file right now: purge',

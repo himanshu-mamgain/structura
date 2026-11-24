@@ -433,7 +433,7 @@ export const llmGuardrails: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- 50,000 questions a day ≈ 0.6 a second on average; plan for 3 a second at peak.\n- Answer: about 1,200 ms. Retrieval adds about 90 ms, the input check 30 ms, the citation check about 1 ms of plain code, and a judge model about 650 ms: one more model call per answer.\n- The judge reads the question, two passages and the draft, roughly 600 tokens, so it about doubles the input tokens per answer.\n- Handoffs: if 1 in 20 questions goes to a human, that is 2,500 a day. At 4 minutes each, that is about 167 agent-hours a day, so every needless handoff costs real people.\n- Traces: about 3 KB a question, so 150 MB a day.\n(Timings are illustrative.)',
+        body: '- 50k questions a day ≈ 0.6 a second on average; plan for 3 a second at peak.\n- Answer: about 1,200 ms. Retrieval adds about 90 ms, the input check 30 ms, the citation check about 1 ms of plain code, and a judge model about 650 ms: one more model call per answer.\n- The judge reads the question, two passages and the draft, roughly 600 tokens, so it about doubles the input tokens per answer.\n- Handoffs: if 1 in 20 questions goes to a human, that is 2,500 a day. At 4 minutes each, that is about 167 agent-hours a day, so every needless handoff costs real people.\n- Traces: about 3 KB a question, so 150 MB a day.\n(Timings are illustrative.)',
       },
       {
         heading: 'Step by step',

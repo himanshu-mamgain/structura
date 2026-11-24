@@ -24,7 +24,7 @@ const lesson: Lesson = {
       title: 'Replies first, copies after',
       text: 'The primary answers the client before the replicas have the write. That keeps writes fast, but replicas run a little behind. If the primary dies, its last few writes can be lost.',
       focus: ['App Server', 'Redis Primary', 'Replica 1'],
-      example: '20 ms behind × 6,000 writes/s = 120 writes at risk',
+      example: '20 ms behind × 6k writes/s = 120 writes at risk',
     },
     {
       title: 'Sentinels watch the primary',

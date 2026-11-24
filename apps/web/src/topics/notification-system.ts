@@ -284,7 +284,7 @@ export const notificationSystem: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 20 million daily users, 5 notifications each.\n- 20,000,000 × 5 = 100,000,000 notifications a day.\n- Average: 100,000,000 / 86,400 s ≈ 1,157 per second. Peak at 10× the average (a campaign or a flash sale) ≈ 11,574 per second.\n- Mix of 60% push, 35% email, 5% SMS: 60M, 35M and 5M a day.\n- Event size about 1 KB: 11,574 × 1 KB ≈ 11.6 MB/s into the queues at peak.\n- Log rows at about 500 bytes: 100M × 500 B = 50 GB a day, 1.5 TB for 30 days of history.\n- If one worker sends 500 messages a second, peak needs 11,574 / 500 ≈ 24 workers; run 30 or so for headroom.',
+        body: 'An example: 20 million daily users, 5 notifications each.\n- 20 million × 5 = 100 million notifications a day.\n- Average: 100 million / 86,400 s ≈ 1,157 per second. Peak at 10× the average (a campaign or a flash sale) ≈ 11.6k per second.\n- Mix of 60% push, 35% email, 5% SMS: 60M, 35M and 5M a day.\n- Event size about 1 KB: 11.6k × 1 KB ≈ 11.6 MB/s into the queues at peak.\n- Log rows at about 500 bytes: 100M × 500 B = 50 GB a day, 1.5 TB for 30 days of history.\n- If one worker sends 500 messages a second, peak needs 11.6k / 500 ≈ 24 workers; run 30 or so for headroom.',
       },
       {
         heading: 'Step by step',

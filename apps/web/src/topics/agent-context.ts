@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -171,7 +172,7 @@ function simulate(o: Options) {
   return { plan, peak, sent: sent + subagentSent, subagentRead, subagentSent, compactions, dropped, overflowAt, extraSteps, checks, growth, finished, notes }
 }
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const k = (n: number) => `${(n / 1000).toFixed(n < 10000 ? 1 : 0)}K`
 const usd = (tokens: number) => `$${((tokens / 1e6) * 3).toFixed(2)}`
 
@@ -413,7 +414,7 @@ export const agentContext: StaticTopic = {
     sections: [
       {
         heading: 'Overview',
-        body: 'A context window is the most text a model can read in one call, counted in tokens (pieces of words, about three quarters of a word each). Common windows are 128,000 or 200,000 tokens.\n\nA long task (fixing a bug across a codebase, researching for an hour) runs for dozens or hundreds of steps. Each step adds the model\'s reasoning and a tool\'s result, often thousands of tokens for one file. Long before the window is full, models also get worse at using what\'s in it: facts in the middle of a long context are found less reliably than those at the start or end.\n\nThe simulator follows a coding agent through 60 or 120 steps, and checks whether it still knows five things it learned along the way.',
+        body: 'A context window is the most text a model can read in one call, counted in tokens (pieces of words, about three quarters of a word each). Common windows are 128k or 200k tokens.\n\nA long task (fixing a bug across a codebase, researching for an hour) runs for dozens or hundreds of steps. Each step adds the model\'s reasoning and a tool\'s result, often thousands of tokens for one file. Long before the window is full, models also get worse at using what\'s in it: facts in the middle of a long context are found less reliably than those at the start or end.\n\nThe simulator follows a coding agent through 60 or 120 steps, and checks whether it still knows five things it learned along the way.',
       },
       {
         heading: 'Requirements',
@@ -421,7 +422,7 @@ export const agentContext: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- Fixed part of every call: system prompt and tool definitions about 8,000 tokens, the task 600.\n- Each step: about 350 tokens from the model, plus a tool result: a file read 6,000, a test run 3,500, a search 1,200.\n- A 6-step cycle (read, search, read, edit, test, look up docs) adds about 21,700 tokens. 60 steps add about 217,000: well past a 128K window.\n- Keeping everything, the context passes 131,072 tokens at step 33, and the agent stops.\n- Cost: every call resends everything, so its 32 calls sent 2,228,700 input tokens: about $6.69 at an illustrative $3 per million, for a task that stopped halfway.\n- Clearing all but the last 10 tool results keeps the 60-step task under 70,000 tokens a call: it finishes, having sent about 3 million tokens in all.',
+        body: '- Fixed part of every call: system prompt and tool definitions about 8k tokens, the task 600.\n- Each step: about 350 tokens from the model, plus a tool result: a file read 6k, a test run 3,500, a search 1,200.\n- A 6-step cycle (read, search, read, edit, test, look up docs) adds about 21.7k tokens. 60 steps add about 217k: well past a 128K window.\n- Keeping everything, the context passes 131,072 tokens at step 33, and the agent stops.\n- Cost: every call resends everything, so its 32 calls sent 2,228,700 input tokens: about $6.69 at an illustrative $3 per million, for a task that stopped halfway.\n- Clearing all but the last 10 tool results keeps the 60-step task under 70k tokens a call: it finishes, having sent about 3 million tokens in all.',
       },
       {
         heading: 'Step by step',
@@ -433,7 +434,7 @@ export const agentContext: StaticTopic = {
       },
       {
         heading: 'Key decisions',
-        body: '- Clear before you compact: old tool results are most of the tokens, and clearing them loses little, because the model already wrote down what it learned.\n- Compact at a threshold (say 80%), not at the limit: leave room for the summary call and the next step.\n- What the summary keeps: constraints, decisions, open bugs and the current plan. Test the summariser against long runs; it is lossy.\n- Notes outside the context: the agent writes facts as it learns them and reads them back after compaction. This is the only memory that never fades.\n- Sub-agents for wide searches: they spend tens of thousands of tokens in their own context and return a summary of 1,000 to 2,000.\n- Load just in time: keep file paths and queries in the context, and read the file only when needed, rather than loading everything up front.',
+        body: '- Clear before you compact: old tool results are most of the tokens, and clearing them loses little, because the model already wrote down what it learned.\n- Compact at a threshold (say 80%), not at the limit: leave room for the summary call and the next step.\n- What the summary keeps: constraints, decisions, open bugs and the current plan. Test the summariser against long runs; it is lossy.\n- Notes outside the context: the agent writes facts as it learns them and reads them back after compaction. This is the only memory that never fades.\n- Sub-agents for wide searches: they spend tens of thousands of tokens in their own context and return a summary of 1k to 2k.\n- Load just in time: keep file paths and queries in the context, and read the file only when needed, rather than loading everything up front.',
       },
       {
         heading: 'Scaling and failure',

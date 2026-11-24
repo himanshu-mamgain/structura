@@ -298,7 +298,7 @@ export const metricsMonitoring: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 10,000 servers, 200 metrics each, one sample every 15 seconds.\n- Active series: 10,000 × 200 = 2,000,000.\n- Write rate: 2,000,000 / 15 = 133,333 samples per second.\n- Samples per day: 133,333 × 86,400 = 11.52 billion.\n- Raw size at 16 bytes a sample: 184 GB a day. Compressed to about 1.37 bytes: 15.8 GB a day, so 15 days of raw data is about 237 GB.\n- Rolling up to 5-minute averages gives 2,000,000 × 288 = 576 million points a day, 0.79 GB a day, 288 GB for a year.\n- One ingest shard handles about 500,000 samples per second (a planning figure), so 133,333 fits on one shard; run three for redundancy and headroom.',
+        body: 'An example: 10k servers, 200 metrics each, one sample every 15 seconds.\n- Active series: 10k × 200 = 2 million.\n- Write rate: 2 million / 15 ≈ 133k samples per second.\n- Samples per day: 133k × 86,400 = 11.52 billion.\n- Raw size at 16 bytes a sample: 184 GB a day. Compressed to about 1.37 bytes: 15.8 GB a day, so 15 days of raw data is about 237 GB.\n- Rolling up to 5-minute averages gives 2 million × 288 = 576 million points a day, 0.79 GB a day, 288 GB for a year.\n- One ingest shard handles about 500k samples per second (a planning figure), so 133k fits on one shard; run three for redundancy and headroom.',
       },
       {
         heading: 'Step by step',

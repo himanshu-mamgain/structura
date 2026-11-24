@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -13,7 +14,7 @@ const messageId = (server: bigint, seq: bigint) => ((BigInt(SENT_AT - ID_EPOCH) 
 /** Share of recipients that are connected when the message arrives, in the "Mixed" case. */
 const MIXED_ONLINE = 0.75
 
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 
 const simulator: Simulator = {
   fields: [
@@ -188,7 +189,7 @@ export const chatSystem: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions: 500 million daily active users, 40 messages sent per user per day, about 100 bytes per message, 20% of users connected at the same time, 50,000 connections per gateway server.\n\nWhich works out to:\n- 500 million × 40 = 20 billion messages a day, about 231,000 per second (about 700,000 per second at a 3× peak).\n- 20 billion × 100 bytes = 2 TB a day, about 2.2 PB over three years (before replication).\n- 20% of 500 million = 100 million open connections, so about 2,000 gateway servers.\n\nWrites dominate and are append-only, which suits a log-structured store such as Cassandra.',
+        body: 'Assumptions: 500 million daily active users, 40 messages sent per user per day, about 100 bytes per message, 20% of users connected at the same time, 50k connections per gateway server.\n\nWhich works out to:\n- 500 million × 40 = 20 billion messages a day, about 231k per second (about 700k per second at a 3× peak).\n- 20 billion × 100 bytes = 2 TB a day, about 2.2 PB over three years (before replication).\n- 20% of 500 million = 100 million open connections, so about 2k gateway servers.\n\nWrites dominate and are append-only, which suits a log-structured store such as Cassandra.',
       },
       {
         heading: 'Step by step',
@@ -196,7 +197,7 @@ export const chatSystem: StaticTopic = {
       },
       {
         heading: 'Components',
-        body: '- Sender App: the sending client; keeps one WebSocket open and retries with a client message id.\n- Recipient App: the receiving client; de-duplicates by message id and syncs after reconnecting.\n- WebSocket Gateway: holds the open connections (about 50,000 each) and nothing else, so it can be restarted freely.\n- Chat Service: stateless; assigns ids, stores, looks up recipients and routes.\n- Group Service: group membership and size limits; cached because it is read on every group message.\n- Presence Service: online and last-seen status from gateway heartbeats, with a short TTL.\n- Message Queue: one topic per gateway; buffers bursts and decouples routing from delivery.\n- Push Notification Service: talks to APNs and FCM for users with no live connection.\n- Session Registry (Redis): maps user id to the gateway holding their connection.\n- Message Store (Cassandra): messages partitioned by conversation and time bucket, newest first.',
+        body: '- Sender App: the sending client; keeps one WebSocket open and retries with a client message id.\n- Recipient App: the receiving client; de-duplicates by message id and syncs after reconnecting.\n- WebSocket Gateway: holds the open connections (about 50k each) and nothing else, so it can be restarted freely.\n- Chat Service: stateless; assigns ids, stores, looks up recipients and routes.\n- Group Service: group membership and size limits; cached because it is read on every group message.\n- Presence Service: online and last-seen status from gateway heartbeats, with a short TTL.\n- Message Queue: one topic per gateway; buffers bursts and decouples routing from delivery.\n- Push Notification Service: talks to APNs and FCM for users with no live connection.\n- Session Registry (Redis): maps user id to the gateway holding their connection.\n- Message Store (Cassandra): messages partitioned by conversation and time bucket, newest first.',
       },
       {
         heading: 'Key decisions',
@@ -204,7 +205,7 @@ export const chatSystem: StaticTopic = {
       },
       {
         heading: 'Scaling and failure',
-        body: '- A gateway dies: its clients reconnect (with jittered backoff, so 50,000 clients do not stampede) to another gateway, re-register, and sync from their last message id.\n- Add gateways horizontally; the Session Registry is the only shared lookup, so shard it by user id.\n- The Message Queue absorbs spikes; consumers per gateway scale with connections.\n- Hot conversations (a 500-person group in the middle of a match) are bounded by the group cap and the time bucket.\n- Presence at scale: do not broadcast every change to every contact; fetch status on demand or only for the open chat.',
+        body: '- A gateway dies: its clients reconnect (with jittered backoff, so 50k clients do not stampede) to another gateway, re-register, and sync from their last message id.\n- Add gateways horizontally; the Session Registry is the only shared lookup, so shard it by user id.\n- The Message Queue absorbs spikes; consumers per gateway scale with connections.\n- Hot conversations (a 500-person group in the middle of a match) are bounded by the group cap and the time bucket.\n- Presence at scale: do not broadcast every change to every contact; fetch status on demand or only for the open chat.',
       },
       {
         heading: 'Interview follow-ups',

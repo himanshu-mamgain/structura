@@ -409,7 +409,7 @@ export const rateLimiter: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 200,000 API requests per second at peak, 10 million active API keys.\n- Every request needs one counter check, so 200,000 Redis operations per second. One Redis node handles roughly 60,000 to 100,000 scripted operations per second, so plan at least 4 shards (200,000 / 60,000 = 3.3, rounded up).\n- Token bucket state is about 120 bytes per key (key name, two fields, overhead): 10,000,000 × 120 B = 1.2 GB. Fixed window counters need about 70 B per key, 0.7 GB.\n- A sliding window log stores every timestamp: 100 requests × 16 B × 10 million keys = 16 GB. This is why most systems use the counter versions.',
+        body: 'An example: 200k API requests per second at peak, 10 million active API keys.\n- Every request needs one counter check, so 200k Redis operations per second. One Redis node handles roughly 60k to 100k scripted operations per second, so plan at least 4 shards (200k / 60k = 3.3, rounded up).\n- Token bucket state is about 120 bytes per key (key name, two fields, overhead): 10 million × 120 B = 1.2 GB. Fixed window counters need about 70 B per key, 0.7 GB.\n- A sliding window log stores every timestamp: 100 requests × 16 B × 10 million keys = 16 GB. This is why most systems use the counter versions.',
       },
       {
         heading: 'Step by step',

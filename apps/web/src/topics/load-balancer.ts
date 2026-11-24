@@ -243,7 +243,7 @@ export const loadBalancer: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example shop at its busiest: 20,000 requests a second, each taking 50 ms and returning 50 KB.\n- Requests in progress at any moment (rate × time): 20,000 × 0.05 s = 1,000.\n- Data going out: 20,000 × 50 KB = 1 GB a second = 8 Gbit/s, so one 10 Gbit link leaves too little room.\n- If one server handles 2,500 requests a second, 8 servers is the bare minimum. To run them at 75% at the peak: 8 ÷ 0.75 = 10.7, so 11 servers, each at 1,818 requests a second (73%).\n- If one of the 11 dies, the other 10 take 2,000 a second each (80%): still fine. With only 8, losing one overloads the rest.\n- Health checks: 11 servers checked every 5 seconds is about 2 checks a second. Cheap.',
+        body: 'An example shop at its busiest: 20k requests a second, each taking 50 ms and returning 50 KB.\n- Requests in progress at any moment (rate × time): 20k × 0.05 s = 1k.\n- Data going out: 20k × 50 KB = 1 GB a second = 8 Gbit/s, so one 10 Gbit link leaves too little room.\n- If one server handles 2,500 requests a second, 8 servers is the bare minimum. To run them at 75% at the peak: 8 ÷ 0.75 = 10.7, so 11 servers, each at 1,818 requests a second (73%).\n- If one of the 11 dies, the other 10 take 2k a second each (80%): still fine. With only 8, losing one overloads the rest.\n- Health checks: 11 servers checked every 5 seconds is about 2 checks a second. Cheap.',
       },
       {
         heading: 'Step by step',

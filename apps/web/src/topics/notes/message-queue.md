@@ -35,16 +35,16 @@ A worker that deletes with an **old** receipt handle (the message was re-receive
 
 ## The capacity math
 
-An example: 50,000 messages a second at peak, 2 KB each.
+An example: 50k messages a second at peak, 2 KB each.
 
 | Quantity | Working | Result |
 | --- | --- | --- |
-| Ingress | 50,000 × 2 KB | about 98 MiB/s |
+| Ingress | 50k × 2 KB | about 98 MiB/s |
 | Written with 3 copies | 98 MiB/s × 3 | about 293 MiB/s |
-| Shards at 5,000 sends/s each | 50,000 ÷ 5,000 | 10 |
-| One hour of backlog | 50,000 × 3,600 × 2 KB | about 369 GB (1.1 TB with 3 copies) |
-| In flight at 200 ms a job | 50,000 × 0.2 | 10,000 messages |
-| Workers at 20 jobs each | 10,000 ÷ 20 | 500 |
+| Shards at 5k sends/s each | 50k ÷ 5k | 10 |
+| One hour of backlog | 50k × 3,600 × 2 KB | about 369 GB (1.1 TB with 3 copies) |
+| In flight at 200 ms a job | 50k × 0.2 | 10k messages |
+| Workers at 20 jobs each | 10k ÷ 20 | 500 |
 
 The in-flight number is **Little's law**: items in the system = arrival rate × time each spends there.
 
@@ -127,9 +127,9 @@ A: Each failed attempt leaves it unacked, so it reappears after the timeout and 
 
 A: A bit above the p99 job time. Too short causes duplicates; too long delays recovery from a crash. For variable jobs, extend the timeout from the worker while it works.
 
-**Q: How would you scale it to 50,000 messages a second?**
+**Q: How would you scale it to 50k messages a second?**
 
-A: Shard the queue across nodes, each with replicas (about 10 shards at 5,000 sends per second each), and scale workers on backlog per worker and age of the oldest message. Put a cap on worker concurrency so a slow downstream doesn't cause a pile of expiring timeouts.
+A: Shard the queue across nodes, each with replicas (about 10 shards at 5k sends per second each), and scale workers on backlog per worker and age of the oldest message. Put a cap on worker concurrency so a slow downstream doesn't cause a pile of expiring timeouts.
 
 **Q: Queue or Kafka?**
 

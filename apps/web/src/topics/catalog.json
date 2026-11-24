@@ -1387,7 +1387,7 @@
  {
   "id": "ticket-booking",
   "title": "Ticket Booking System (BookMyShow-style)",
-  "blurb": "Sell 18,000 seats to 600,000 fans in minutes: waiting room, timed seat holds and no double booking",
+  "blurb": "Sell 18k seats to 600k fans in minutes: waiting room, timed seat holds and no double booking",
   "difficulty": "Intermediate",
   "area": "development",
   "guides": [

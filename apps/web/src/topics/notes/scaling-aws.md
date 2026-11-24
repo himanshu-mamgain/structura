@@ -10,9 +10,9 @@ Builds on [AWS Basics](/?topic=aws-basics&read). Each stage leans on another top
 
 | Stage | Users | What breaks first | What you add |
 | --- | --- | --- | --- |
-| 1 | Up to ~10,000 | Nothing yet; one box is fine | One EC2 (Elastic Compute Cloud: AWS's virtual servers) instance with the app and the database, DNS, backups |
-| 2 | ~10,000 to 100,000 | App and database fight for the same CPU, memory and disk | RDS (Relational Database Service: managed Postgres or MySQL) for the database, S3 (Simple Storage Service) for files, a private subnet |
-| 3 | ~100,000 to 1 million | One web server can't keep up; the database is mostly busy with reads | Load balancer, 2+ stateless servers in 2 AZs (Availability Zones: separate data centres in a region), ElastiCache, read replicas, CloudFront |
+| 1 | Up to ~10k | Nothing yet; one box is fine | One EC2 (Elastic Compute Cloud: AWS's virtual servers) instance with the app and the database, DNS, backups |
+| 2 | ~10k to 100k | App and database fight for the same CPU, memory and disk | RDS (Relational Database Service: managed Postgres or MySQL) for the database, S3 (Simple Storage Service) for files, a private subnet |
+| 3 | ~100k to 1 million | One web server can't keep up; the database is mostly busy with reads | Load balancer, 2+ stateless servers in 2 AZs (Availability Zones: separate data centres in a region), ElastiCache, read replicas, CloudFront |
 | 4 | ~1 to 10 million | Traffic swings; slow work blocks requests; one tier needs scaling separately | Auto Scaling, separate web and API tiers, SQS (Simple Queue Service) and workers, monitoring and alarms |
 | 5 | 10 million+ | Every write still goes to one primary database | Federation, sharding, denormalisation, DynamoDB for simple hot data |
 
@@ -24,17 +24,17 @@ The user counts are rough guides. What moves you to the next stage is a **number
 
 The topic's simulator uses this model:
 
-- A monthly user makes about **3,000 requests a month** (about 100 a day).
-- A month has 30 × 86,400 = **2,592,000 seconds**; the busiest hour runs about **3×** the average.
-- A tuned web server handles about **400 requests a second**. Handy rule: 400 req/s is about **1 billion requests a month** (400 × 2,592,000 = 1.04 billion).
+- A monthly user makes about **3k requests a month** (about 100 a day).
+- A month has 30 × 86,400 ≈ **2.59 million seconds**; the busiest hour runs about **3×** the average.
+- A tuned web server handles about **400 requests a second**. Handy rule: 400 req/s is about **1 billion requests a month** (400 × 2.59 million = 1.04 billion).
 
 | Monthly users | Requests a month | Average req/s | Peak req/s (3×) | Web servers at 400 req/s |
 | --- | --- | --- | --- | --- |
-| 100,000 | 300 million | 116 | 348 | 1 (run 2 for availability) |
+| 100k | 300 million | 116 | 348 | 1 (run 2 for availability) |
 | 1 million | 3 billion | 1,157 | 3,473 | 9 |
-| 10 million | 30 billion | 11,574 | 34,723 | 87 |
+| 10 million | 30 billion | 11.6k | 34.7k | 87 |
 
-With reads outnumbering writes 100 to 1 and an **80% cache hit rate**, only 20% of reads reach SQL. At 10 million users that's roughly 34,723 × 100/101 × 0.2 ≈ **6,900 reads a second** across the replicas, and about **344 writes a second** on the primary.
+With reads outnumbering writes 100 to 1 and an **80% cache hit rate**, only 20% of reads reach SQL. At 10 million users that's roughly 34.7k × 100/101 × 0.2 ≈ **6,900 reads a second** across the replicas, and about **344 writes a second** on the primary.
 
 ---
 
@@ -184,7 +184,7 @@ export function shardFor(userId) {
 | Problem | What happens | Fix |
 | --- | --- | --- |
 | Stale data | Cache serves an old value after a write | Delete or update the key on write; short TTLs (times to live: how long each value is kept) for things that change |
-| Stampede | A hot key expires and 1,000 requests hit the database at once | A lock so one request refills it, or refresh before expiry |
+| Stampede | A hot key expires and 1k requests hit the database at once | A lock so one request refills it, or refresh before expiry |
 | Cache node dies | The whole read load lands on the database | Replicas in ElastiCache, headroom on the database, rate limits |
 | Cold start after deploy | Empty cache, slow first minutes | Warm the hottest keys; don't flush on every deploy |
 | Penetration | Requests for keys that don't exist always miss | Cache the "not found" briefly |

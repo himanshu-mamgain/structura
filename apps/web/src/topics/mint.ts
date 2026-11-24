@@ -141,7 +141,7 @@ export const mint: StaticTopic = {
     'Sync active users often and inactive users in a slow nightly batch, so the bank rate limits go where they matter.',
     'Categorize with a seller-to-category table, and let the user\'s own rule win over the default.',
     'Keep running budget totals in memory, so the dashboard is one cache read instead of a month of sums.',
-    'Writes outnumber reads 10 to 1 here, so the write path (about 2,000 a second) is the one to design around.',
+    'Writes outnumber reads 10 to 1 here, so the write path (about 2k a second) is the one to design around.',
   ],
   architecture: {
     replace: false,
@@ -264,7 +264,7 @@ export const mint: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer:\n- 10 million users with 30 million financial accounts, so 3 accounts each.\n- 5 billion transactions a month, about 167 per account.\n- 500 million read requests a month: a 10 to 1 write-to-read ratio, because most users open the app rarely.\n\nWhich works out to:\n- About 2,000 transactions written per second (5 billion over 2.5 million seconds in a month).\n- About 200 reads per second.\n- About 50 bytes per transaction: 250 GB of new data a month and 9 TB over three years.\n\nHandy rule: 400 requests per second is about 1 billion requests per month.',
+        body: 'Assumptions from the System Design Primer:\n- 10 million users with 30 million financial accounts, so 3 accounts each.\n- 5 billion transactions a month, about 167 per account.\n- 500 million read requests a month: a 10 to 1 write-to-read ratio, because most users open the app rarely.\n\nWhich works out to:\n- About 2k transactions written per second (5 billion over 2.5 million seconds in a month).\n- About 200 reads per second.\n- About 50 bytes per transaction: 250 GB of new data a month and 9 TB over three years.\n\nHandy rule: 400 requests per second is about 1 billion requests per month.',
       },
       {
         heading: 'Step by step',
@@ -280,7 +280,7 @@ export const mint: StaticTopic = {
       },
       {
         heading: 'Scaling and failure',
-        body: '- The Transactions Database takes about 2,000 writes per second. Add read replicas for the dashboard, then shard by account_id.\n- Totals can be rebuilt from the Transactions Database at any time, so losing the Memory Cache (Redis) costs time, not data.\n- If a bank is down, only its accounts lag. Retry with growing delays and show a "last synced" time rather than an error.\n- Bank credentials are the most sensitive data in the system: encrypt them, keep them out of logs, and prefer revocable access tokens over passwords.\n- A poisoned or malformed transaction should move to a dead-letter queue, not block the queue behind it.',
+        body: '- The Transactions Database takes about 2k writes per second. Add read replicas for the dashboard, then shard by account_id.\n- Totals can be rebuilt from the Transactions Database at any time, so losing the Memory Cache (Redis) costs time, not data.\n- If a bank is down, only its accounts lag. Retry with growing delays and show a "last synced" time rather than an error.\n- Bank credentials are the most sensitive data in the system: encrypt them, keep them out of logs, and prefer revocable access tokens over passwords.\n- A poisoned or malformed transaction should move to a dead-letter queue, not block the queue behind it.',
       },
       {
         heading: 'Interview follow-ups',

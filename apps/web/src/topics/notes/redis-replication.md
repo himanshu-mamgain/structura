@@ -39,7 +39,7 @@ There are two ways for a replica to catch up:
 - **Partial resync.** The primary keeps its latest writes in the **replication backlog**, a ring buffer (`repl-backlog-size`, 1 MB by default). If the replica's offset is still inside it, the primary replies `+CONTINUE` and sends only the missing bytes.
 - **Full sync.** If the offset has fallen out of the backlog, or the replica knows a different replication ID, the primary replies `+FULLRESYNC`. It forks, writes a snapshot of the whole dataset, and sends it. The replica deletes its old data and loads the snapshot. Writes made meanwhile wait in the replica's output buffer on the primary, and are sent at the end.
 
-A worked example, at 6,000 writes a second of about 100 bytes each, 600 KB/s:
+A worked example, at 6k writes a second of about 100 bytes each, 600 KB/s:
 
 - A replica is cut off for 30 s. It missed 30 × 600 KB = **18 MB**.
 - With the default 1 MB backlog (about 1.7 s of writes), that's a full sync: a 2.4 GB snapshot takes 19.2 s to send at 1 Gbit/s and 24 s to load: **43.2 s**.

@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -18,7 +19,7 @@ const AUTHORS: Record<string, { name: string; id: string; followers: number }> =
   'Celebrity (40 million followers)': { name: 'popstar', id: '9', followers: 40_000_000 },
 }
 
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 
 const simulator: Simulator = {
   fields: [
@@ -110,7 +111,7 @@ export const twitterTimeline: StaticTopic = {
       },
       {
         heading: 'Then @popstar posted',
-        body: 'Fan-out on write has a hidden cost: the work grows with the number of followers. Engineers write that as O(n). For Maya that\'s 150 writes. For a news account with 12,000 followers it\'s 12,000 writes, which is still fine.\n\nThen @popstar, with 40 million followers, posted a selfie. Fan-out meant 40 million list writes for one post. Even at 2,00,000 writes a second, that\'s 200 seconds, more than three minutes before the last follower sees it, while the same service is meant to be delivering everyone else\'s posts too. Each entry takes about 20 bytes, so one post churned through roughly 800 MB of cache. And @popstar posts several times a day.\n\n> The design that made reading free made one post cost three minutes.',
+        body: 'Fan-out on write has a hidden cost: the work grows with the number of followers. Engineers write that as O(n). For Maya that\'s 150 writes. For a news account with 12k followers it\'s 12k writes, which is still fine.\n\nThen @popstar, with 40 million followers, posted a selfie. Fan-out meant 40 million list writes for one post. Even at 2,00,000 writes a second, that\'s 200 seconds, more than three minutes before the last follower sees it, while the same service is meant to be delivering everyone else\'s posts too. Each entry takes about 20 bytes, so one post churned through roughly 800 MB of cache. And @popstar posts several times a day.\n\n> The design that made reading free made one post cost three minutes.',
         replay: { label: 'See the fan-out for 12,000 followers', values: { author: 'Popular account (12,000 followers)', action: 'Post a tweet' } },
       },
       {
@@ -120,7 +121,7 @@ export const twitterTimeline: StaticTopic = {
       },
       {
         heading: 'Memory is the budget',
-        body: 'Precomputed timelines have to live somewhere, and fast means memory. Say there are 100 million active users, each with a timeline of 800 entries at about 20 bytes each. That\'s 100,000,000 × 800 × 20 bytes, about 1.6 TB of RAM, spread across a fleet of Redis servers. Memory is the budget, and two rules keep it in check.\n\nFirst, a timeline holds only its newest 800 entries. Nobody scrolls back 3,000 posts, and anyone who does can be served from the database, slowly, once.\n\nSecond, only **active** users get a timeline at all. Fanning out to someone who hasn\'t opened the app in three months is pure waste. When they do come back, their timeline is rebuilt the slow way, by fetching from the people they follow and merging, just once. After that, fan-out keeps it fresh again.\n\nThat\'s how the system serves about 100,000 timeline reads a second from memory, while the database mostly sees writes.',
+        body: 'Precomputed timelines have to live somewhere, and fast means memory. Say there are 100 million active users, each with a timeline of 800 entries at about 20 bytes each. That\'s 100 million × 800 × 20 bytes, about 1.6 TB of RAM, spread across a fleet of Redis servers. Memory is the budget, and two rules keep it in check.\n\nFirst, a timeline holds only its newest 800 entries. Nobody scrolls back 3k posts, and anyone who does can be served from the database, slowly, once.\n\nSecond, only **active** users get a timeline at all. Fanning out to someone who hasn\'t opened the app in three months is pure waste. When they do come back, their timeline is rebuilt the slow way, by fetching from the people they follow and merging, just once. After that, fan-out keeps it fresh again.\n\nThat\'s how the system serves about 100k timeline reads a second from memory, while the database mostly sees writes.',
       },
       {
         heading: 'Everything else waits',
@@ -238,7 +239,7 @@ export const twitterTimeline: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer:\n- 100 million active users; 500 million tweets a day (15 billion a month).\n- Each tweet fans out to 10 followers on average: 5 billion deliveries a day.\n- 250 billion timeline reads and 10 billion searches a month.\n\nWhich works out to:\n- About 6,000 tweets per second written, 60,000 fan-out deliveries per second.\n- About 100,000 timeline reads per second and 4,000 searches per second.\n- About 10 KB per tweet with media: 150 TB of new content a month, 5.4 PB in three years.\n\nHandy rule: 400 requests per second ≈ 1 billion requests per month.',
+        body: 'Assumptions from the System Design Primer:\n- 100 million active users; 500 million tweets a day (15 billion a month).\n- Each tweet fans out to 10 followers on average: 5 billion deliveries a day.\n- 250 billion timeline reads and 10 billion searches a month.\n\nWhich works out to:\n- About 6k tweets per second written, 60k fan-out deliveries per second.\n- About 100k timeline reads per second and 4k searches per second.\n- About 10 KB per tweet with media: 150 TB of new content a month, 5.4 PB in three years.\n\nHandy rule: 400 requests per second ≈ 1 billion requests per month.',
       },
       {
         heading: 'Step by step',
@@ -254,7 +255,7 @@ export const twitterTimeline: StaticTopic = {
       },
       {
         heading: 'Scaling and failure',
-        body: '- The Fan Out Service is the obvious bottleneck. Slow fan-out can also make a reply appear before the tweet it answers; re-ordering by timestamp at serve time hides that.\n- The SQL Database will not keep up with 6,000 writes per second plus cache misses on one primary: add read replicas, then federation (split by function), sharding (split by user), and denormalization.\n- Some data fits NoSQL better, for example timelines and the social graph.\n- Keep the Search Cluster\'s index in memory; queries scatter to every shard, so one slow shard slows every search.\n- Benchmark, profile, fix the worst bottleneck, repeat: scaling is iterative.',
+        body: '- The Fan Out Service is the obvious bottleneck. Slow fan-out can also make a reply appear before the tweet it answers; re-ordering by timestamp at serve time hides that.\n- The SQL Database will not keep up with 6k writes per second plus cache misses on one primary: add read replicas, then federation (split by function), sharding (split by user), and denormalization.\n- Some data fits NoSQL better, for example timelines and the social graph.\n- Keep the Search Cluster\'s index in memory; queries scatter to every shard, so one slow shard slows every search.\n- Benchmark, profile, fix the worst bottleneck, repeat: scaling is iterative.',
       },
       {
         heading: 'Interview follow-ups',

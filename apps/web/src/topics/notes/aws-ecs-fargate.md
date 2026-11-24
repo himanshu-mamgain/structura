@@ -166,8 +166,8 @@ Here, one vCPU of the app serves about 400 requests a second, so each request us
 | --- | --- | --- | --- |
 | 0.25 vCPU | 256 | 250 ms | 100 |
 | 0.5 vCPU | 512 | 500 ms | 200 |
-| 1 vCPU | 1,024 | 1,000 ms | 400 |
-| 2 vCPU | 2,048 | 2,000 ms | 800 |
+| 1 vCPU | 1,024 | 1k ms | 400 |
+| 2 vCPU | 2,048 | 2k ms | 800 |
 
 What throttling looks like: 300 requests arrive at once at a 0.25 vCPU task. They need 300 × 2.5 ms = 750 ms of CPU, and the task gets 250 ms a second, so the last ones wait about **3 seconds**. Nothing crashes. The task is just slow, and its CPU graph sits at 100%.
 

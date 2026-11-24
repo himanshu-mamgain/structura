@@ -269,7 +269,7 @@ export const consistentHashing: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 20,000 cache reads per second, 95% hit rate, so the Database serves about 1,000 reads a second.\n- With hash mod N, going from 4 to 5 nodes leaves a key in place only if hash mod 4 equals hash mod 5, about 1 in 5. In the 10,000-key sample here about 80% move, so misses jump from 5% to roughly 80% and the Database sees about 16,000 reads a second: 16 times its normal load.\n- With a ring, adding the fifth node takes about 1/5 of the keys (18% in the 10,000-key sample here), so about 3,600 to 4,000 extra reads a second at first, and they come from only that node\'s arcs.\n- Ring size: 4 nodes × 100 tokens = 400 tokens, about 6 KB of memory for the router to hold. Lookup is a binary search over a sorted array: about 9 comparisons.',
+        body: 'An example: 20k cache reads per second, 95% hit rate, so the Database serves about 1k reads a second.\n- With hash mod N, going from 4 to 5 nodes leaves a key in place only if hash mod 4 equals hash mod 5, about 1 in 5. In the 10k-key sample here about 80% move, so misses jump from 5% to roughly 80% and the Database sees about 16k reads a second: 16 times its normal load.\n- With a ring, adding the fifth node takes about 1/5 of the keys (18% in the 10k-key sample here), so about 3,600 to 4k extra reads a second at first, and they come from only that node\'s arcs.\n- Ring size: 4 nodes × 100 tokens = 400 tokens, about 6 KB of memory for the router to hold. Lookup is a binary search over a sorted array: about 9 comparisons.',
       },
       {
         heading: 'Step by step',

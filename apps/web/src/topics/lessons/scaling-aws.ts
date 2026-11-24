@@ -15,7 +15,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Give the database its own machine',
-      text: 'The first move, at around 10,000 users: put the database on its own server, here a managed one called RDS. Now each can grow on its own, and you can replace a web server without losing data.',
+      text: 'The first move, at around 10k users: put the database on its own server, here a managed one called RDS. Now each can grow on its own, and you can replace a web server without losing data.',
       focus: ['API Servers (Auto Scaling)', 'SQL Primary (RDS)'],
     },
     {
@@ -47,7 +47,7 @@ const lesson: Lesson = {
       title: 'Every tier grows on its own',
       text: 'Web servers, API servers and workers each sit in their own Auto Scaling group. Each group adds machines when it\'s busy and removes them when it\'s quiet.',
       focus: ['Web Servers (Auto Scaling)', 'API Servers (Auto Scaling)', 'Workers (Auto Scaling)'],
-      example: '10 million users ≈ 34,723 requests a second at the peak\n34,723 ÷ 400 ≈ 86.8 → 87 web servers',
+      example: '10 million users ≈ 34.7k requests a second at the peak\n34.7k ÷ 400 ≈ 86.8 → 87 web servers',
     },
     {
       title: 'When one database isn\'t enough: shards',
