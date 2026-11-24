@@ -323,7 +323,7 @@ export const collaborativeEditing: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example at peak: 1 million people editing at once, each sending about 1 edit a second (the browser groups keystrokes for 300 ms).\n- Incoming edits: 1,000,000 per second.\n- Average 2.5 editors per open document, so each edit goes to 1.5 other people: 1,500,000 outgoing messages per second.\n- Connections: 1,000,000 WebSockets. A gateway holds about 50,000, so 1,000,000 ÷ 50,000 = 20 gateways.\n- Collaboration Servers: each handles about 20,000 edits per second, so 1,000,000 ÷ 20,000 = 50, and about 100 with headroom.\n- Log size: an edit is about 100 bytes. If the average over a day is a quarter of the peak (250,000 edits per second), that is 250,000 × 100 B × 86,400 s ≈ 2.2 TB a day.\n- Snapshots every 100 revisions keep a document\'s open time to at most 99 edits to replay.',
+        body: 'An example at peak: 1 million people editing at once, each sending about 1 edit a second (the browser groups keystrokes for 300 ms).\n- Incoming edits: 1 million per second.\n- Average 2.5 editors per open document, so each edit goes to 1.5 other people: 1.5 million outgoing messages per second.\n- Connections: 1 million WebSockets. A gateway holds about 50k, so 1 million ÷ 50k = 20 gateways.\n- Collaboration Servers: each handles about 20k edits per second, so 1 million ÷ 20k = 50, and about 100 with headroom.\n- Log size: an edit is about 100 bytes. If the average over a day is a quarter of the peak (250k edits per second), that is 250k × 100 B × 86,400 s ≈ 2.2 TB a day.\n- Snapshots every 100 revisions keep a document\'s open time to at most 99 edits to replay.',
       },
       {
         heading: 'Step by step',
