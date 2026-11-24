@@ -302,7 +302,7 @@ That sounds wrong, but it's deliberate: a health check that is itself broken (a 
       },
       {
         heading: 'Capacity estimates',
-        body: '- Health checks: 3 API tasks, checked every 30 seconds from the load balancer\'s piece in each of 3 zones = 3 × 3 ÷ 30 = 0.3 checks a second. Tiny, but it grows with targets × pieces.\n- Noticing a dead target: unhealthy threshold × interval = 2 × 30 s = up to 60 seconds. Letting it back in: healthy threshold × interval = 5 × 30 s = 150 seconds.\n- Checking every 10 seconds with 3 failures: noticed within 30 seconds.\n- Requests sent to a dead target before it\'s removed: at 600 requests a second over 3 tasks, 200 a second × 60 s = 12,000 failed requests.\n- Access logs: 600 requests a second × 86,400 seconds × about 400 bytes ≈ 20.7 GB a day to S3.',
+        body: '- Health checks: 3 API tasks, checked every 30 seconds from the load balancer\'s piece in each of 3 zones = 3 × 3 ÷ 30 = 0.3 checks a second. Tiny, but it grows with targets × pieces.\n- Noticing a dead target: unhealthy threshold × interval = 2 × 30 s = up to 60 seconds. Letting it back in: healthy threshold × interval = 5 × 30 s = 150 seconds.\n- Checking every 10 seconds with 3 failures: noticed within 30 seconds.\n- Requests sent to a dead target before it\'s removed: at 600 requests a second over 3 tasks, 200 a second × 60 s = 12k failed requests.\n- Access logs: 600 requests a second × 86,400 seconds × about 400 bytes ≈ 20.7 GB a day to S3.',
       },
       {
         heading: 'Step by step',

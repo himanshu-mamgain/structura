@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -37,7 +38,7 @@ const EVENT = {
 const BACKLOG = { small: '1 MB (the default)', big: '64 MB' }
 const GUARD = { off: 'Off (the default)', on: 'min-replicas-to-write 1' }
 
-const n = (x: number) => Math.round(x).toLocaleString('en-US')
+const n = (x: number) => shortNumber(Math.round(x))
 const mb = (x: number) => (x < 10 && !Number.isInteger(x) ? x.toFixed(1) : n(x))
 const secs = (x: number) => `${Number.isInteger(x) ? x : x.toFixed(1)} s`
 /** Short times read better in milliseconds. */

@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -50,7 +51,7 @@ function plan(o: Options) {
   return { best, other, regionDown, zoneDown, detect, worst, average, failed: RATE * average + zoneFailed, albDetect, zoneFailed, servedBy, rtt: RTT[o.city][servedBy] }
 }
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 
 const simulator: Simulator = {
   fields: [
@@ -249,7 +250,7 @@ export const globalLoadBalancing: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- Each city\'s users: 1,000 requests a second.\n- Route 53 health checks: 3 failures in a row before an endpoint is unhealthy. Every 30 s: 90 s to notice; every 10 s (fast, costs extra): 30 s.\n- With DNS, users also wait for cached answers to expire: up to the TTL. A 60 s TTL makes the worst case 90 + 60 = 150 s; a 300 s TTL makes it 390 s.\n- Failed requests from Delhi during a Mumbai outage, on average: 1,000 × (90 + 30) = 120,000 with DNS and a 60 s TTL; 1,000 × 90 = 90,000 with Global Accelerator; 30,000 with Global Accelerator and 10 s checks.\n- A zone outage: half the requests go to dead tasks for 2 × 30 = 60 s, so 1,000 × 0.5 × 60 = 30,000 fail.\n- API Gateway (an HTTP API here): 10,000 requests a second per account per region by default, bursts up to 5,000; payloads up to 10 MB; a call to the service may take at most 30 s.',
+        body: '- Each city\'s users: 1k requests a second.\n- Route 53 health checks: 3 failures in a row before an endpoint is unhealthy. Every 30 s: 90 s to notice; every 10 s (fast, costs extra): 30 s.\n- With DNS, users also wait for cached answers to expire: up to the TTL. A 60 s TTL makes the worst case 90 + 60 = 150 s; a 300 s TTL makes it 390 s.\n- Failed requests from Delhi during a Mumbai outage, on average: 1k × (90 + 30) = 120k with DNS and a 60 s TTL; 1k × 90 = 90k with Global Accelerator; 30k with Global Accelerator and 10 s checks.\n- A zone outage: half the requests go to dead tasks for 2 × 30 = 60 s, so 1k × 0.5 × 60 = 30k fail.\n- API Gateway (an HTTP API here): 10k requests a second per account per region by default, bursts up to 5k; payloads up to 10 MB; a call to the service may take at most 30 s.',
       },
       {
         heading: 'Step by step',

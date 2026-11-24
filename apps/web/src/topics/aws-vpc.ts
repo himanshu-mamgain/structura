@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -11,7 +12,7 @@ import type { StaticTopic } from './types'
 
 const toInt = (ip: string) => ip.split('.').reduce((n, o) => n * 256 + Number(o), 0)
 const toIp = (n: number) => [3, 2, 1, 0].map((i) => Math.floor(n / 256 ** i) % 256).join('.')
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const rate = (n: number) => `$${n.toFixed(3)}`
 const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
@@ -245,7 +246,7 @@ The answer is a **NAT gateway** (network address translation) in a public subnet
       {
         heading: 'A $1,350 line on the bill',
         body: `The next month's bill had a line nobody expected: NAT gateway data processing. The app wrote nightly backups and customer uploads to S3, 30 TB a month, and all of it went through the NAT gateway at $0.045 a GB:
-- 30,000 GB × $0.045 = **$1,350** a month, to reach a service in the same region
+- 30k GB × $0.045 = **$1,350** a month, to reach a service in the same region
 
 The fix was free. A **gateway endpoint** for S3 adds a route for S3's address ranges to the private route tables. That route is more specific than \`0.0.0.0/0\`, so it wins, and S3 traffic stays on AWS's network with no NAT and no processing charge.`,
         replay: { label: 'Follow a backup to S3', values: run({ flow: 'A task reads from S3' }) },
@@ -340,11 +341,11 @@ Because the VPC was a /16, there was room to add new /20 private subnets (4,091 
       },
       {
         heading: 'Requirements',
-        body: 'What it must do:\n- Visitors reach the website through a load balancer, and nothing else can be reached from the internet.\n- The app can call outside APIs and AWS services.\n- Only the app can reach the databases.\n\nHow well it must do it:\n- Keep working when one Availability Zone fails.\n- Leave room for at least 1,000 tasks per zone later on.\n- Pay no data charges for traffic to S3.',
+        body: 'What it must do:\n- Visitors reach the website through a load balancer, and nothing else can be reached from the internet.\n- The app can call outside APIs and AWS services.\n- Only the app can reach the databases.\n\nHow well it must do it:\n- Keep working when one Availability Zone fails.\n- Leave room for at least 1k tasks per zone later on.\n- Pay no data charges for traffic to S3.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- 10.0.0.0/16: 2^16 = 65,536 addresses. Split into /24 subnets: 2^(24−16) = 256 subnets of 256 addresses each.\n- AWS keeps 5 addresses in every subnet: 256 − 5 = 251 usable in a /24, and 4,096 − 5 = 4,091 in a /20.\n- 3 kinds × 3 zones = 9 subnets. As /24s they use 2,304 addresses; as /20s, 36,864 of the 65,536.\n- NAT gateways (us-east-1 list prices): $0.045 an hour × 730 hours = $32.85 a month each, plus $0.045 for every GB they handle. One per zone in 3 zones: $98.55 a month before any data.\n- 30 TB a month to S3 through NAT: 30,000 GB × $0.045 = $1,350. Through a gateway endpoint: $0.',
+        body: '- 10.0.0.0/16: 2^16 = 65,536 addresses. Split into /24 subnets: 2^(24−16) = 256 subnets of 256 addresses each.\n- AWS keeps 5 addresses in every subnet: 256 − 5 = 251 usable in a /24, and 4,096 − 5 = 4,091 in a /20.\n- 3 kinds × 3 zones = 9 subnets. As /24s they use 2,304 addresses; as /20s, 36,864 of the 65,536.\n- NAT gateways (us-east-1 list prices): $0.045 an hour × 730 hours = $32.85 a month each, plus $0.045 for every GB they handle. One per zone in 3 zones: $98.55 a month before any data.\n- 30 TB a month to S3 through NAT: 30k GB × $0.045 = $1,350. Through a gateway endpoint: $0.',
       },
       {
         heading: 'Step by step',
@@ -360,7 +361,7 @@ Because the VPC was a /16, there was room to add new /20 private subnets (4,091 
       },
       {
         heading: 'Scaling and failure',
-        body: '- A zone fails: run every layer in every zone, give each zone its own NAT gateway, and keep a standby database in another zone.\n- Running out of addresses: Fargate tasks, Lambda functions in a VPC and load balancer pieces all use addresses. If you run out, add a second range and new subnets.\n- NAT limits: a NAT gateway handles up to 55,000 connections at once to one destination. Many connections to one API need connection reuse or more NAT addresses.\n- Data costs: watch NAT processing and traffic between zones in the bill, and keep chatty services in the same zone where you can.\n- Joining VPCs: peering for a few, a transit gateway for many.',
+        body: '- A zone fails: run every layer in every zone, give each zone its own NAT gateway, and keep a standby database in another zone.\n- Running out of addresses: Fargate tasks, Lambda functions in a VPC and load balancer pieces all use addresses. If you run out, add a second range and new subnets.\n- NAT limits: a NAT gateway handles up to 55k connections at once to one destination. Many connections to one API need connection reuse or more NAT addresses.\n- Data costs: watch NAT processing and traffic between zones in the bill, and keep chatty services in the same zone where you can.\n- Joining VPCs: peering for a few, a transit gateway for many.',
       },
       {
         heading: 'Interview follow-ups',

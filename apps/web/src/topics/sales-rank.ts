@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -23,7 +24,7 @@ const CATALOG: Record<string, { category: string; id: string; sold: number }> = 
 
 const REFRESH_HOURS: Record<string, number> = { 'Every hour': 1, 'Every 6 hours': 6, 'Once a day': 24 }
 
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 
 /** Top of a category by units sold, highest first (ties broken by product id for a stable order). */
 function ranking(category: string, extra: Record<string, number> = {}) {
@@ -212,7 +213,7 @@ export const salesRank: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer:\n- 10 million products in 1,000 categories.\n- 1 billion transactions a month and 100 billion read requests a month: 100 reads per purchase.\n\nWhich works out to:\n- About 40 bytes per transaction (product id 8, category id 4, seller id 8, buyer id 8, quantity 4, price 5, time 5 = 42 bytes). That is 42 GB of new data a month, 1.5 TB in three years.\n- About 400 purchases per second and 40,000 reads per second.\n- 10,000 products per category on average, so one category ranking is small.\n\nHandy rule: 2.5 million seconds in a month, so 1 billion a month ≈ 400 a second.',
+        body: 'Assumptions from the System Design Primer:\n- 10 million products in 1k categories.\n- 1 billion transactions a month and 100 billion read requests a month: 100 reads per purchase.\n\nWhich works out to:\n- About 40 bytes per transaction (product id 8, category id 4, seller id 8, buyer id 8, quantity 4, price 5, time 5 = 42 bytes). That is 42 GB of new data a month, 1.5 TB in three years.\n- About 400 purchases per second and 40k reads per second.\n- 10k products per category on average, so one category ranking is small.\n\nHandy rule: 2.5 million seconds in a month, so 1 billion a month ≈ 400 a second.',
       },
       {
         heading: 'Step by step',

@@ -9,9 +9,9 @@ const lesson: Lesson = {
     },
     {
       title: 'Polling wastes most asks',
-      text: 'To show a live score over HTTP, the app asks again every 5 s. A ball comes every 30 s, so 5 of every 6 polls bring nothing new, and fans wait 2.5 s on average. For 1,000,000 fans that\'s 200,000 requests a second.',
+      text: 'To show a live score over HTTP, the app asks again every 5 s. A ball comes every 30 s, so 5 of every 6 polls bring nothing new, and fans wait 2.5 s on average. For 1 million fans that\'s 200k requests a second.',
       focus: ['HTTP API Servers', 'Score Cache'],
-      example: '1,000,000 ÷ 5 s = 200,000 requests a second',
+      example: '1 million ÷ 5 s = 200k requests a second',
     },
     {
       title: 'A WebSocket stays open',
@@ -21,7 +21,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Scale by connections',
-      text: 'Each connection lives on one server, often for hours. So you size WebSocket Servers by how many connections each can hold. At 50,000 each, 1,000,000 fans need 20 servers.',
+      text: 'Each connection lives on one server, often for hours. So you size WebSocket Servers by how many connections each can hold. At 50k each, 1 million fans need 20 servers.',
       focus: ['WebSocket Servers'],
       remember: 'HTTP: requests a second. WebSocket: connections held.',
     },
@@ -38,7 +38,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Restarts cause storms',
-      text: 'Restarting one server drops its 50,000 connections, and they all reconnect. Done at once, that\'s 50,000 handshakes in a second. If each app waits a random time first (jitter), it\'s about 1,667 a second.',
+      text: 'Restarting one server drops its 50k connections, and they all reconnect. Done at once, that\'s 50k handshakes in a second. If each app waits a random time first (jitter), it\'s about 1,667 a second.',
       focus: ['WebSocket Servers', 'Fan App'],
       remember: 'Reconnect with backoff and random jitter.',
     },

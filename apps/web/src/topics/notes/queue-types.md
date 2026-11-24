@@ -37,7 +37,7 @@ await sqs.send(new SendMessageCommand({
 
 The **deduplication id** removes duplicate sends: if the Order Service retries the same send within 5 minutes, the queue keeps only one copy.
 
-FIFO costs throughput. An SQS FIFO queue takes 300 sends a second per partition, or 3,000 with batches of 10. High-throughput mode raises that, up to 9,000 a second in Mumbai. A standard queue has no such limit.
+FIFO costs throughput. An SQS FIFO queue takes 300 sends a second per partition, or 3k with batches of 10. High-throughput mode raises that, up to 9k a second in Mumbai. A standard queue has no such limit.
 
 Choose the group id with care. **One group for everything** means one message at a time, for the whole queue. **One group per order** keeps each order in step, and lets thousands of orders move at once.
 
@@ -250,7 +250,7 @@ Kafka is often called a queue, but it's a **log**. Messages aren't removed when 
 
 **Q: Why not make every queue FIFO?**
 
-A: FIFO costs throughput and parallelism. An SQS FIFO queue takes 300 sends a second per partition, 3,000 with batching, while a standard queue has almost no limit. And messages in one group go one at a time, so a slow or failing message holds up its whole group. Use FIFO only where order matters, and choose a group id fine enough to keep things parallel.
+A: FIFO costs throughput and parallelism. An SQS FIFO queue takes 300 sends a second per partition, 3k with batching, while a standard queue has almost no limit. And messages in one group go one at a time, so a slow or failing message holds up its whole group. Use FIFO only where order matters, and choose a group id fine enough to keep things parallel.
 
 **Q: Two workers handle updates for the same order. How do you keep the tracking screen correct?**
 

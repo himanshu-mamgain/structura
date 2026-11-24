@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -79,7 +80,7 @@ export function weightBytes(m: ModelSpec, p: Precision) {
 /** Keys and values for one token, in every layer, at 16 bits. */
 export const kvBytesPerToken = (m: ModelSpec) => 2 * m.layers * m.kvHeads * HEAD_DIM * 2
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const gb = (bytes: number) => (bytes < GB ? `${Math.round(bytes / 1e6)} MB` : `${(bytes / GB).toFixed(2)} GB`)
 const ms = (s: number) => `${(s * 1000).toFixed(1)} ms`
 const sec = (s: number) => (s < 10 ? `${s.toFixed(1)} s` : `${Math.round(s)} s`)
@@ -360,7 +361,7 @@ export const llmInference: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- Weights: 7,615,616,512 × 2 bytes = 15.23 GB at BF16; 8.71 GB at FP8; 5.57 GB at 4-bit AWQ (the real Qwen2.5-7B-Instruct-AWQ files are 5,570,829,760 bytes).\n- Room on one 24 GB L4: 24 × 0.9 − 2 GB working memory = 19.6 GB; minus 15.23 GB of weights leaves 4.37 GB.\n- KV cache: 2 × 28 layers × 4 KV heads × 128 × 2 bytes = 57,344 bytes a token, so 4.37 GB holds 76,185 tokens: 38 chats of 2,000 tokens at once.\n- Speed: each decode step reads 15.23 GB of weights and about 1.61 GB of cache for 16 users. 16.84 GB ÷ 300 GB/s = 56 ms a step: at most 17.8 tokens a second each, 285 in total.\n- Same model at 4-bit: (5.57 + 1.61) GB ÷ 300 GB/s = 24 ms a step, 41.8 tokens a second each.\n- 72B at BF16 is 145.41 GB: it needs 4 H100s working together; at 4-bit (41.46 GB) it fits on one.',
+        body: '- Weights: 7,615,616,512 × 2 bytes = 15.23 GB at BF16; 8.71 GB at FP8; 5.57 GB at 4-bit AWQ (the real Qwen2.5-7B-Instruct-AWQ files are 5,570,829,760 bytes).\n- Room on one 24 GB L4: 24 × 0.9 − 2 GB working memory = 19.6 GB; minus 15.23 GB of weights leaves 4.37 GB.\n- KV cache: 2 × 28 layers × 4 KV heads × 128 × 2 bytes = 57,344 bytes a token, so 4.37 GB holds 76,185 tokens: 38 chats of 2k tokens at once.\n- Speed: each decode step reads 15.23 GB of weights and about 1.61 GB of cache for 16 users. 16.84 GB ÷ 300 GB/s = 56 ms a step: at most 17.8 tokens a second each, 285 in total.\n- Same model at 4-bit: (5.57 + 1.61) GB ÷ 300 GB/s = 24 ms a step, 41.8 tokens a second each.\n- 72B at BF16 is 145.41 GB: it needs 4 H100s working together; at 4-bit (41.46 GB) it fits on one.',
       },
       {
         heading: 'Step by step',
@@ -368,7 +369,7 @@ export const llmInference: StaticTopic = {
       },
       {
         heading: 'Components',
-        body: '- Chat App: the product the user types into; it calls the API like any hosted model.\n- Inference API: an OpenAI-compatible HTTP server (/v1/chat/completions) that streams tokens back as server-sent events.\n- Tokenizer: splits text into token ids from the model\'s fixed vocabulary (about 151,000 word pieces for Qwen2.5).\n- Detokenizer: turns token ids back into text, a few characters at a time.\n- Waiting Requests: requests accepted but not yet running, because the KV cache is full.\n- Batch Scheduler: continuous batching: adds a request to the running batch the moment another finishes.\n- KV Cache Has Room?: admits a request only when there are free KV cache blocks for it.\n- Prefill: processes the whole prompt in one parallel pass; limited by the GPU\'s arithmetic.\n- Decode Loop: writes one token per step for every running request; limited by memory bandwidth.\n- Model Weights: the model\'s matrices in GPU memory, read on every step.\n- KV Cache: the keys and values of every token so far, stored in fixed-size blocks (paged attention).\n- Model Registry: the weight files for each model and precision, with hashes and evaluation scores.\n- Weights Loader: downloads, checks and loads weights into the GPU when a server starts.',
+        body: '- Chat App: the product the user types into; it calls the API like any hosted model.\n- Inference API: an OpenAI-compatible HTTP server (/v1/chat/completions) that streams tokens back as server-sent events.\n- Tokenizer: splits text into token ids from the model\'s fixed vocabulary (about 151k word pieces for Qwen2.5).\n- Detokenizer: turns token ids back into text, a few characters at a time.\n- Waiting Requests: requests accepted but not yet running, because the KV cache is full.\n- Batch Scheduler: continuous batching: adds a request to the running batch the moment another finishes.\n- KV Cache Has Room?: admits a request only when there are free KV cache blocks for it.\n- Prefill: processes the whole prompt in one parallel pass; limited by the GPU\'s arithmetic.\n- Decode Loop: writes one token per step for every running request; limited by memory bandwidth.\n- Model Weights: the model\'s matrices in GPU memory, read on every step.\n- KV Cache: the keys and values of every token so far, stored in fixed-size blocks (paged attention).\n- Model Registry: the weight files for each model and precision, with hashes and evaluation scores.\n- Weights Loader: downloads, checks and loads weights into the GPU when a server starts.',
       },
       {
         heading: 'Key decisions',

@@ -22,7 +22,7 @@ const lesson: Lesson = {
       title: 'Adding a server moves little',
       text: 'When a fifth server joins, it only takes the keys on the stretch of ring just before it. Everything else stays where it was.',
       focus: ['Hash Ring (key → node)', 'Cache Node E'],
-      example: 'Adding the fifth server moves about 1 in 5 keys\n(18% in the 10,000-key sample), not 80%',
+      example: 'Adding the fifth server moves about 1 in 5 keys\n(18% in the 10k-key sample), not 80%',
     },
     {
       title: 'Losing a server moves little too',

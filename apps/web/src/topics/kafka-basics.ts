@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { partitionFor } from './kafka'
 import { defaultTrace, type Simulator } from './simulator'
@@ -57,7 +58,7 @@ function assign(partitions: number, consumers: number): number[][] {
 }
 
 const describe = (e: Event) => `${e.key} ${e.type}`
-const n = (x: number) => x.toLocaleString('en-US')
+const n = (x: number) => shortNumber(x)
 
 const simulator: Simulator = {
   fields: [
@@ -278,7 +279,7 @@ After the fix, someone reset the billing group's **committed offsets** (each con
       },
       {
         heading: 'Capacity estimates',
-        body: '- Peak: 120 events a second; one billing consumer handles 50.\n- Consumers needed: 120 ÷ 50 = 2.4, so 3, which means at least 3 partitions.\n- 3 partitions and 2 consumers: one consumer gets 2 partitions × 40 = 80 a second, so it falls behind by 30 a second: 18,000 events in 10 minutes.\n- 1 partition: only one consumer can work, and it falls behind by 70 a second: 42,000 in 10 minutes.\n- Storage: 120 events a second × 1 KB × 86,400 seconds ≈ 10 GB a day; 7 days ≈ 70 GB per copy.',
+        body: '- Peak: 120 events a second; one billing consumer handles 50.\n- Consumers needed: 120 ÷ 50 = 2.4, so 3, which means at least 3 partitions.\n- 3 partitions and 2 consumers: one consumer gets 2 partitions × 40 = 80 a second, so it falls behind by 30 a second: 18k events in 10 minutes.\n- 1 partition: only one consumer can work, and it falls behind by 70 a second: 42k in 10 minutes.\n- Storage: 120 events a second × 1 KB × 86,400 seconds ≈ 10 GB a day; 7 days ≈ 70 GB per copy.',
       },
       {
         heading: 'Step by step',

@@ -34,7 +34,7 @@ const lesson: Lesson = {
     },
     {
       title: 'API Gateway checks the request',
-      text: 'In each region, API Gateway checks the user\'s token, applies rate limits and sends each path to the right service. By default an account may send 10,000 requests a second through it in each region. It doesn\'t pick between servers.',
+      text: 'In each region, API Gateway checks the user\'s token, applies rate limits and sends each path to the right service. By default an account may send 10k requests a second through it in each region. It doesn\'t pick between servers.',
       focus: ['API Gateway (Mumbai)'],
       example: 'POST /api/orders → token OK → VPC link → internal ALB',
     },

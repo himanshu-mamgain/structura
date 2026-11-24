@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -174,7 +175,7 @@ function run(o: Options) {
 // ---------- the walkthrough ----------
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 const clip = (t: string, n = 150) => (t.length > n ? `${t.slice(0, n - 1)}…` : t)
 
 const TOOL_NODES: Record<ToolName, string[]> = {
@@ -303,7 +304,7 @@ The loop is simple:
 - The model replies either with text, which ends the loop, or with a tool call: a tool name and arguments.
 - The runtime runs the tool, appends the result to the conversation and goes round again.
 
-Neha's flight SK 302 was cancelled. She wrote: "Put me on the earliest morning flight to Delhi; I'll pay up to ₹8,000." The agent read her booking, searched the morning flights, rebooked her on SK 2131 at 06:05 for a fare difference of ₹1,250, emailed her the confirmation and told her so. Four tool calls, five model calls, about two rupees of tokens.`,
+Neha's flight SK 302 was cancelled. She wrote: "Put me on the earliest morning flight to Delhi; I'll pay up to ₹8k." The agent read her booking, searched the morning flights, rebooked her on SK 2131 at 06:05 for a fare difference of ₹1,250, emailed her the confirmation and told her so. Four tool calls, five model calls, about two rupees of tokens.`,
         replay: { label: "Replay Neha's rebooking", values: runWith({}) },
       },
       {
@@ -333,7 +334,7 @@ The fix is an **idempotency key**: a unique id for one intended action, sent wit
       },
       {
         heading: 'The loop that wouldn\'t stop',
-        body: `Another customer would pay up to ₹5,000. No morning flight to Delhi costs that little, on any day. The agent searched tomorrow, then the day after, then the day after that.
+        body: `Another customer would pay up to ₹5k. No morning flight to Delhi costs that little, on any day. The agent searched tomorrow, then the day after, then the day after that.
 
 Each search added its results to the conversation, and every model call re-reads the whole conversation. So the cost of a run grows faster than its length: the first search's results were read again by each of the next 11 model calls. A run that gave up at the step limit used 13 model calls and 24,187 input tokens, about 3.5 times the cost of Neha's successful rebooking, to achieve nothing.
 
@@ -472,7 +473,7 @@ The team added three things:
       },
       {
         heading: 'Capacity estimates',
-        body: '- Fixed context: 450 tokens of system prompt + 5 tools × 120 tokens = 1,050 tokens before the customer says anything.\n- A successful rebooking: 4 tool calls, 5 model calls, 6,408 input tokens and 289 output tokens. At $3 and $15 per million: 6,408 × 3 + 289 × 15 = 23,559 millionths of a dollar ≈ $0.024.\n- A run that loops to the 12-call limit: 13 model calls and 24,187 input tokens ≈ $0.083, 3.5 times as much, because every call re-reads everything before it.\n- 20,000 conversations a day at $0.0236 ≈ $471 a day in model calls; if 10% of them loop to the limit, about $590.\n- Audit log: about 6 tool calls × 1 KB a conversation × 20,000 = 120 MB a day.',
+        body: '- Fixed context: 450 tokens of system prompt + 5 tools × 120 tokens = 1,050 tokens before the customer says anything.\n- A successful rebooking: 4 tool calls, 5 model calls, 6,408 input tokens and 289 output tokens. At $3 and $15 per million: 6,408 × 3 + 289 × 15 = 23,559 millionths of a dollar ≈ $0.024.\n- A run that loops to the 12-call limit: 13 model calls and 24,187 input tokens ≈ $0.083, 3.5 times as much, because every call re-reads everything before it.\n- 20k conversations a day at $0.0236 ≈ $471 a day in model calls; if 10% of them loop to the limit, about $590.\n- Audit log: about 6 tool calls × 1 KB a conversation × 20k = 120 MB a day.',
       },
       {
         heading: 'Step by step',

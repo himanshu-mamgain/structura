@@ -43,7 +43,7 @@ const lesson: Lesson = {
       title: 'Watch the lag',
       text: 'Lag is how far a group is behind the newest event. If it keeps growing, add consumers, up to the number of partitions, or make processing faster.',
       focus: ['Billing Consumer 1', 'Billing Consumer 2', 'Analytics Consumer'],
-      example: '50,000 events/s at peak; one consumer handles 5,000\n→ at least 10 partitions for one group to keep up',
+      example: '50k events/s at peak; one consumer handles 5k\n→ at least 10 partitions for one group to keep up',
     },
   ],
   quiz: [

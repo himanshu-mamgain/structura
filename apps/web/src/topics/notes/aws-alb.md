@@ -111,7 +111,7 @@ Defaults for instance and IP targets: `GET /` every **30 s**, **5 s** timeout, h
 | --- | --- | --- |
 | How long until a dead target stops getting requests? | 2 × 30 s = up to **60 s** | 3 × 10 s = up to **30 s** |
 | How long until a fixed target gets traffic again? | 5 × 30 s = **150 s** | 3 × 10 s = **30 s** |
-| Requests sent to a dead task at 600 req/s over 3 tasks | 200 req/s × 60 s = **12,000** failed | 200 × 30 = **6,000** |
+| Requests sent to a dead task at 600 req/s over 3 tasks | 200 req/s × 60 s = **12k** failed | 200 × 30 = **6k** |
 
 ### Shallow, not deep
 
@@ -204,7 +204,7 @@ Watch the green group's 5xx rate and latency in CloudWatch, then move the weight
 
 ## Cost and capacity
 
-- An ALB is billed per hour (about $0.0225 in us-east-1) plus **LCUs** (Load Balancer Capacity Units, about $0.008 per LCU-hour). An LCU-hour is the most you use of any one dimension: 25 new connections a second, 3,000 active connections a minute, 1 GB of traffic an hour to EC2 (Elastic Compute Cloud: AWS's virtual servers) or IP targets, or 1,000 rule evaluations a second (the first 10 rules are free).
+- An ALB is billed per hour (about $0.0225 in us-east-1) plus **LCUs** (Load Balancer Capacity Units, about $0.008 per LCU-hour). An LCU-hour is the most you use of any one dimension: 25 new connections a second, 3k active connections a minute, 1 GB of traffic an hour to EC2 (Elastic Compute Cloud: AWS's virtual servers) or IP targets, or 1k rule evaluations a second (the first 10 rules are free).
 - The ALB scales its nodes by itself, in minutes. For a launch or sale with a sudden 10× jump, reserve capacity ahead of time (LCU reservation) instead of hoping it scales fast enough.
 - Access logs: 600 req/s × 86,400 s × about 400 bytes ≈ **20.7 GB a day** in S3 (Simple Storage Service). Set a lifecycle rule.
 

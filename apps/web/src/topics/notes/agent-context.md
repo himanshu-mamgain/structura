@@ -1,6 +1,6 @@
 # Context Engineering for Long-Running Agents
 
-> 💡 **TL;DR**: An **agent** is a large language model (LLM) in a loop. It calls a tool, reads the result, and decides what to do next. The model remembers nothing between calls, so every step resends the whole conversation, and the conversation grows every step. The **context window** is the most the model can read at once (for example 128,000 tokens). A long task fills it in an hour. **Context engineering** is choosing what the model sees at each step, so it can keep working for hours. The main tools: **clear old tool results**, **compact** the history into a summary, keep **notes** outside the context, and hand wide searches to **sub-agents**. Around all of it sits the **harness**: the code that runs the loop and the tools.
+> 💡 **TL;DR**: An **agent** is a large language model (LLM) in a loop. It calls a tool, reads the result, and decides what to do next. The model remembers nothing between calls, so every step resends the whole conversation, and the conversation grows every step. The **context window** is the most the model can read at once (for example 128k tokens). A long task fills it in an hour. **Context engineering** is choosing what the model sees at each step, so it can keep working for hours. The main tools: **clear old tool results**, **compact** the history into a summary, keep **notes** outside the context, and hand wide searches to **sub-agents**. Around all of it sits the **harness**: the code that runs the loop and the tools.
 
 ## At a glance
 
@@ -18,7 +18,7 @@
 
 **An agent.** A language model on its own answers one message. An agent gives it **tools** (read a file, run the tests, search the web) and a **loop**: the model asks for a tool, the harness runs it, the result goes back to the model, and the model decides the next step. It stops when the task is done. A coding agent fixing a bug might take 60 steps; a research agent might take hundreds.
 
-**The context window.** A model reads text as **tokens**: pieces of words, about three quarters of an English word each. The **context window** is how many tokens one call can hold: everything the model reads (instructions, the conversation, tool results) plus what it writes. Common sizes are 128,000 tokens (often written 128K; exactly 131,072) and 200,000.
+**The context window.** A model reads text as **tokens**: pieces of words, about three quarters of an English word each. The **context window** is how many tokens one call can hold: everything the model reads (instructions, the conversation, tool results) plus what it writes. Common sizes are 128k tokens (often written 128K; exactly 131,072) and 200k.
 
 **The problem.** The model keeps nothing between calls. To continue a conversation, the harness sends the whole thing again, every time. So the context only grows. A single file read adds thousands of tokens, and it stays in the context long after the agent has used it.
 
@@ -42,21 +42,21 @@ Take the topic's example: an agent fixing a flaky test in a payments service, on
 
 | Part of every call | Tokens |
 |---|---|
-| System prompt and tool definitions | 8,000 |
+| System prompt and tool definitions | 8k |
 | The task ("Fix the flaky date test. Don't change the public API of the payments module.") | 600 |
 | Each step: the model's reasoning and tool call | about 350 |
-| A file read | 6,000 |
+| A file read | 6k |
 | A search result | 1,200 |
 | A test run | 3,500 |
 
-A 6-step cycle (read, search, read, edit, test, look something up) adds 19,600 tokens of results plus 6 × 350 = 2,100 of the model's own writing: 21,700 tokens. Before any work, each call already carries 8,000 + 600 = 8,600 tokens.
+A 6-step cycle (read, search, read, edit, test, look something up) adds 19.6k tokens of results plus 6 × 350 = 2,100 of the model's own writing: 21.7k tokens. Before any work, each call already carries 8k + 600 = 8,600 tokens.
 
 | After step | Context | Share of the window |
 |---|---|---|
 | 1 | 14,950 | 11% |
-| 10 | 45,300 | 35% |
-| 20 | 81,600 | 62% |
-| 30 | 117,100 | 89% |
+| 10 | 45.3k | 35% |
+| 20 | 81.6k | 62% |
+| 30 | 117.1k | 89% |
 | 33 | over 131,072 | the call fails: "prompt is too long" |
 
 Two more costs come with a big context:
@@ -72,7 +72,7 @@ The simplest fix: when it's full, delete messages from the start until it fits. 
 
 ### Clearing old tool results
 
-Most of the tokens are tool results, and most are only useful for a few steps. Once the agent has read a file and written "the bug is in `parseDate`, line 42", it doesn't need the file's 6,000 tokens any more. **Tool-result clearing** replaces all but the most recent results with a stub:
+Most of the tokens are tool results, and most are only useful for a few steps. Once the agent has read a file and written "the bug is in `parseDate`, line 42", it doesn't need the file's 6k tokens any more. **Tool-result clearing** replaces all but the most recent results with a stub:
 
 ```text
 [cleared: read src/payments/api.ts, 6,000 tokens. Call read_file again if needed.]
@@ -82,7 +82,7 @@ The full output stays in the harness's store, so the agent can ask again. Keepin
 
 ### Compaction
 
-When the context passes a threshold (say 80% of the window), **compaction** asks the model to summarise the history, then replaces the old turns with the summary and keeps the last few turns. In the simulator: a 3,000-token summary, the task pinned at the top, and the last 3 turns.
+When the context passes a threshold (say 80% of the window), **compaction** asks the model to summarise the history, then replaces the old turns with the summary and keeps the last few turns. In the simulator: a 3k-token summary, the task pinned at the top, and the last 3 turns.
 
 A good summary prompt says what must survive:
 
@@ -108,7 +108,7 @@ With notes on, compaction keeps all 5 facts: whatever the summary drops is still
 
 ### Sub-agents
 
-Exploring a codebase means reading many files to find a few lines that matter. A **sub-agent** does that in its own, empty context: it reads 39,200 tokens of files over 12 steps, then hands back a 1,500-token summary. The main agent never holds the files. The cost: the sub-agent's own calls (it resends its context too: 334,300 tokens over its 12 calls in the simulator), and a summary that might miss something. Use sub-agents for wide searches, not every step.
+Exploring a codebase means reading many files to find a few lines that matter. A **sub-agent** does that in its own, empty context: it reads 39.2k tokens of files over 12 steps, then hands back a 1,500-token summary. The main agent never holds the files. The cost: the sub-agent's own calls (it resends its context too: 334.3k tokens over its 12 calls in the simulator), and a summary that might miss something. Use sub-agents for wide searches, not every step.
 
 ### Loading just in time
 
@@ -127,7 +127,7 @@ Instead of loading every relevant file at the start, keep **references** in the 
 | Clear old tool results | yes, peak 65,730 | 5 of 5 | 3,033,300 |
 | Clear + sub-agent for exploring | yes | 5 of 5 | about 2.7 million |
 
-- **Dropping costs the most and keeps the least**: it runs near the limit every step, resending about 100,000 tokens each time.
+- **Dropping costs the most and keeps the least**: it runs near the limit every step, resending about 100k tokens each time.
 - **Compaction alone works, but leaks details.** Notes plug the leak.
 - **Clearing tool results alone is enough for this task.** On a 120-step task, combine all of them.
 
@@ -148,7 +148,7 @@ Instead of loading every relevant file at the start, keep **references** in the 
 - **Trusting the summary.** It drops details silently. Keep notes, and test what survives.
 - **Keeping every tool result forever.** Most tokens in a long run are file contents the agent read once.
 - **Loading everything up front.** Big contexts cost more on every call and make the model worse at finding what matters.
-- **Treating a bigger window as the fix.** A 200,000-token window only moves the wall: keeping everything, the same task stops at step 53 instead of 33, after sending 5.5 million tokens.
+- **Treating a bigger window as the fix.** A 200k-token window only moves the wall: keeping everything, the same task stops at step 53 instead of 33, after sending 5.5 million tokens.
 - **Sub-agents for everything.** Each one is a whole agent with its own token bill.
 
 ## Interview Q&As
@@ -171,7 +171,7 @@ A: The harness gives the model a place to work: it runs the loop and the tools, 
 
 **Q: When would you use a sub-agent instead of a tool call?**
 
-A: When a job needs lots of reading but only a short answer: search a codebase for every place a function is used, or research a question across many pages. The sub-agent spends tens of thousands of tokens in its own context and returns 1,000 to 2,000. For a single file read or a test run, a plain tool call is cheaper.
+A: When a job needs lots of reading but only a short answer: search a codebase for every place a function is used, or research a question across many pages. The sub-agent spends tens of thousands of tokens in its own context and returns 1k to 2k. For a single file read or a test run, a plain tool call is cheaper.
 
 ## Related topics
 

@@ -16,7 +16,7 @@ const lesson: Lesson = {
     },
     {
       title: 'A retry storm',
-      text: 'Say the Payment Provider is down for 10 seconds while 10,000 phones are paying. If every phone retries after exactly 1 second, all 10,000 come back in the same moment. The provider can take 200 in that tenth of a second, so the other 9,800 fail and come back together again.',
+      text: 'Say the Payment Provider is down for 10 seconds while 10k phones are paying. If every phone retries after exactly 1 second, all 10k come back in the same moment. The provider can take 200 in that tenth of a second, so the other 9,800 fail and come back together again.',
       focus: ['Client Apps', 'Payment Provider'],
       remember: 'Retries that arrive together can keep a server down that could have recovered.',
     },
@@ -28,7 +28,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Jitter: a random wait',
-      text: 'With full jitter, each phone picks a random wait between 0 and that doubling number. After the 5th try it is 0 to 16 seconds. 10,000 phones spread over 16 seconds is about 63 in each tenth of a second, well under 200.',
+      text: 'With full jitter, each phone picks a random wait between 0 and that doubling number. After the 5th try it is 0 to 16 seconds. 10k phones spread over 16 seconds is about 63 in each tenth of a second, well under 200.',
       focus: ['Backoff + Jitter'],
       example: 'wait = random() × min(32 s, 1 s × 2^(try − 1))',
       remember: 'Backoff makes each client gentler. Jitter stops them moving in step.',
@@ -66,7 +66,7 @@ const lesson: Lesson = {
   ],
   quiz: [
     {
-      question: '10,000 phones failed at the same moment. Each waits 1, 2, 4, 8 s between tries, with no jitter. What happens?',
+      question: '10k phones failed at the same moment. Each waits 1, 2, 4, 8 s between tries, with no jitter. What happens?',
       options: [
         'They spread out on their own after a few tries',
         'They keep retrying together, in big waves',

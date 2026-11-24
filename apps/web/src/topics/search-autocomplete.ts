@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import { json, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
 
@@ -89,7 +90,7 @@ const shardOf = (prefix: string) => {
   const c = prefix[0] ?? 'a'
   return c <= 'f' ? 0 : c <= 'm' ? 1 : c <= 's' ? 2 : 3
 }
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 
 const PIPELINE = ['Weekly trie only', 'Weekly trie + trending layer']
 const CACHE = ['Cold: every cache misses', 'Warm: edge cache hit']
@@ -315,7 +316,7 @@ export const searchAutocomplete: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 10 million daily users, 10 searches each, and (thanks to debounce) about 4 suggestion requests per search.\n- Searches: 10,000,000 × 10 = 100,000,000 a day.\n- Suggestion requests: 100,000,000 × 4 = 400,000,000 a day, which is 400,000,000 / 86,400 = about 4,630 per second on average. Peak is about 3 times that: roughly 13,900 per second.\n- Distinct queries kept: say 50 million after dropping rare ones. At 25 bytes each that is 1.25 GB of raw text.\n- Trie: about 300 million nodes. With 8 bytes for links plus 10 top-k ids of 4 bytes each, a node costs about 48 bytes, so 300,000,000 × 48 B = 14.4 GB. That fits in memory, split over 4 shards of about 3.6 GB each (plus replicas).\n- Query log: 100,000,000 × 100 B = 10 GB a day.',
+        body: 'An example: 10 million daily users, 10 searches each, and (thanks to debounce) about 4 suggestion requests per search.\n- Searches: 10 million × 10 = 100 million a day.\n- Suggestion requests: 100 million × 4 = 400 million a day, which is 400 million / 86,400 = about 4,630 per second on average. Peak is about 3 times that: roughly 13.9k per second.\n- Distinct queries kept: say 50 million after dropping rare ones. At 25 bytes each that is 1.25 GB of raw text.\n- Trie: about 300 million nodes. With 8 bytes for links plus 10 top-k ids of 4 bytes each, a node costs about 48 bytes, so 300 million × 48 B = 14.4 GB. That fits in memory, split over 4 shards of about 3.6 GB each (plus replicas).\n- Query log: 100 million × 100 B = 10 GB a day.',
       },
       {
         heading: 'Step by step',

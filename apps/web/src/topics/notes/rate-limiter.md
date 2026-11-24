@@ -89,7 +89,7 @@ return allowed and 1 or 0`
 const allowed = (await redis.eval(script, 1, 'rl:tb:key_live_8f3a', 10, 10 / 60)) === 1
 ```
 
-At 200,000 requests a second, that's 200,000 scripts a second. One Redis node runs roughly 60,000 to 100,000 of these a second, so you need at least 4 shards (200,000 ÷ 60,000 = 3.3, rounded up). Each key lives on one shard, so its count stays in one place.
+At 200k requests a second, that's 200k scripts a second. One Redis node runs roughly 60k to 100k of these a second, so you need at least 4 shards (200k ÷ 60k = 3.3, rounded up). Each key lives on one shard, so its count stays in one place.
 
 ## How rules are stored
 
@@ -99,7 +99,7 @@ The limiter keeps three kinds of state. They live in different places because th
 |---|---|---|
 | **Rules**: the limit for each plan and route. They change a few times a day. | A Postgres table, `rate_limit_rules`, and a copy in each gateway's memory | A hash map: plan id → that plan's rules, longest route first |
 | **Counters**: how much each key has used. They change on every request. | Redis | One Redis hash per key, `rl:tb:key_live_8f3a` → tokens 3.5, ts 1794807005, deleted after 120 s unused |
-| **Fallback buckets**: a rough count, only while Redis is down | Each gateway's own memory | A hash map: key → { tokens, last }, capped at 100,000 keys |
+| **Fallback buckets**: a rough count, only while Redis is down | Each gateway's own memory | A hash map: key → { tokens, last }, capped at 100k keys |
 
 ### The Rules Store table
 
@@ -117,7 +117,7 @@ The **Rules Store** is a small table in Postgres (see the Data model tab). One r
 
 ### The copy in memory
 
-Every request needs its rule. At 200,000 requests a second, asking Postgres each time would mean 200,000 queries a second and about a millisecond more per request. But the whole table is tiny: 5 plans × 40 routes = 200 rows, about 40 KB. So each gateway keeps all of it in memory.
+Every request needs its rule. At 200k requests a second, asking Postgres each time would mean 200k queries a second and about a millisecond more per request. But the whole table is tiny: 5 plans × 40 routes = 200 rows, about 40 KB. So each gateway keeps all of it in memory.
 
 The data structure is a **hash map from plan id to a short list of rules**, sorted longest route first. Finding a rule is one map lookup, then a scan of that plan's few dozen rules; the first one that matches is the most specific. With thousands of routes, you would use a trie of path segments instead, but a list is plenty here.
 
@@ -229,7 +229,7 @@ Redis is down, or answers too slowly. The limiter can't count, so it can't know 
 - **Fail open**: allow the request. Like a fire door that unlocks when the power fails, so people can get out. The API stays up, but for now nothing is limited.
 - **Fail closed**: refuse the request, with `503 Service Unavailable` and `Retry-After`. Like a bank vault that stays locked when the power fails. Nothing gets past the limit, but the API is down for everyone.
 
-Put numbers on it. Redis is down for 2 minutes at 200,000 requests a second: 24 million requests.
+Put numbers on it. Redis is down for 2 minutes at 200k requests a second: 24 million requests.
 
 - Fail closed: all 24 million are refused. A helper failing has taken down the whole API.
 - Fail open: all 24 million go through. Nearly all are normal users, so that's fine. But a scraper that was held to 10 a minute now gets everything it asks for.
@@ -266,7 +266,7 @@ What 20 requests at once get, with the free plan's 10 a minute (the simulator sh
 | Redis down: fail closed | 0 | 20, with 503 |
 | Redis down: fallback limiter, 4 gateways | 8 | 12, with 429 |
 
-Its data structure is a hash map of key → `{ tokens, last }` in each gateway's memory, kept in least-recently-used order and capped at 100,000 keys (about 10 MB). It's used only while the circuit breaker is open. When Redis is back, the map is cleared and Redis's counts take over again.
+Its data structure is a hash map of key → `{ tokens, last }` in each gateway's memory, kept in least-recently-used order and capped at 100k keys (about 10 MB). It's used only while the circuit breaker is open. When Redis is back, the map is cleared and Redis's counts take over again.
 
 ```javascript
 // Runs on each gateway. GATEWAYS comes from service discovery, refreshed with the rules.
@@ -391,7 +391,7 @@ A fail-closed refusal is different: the client didn't break the limit, so it get
 
 **Q: Where do you keep the rate limit rules, and why not read them from the database each time?**
 
-A: In a small table, one row per plan and route, with the algorithm, limit, window and fail mode. Each gateway keeps the whole table in memory, as a map from plan to that plan's rules, most specific first, and reloads it every 30 seconds. Reading the database per request would add a query and about a millisecond to each of 200,000 requests a second, for data that changes a few times a day.
+A: In a small table, one row per plan and route, with the algorithm, limit, window and fail mode. Each gateway keeps the whole table in memory, as a map from plan to that plan's rules, most specific first, and reloads it every 30 seconds. Reading the database per request would add a query and about a millisecond to each of 200k requests a second, for data that changes a few times a day.
 
 **Q: How do you make the limit hold across ten gateways?**
 

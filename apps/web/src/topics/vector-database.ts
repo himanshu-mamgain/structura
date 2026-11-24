@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -381,7 +382,7 @@ const RANDOM_BW = 10e9 // scattered reads (graph hops, filtered ids) are slower
 const USABLE = 48e9 // a 64 GB server, leaving room for the OS and queries
 const SSD_IOPS = 500_000 // random 4 KB reads a second from an NVMe drive
 
-const int = (n: number) => Math.round(n).toLocaleString('en-US')
+const int = (n: number) => shortNumber(Math.round(n))
 function size(bytes: number): string {
   if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(bytes >= 1e11 ? 0 : bytes >= 1e10 ? 1 : 2)} GB`
   if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(bytes >= 1e8 ? 0 : 1)} MB`
@@ -628,21 +629,21 @@ A search now compared the query with about 1,200 vectors instead of a million: r
 HNSW keeps every full vector and its links in RAM, 3,072 + 128 = 3,200 bytes each, so 320 GB. At 48 GB of usable RAM a server, that's 7 servers, and every search has to visit all of them.
 
 The alternative was **IVF-PQ**, two ideas together:
-- **IVF** (inverted file) groups the vectors into clusters, about 40,000 of them, and a search only looks inside the clusters nearest the query.
+- **IVF** (inverted file) groups the vectors into clusters, about 40k of them, and a search only looks inside the clusters nearest the query.
 - **PQ** (product quantisation) compresses each vector. Cut the 768 numbers into 96 pieces of 8, and replace each piece with the number of the closest of 256 typical pieces: one byte. 3,072 bytes become 96, 32 times smaller.
 
 The whole index fit in 10.5 GB, on one server. But compression costs accuracy. With a quick search, a few clusters scored only by their codes, barely half of the true top 10 came back. The fix is to **re-rank**: take the best 50 by code, read their full vectors from SSD, and order them exactly. Searching more clusters and re-ranking brought recall back to 0.94, in about 33 ms.`,
         replay: { label: 'Replay IVF-PQ with re-ranking at 100 million', values: run('100 million', 'IVF-PQ (clusters + compression)', 'High (accurate)', 'None') },
       },
       {
-        heading: 'Size M, under ₹1,000',
-        body: `Then came filters: "Similar items, in my size, under ₹1,000." The first version searched as before and filtered the ten results afterwards. It shipped on a Friday. By Saturday the support inbox was full of screenshots of empty pages.
+        heading: 'Size M, under ₹1k',
+        body: `Then came filters: "Similar items, in my size, under ₹1k." The first version searched as before and filtered the ten results afterwards. It shipped on a Friday. By Saturday the support inbox was full of screenshots of empty pages.
 
 The maths had been waiting for them. That filter matched 2% of listings. The search found the 10 nearest listings of any size and price, and on average 2% of 10, a fifth of one listing, survived the filter. Matching dresses existed. They just weren't in the top 10 of everything.
 
-Fetching more (the top 1,000, then filtering) helps until a filter is rarer still. The real fix is to filter **during** the search:
+Fetching more (the top 1k, then filtering) helps until a filter is rarer still. The real fix is to filter **during** the search:
 - The database keeps a **metadata index** on fields like size and price, and its query planner first asks how many listings match.
-- 2% of a million is 20,000. Scoring all 20,000 directly reads 61 MB, takes about 6 ms and is exact.
+- 2% of a million is 20k. Scoring all 20k directly reads 61 MB, takes about 6 ms and is exact.
 - When a filter matches most listings, the planner walks the graph as usual and skips the ones that don't match.`,
         replay: { label: 'Replay the empty results', values: run('1 million', 'HNSW (graph)', 'Low (fast)', 'After search (2% match)') },
       },
@@ -652,7 +653,7 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
 - **New listings** go to the write-ahead log and a small fresh segment that's searched by brute force, then merged into the big index in the background. A listing is searchable within seconds.
 - **Deletes** don't remove nodes from the graph; they mark them as deleted and skip them. When enough pile up, the index is rebuilt.
 - **A new embedding model** makes every stored vector incomparable with new queries. Upgrading means re-embedding all 100 million photos into a new collection, then switching searches over.
-- **Recall drifts** as data changes. Every night a job runs 1,000 queries through the index and through an exact scan and records recall@10. Below 0.95, someone gets paged.
+- **Recall drifts** as data changes. Every night a job runs 1k queries through the index and through an exact scan and records recall@10. Below 0.95, someone gets paged.
 
 > Nobody notices a row of similar items that's 2% less similar. Everybody notices an empty one. Measure the first, and test for the second.`,
         replay: { label: 'Run the filtered search properly', values: run('1 million', 'HNSW (graph)', 'High (accurate)', 'During search (2% match)') },
@@ -762,7 +763,7 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
     sections: [
       {
         heading: 'Overview',
-        body: 'An embedding is a vector: a list of numbers, here 768 of them, produced by a model so that similar things get similar vectors. "Find similar items", "find passages that answer this question" and "find accounts that behave like this fraud ring" all become one question: which stored vectors are nearest to this one? That is nearest neighbour search, usually measured by cosine similarity (the angle between two vectors).\n\nComparing with every vector is exact but reads all of them on every query. A vector database builds an approximate index instead, such as an HNSW graph or IVF-PQ clusters, and adds what a database needs around it: durable writes, deletes, metadata filters, sharding and replication.\n\nThe simulator really searches. It builds a flat index, IVF-PQ and an HNSW graph over 2,000 sample vectors in your browser, runs 40 queries against each and measures recall against an exact scan. Memory and latency at 1 million and 100 million real 768-dimension vectors are worked out from the formulas shown.',
+        body: 'An embedding is a vector: a list of numbers, here 768 of them, produced by a model so that similar things get similar vectors. "Find similar items", "find passages that answer this question" and "find accounts that behave like this fraud ring" all become one question: which stored vectors are nearest to this one? That is nearest neighbour search, usually measured by cosine similarity (the angle between two vectors).\n\nComparing with every vector is exact but reads all of them on every query. A vector database builds an approximate index instead, such as an HNSW graph or IVF-PQ clusters, and adds what a database needs around it: durable writes, deletes, metadata filters, sharding and replication.\n\nThe simulator really searches. It builds a flat index, IVF-PQ and an HNSW graph over 2k sample vectors in your browser, runs 40 queries against each and measures recall against an exact scan. Memory and latency at 1 million and 100 million real 768-dimension vectors are worked out from the formulas shown.',
       },
       {
         heading: 'Requirements',
@@ -770,7 +771,7 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
       },
       {
         heading: 'Capacity estimates',
-        body: '- One float32 vector: 768 × 4 bytes = 3,072 bytes. 1 million = 3.07 GB; 100 million = 307 GB.\n- HNSW with M = 16 adds 32 neighbour ids × 4 bytes = 128 bytes on the bottom layer: 3,200 bytes a vector, 320 GB for 100 million, or 7 servers at 48 GB of usable RAM each.\n- IVF-PQ with 96-byte codes and 8-byte ids: 100 million × 104 bytes = 10.4 GB, plus 40,000 cluster centres × 3,072 bytes = 123 MB. One server.\n- A flat scan of 1 million reads 3.07 GB per query; at 40 GB/s that is 77 ms, about 13 queries a second per server. 500 a second would need 39 servers.\n- Writes: 200,000 new listings a day ÷ 86,400 seconds ≈ 2.3 a second. Running the embedding model is the expensive part, not indexing.\n- Storing vectors as float16 halves everything: 1,536 bytes a vector, 154 GB for 100 million.',
+        body: '- One float32 vector: 768 × 4 bytes = 3,072 bytes. 1 million = 3.07 GB; 100 million = 307 GB.\n- HNSW with M = 16 adds 32 neighbour ids × 4 bytes = 128 bytes on the bottom layer: 3,200 bytes a vector, 320 GB for 100 million, or 7 servers at 48 GB of usable RAM each.\n- IVF-PQ with 96-byte codes and 8-byte ids: 100 million × 104 bytes = 10.4 GB, plus 40k cluster centres × 3,072 bytes = 123 MB. One server.\n- A flat scan of 1 million reads 3.07 GB per query; at 40 GB/s that is 77 ms, about 13 queries a second per server. 500 a second would need 39 servers.\n- Writes: 200k new listings a day ÷ 86,400 seconds ≈ 2.3 a second. Running the embedding model is the expensive part, not indexing.\n- Storing vectors as float16 halves everything: 1,536 bytes a vector, 154 GB for 100 million.',
       },
       {
         heading: 'Step by step',
@@ -782,7 +783,7 @@ Fetching more (the top 1,000, then filtering) helps until a filter is rarer stil
       },
       {
         heading: 'Key decisions',
-        body: '- Exact or approximate: a flat scan is exact and fine up to about 100,000 vectors, or when a filter leaves few candidates. Beyond that, use an approximate index and measure its recall.\n- HNSW or IVF-PQ: HNSW gives the best recall for the time, but keeps full vectors and links in RAM, builds slowly and handles deletes poorly. IVF-PQ is 30 times smaller and builds fast, but needs training on a sample and re-ranking to be accurate. Graph indexes that live on SSD (DiskANN) sit in between.\n- Knobs: HNSW\'s M (links per node) and ef_construction set build quality, ef sets search width. IVF\'s cluster count (around 4 × √N) and nprobe (clusters searched) trade recall for time; PQ\'s code size trades memory for accuracy.\n- Distance: use the one the embedding model was trained for, usually cosine. Normalise vectors once, and cosine becomes a plain dot product.\n- Filters: score the matches directly when a filter is selective, filter inside the graph walk when it isn\'t, and never filter only after a top-10 search.\n- Extension or dedicated engine: pgvector keeps vectors next to the rows, in the same transactions and backups, and handles tens of millions. Dedicated engines (Milvus, Qdrant, Weaviate) add sharding, quantisation and filter-aware planning.',
+        body: '- Exact or approximate: a flat scan is exact and fine up to about 100k vectors, or when a filter leaves few candidates. Beyond that, use an approximate index and measure its recall.\n- HNSW or IVF-PQ: HNSW gives the best recall for the time, but keeps full vectors and links in RAM, builds slowly and handles deletes poorly. IVF-PQ is 30 times smaller and builds fast, but needs training on a sample and re-ranking to be accurate. Graph indexes that live on SSD (DiskANN) sit in between.\n- Knobs: HNSW\'s M (links per node) and ef_construction set build quality, ef sets search width. IVF\'s cluster count (around 4 × √N) and nprobe (clusters searched) trade recall for time; PQ\'s code size trades memory for accuracy.\n- Distance: use the one the embedding model was trained for, usually cosine. Normalise vectors once, and cosine becomes a plain dot product.\n- Filters: score the matches directly when a filter is selective, filter inside the graph walk when it isn\'t, and never filter only after a top-10 search.\n- Extension or dedicated engine: pgvector keeps vectors next to the rows, in the same transactions and backups, and handles tens of millions. Dedicated engines (Milvus, Qdrant, Weaviate) add sharding, quantisation and filter-aware planning.',
       },
       {
         heading: 'Scaling and failure',

@@ -4,15 +4,15 @@ const lesson: Lesson = {
   cards: [
     {
       title: 'Many fans, few seats',
-      text: 'A big concert has 18,000 seats and 600,000 fans who all open the sale at 10:00. That is 33 fans for every seat. The hard part is not showing a page. It is giving each seat to exactly one fan.',
+      text: 'A big concert has 18k seats and 600k fans who all open the sale at 10:00. That is 33 fans for every seat. The hard part is not showing a page. It is giving each seat to exactly one fan.',
       focus: ['Fan (Browser)'],
       remember: 'One seat, one owner. That rule can never break.',
     },
     {
       title: 'A waiting room slows the crowd',
-      text: 'If all 600,000 fans hit the booking servers together, the servers fall over. So each fan joins a waiting room first. It lets in 2,000 fans a minute and gives each one a signed pass.',
+      text: 'If all 600k fans hit the booking servers together, the servers fall over. So each fan joins a waiting room first. It lets in 2k fans a minute and gives each one a signed pass.',
       focus: ['Waiting Room (Queue)', 'API Gateway'],
-      example: 'position 4,000 ÷ 2,000 per minute = 2 minutes of waiting',
+      example: 'position 4k ÷ 2k per minute = 2 minutes of waiting',
     },
     {
       title: 'The seat map is a hint',

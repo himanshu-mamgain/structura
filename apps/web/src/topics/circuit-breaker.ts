@@ -419,7 +419,7 @@ export const circuitBreaker: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 200 checkouts a second at peak.\n- Little\'s law: threads in use = arrival rate × time each call takes. Healthy, at 50 ms: 200 × 0.05 = 10 threads. If Payment Service hangs and the timeout is 1 s: 200 × 1 = 200 threads. With no timeout and an 8 s answer: 200 × 8 = 1,600 threads, far more than a server has.\n- Retries multiply load. 3 retries mean up to 4 calls per order: 200 × 4 = 800 calls a second sent to a service that is already struggling.\n- A breaker that opens for 30 s refuses about 200 × 30 = 6,000 calls (minus one probe) without sending them. If each is saved as a job of about 200 bytes, that is 6,000 × 200 B = 1.2 MB of queue.',
+        body: 'An example: 200 checkouts a second at peak.\n- Little\'s law: threads in use = arrival rate × time each call takes. Healthy, at 50 ms: 200 × 0.05 = 10 threads. If Payment Service hangs and the timeout is 1 s: 200 × 1 = 200 threads. With no timeout and an 8 s answer: 200 × 8 = 1,600 threads, far more than a server has.\n- Retries multiply load. 3 retries mean up to 4 calls per order: 200 × 4 = 800 calls a second sent to a service that is already struggling.\n- A breaker that opens for 30 s refuses about 200 × 30 = 6k calls (minus one probe) without sending them. If each is saved as a job of about 200 bytes, that is 6k × 200 B = 1.2 MB of queue.',
       },
       {
         heading: 'Step by step',

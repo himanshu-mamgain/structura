@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -35,7 +36,7 @@ const MIXES: Record<string, number> = {
   'Write-heavy (2 reads per write)': 2,
 }
 
-const fmt = (n: number) => n.toLocaleString('en-US')
+const fmt = (n: number) => shortNumber(n)
 
 /** The stage of the architecture a given user count needs. */
 function stageOf(users: number): number {
@@ -287,7 +288,7 @@ export const scalingAws: StaticTopic = {
     sections: [
       {
         heading: 'Overview',
-        body: 'The rule: measure, find the slowest part (the bottleneck), fix only that, and repeat. Adding everything on the first day costs money and complexity you don\'t need yet.\n\nThe five stages:\n- 1 to 10,000 users: one server does everything.\n- 10,000 to 100,000: the database gets its own machine.\n- 100,000 to 1 million: a load balancer, a cache, read-only copies of the database, and a CDN.\n- 1 to 10 million: Auto Scaling, separate API servers, queues and workers.\n- 10 million and more: split the database into shards.',
+        body: 'The rule: measure, find the slowest part (the bottleneck), fix only that, and repeat. Adding everything on the first day costs money and complexity you don\'t need yet.\n\nThe five stages:\n- 1 to 10k users: one server does everything.\n- 10k to 100k: the database gets its own machine.\n- 100k to 1 million: a load balancer, a cache, read-only copies of the database, and a CDN.\n- 1 to 10 million: Auto Scaling, separate API servers, queues and workers.\n- 10 million and more: split the database into shards.',
       },
       {
         heading: 'Requirements',
@@ -295,7 +296,7 @@ export const scalingAws: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'The numbers the simulator uses:\n- Each monthly user makes about 3,000 requests a month, roughly 100 a day.\n- A month has 2,592,000 seconds, and the busiest hour is about 3 times the average.\n- A well-tuned web server handles about 400 requests a second. As a rule of thumb, 400 requests a second is about 1 billion a month.\n\nSo:\n- 1 million users: 3 billion requests a month, about 1,157 a second on average and 3,473 at the peak: 9 web servers.\n- 10 million users: about 11,574 a second on average and 34,723 at the peak: 87 web servers.\n- With 100 reads for every write and 80% of reads answered by the cache, only about 20% of reads reach the database.',
+        body: 'The numbers the simulator uses:\n- Each monthly user makes about 3k requests a month, roughly 100 a day.\n- A month has 2.59 million seconds, and the busiest hour is about 3 times the average.\n- A well-tuned web server handles about 400 requests a second. As a rule of thumb, 400 requests a second is about 1 billion a month.\n\nSo:\n- 1 million users: 3 billion requests a month, about 1,157 a second on average and 3,473 at the peak: 9 web servers.\n- 10 million users: about 11.6k a second on average and 34.7k at the peak: 87 web servers.\n- With 100 reads for every write and 80% of reads answered by the cache, only about 20% of reads reach the database.',
       },
       {
         heading: 'Step by step',

@@ -12,11 +12,11 @@ const lesson: Lesson = {
       title: 'The model remembers nothing',
       text: 'Between calls, the model keeps nothing. So every step, the Context Builder sends the whole conversation again: instructions, the task, and every turn so far. The context only grows.',
       focus: ['Context Builder', 'Message History'],
-      example: 'step 1: 14,950 tokens\nstep 20: 81,600 tokens\nstep 33: over 131,072 → "prompt is too long"',
+      example: 'step 1: 14,950 tokens\nstep 20: 81.6k tokens\nstep 33: over 131,072 → "prompt is too long"',
     },
     {
       title: 'Tool results are most of it',
-      text: 'One file read adds 6,000 tokens, and a test run 3,500. They stay in the context long after the agent has used them. A long run is mostly old file contents.',
+      text: 'One file read adds 6k tokens, and a test run 3,500. They stay in the context long after the agent has used them. A long run is mostly old file contents.',
       focus: ['Code Tools', 'Test Runner'],
     },
     {
@@ -29,7 +29,7 @@ const lesson: Lesson = {
       title: 'Clear old tool results',
       text: 'Keep the last 10 tool results whole, and replace older ones with a one-line stub. The full output stays in the Tool Result Store in case it\'s needed. The model already wrote down what it learned, so little is lost.',
       focus: ['Tool Result Store', 'Message History'],
-      example: '[cleared: read src/payments/api.ts, 6,000 tokens. Call read_file again if needed.]',
+      example: '[cleared: read src/payments/api.ts, 6k tokens. Call read_file again if needed.]',
     },
     {
       title: 'Compact before it\'s full',
@@ -47,7 +47,7 @@ const lesson: Lesson = {
       title: 'Sub-agents for big searches',
       text: 'An Explorer Sub-agent reads many files in its own, empty context, then hands back a short summary. The main context never holds those files. It costs extra tokens, so use it for wide searches, not every step.',
       focus: ['Explorer Sub-agent', 'Agent Harness'],
-      example: 'sub-agent reads 39,200 tokens → returns 1,500',
+      example: 'sub-agent reads 39.2k tokens → returns 1,500',
     },
     {
       title: 'Three layers',
