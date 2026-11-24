@@ -361,6 +361,7 @@ export const ROADMAP: RoadmapPart[] = [
     why: 'The agent loop, tool policy, prompt injection and safe actions.',
     steps: [
       { id: 'ai-agent', title: 'AI agent with tools', detail: 'The agent loop, tool policy, prompt injection and idempotent actions.', topic: 'ai-agent' },
+      { id: 'ai-agent-context', title: 'Context engineering for long-running agents', detail: 'Compaction, notes, clearing tool results and sub-agents.', topic: 'agent-context', guides: ['what-is-an-ai-agent'] },
     ],
   },
   {

@@ -118,6 +118,11 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'llm-guardrails', section: 'Attacks: prompt injection and rephrasing', terms: ['indirect prompt injection', 'indirect injection'], inTopic: true },
   { topic: 'llm-guardrails', section: 'Evals: proving it works', terms: ['eval set', 'eval sets'], inTopic: true },
   { topic: 'llm-guardrails', terms: ['hallucination', 'hallucinations', 'LLM guardrails'] },
+  { topic: 'agent-context', section: 'The harness, orchestration and context engineering', terms: ['agent harness', 'agent harnesses', 'context engineering'], inTopic: true },
+  { topic: 'agent-context', section: 'The techniques, one by one', terms: ['compaction', 'compacting', 'compacts'], near: /context|agent|summar/i, inTopic: true },
+  { topic: 'agent-context', section: 'The techniques, one by one', terms: ['tool-result clearing', 'tool result clearing'], inTopic: true },
+  { topic: 'agent-context', section: 'The techniques, one by one', terms: ['sub-agent', 'sub-agents', 'subagent', 'subagents'], inTopic: true },
+  { topic: 'agent-context', section: 'What the subject is', terms: ['context window', 'context windows'] },
 
   // Infra
   { topic: 'docker-vs-vm', section: 'Writing a Dockerfile', terms: ['Dockerfile', 'Dockerfiles'], exact: true },

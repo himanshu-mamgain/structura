@@ -50,7 +50,9 @@
     "axon": "Axon",
     "baseten": "Baseten",
     "cresta": "Cresta",
-    "harvey": "Harvey"
+    "harvey": "Harvey",
+    "snowflake": "Snowflake",
+    "rogo": "Rogo"
   },
   "topics": {
     "ai-agent": [
@@ -1429,6 +1431,31 @@
         "url": "https://prachub.com/interview-questions/design-and-evaluate-a-retrieval-augmented-generation-pipeline",
         "source": "prachub",
         "date": "2026-09-01",
+        "similar": true
+      }
+    ],
+    "agent-context": [
+      {
+        "company": "rogo",
+        "question": "Manage Context Windows in an Applied AI System",
+        "url": "https://prachub.com/interview-questions/manage-context-windows-in-an-applied-ai-system",
+        "source": "prachub",
+        "date": "2026-06-24"
+      },
+      {
+        "company": "snowflake",
+        "question": "Core Components of LLM Agent Memory: What Each Stores and How It Is Written and Read",
+        "url": "https://prachub.com/interview-questions/core-components-of-llm-agent-memory-what-each-stores-and-how-it-is-written-and-read",
+        "source": "prachub",
+        "date": "2026-09-07",
+        "similar": true
+      },
+      {
+        "company": "microsoft",
+        "question": "Design Chatbot Personalization Memory",
+        "url": "https://prachub.com/interview-questions/design-chatbot-personalization-memory",
+        "source": "prachub",
+        "date": "2026-05-07",
         "similar": true
       }
     ]
