@@ -273,7 +273,7 @@ export const kafka: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 50,000 order events a second at the peak, about 1 KB each.\n- 50 MB a second written; with 3 copies, 150 MB a second of disk writes across the cluster.\n- Kept for 7 days: 50 MB a second × 604,800 seconds ≈ 30 TB per copy, about 90 TB with all 3 copies.\n- If one consumer handles 5,000 events a second, one group needs at least 10 partitions to keep up at the peak. Teams often choose 2 to 3 times that for room to grow, because adding partitions later moves keys around.',
+        body: 'An example: 50k order events a second at the peak, about 1 KB each.\n- 50 MB a second written; with 3 copies, 150 MB a second of disk writes across the cluster.\n- Kept for 7 days: 50 MB a second × 604.8k seconds ≈ 30 TB per copy, about 90 TB with all 3 copies.\n- If one consumer handles 5k events a second, one group needs at least 10 partitions to keep up at the peak. Teams often choose 2 to 3 times that for room to grow, because adding partitions later moves keys around.',
       },
       {
         heading: 'Step by step',

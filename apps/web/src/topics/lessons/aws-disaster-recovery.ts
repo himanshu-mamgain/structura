@@ -10,7 +10,7 @@ const lesson: Lesson = {
     {
       title: 'Two numbers: RTO and RPO',
       text: 'RTO (recovery time objective) is how long you may be down. RPO (recovery point objective) is how much recent data you may lose, measured in time. These two numbers decide everything else.',
-      example: '1,500 orders an hour = 25 a minute\nRPO of 16 hours  → 24,000 orders lost\nRPO of 10 minutes → 250\nRPO of 5 seconds  → about 2',
+      example: '1,500 orders an hour = 25 a minute\nRPO of 16 hours  → 24k orders lost\nRPO of 10 minutes → 250\nRPO of 5 seconds  → about 2',
     },
     {
       title: 'Backup and restore',
@@ -33,7 +33,7 @@ const lesson: Lesson = {
       title: 'Active/active',
       text: 'Both regions serve customers all the time. If one fails, health checks move everyone to the other in about 2 minutes, losing about a second of data. It costs the most and is the hardest to build.',
       focus: ['Route 53', 'Mumbai Load Balancer', 'Hyderabad Load Balancer'],
-      example: 'Extra cost each month, next to a $2,000 production stack (illustrative)\nbackup and restore $0 · pilot light $400\nwarm standby $850 · active/active $2,100',
+      example: 'Extra cost each month, next to a $2k production stack (illustrative)\nbackup and restore $0 · pilot light $400\nwarm standby $850 · active/active $2,100',
     },
     {
       title: 'Route 53 moves the traffic',

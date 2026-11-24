@@ -309,7 +309,7 @@ export const distributedCache: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: an online shop with 20 million products and 50,000 reads per second at peak.\n- Memory: each entry is about 1 KB of value plus 100 B of key and bookkeeping, so 20,000,000 × 1,100 B = 22 GB for everything. The popular 20% is 4.4 GB, but we size for the whole set so cold products do not cause misses.\n- Shards: a 16 GB server gives about 12 GB for data (the rest is for replication buffers and fragmentation), so 22 / 12 = 1.8, rounded up to 2. We use 3 for headroom and for traffic.\n- Traffic: 50,000 / 3 = about 16,700 reads per second per shard. One Redis node handles roughly 100,000 simple operations per second, so each shard is far from its limit.\n- Database: at a 95% hit rate, only 50,000 × 0.05 = 2,500 queries per second reach it, 20 times fewer than without the cache.',
+        body: 'An example: an online shop with 20 million products and 50k reads per second at peak.\n- Memory: each entry is about 1 KB of value plus 100 B of key and bookkeeping, so 20 million × 1,100 B = 22 GB for everything. The popular 20% is 4.4 GB, but we size for the whole set so cold products do not cause misses.\n- Shards: a 16 GB server gives about 12 GB for data (the rest is for replication buffers and fragmentation), so 22 / 12 = 1.8, rounded up to 2. We use 3 for headroom and for traffic.\n- Traffic: 50k / 3 = about 16.7k reads per second per shard. One Redis node handles roughly 100k simple operations per second, so each shard is far from its limit.\n- Database: at a 95% hit rate, only 50k × 0.05 = 2,500 queries per second reach it, 20 times fewer than without the cache.',
       },
       {
         heading: 'Step by step',
@@ -329,7 +329,7 @@ export const distributedCache: StaticTopic = {
       },
       {
         heading: 'Interview follow-ups',
-        body: '- A product page is cached for 5 minutes but the price just changed. What do you do?\n- A key expires and 5,000 requests arrive at once. What happens to the database, and how do you stop it?\n- LRU or LFU for a site that is sometimes crawled by bots? Why?\n- How would you add a fourth shard without emptying the cache?\n- What is the difference between cache penetration, breakdown and avalanche?',
+        body: '- A product page is cached for 5 minutes but the price just changed. What do you do?\n- A key expires and 5k requests arrive at once. What happens to the database, and how do you stop it?\n- LRU or LFU for a site that is sometimes crawled by bots? Why?\n- How would you add a fourth shard without emptying the cache?\n- What is the difference between cache penetration, breakdown and avalanche?',
       },
     ],
     get trace() {

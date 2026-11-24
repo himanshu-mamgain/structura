@@ -1,6 +1,6 @@
 # Retries: Backoff and Jitter
 
-> 💡 **TL;DR**: When a call fails, try again, but not at once and not in step with everyone else. **Exponential backoff** doubles the longest wait after each failure: 1, 2, 4, 8 seconds, up to a cap. **Jitter** makes each client pick a random wait below that, so 10,000 clients that failed together don't come back together. Then put limits on top: a few **tries per request**, a **retry budget** (retries under 10% of requests), retries at **one layer** only, and an **idempotency key** so a retry never pays twice. When the tries run out, park the job in a **dead-letter queue** and tell the user it's pending.
+> 💡 **TL;DR**: When a call fails, try again, but not at once and not in step with everyone else. **Exponential backoff** doubles the longest wait after each failure: 1, 2, 4, 8 seconds, up to a cap. **Jitter** makes each client pick a random wait below that, so 10k clients that failed together don't come back together. Then put limits on top: a few **tries per request**, a **retry budget** (retries under 10% of requests), retries at **one layer** only, and an **idempotency key** so a retry never pays twice. When the tries run out, park the job in a **dead-letter queue** and tell the user it's pending.
 
 ## At a glance
 
@@ -18,7 +18,7 @@ The example uses a base of 1 second and a cap of 32 seconds.
 
 A **retry** is a second try at a call that failed. Most failures are short: a lost packet, a server restarting during a deploy, a busy moment. Trying again a second later often works, so every client library retries.
 
-The trouble starts when many clients fail at the **same moment**. Say a payment provider goes down for 10 seconds while 10,000 phones are paying. Each phone gets a 503 at the same time. If each one waits exactly 1 second, they all come back in the same instant. The provider can serve 2,000 requests a second, so 200 in each tenth of a second. 10,000 arrive in one tenth: 50 times too many. 200 get through, and the other 9,800 come back together again one second later.
+The trouble starts when many clients fail at the **same moment**. Say a payment provider goes down for 10 seconds while 10k phones are paying. Each phone gets a 503 at the same time. If each one waits exactly 1 second, they all come back in the same instant. The provider can serve 2k requests a second, so 200 in each tenth of a second. 10k arrive in one tenth: 50 times too many. 200 get through, and the other 9,800 come back together again one second later.
 
 This is a **retry storm**: the retries make more load than the users ever did, and they keep a server down that could have recovered. It's also called the **thundering herd** problem.
 
@@ -44,7 +44,7 @@ Backoff alone makes each client gentler. It doesn't stop clients that failed tog
 
 ## Jitter: the random part
 
-**Jitter** means adding randomness to the wait. With **full jitter**, each client picks a random wait between 0 and the ceiling. After the 5th try, the ceiling is 16 seconds. 10,000 phones spread over 16 seconds is about 625 a second, or 63 in each tenth of a second. That's well under the 200 the provider can serve.
+**Jitter** means adding randomness to the wait. With **full jitter**, each client picks a random wait between 0 and the ceiling. After the 5th try, the ceiling is 16 seconds. 10k phones spread over 16 seconds is about 625 a second, or 63 in each tenth of a second. That's well under the 200 the provider can serve.
 
 The average wait halves, but that's fine: what matters is that the clients no longer arrive at once. In AWS's simulations (Marc Brooker, 2015), no jitter did the most work. Of the three jitters, equal jitter did worst. Full jitter used the least work; decorrelated jitter finished slightly sooner.
 
@@ -169,16 +169,16 @@ Two more pieces finish the design.
 
 ## What the simulator shows
 
-The topic's simulator runs 10,000 phones against a provider that serves 2,000 requests a second and is down for the first 10 seconds. Each strategy has 8 tries, except the first, which never stops.
+The topic's simulator runs 10k phones against a provider that serves 2k requests a second and is down for the first 10 seconds. Each strategy has 8 tries, except the first, which never stops.
 
 | Strategy | Paid | Gave up | Requests sent | Busiest second after recovery | Last payment |
 |---|---|---|---|---|---|
-| Retry every 1 s, forever | 10,000 | 0 | 355,000 | 10,000 | 59 s |
-| Exponential backoff, no jitter | 800 | 9,200 | 78,800 | 10,000 | 95 s |
+| Retry every 1 s, forever | 10k | 0 | 355k | 10k | 59 s |
+| Exponential backoff, no jitter | 800 | 9,200 | 78.8k | 10k | 95 s |
 | Exponential backoff + full jitter | 9,993 | 7 | 59,684 | 1,502 | 41.4 s |
 
 - **Every second, forever**: everyone pays in the end, but it takes 35.5 requests per payment. The provider gets 5 times its capacity every second for 40 seconds.
-- **Backoff without jitter** is the worst of the three. All phones try at 15, 31, 63 and 95 seconds. Each wave is 10,000 requests and only 200 fit, so 9,200 phones run out of tries.
+- **Backoff without jitter** is the worst of the three. All phones try at 15, 31, 63 and 95 seconds. Each wave is 10k requests and only 200 fit, so 9,200 phones run out of tries.
 - **Full jitter** never goes over capacity after the recovery. Almost everyone pays, with the fewest requests. The 7 that gave up were unlucky: their 8 tries all fell inside the outage.
 
 Try a 30-second outage with jitter: 1,169 phones give up. 8 tries with a 32-second cap cover only about 95 seconds at most, and about half that on average. A long outage needs more tries, a longer cap, or a dead-letter queue to finish the job later.
@@ -210,7 +210,7 @@ Try a 30-second outage with jitter: 1,169 phones give up. 8 tries with a 32-seco
 
 **Q: Why does jitter help if the average wait stays about the same?**
 
-A: The problem isn't how long clients wait, it's that they come back at the same moment. Clients that failed together and use the same backoff numbers retry together, so the server sees big waves. Jitter spreads each wave over the whole wait, so the server sees a steady trickle it can handle. In the simulator, the busiest second after recovery drops from 10,000 requests to about 1,500.
+A: The problem isn't how long clients wait, it's that they come back at the same moment. Clients that failed together and use the same backoff numbers retry together, so the server sees big waves. Jitter spreads each wave over the whole wait, so the server sees a steady trickle it can handle. In the simulator, the busiest second after recovery drops from 10k requests to about 1,500.
 
 **Q: Which failures would you retry?**
 

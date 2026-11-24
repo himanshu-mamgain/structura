@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -46,7 +47,7 @@ const FAILURE: Record<string, Failure> = {
   '30 s network split': 'split',
 }
 
-const n = (x: number) => Math.round(x).toLocaleString('en-US')
+const n = (x: number) => shortNumber(Math.round(x))
 const dur = (s: number) => (s < 60 ? `${n(s)} s` : `${Math.floor(s / 60)} min${s % 60 ? ` ${n(s % 60)} s` : ''}`)
 
 /** Seconds to load the dataset back into memory on start-up. */
@@ -418,9 +419,9 @@ The next power cut cost about 7 seconds of errors and the ~40 writes the replica
       },
       {
         heading: 'Two primaries for thirty seconds',
-        body: `The last lesson came from a failed switch. For 30 seconds the primary and one app server were cut off from everything else. The Sentinels on the other side promoted the replica, so there were **two primaries**, and the stranded app server kept writing to the old one. When the network healed, the old primary became a replica and threw those 15,000 writes away. That's **split brain**.
+        body: `The last lesson came from a failed switch. For 30 seconds the primary and one app server were cut off from everything else. The Sentinels on the other side promoted the replica, so there were **two primaries**, and the stranded app server kept writing to the old one. When the network healed, the old primary became a replica and threw those 15k writes away. That's **split brain**.
 
-\`min-replicas-to-write 1\` with \`min-replicas-max-lag 10\` makes a primary refuse writes once no replica has acknowledged for 10 seconds. It cut the loss to 5,000, not to zero. Redis replication is asynchronous, so a failover can always lose some acknowledged writes; data that must never be lost belongs in a database built for it.`,
+\`min-replicas-to-write 1\` with \`min-replicas-max-lag 10\` makes a primary refuse writes once no replica has acknowledged for 10 seconds. It cut the loss to 5k, not to zero. Redis replication is asynchronous, so a failover can always lose some acknowledged writes; data that must never be lost belongs in a database built for it.`,
         replay: { label: 'Replay the split', values: run('AOF, fsync every second', 'Sentinel + min-replicas-to-write', '30 s network split') },
       },
     ],
@@ -476,7 +477,7 @@ The next power cut cost about 7 seconds of errors and the ~40 writes the replica
     sections: [
       {
         heading: 'Overview',
-        body: 'Two kinds of protection, for two kinds of failure:\n- Persistence writes the dataset to the disk so a restarted Redis can load it back. RDB writes a point-in-time snapshot every so often; the AOF (append-only file) logs every write command and replays them on start-up.\n- Replication keeps a second copy on another machine, and Sentinel promotes it automatically when the primary stops answering.\n\nThe simulator models a 4 GB, 12-million-key cart store taking 2,000 writes a second, and works out the acknowledged writes lost and the seconds of failed writes for each combination of persistence, replication and failure.',
+        body: 'Two kinds of protection, for two kinds of failure:\n- Persistence writes the dataset to the disk so a restarted Redis can load it back. RDB writes a point-in-time snapshot every so often; the AOF (append-only file) logs every write command and replays them on start-up.\n- Replication keeps a second copy on another machine, and Sentinel promotes it automatically when the primary stops answering.\n\nThe simulator models a 4 GB, 12-million-key cart store taking 2k writes a second, and works out the acknowledged writes lost and the seconds of failed writes for each combination of persistence, replication and failure.',
       },
       {
         heading: 'Requirements',
@@ -484,7 +485,7 @@ The next power cut cost about 7 seconds of errors and the ~40 writes the replica
       },
       {
         heading: 'Capacity estimates',
-        body: '- Dataset: 12 million keys in 4 GB of memory; the RDB file compresses to about 1.6 GB.\n- RDB loss: a crash 4 min 10 s after a snapshot loses 250 s × 2,000 writes/s = 500,000 writes.\n- Restart time: 1.6 GB at about 100 MB/s ≈ 16 s to load the RDB; the AOF adds replaying 2.4 million commands at about 400,000/s ≈ 6 s, so 22 s.\n- Fork: about 13 ms per GB of memory on a typical VM, so ≈ 50 ms pause per snapshot or AOF rewrite.\n- Replication lag: about 20 ms, which is 40 writes at 2,000/s.\n- Split brain: 30 s × 500 writes/s from the stranded app server = 15,000 writes; capped at 10 s × 500 = 5,000 with min-replicas-max-lag 10.',
+        body: '- Dataset: 12 million keys in 4 GB of memory; the RDB file compresses to about 1.6 GB.\n- RDB loss: a crash 4 min 10 s after a snapshot loses 250 s × 2k writes/s = 500k writes.\n- Restart time: 1.6 GB at about 100 MB/s ≈ 16 s to load the RDB; the AOF adds replaying 2.4 million commands at about 400k/s ≈ 6 s, so 22 s.\n- Fork: about 13 ms per GB of memory on a typical VM, so ≈ 50 ms pause per snapshot or AOF rewrite.\n- Replication lag: about 20 ms, which is 40 writes at 2k/s.\n- Split brain: 30 s × 500 writes/s from the stranded app server = 15k writes; capped at 10 s × 500 = 5k with min-replicas-max-lag 10.',
       },
       {
         heading: 'Step by step',

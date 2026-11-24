@@ -26,7 +26,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Without it, ask every shard',
-      text: 'A query without the shard key, like "all orders over ₹10,000 today", must go to every shard, and the results are merged. The more shards, the more likely one of them is slow.',
+      text: 'A query without the shard key, like "all orders over ₹10k today", must go to every shard, and the results are merged. The more shards, the more likely one of them is slow.',
       focus: ['Shard Router (key → shard)', 'Shard 1', 'Shard 2', 'Shard 3', 'Shard 4', 'Result Merger'],
       example: 'Each shard slow 1% of the time\nAsk 4 shards → 3.9% of queries wait on a slow one\nAsk 16 → 14.9%',
     },

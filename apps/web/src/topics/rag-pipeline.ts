@@ -24,7 +24,7 @@ const DOCS: Doc[] = [
   {
     id: 'hybrid',
     title: 'Hybrid work policy',
-    text: 'Hybrid work policy. Teams work from the office three days a week and remotely two days a week. Each team picks its office days with its manager. Working from home for more than two days in a week, for example during a family emergency, needs written approval from your manager in PeopleDesk. Remote work from outside India is not allowed without approval from HR and Legal, because of tax rules. The company pays a home internet allowance of ₹1,000 a month, claimed through expenses.',
+    text: 'Hybrid work policy. Teams work from the office three days a week and remotely two days a week. Each team picks its office days with its manager. Working from home for more than two days in a week, for example during a family emergency, needs written approval from your manager in PeopleDesk. Remote work from outside India is not allowed without approval from HR and Legal, because of tax rules. The company pays a home internet allowance of ₹1k a month, claimed through expenses.',
   },
   {
     id: 'it',
@@ -35,12 +35,12 @@ const DOCS: Doc[] = [
   {
     id: 'travel',
     title: 'Travel and expense policy',
-    text: 'Travel and expense policy. Book flights and hotels through the travel desk at least 7 days ahead, in economy class for flights under 6 hours. If a flight is cancelled, use form TR-201 to claim the refund; the form needs the airline\'s cancellation note. On client trips, meals are reimbursed up to ₹1,500 a day in metro cities and ₹1,000 a day elsewhere, with receipts. Cab rides to and from the airport are covered in full. Submit expense claims within 30 days of returning; claims older than 60 days are not paid. Alcohol is never reimbursed.',
+    text: 'Travel and expense policy. Book flights and hotels through the travel desk at least 7 days ahead, in economy class for flights under 6 hours. If a flight is cancelled, use form TR-201 to claim the refund; the form needs the airline\'s cancellation note. On client trips, meals are reimbursed up to ₹1,500 a day in metro cities and ₹1k a day elsewhere, with receipts. Cab rides to and from the airport are covered in full. Submit expense claims within 30 days of returning; claims older than 60 days are not paid. Alcohol is never reimbursed.',
   },
   {
     id: 'conduct',
     title: 'Code of conduct',
-    text: 'Code of conduct. Treat colleagues with respect in meetings, chats and code reviews. Report harassment to the Internal Committee within 3 months of the incident; reports can be anonymous. Gifts from clients worth more than ₹5,000 must be declared to Compliance within 7 days. Do not share customer data outside approved tools. If customer data is shared by mistake, report it and leave the channel. Speaking to the press about the company needs approval from Legal.',
+    text: 'Code of conduct. Treat colleagues with respect in meetings, chats and code reviews. Report harassment to the Internal Committee within 3 months of the incident; reports can be anonymous. Gifts from clients worth more than ₹5k must be declared to Compliance within 7 days. Do not share customer data outside approved tools. If customer data is shared by mistake, report it and leave the channel. Speaking to the press about the company needs approval from Legal.',
   },
 ]
 
@@ -75,7 +75,7 @@ const QUESTIONS: Question[] = [
   {
     text: 'How much can I claim for meals on a client trip?',
     gold: 'meals are reimbursed up to ₹1,500 a day',
-    answer: 'Up to ₹1,500 a day in metro cities and ₹1,000 a day elsewhere, with receipts.',
+    answer: 'Up to ₹1,500 a day in metro cities and ₹1k a day elsewhere, with receipts.',
     guess: 'Meals on client trips are fully reimbursed.',
   },
 ]
@@ -468,7 +468,7 @@ Kavi still says "I couldn't find this in the policies" about once in twenty ques
       },
       {
         heading: 'Capacity estimates',
-        body: '- 50,000 pages of policies at about 500 words a page = 25 million words. At 80 words a chunk with a 10-word overlap, that is 25,000,000 ÷ 70 ≈ 357,000 chunks.\n- With 768-dimension float32 embeddings, each vector is 768 × 4 = 3,072 bytes, so 357,000 × 3,072 ≈ 1.1 GB of vectors: one machine holds it in memory.\n- Embedding everything once: 25 million words ≈ 32.5 million tokens (about 1.3 tokens a word).\n- Each answer: 4 chunks × about 104 tokens + 300 tokens of instructions and question ≈ 716 tokens in, and about 150 out.\n- 900 employees × 5 questions a day = 4,500 answers a day, about 3.2 million input tokens. Retrieval is cheap; the model call is most of the cost and the latency.',
+        body: '- 50k pages of policies at about 500 words a page = 25 million words. At 80 words a chunk with a 10-word overlap, that is 25 million ÷ 70 ≈ 357k chunks.\n- With 768-dimension float32 embeddings, each vector is 768 × 4 = 3,072 bytes, so 357k × 3,072 ≈ 1.1 GB of vectors: one machine holds it in memory.\n- Embedding everything once: 25 million words ≈ 32.5 million tokens (about 1.3 tokens a word).\n- Each answer: 4 chunks × about 104 tokens + 300 tokens of instructions and question ≈ 716 tokens in, and about 150 out.\n- 900 employees × 5 questions a day = 4,500 answers a day, about 3.2 million input tokens. Retrieval is cheap; the model call is most of the cost and the latency.',
       },
       {
         heading: 'Step by step',

@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { useState } from 'react'
 import { BookA, Check, RotateCcw, Search, Trophy, X } from 'lucide-react'
 import course from '../learn/course.json'
@@ -53,6 +54,7 @@ export function Quiz() {
       <header className="practice-head">
         <h1>Quiz</h1>
         <p>{course.quiz.length} questions on the fundamentals. Pick an answer to see the explanation.</p>
+        <CopyLink className="btn btn-ghost page-copy" />
       </header>
 
       {done ? (
@@ -124,6 +126,7 @@ export function Glossary() {
       <header className="practice-head">
         <h1>Glossary</h1>
         <p>{course.glossary.length} terms you will meet in every system design discussion.</p>
+        <CopyLink className="btn btn-ghost page-copy" />
       </header>
       <div className="search glossary-search">
         <Search size={17} aria-hidden />

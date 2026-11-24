@@ -459,7 +459,7 @@ export const paymentIdempotency: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Illustrative assumptions:\n- 10 million payments a day; peak traffic 5 times the average.\n- 1% of requests time out on the phone and get retried.\n- 0.5% of bank calls time out on the server.\n- Keys are kept for 24 hours.\n\nWhich works out to:\n- About 116 payments a second on average, 580 at peak.\n- 10 million live keys at about 300 bytes each (key, hash, saved response, index): about 3 GB. One Postgres primary holds that easily.\n- 100,000 retries a day. Without keys, each retry whose first attempt had gone through is a second debit. If half had, that is 50,000 double debits: ₹2.5 crore a day at an average of ₹500.\n- 50,000 PENDING payments a day for webhooks and the Reconciliation Job to settle, about 35 a minute.',
+        body: 'Illustrative assumptions:\n- 10 million payments a day; peak traffic 5 times the average.\n- 1% of requests time out on the phone and get retried.\n- 0.5% of bank calls time out on the server.\n- Keys are kept for 24 hours.\n\nWhich works out to:\n- About 116 payments a second on average, 580 at peak.\n- 10 million live keys at about 300 bytes each (key, hash, saved response, index): about 3 GB. One Postgres primary holds that easily.\n- 100k retries a day. Without keys, each retry whose first attempt had gone through is a second debit. If half had, that is 50k double debits: ₹2.5 crore a day at an average of ₹500.\n- 50k PENDING payments a day for webhooks and the Reconciliation Job to settle, about 35 a minute.',
       },
       {
         heading: 'Step by step',

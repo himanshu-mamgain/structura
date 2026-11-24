@@ -65,7 +65,11 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
     `dist/topic/<id>/index.html` with its own title, description, canonical link, Open Graph and
     JSON-LD, and its explanation as plain HTML in Read mode's classes, so search engines and link
     previews read it without JavaScript, and the text shows while the app loads. Also
-    `dist/sitemap.xml`. Static files only: there's still no server. `index.html` holds the home page's
+    `dist/sitemap.xml`, and `dist/llms.txt` ([llmstxt.org](https://llmstxt.org)) with a Markdown copy of every
+    topic (`dist/md/<id>.md`: the deep note, or the explanation and takeaways), so any AI assistant can read
+    the site. It asks an assistant to suggest changes only as a pre-filled GitHub issue
+    (`.github/ISSUE_TEMPLATE/suggestion.md`, label `suggestion`), which the owner checks before anything is
+    added. Static files only: there's still no server. `index.html` holds the home page's
     tags between `<!-- seo` and `<!-- /seo -->`; keep those markers.
   - **Icons**: `public/favicon.svg` (the app bar's green tile with lucide's "boxes" glyph) is the source of the
     favicon and every app icon; `pwa-assets.config.ts` makes the PNGs from it at build, and
@@ -82,8 +86,10 @@ npm workspaces, TypeScript 7, React 19, Vite 8.
   - `src/sim/`: the load test: the Rust/WASM simulator's worker (`engine.ts`), the knobs (`loadtest.ts`)
     and the panel (`LoadPanel.tsx`), whose results show as a busy badge on each box of the 2D diagram.
     There is no 3D view: it was removed on purpose; don't bring three.js back into the app.
-  - Sharing is **WhatsApp only** (the owner's choice): `src/shell/Share.tsx` makes a `wa.me` link with the
-    title, blurb and page address, on each topic page, Read mode's bar and Home. Don't add other share options.
+  - Sharing is **WhatsApp and Copy link** (the owner's choice): `src/shell/Share.tsx` makes a `wa.me` link with the
+    title, blurb and page address, on each topic page, Read mode's bar, the reels and Home, and `CopyLink` copies
+    the page's address there and under the title of every other page (lesson, note, roadmap, area, quiz,
+    glossary, prep). Don't add other share options.
   - `src/learn/`: content blocks, walkthrough, progress (localStorage), quiz/glossary data.
   - `src/account/`: the Studia account (see "Studia accounts"): the app bar's account button,
     GitHub sign-in through Supabase, and progress sync (`merge.ts`, `npm run test:sync`).
@@ -345,6 +351,9 @@ Phone notifications use Web Push through Netlify Functions:
 - `push-send.mts` runs every 15 minutes in production, sends what's due, and announces
   topics added since its last run (from `/topics.json`, written by `npm run build`).
 - `public/notify-sw.js` (added to the service worker) shows them and opens the page.
+- **Phone push sends new-topic announcements only** (`PHONE_KINDS` in `src/pwa/push.ts`, the owner's choice):
+  the daily, review and nudge reminders stay in the bell, and the Studia site's daily plan (studia repo,
+  `/today`) sends one set of phone reminders for all three apps at 11:00, 17:00 and 21:30.
 - Logic lives in `netlify/lib/push.ts`; test it with `npm run test:push`.
 - Setup, once: `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`,
   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address) in Netlify's
@@ -439,5 +448,11 @@ there stay on `netlify.app` until the domain is live.
     that splits one real server into several pretend computers."
   - Give one concrete example (a real command, a worked number, the food-delivery app) rather
     than another abstract sentence. No idioms or jokes that don't translate.
+- **Big numbers the short way** (the owner's choice), everywhere a learner reads them: 1k, 200k,
+  1 million, 2.5 billion, not 1,000,000. Shorten only exact values; round others with "about"
+  (1 million ÷ 30 ≈ 33.3k). Keep as they are: numbers under 10,000 that aren't whole thousands
+  (1,200), money that isn't whole thousands (₹11,200), exact technical values (65,536 addresses,
+  16,384 slots, 86,400 seconds, a model's 7,615,616,512 weights) and anything in code or JSON.
+  Simulators format counts with `shortNumber` (`src/learn/numbers.ts`).
 - Comments in code explain why, not what. Match the surrounding code style.
 - Commit messages: conventional (`feat:`, `fix:`), imperative, one subject line.

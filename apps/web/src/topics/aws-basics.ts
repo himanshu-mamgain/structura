@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { defaultTrace, type Simulator } from './simulator'
 import type { StaticTopic } from './types'
@@ -146,7 +147,7 @@ function simulate(t: Traffic, a: Approach, outage: boolean): Result {
 }
 
 const usd = (x: number) => `$${Math.round(x).toLocaleString('en-US')}`
-const n = (x: number) => Math.round(x).toLocaleString('en-US')
+const n = (x: number) => shortNumber(Math.round(x))
 const pct = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 1)}%`
 const clock = (h: number) => `${String(h).padStart(2, '0')}:00`
 
@@ -360,7 +361,7 @@ Because EC2 bills by the second, the bill now followed the orders. The catch: a 
       },
       {
         heading: 'The sale nobody planned for',
-        body: `Priya's other app, for a grocery chain, ran at a calm 300 requests a second, so it had 2 servers. Then the chain announced a sale on day 20 and **4,000 requests a second** arrived for six hours.
+        body: `Priya's other app, for a grocery chain, ran at a calm 300 requests a second, so it had 2 servers. Then the chain announced a sale on day 20 and **4k requests a second** arrived for six hours.
 
 On bought servers there was nothing to do: more hardware was weeks away, and 3,600 requests a second failed for six hours. On fixed EC2, someone noticed after half an hour and started 18 more servers. With Auto Scaling, the group grew on its own within minutes. That's **elasticity**: capacity you get when you need it and give back after.`,
         replay: { label: 'Replay the sale on bought servers', values: run('Quiet, then a big sale', 'Servers you buy') },
@@ -466,7 +467,7 @@ The cloud didn't make things free. It turned hardware into a bill that follows w
       },
       {
         heading: 'Scaling and failure',
-        body: '- A zone fails: spread servers and databases across zones, and the load balancer stops sending traffic to the broken one.\n- A whole region failing is rarer. Surviving that needs a second region, which is a disaster-recovery decision.\n- New servers take minutes to start, so add capacity before peaks you know about.\n- Service quotas, such as Lambda\'s default of 1,000 functions running at once, can be raised, but only if you ask before you need it.\n- Bills surprise people: data sent out to the internet, NAT gateways, and things someone forgot to turn off. Set up an AWS Budget with an alert on day one.',
+        body: '- A zone fails: spread servers and databases across zones, and the load balancer stops sending traffic to the broken one.\n- A whole region failing is rarer. Surviving that needs a second region, which is a disaster-recovery decision.\n- New servers take minutes to start, so add capacity before peaks you know about.\n- Service quotas, such as Lambda\'s default of 1k functions running at once, can be raised, but only if you ask before you need it.\n- Bills surprise people: data sent out to the internet, NAT gateways, and things someone forgot to turn off. Set up an AWS Budget with an alert on day one.',
       },
       {
         heading: 'Interview follow-ups',

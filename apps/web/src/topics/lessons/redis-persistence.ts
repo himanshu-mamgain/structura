@@ -11,7 +11,7 @@ const lesson: Lesson = {
       title: 'RDB: a snapshot now and then',
       text: 'With RDB, Redis writes a picture of all its data to disk every so often. It\'s compact and quick to load, but everything written since the last snapshot is lost in a crash.',
       focus: ['Primary', 'RDB Snapshot', 'Disk'],
-      example: 'Crash 4 min 10 s after a snapshot\n250 s × 2,000 writes/s = 500,000 writes lost',
+      example: 'Crash 4 min 10 s after a snapshot\n250 s × 2k writes/s = 500k writes lost',
     },
     {
       title: 'AOF: a log of every write',
@@ -35,7 +35,7 @@ const lesson: Lesson = {
       title: 'A replica on another machine',
       text: 'The primary sends every write to a replica, but only after it has already answered the app. So the replica runs a little behind, about 20 ms here.',
       focus: ['Primary', 'Replica'],
-      example: '20 ms × 2,000 writes/s = about 40 writes behind',
+      example: '20 ms × 2k writes/s = about 40 writes behind',
     },
     {
       title: 'Sentinel picks a new primary',
@@ -47,7 +47,7 @@ const lesson: Lesson = {
       title: 'Split brain',
       text: 'If the old primary is only cut off, an app server stuck with it keeps writing there, and those writes are thrown away when it rejoins. min-replicas-max-lag makes a cut-off primary stop accepting writes after a few seconds.',
       focus: ['App Servers', 'Primary', 'Sentinels'],
-      example: '30 s × 500 writes/s = 15,000 writes lost\nWith min-replicas-max-lag 10: 10 s × 500 = 5,000',
+      example: '30 s × 500 writes/s = 15k writes lost\nWith min-replicas-max-lag 10: 10 s × 500 = 5k',
     },
   ],
   quiz: [

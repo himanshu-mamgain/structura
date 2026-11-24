@@ -1,5 +1,5 @@
 import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, BookOpenText, CheckCircle2, Circle, ExternalLink, Footprints, GraduationCap, Headphones, Lightbulb, Move, Network, Pause } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpenText, CheckCircle2, Circle, ExternalLink, Footprints, GraduationCap, Headphones, Lightbulb, Move, Network, Pause, Play, Square, Volume2 } from 'lucide-react'
 import { Diagram2D } from '../diagram/Diagram2D'
 import { responsibility, subtitleOf } from '../diagram/inspect'
 import { LESSONS, playTopic, toggle, useCommute } from '../learn/commute'
@@ -11,6 +11,8 @@ import { erdToDbml, schemaSnippet } from '../learn/dbml'
 import { type Markdown, plainText } from '../learn/markdown'
 import type { Block } from '../learn/notesFormat'
 import { updateTopic, useProgress } from '../learn/progress'
+import { readableText } from '../learn/readAloud'
+import { nowSpeakingNow, pauseSpeaking, resumeSpeaking, speak, speechSupported, stopSpeaking, useNowSpeaking } from '../learn/speech'
 import { nextTopicAfter } from '../learn/roadmap'
 import { StoryView } from '../learn/story'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
@@ -21,7 +23,7 @@ import type { StaticTopic } from '../topics/types'
 import type { AreaId } from '../topics/areas'
 import { AreaTag } from './Areas'
 import { Blocks } from './Notes'
-import { ShareWhatsApp } from './Share'
+import { CopyLink, ShareWhatsApp } from './Share'
 import { AskedAt } from './AskedAt'
 import { topicIcon } from './topicIcons'
 
@@ -101,6 +103,17 @@ export function Reader({
   const next = nextInRoadmap(topic.id)
   const playing = commute.topicId === topic.id && commute.playing
   const deep = hasDeepNote(topic.id)
+  const now = useNowSpeaking()
+  const reading = now.speaking && now.source === `page:${topic.id}`
+  const readAloud = () => {
+    if (reading) return now.paused ? resumeSpeaking() : pauseSpeaking()
+    if (article.current) void speak(readableText(article.current), { source: `page:${topic.id}`, title: note?.title ?? topic.title })
+  }
+  // Leaving the page stops reading it (the voice would otherwise carry on with nothing to show).
+  useEffect(() => () => {
+    const n = nowSpeakingNow()
+    if (n.speaking && n.source === `page:${topic.id}`) stopSpeaking()
+  }, [topic.id])
   const [note, setNote] = useState<ReturnType<typeof sectionsOf> & { title?: string; words: number }>()
 
   useEffect(() => {
@@ -227,7 +240,7 @@ export function Reader({
   return (
     <article ref={article} className="reader" style={{ '--reader-size': `${size}px` } as CSSProperties} onClick={followLink}>
       <div className="reader-bar">
-        <button type="button" className="btn btn-ghost" onClick={onExit} title="Back to the interactive topic page">
+        <button type="button" className="btn btn-ghost" onClick={onExit} title="Back to the interactive topic page" aria-label="Back to the interactive topic page">
           <ArrowLeft size={16} /> <span>Interactive</span>
         </button>
         <div className="reader-size" role="group" aria-label="Text size">
@@ -248,7 +261,19 @@ export function Reader({
             {playing ? <Pause size={16} /> : <Headphones size={16} />} <span>{playing ? 'Pause' : `Listen ${Math.round(lesson.duration / 60)} min`}</span>
           </button>
         )}
+        {speechSupported && (
+          <button type="button" className={`btn${reading ? ' is-on' : ''}`} onClick={readAloud} title="Read the whole page aloud, in your phone's voice">
+            {reading && !now.paused ? <Pause size={16} /> : reading ? <Play size={16} /> : <Volume2 size={16} />}{' '}
+            <span>{reading ? (now.paused ? 'Resume' : 'Pause') : 'Read aloud'}</span>
+          </button>
+        )}
+        {reading && (
+          <button type="button" className="btn btn-ghost" onClick={stopSpeaking} aria-label="Stop reading">
+            <Square size={14} />
+          </button>
+        )}
         <ShareWhatsApp text={`${topic.title} on Structura: ${topic.blurb}`} path={`/topic/${topic.id}/?read`} label="WhatsApp" />
+        <CopyLink path={`/topic/${topic.id}/?read`} />
         <span className="reader-progress" aria-hidden>
           <span style={{ width: `${scrolled * 100}%` }} />
         </span>

@@ -197,7 +197,7 @@ export const ticketBooking: StaticTopic = {
   difficulty: 'Intermediate',
   id: 'ticket-booking',
   title: 'Ticket Booking System (BookMyShow-style)',
-  blurb: 'Sell 18,000 seats to 600,000 fans in minutes: waiting room, timed seat holds and no double booking',
+  blurb: 'Sell 18k seats to 600k fans in minutes: waiting room, timed seat holds and no double booking',
   guides: [
     'design-stock-exchange',
     'how-to-avoid-double-payment',
@@ -308,11 +308,11 @@ export const ticketBooking: StaticTopic = {
       },
       {
         heading: 'Requirements',
-        body: '- Never sell the same seat twice. This is the one rule that cannot break.\n- A fan who starts paying keeps the seat for a fixed time (10 minutes).\n- A seat that is not paid for returns to sale by itself.\n- Fans who book 2 or 4 seats together get all of them or none.\n- The site stays up when 600,000 fans arrive at 10:00.\n- A fan is charged once, even if the network retries the payment.\n- Tickets arrive by email within seconds, and the system works if the email service is slow.',
+        body: '- Never sell the same seat twice. This is the one rule that cannot break.\n- A fan who starts paying keeps the seat for a fixed time (10 minutes).\n- A seat that is not paid for returns to sale by itself.\n- Fans who book 2 or 4 seats together get all of them or none.\n- The site stays up when 600k fans arrive at 10:00.\n- A fan is charged once, even if the network retries the payment.\n- Tickets arrive by email within seconds, and the system works if the email service is slow.',
       },
       {
         heading: 'Capacity estimates',
-        body: '- Crowd: 600,000 fans want 18,000 seats, which is 33 fans for each seat. Most fans will not get a ticket, so the design must make "sold out" fast and clear.\n- Admission rate: the waiting room lets in 2,000 fans a minute. With each fan shopping for about 5 minutes, there are 2,000 × 5 = 10,000 fans in the booking pages at once.\n- Seat map reads: if each of those fans refreshes the map every 5 seconds, that is 10,000 ÷ 5 = 2,000 reads a second. A 2-second cache turns this into about 1 database read per event per 2 seconds.\n- Orders: with 2.5 seats per order, 18,000 seats make 7,200 orders. If 4 in 10 admitted fans buy, 18,000 fans must be admitted, which is 9 minutes at 2,000 a minute. So the show sells out in about 9 minutes and the other 582,000 fans (97%) see "sold out".\n- Payments: 7,200 orders in 540 seconds is about 13 orders a second on average; plan for 3 times that at the peak, about 40 a second.\n- Storage: a seat row is about 64 bytes, so one show is 18,000 × 64 B = 1.15 MB. 5,000 shows a year is 90 million rows, about 5.8 GB. Small. The hard part is contention (many people wanting the same row), not size.',
+        body: '- Crowd: 600k fans want 18k seats, which is 33 fans for each seat. Most fans will not get a ticket, so the design must make "sold out" fast and clear.\n- Admission rate: the waiting room lets in 2k fans a minute. With each fan shopping for about 5 minutes, there are 2k × 5 = 10k fans in the booking pages at once.\n- Seat map reads: if each of those fans refreshes the map every 5 seconds, that is 10k ÷ 5 = 2k reads a second. A 2-second cache turns this into about 1 database read per event per 2 seconds.\n- Orders: with 2.5 seats per order, 18k seats make 7,200 orders. If 4 in 10 admitted fans buy, 18k fans must be admitted, which is 9 minutes at 2k a minute. So the show sells out in about 9 minutes and the other 582k fans (97%) see "sold out".\n- Payments: 7,200 orders in 540 seconds is about 13 orders a second on average; plan for 3 times that at the peak, about 40 a second.\n- Storage: a seat row is about 64 bytes, so one show is 18k × 64 B = 1.15 MB. 5k shows a year is 90 million rows, about 5.8 GB. Small. The hard part is contention (many people wanting the same row), not size.',
       },
       {
         heading: 'Step by step',
@@ -328,7 +328,7 @@ export const ticketBooking: StaticTopic = {
       },
       {
         heading: 'Scaling and failure',
-        body: '- Hot show: shard the database by event id, so one big sale does not slow the others. Put the hold keys for one event on one Redis shard, so a multi-seat script stays atomic.\n- Redis fails over and loses holds: two fans may both think they hold a seat. The guarded UPDATE lets the first payer win. The second payer is refunded and offered other seats. It is rare, but it is safe.\n- The booking service crashes after charging but before marking seats sold: the pending order and the provider\'s charge id let a recovery job finish the order or refund it. Never leave a paid order without seats.\n- Payment is slow: the hold timer keeps running. Extend the hold once when a payment is known to be in flight, so a card approved at minute 10 is not lost.\n- Bots: the waiting room, a login, a limit of 4 seats per fan and a CAPTCHA at the front slow scalpers. Rate limits help, but the strongest tool is limiting what one account can buy.\n- Cache stampede on the seat map: the 2-second cache and a single refresh per event stop 2,000 fans from each hitting the database.',
+        body: '- Hot show: shard the database by event id, so one big sale does not slow the others. Put the hold keys for one event on one Redis shard, so a multi-seat script stays atomic.\n- Redis fails over and loses holds: two fans may both think they hold a seat. The guarded UPDATE lets the first payer win. The second payer is refunded and offered other seats. It is rare, but it is safe.\n- The booking service crashes after charging but before marking seats sold: the pending order and the provider\'s charge id let a recovery job finish the order or refund it. Never leave a paid order without seats.\n- Payment is slow: the hold timer keeps running. Extend the hold once when a payment is known to be in flight, so a card approved at minute 10 is not lost.\n- Bots: the waiting room, a login, a limit of 4 seats per fan and a CAPTCHA at the front slow scalpers. Rate limits help, but the strongest tool is limiting what one account can buy.\n- Cache stampede on the seat map: the 2-second cache and a single refresh per event stop 2k fans from each hitting the database.',
       },
       {
         heading: 'Interview follow-ups',

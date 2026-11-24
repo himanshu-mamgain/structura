@@ -241,7 +241,7 @@ export const socialGraph: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'Assumptions from the System Design Primer: 100 million users, and 50 friend searches per user per month.\n\nWhich works out to:\n- 5 billion friend searches a month.\n- About 2,000 searches per second (2.5 million seconds in a month).\n\nOur own sizing: with 100 friends each on average, there are 10 billion friendships. Stored in both directions as 8-byte ids that is about 160 GB of raw friend lists, before indexes and replicas: too much to serve from one machine\'s memory, easy across many.',
+        body: 'Assumptions from the System Design Primer: 100 million users, and 50 friend searches per user per month.\n\nWhich works out to:\n- 5 billion friend searches a month.\n- About 2k searches per second (2.5 million seconds in a month).\n\nOur own sizing: with 100 friends each on average, there are 10 billion friendships. Stored in both directions as 8-byte ids that is about 160 GB of raw friend lists, before indexes and replicas: too much to serve from one machine\'s memory, easy across many.',
       },
       {
         heading: 'Step by step',

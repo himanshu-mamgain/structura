@@ -93,6 +93,8 @@ export function setSpeechSettings(patch: Partial<SpeechSettings>) {
 
 export const useSpeechSettings = () => useSyncExternalStore(settingsStore.subscribe, settingsStore.get)
 export const useNowSpeaking = () => useSyncExternalStore(nowStore.subscribe, nowStore.get)
+/** What's being said right now, outside React (for clean-ups). */
+export const nowSpeakingNow = () => nowStore.get()
 export const useNaturalVoice = () => useSyncExternalStore(naturalStore.subscribe, naturalStore.get)
 
 const patchNow = (patch: Partial<NowSpeaking>) => nowStore.set({ ...nowStore.get(), ...patch })

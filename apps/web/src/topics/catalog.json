@@ -1208,6 +1208,46 @@
   "simulator": true
  },
  {
+  "id": "websocket-scaling",
+  "title": "Scaling WebSockets vs HTTP",
+  "blurb": "Why a server that keeps connections open scales differently: connections not requests, pub/sub between servers, heartbeats, reconnect storms, and Socket.IO vs plain WebSockets",
+  "difficulty": "Intermediate",
+  "area": "development",
+  "guides": [
+   "shortlong-polling-sse-websocket"
+  ],
+  "explanation": {
+   "summary": "An HTTP server answers short, independent requests, so a load balancer can send each one anywhere and you scale by adding servers. A WebSocket server holds long-lived connections: each one stays on the server it reached, carries state, and can be pushed to at any time. That changes everything about scaling: you size by connections, every server must hear broadcasts through pub/sub, quiet connections need heartbeats, and restarts cause reconnect storms.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "cdn",
   "title": "CDN: Content Delivery Network",
   "blurb": "Caches close to your visitors: cache keys, how long to keep files, a shield for your server, purging and hit ratio",
@@ -1347,7 +1387,7 @@
  {
   "id": "ticket-booking",
   "title": "Ticket Booking System (BookMyShow-style)",
-  "blurb": "Sell 18,000 seats to 600,000 fans in minutes: waiting room, timed seat holds and no double booking",
+  "blurb": "Sell 18k seats to 600k fans in minutes: waiting room, timed seat holds and no double booking",
   "difficulty": "Intermediate",
   "area": "development",
   "guides": [
@@ -2207,6 +2247,134 @@
   "story": true
  },
  {
+  "id": "llm-inference",
+  "title": "Model Weights & LLM Inference",
+  "blurb": "What model weights are, how much GPU memory a model needs, quantization, the KV cache and serving your own model with vLLM",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack",
+   "scale-scaling-aiml-infrastructure-at-uber",
+   "scale-distributed-machine-learning"
+  ],
+  "explanation": {
+   "summary": "A large language model is a file of numbers called weights, learned in training. Running it, called inference, means loading those weights into GPU memory and passing your tokens through them. The weights' size decides which GPU you need; whatever memory is left holds the KV cache, which decides how many conversations run at once; and because every new token reads all the weights, memory speed decides how fast answers come.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "llm-guardrails",
+  "title": "LLM Guardrails: Hallucinations & Evals",
+  "blurb": "Stop an assistant making things up: grounding, citation checks, a judge model, handing over to a human, and the evals that prove it works",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "how-does-chatgpt-work",
+   "what-is-an-ai-agent",
+   "scale-genie-gen-ai-on-call-copilot-at-uber",
+   "scale-machine-learning-in-content-moderation-at-etsy"
+  ],
+  "explanation": {
+   "summary": "A language model can write a confident answer that is simply wrong: a hallucination. Guardrails are the checks around the model that stop those answers reaching people. Ground the answer in your own documents, check its citations with code, let a judge model score what code can't check, and hand over to a human when a check fails. Evals, a fixed set of questions with known right answers, measure how well all of it works and block changes that make it worse.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "agent-context",
+  "title": "Context Engineering for Long-Running Agents",
+  "blurb": "Keep an agent working for hours inside a fixed context window: compaction, notes, clearing tool results, sub-agents, and the harness that runs it all",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "what-is-an-ai-agent",
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "An agent is a language model in a loop: it calls a tool, reads the result, and decides the next step. The model remembers nothing between calls, so every step resends the whole conversation, and the context grows until it fills the window. Context engineering is choosing what the model sees at each step: clearing old tool results, compacting the history into a summary, keeping notes outside the context, and handing exploration to sub-agents.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-vpc",
   "title": "AWS VPC Networking",
   "blurb": "Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints",
@@ -2297,6 +2465,46 @@
   },
   "simulator": true,
   "story": true
+ },
+ {
+  "id": "global-load-balancing",
+  "title": "Global vs Local Load Balancing",
+  "blurb": "Route 53, Global Accelerator, API Gateway and ALB: which layer picks the region, which checks the request, which picks the server, and how fast each fails over",
+  "difficulty": "Intermediate",
+  "area": "infra",
+  "guides": [
+   "api-gateway-101"
+  ],
+  "explanation": {
+   "summary": "An app that runs in two regions needs three kinds of routing. A global load balancer (Route 53 with DNS, or Global Accelerator with anycast IP addresses) sends each user to a healthy region near them. An API gateway checks each request (tokens, rate limits) and routes it to the right service. A local load balancer (an ALB) spreads requests across healthy servers in the region's zones. Each layer handles a different failure, at a different speed.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
  },
  {
   "id": "aws-ecs-fargate",

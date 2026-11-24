@@ -11,7 +11,7 @@ import { RoadmapCard } from './RoadmapCard'
 import { topicIcon } from './topicIcons'
 import { TodayCard } from './VoiceGuide'
 import { LESSONS, lessonTopics, useCommute } from '../learn/commute'
-import { ShareWhatsApp } from './Share'
+import { CopyLink, ShareWhatsApp } from './Share'
 
 const thumbnail = (topic: TopicMeta) => (topic.video ? smallCover(topic.video) : undefined)
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
@@ -71,6 +71,7 @@ export function Home({
             <GraduationCap size={17} /> Test yourself
           </button>
           <ShareWhatsApp text="Structura: learn system design by seeing it work. Live diagrams, step-by-step walkthroughs, videos and interview questions." path="/" label="Share Structura" />
+          <CopyLink path="/" />
         </div>
         <dl className="stats">
           <div>

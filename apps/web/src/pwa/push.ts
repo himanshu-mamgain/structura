@@ -54,8 +54,14 @@ async function call(method: 'POST' | 'DELETE', body: unknown) {
   if (!response.ok) throw new PushError('failed', `The push server said ${response.status}.`)
 }
 
-/** What a reminder looks like on the wire: just what the notification shows. */
-const wire = (queue: Notice[]) => queue.map(({ id, kind, at, title, body, url }) => ({ id, kind, at, title, body, url }))
+/**
+ * What a reminder looks like on the wire: just what the notification shows. The daily, review
+ * and nudge reminders stay in the bell but no longer go to the phone: the Studia site's daily
+ * plan sends one set of reminders for all three apps (11:00, 17:00 and 21:30), the owner's
+ * choice. Phone notifications from Structura are now new-topic announcements only.
+ */
+const PHONE_KINDS = new Set<string>(['new'])
+const wire = (queue: Notice[]) => queue.filter((n) => PHONE_KINDS.has(n.kind)).map(({ id, kind, at, title, body, url }) => ({ id, kind, at, title, body, url }))
 
 let lastSynced = ''
 

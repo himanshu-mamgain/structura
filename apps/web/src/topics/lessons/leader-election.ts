@@ -44,7 +44,7 @@ const lesson: Lesson = {
       title: 'Fast failover or fewer false alarms',
       text: 'Short timeouts find a dead leader quickly, but also react to a slow network. That\'s why etcd waits 1 second by default instead of 150 ms.',
       focus: ['Election Timeout'],
-      example: 'Failover here: 150 + 8 = 158 ms at best, 300 + 8 = 308 ms at worst\netcd defaults: 100 ms heartbeat, 1,000 ms timeout',
+      example: 'Failover here: 150 + 8 = 158 ms at best, 300 + 8 = 308 ms at worst\netcd defaults: 100 ms heartbeat, 1k ms timeout',
     },
   ],
   quiz: [

@@ -44,7 +44,7 @@ const lesson: Lesson = {
       title: 'Rebalances when a consumer dies',
       text: 'The group coordinator expects regular heartbeats from each consumer. If one stops, its partitions move to another member, which carries on from the last committed offset.',
       focus: ['Invoicer', 'Group Coordinator', 'Standby Invoicer'],
-      example: 'session.timeout.ms = 45 s at 1,000 messages/s\n→ 45,000 messages wait before the standby takes over',
+      example: 'session.timeout.ms = 45 s at 1k messages/s\n→ 45k messages wait before the standby takes over',
       remember: 'Exactly-once covers Kafka only. A payment API or an email outside Kafka still needs an idempotency key.',
     },
   ],

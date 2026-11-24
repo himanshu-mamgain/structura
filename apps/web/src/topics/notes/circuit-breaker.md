@@ -48,7 +48,7 @@ Many failures are short: a restarting server, one lost packet. A retry hides the
 4. Wait between tries, and let the wait **grow**. This is **exponential backoff**: 200 ms, then 400 ms, then 800 ms.
 5. Add **jitter**: multiply each wait by a random number between 0 and 1.
 
-Why jitter? Say a service blips and 1,000 clients fail together. With backoff alone they all retry at exactly 200 ms: 1,000 calls in one instant, and the service falls over again. With full jitter, the retries spread over the 200 ms: about 1,000 ÷ 200 = 5 calls per millisecond.
+Why jitter? Say a service blips and 1k clients fail together. With backoff alone they all retry at exactly 200 ms: 1k calls in one instant, and the service falls over again. With full jitter, the retries spread over the 200 ms: about 1k ÷ 200 = 5 calls per millisecond.
 
 Retries also **multiply** across layers. If a request passes through 3 layers and each tries a call 3 times (1 call and 2 retries), the service at the bottom sees 3 × 3 × 3 = 27 calls for one request. Retry in one layer only, or use a **retry budget**: retries may be at most 10% of normal traffic.
 
@@ -178,7 +178,7 @@ A: Closed: calls go through and failures are counted. Open: calls are refused st
 
 **Q: Why add jitter to retry delays?**
 
-A: Without jitter, every client that failed at the same moment retries at the same moment, so 1,000 retries arrive together and can knock the service over again. Multiplying each wait by a random number from 0 to 1 spreads them out: about 5 a millisecond instead of 1,000 at once.
+A: Without jitter, every client that failed at the same moment retries at the same moment, so 1k retries arrive together and can knock the service over again. Multiplying each wait by a random number from 0 to 1 spreads them out: about 5 a millisecond instead of 1k at once.
 
 **Q: A customer was charged twice after a retry. What went wrong?**
 

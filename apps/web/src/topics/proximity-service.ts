@@ -338,7 +338,7 @@ export const proximityService: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: '- Places: 200 million.\n- Searches: 100 million daily users × 5 searches = 500 million a day, which is 500,000,000 / 86,400 = about 5,800 searches per second. Plan for a peak of twice that, about 11,600 per second.\n- Writes: if 1 million places change each day, that is about 12 writes per second. Reads outnumber writes about 500 to 1.\n- Place details: 200 million × 1 KB = 200 GB, which fits on a single database server and is replicated for reads and safety.\n- Index: each place is stored under 3 precisions (4, 5 and 6) at 8 bytes per id, so 200 million × 3 × 8 B = 4.8 GB of ids. With Redis overhead that is still small enough for one node; we copy it to several nodes for read speed, not because it is big.\n- Cells: precision 6 has 2^30, about 1.07 billion, cells over the whole planet, so on average a cell holds under one place. Cities are the exception: a downtown cell can hold hundreds.',
+        body: '- Places: 200 million.\n- Searches: 100 million daily users × 5 searches = 500 million a day, which is 500 million / 86,400 = about 5,800 searches per second. Plan for a peak of twice that, about 11.6k per second.\n- Writes: if 1 million places change each day, that is about 12 writes per second. Reads outnumber writes about 500 to 1.\n- Place details: 200 million × 1 KB = 200 GB, which fits on a single database server and is replicated for reads and safety.\n- Index: each place is stored under 3 precisions (4, 5 and 6) at 8 bytes per id, so 200 million × 3 × 8 B = 4.8 GB of ids. With Redis overhead that is still small enough for one node; we copy it to several nodes for read speed, not because it is big.\n- Cells: precision 6 has 2^30, about 1.07 billion, cells over the whole planet, so on average a cell holds under one place. Cities are the exception: a downtown cell can hold hundreds.',
       },
       {
         heading: 'Step by step',
@@ -358,7 +358,7 @@ export const proximityService: StaticTopic = {
       },
       {
         heading: 'Interview follow-ups',
-        body: '- Why does a plain index on latitude and longitude not solve this?\n- What goes wrong when you search only the user\'s own geohash cell?\n- How would you handle a cell with 50,000 places in it?\n- Geohash or quadtree: when would you choose each?\n- How would the design change if places moved (drivers, delivery riders) instead of staying put?',
+        body: '- Why does a plain index on latitude and longitude not solve this?\n- What goes wrong when you search only the user\'s own geohash cell?\n- How would you handle a cell with 50k places in it?\n- Geohash or quadtree: when would you choose each?\n- How would the design change if places moved (drivers, delivery riders) instead of staying put?',
       },
     ],
     get trace() {

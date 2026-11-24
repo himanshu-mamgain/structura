@@ -123,9 +123,9 @@ What a NAT gateway costs (us-east-1 list prices, the ones the topic's simulator 
 
 - $0.045 an hour × 730 hours = **$32.85 a month** each, before any data.
 - One per zone in 3 zones: **$98.55 a month**.
-- Plus **$0.045 per GB** processed: 30 TB a month of S3 backups through it is 30,000 × $0.045 = **$1,350**. Through a gateway endpoint: **$0**.
+- Plus **$0.045 per GB** processed: 30 TB a month of S3 backups through it is 30k × $0.045 = **$1,350**. Through a gateway endpoint: **$0**.
 - A NAT in another zone also adds cross-AZ transfer: $0.01 per GB in each direction.
-- One NAT gateway handles up to 55,000 simultaneous connections to a single destination (IP, port and protocol). Thousands of connections to one API need connection reuse or more NAT addresses.
+- One NAT gateway handles up to 55k simultaneous connections to a single destination (IP, port and protocol). Thousands of connections to one API need connection reuse or more NAT addresses.
 
 **One NAT gateway or one per zone?** One shared NAT is cheaper, but when its zone fails, every other zone loses outbound access too. That defeats the point of being multi-AZ. One per zone for production; one shared NAT for dev and test only.
 

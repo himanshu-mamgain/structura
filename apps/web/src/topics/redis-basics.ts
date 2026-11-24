@@ -529,7 +529,7 @@ For tens of millions of visitors, even a set gets big. Redis has a **HyperLogLog
       },
       {
         heading: 'Capacity estimates',
-        body: '- Sessions: 50,000 active × about 200 bytes each ≈ 10 MB.\n- Leaderboard: 2 million players × roughly 100 bytes per sorted-set entry (member, score and skip-list overhead) ≈ 200 MB.\n- Visitors: 1 million ids a day in a set at about 60 bytes each ≈ 60 MB; a HyperLogLog counts the same in 12 KB.\n- Throughput: a single Redis instance commonly handles around 100,000 simple commands a second.',
+        body: '- Sessions: 50k active × about 200 bytes each ≈ 10 MB.\n- Leaderboard: 2 million players × roughly 100 bytes per sorted-set entry (member, score and skip-list overhead) ≈ 200 MB.\n- Visitors: 1 million ids a day in a set at about 60 bytes each ≈ 60 MB; a HyperLogLog counts the same in 12 KB.\n- Throughput: a single Redis instance commonly handles around 100k simple commands a second.',
       },
       {
         heading: 'Step by step',

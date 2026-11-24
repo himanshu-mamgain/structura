@@ -1,3 +1,4 @@
+import { shortNumber } from '../learn/numbers'
 import type { Trace } from '@structura/shared'
 import { hash32 } from './consistent-hashing'
 import { defaultTrace, json, type Simulator } from './simulator'
@@ -140,7 +141,7 @@ const loads = (k: ShardKey, lay: Layout, n: number) => {
   return out
 }
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`
-const fmt = (x: number) => x.toLocaleString('en-US')
+const fmt = (x: number) => shortNumber(x)
 const shardName = (s: number) => `Shard ${s + 1}`
 const R = 'Shard Router (key → shard)'
 const MAP = 'Shard Map (config store)'
@@ -404,7 +405,7 @@ export const databaseSharding: StaticTopic = {
       },
       {
         heading: 'Capacity estimates',
-        body: 'An example: 5 billion orders a year at about 500 bytes a row.\n- Storage: 5,000,000,000 × 500 B = 2.5 TB a year, so 12.5 TB over 5 years.\n- Write rate: 5,000,000,000 ÷ 31,536,000 s ≈ 159 orders a second on average. Assume peaks of 10×, about 1,600 a second.\n- Shard count: a shard kept under 2 TB (so backups and restores stay quick) needs at least 12.5 ÷ 2 = 6.25, so 7 shards; running at half full for headroom needs 13, so 16 (a power of two, which keeps bucket maths easy).\n- Each of 16 shards then holds about 0.8 TB and takes about 100 writes a second at peak.\n- Scatter queries: if each shard is slow 1% of the time, a query over 4 shards waits on a slow one in 1 - 0.99^4 = 3.9% of requests; over 16 shards, 14.9%.',
+        body: 'An example: 5 billion orders a year at about 500 bytes a row.\n- Storage: 5 billion × 500 B = 2.5 TB a year, so 12.5 TB over 5 years.\n- Write rate: 5 billion ÷ 31,536,000 s ≈ 159 orders a second on average. Assume peaks of 10×, about 1,600 a second.\n- Shard count: a shard kept under 2 TB (so backups and restores stay quick) needs at least 12.5 ÷ 2 = 6.25, so 7 shards; running at half full for headroom needs 13, so 16 (a power of two, which keeps bucket maths easy).\n- Each of 16 shards then holds about 0.8 TB and takes about 100 writes a second at peak.\n- Scatter queries: if each shard is slow 1% of the time, a query over 4 shards waits on a slow one in 1 - 0.99^4 = 3.9% of requests; over 16 shards, 14.9%.',
       },
       {
         heading: 'Step by step',
