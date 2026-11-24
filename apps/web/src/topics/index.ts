@@ -15,6 +15,8 @@ import { jobScheduler } from './job-scheduler'
 import { leaderElection } from './leader-election'
 import { loadBalancer } from './load-balancer'
 import { llmGateway } from './llm-gateway'
+import { llmGuardrails } from './llm-guardrails'
+import { llmInference } from './llm-inference'
 import { locking } from './locking'
 import { distributedCache } from './distributed-cache'
 import { awsBasics } from './aws-basics'
@@ -103,6 +105,8 @@ const BASE_TOPICS: StaticTopic[] = [
   vectorDatabase,
   llmGateway,
   aiAgent,
+  llmInference,
+  llmGuardrails,
   awsVpc,
   awsAlb,
   awsEcsFargate,
