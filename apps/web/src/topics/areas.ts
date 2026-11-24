@@ -92,6 +92,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'llm-guardrails': 'ai',
   'agent-context': 'ai',
   'global-load-balancing': 'infra',
+  'websocket-scaling': 'development',
   'ai-agent': 'ai',
 }
 

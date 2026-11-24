@@ -52,7 +52,8 @@
     "cresta": "Cresta",
     "harvey": "Harvey",
     "snowflake": "Snowflake",
-    "rogo": "Rogo"
+    "rogo": "Rogo",
+    "rippling": "Rippling"
   },
   "topics": {
     "ai-agent": [
@@ -1456,6 +1457,24 @@
         "url": "https://prachub.com/interview-questions/design-chatbot-personalization-memory",
         "source": "prachub",
         "date": "2026-05-07",
+        "similar": true
+      }
+    ],
+    "websocket-scaling": [
+      {
+        "company": "coinbase",
+        "question": "Design real-time stock price viewer",
+        "url": "https://prachub.com/interview-questions/design-real-time-stock-price-viewer-2",
+        "source": "prachub",
+        "date": "2025-09-06",
+        "similar": true
+      },
+      {
+        "company": "rippling",
+        "question": "Design a real-time delivery dashboard",
+        "url": "https://prachub.com/interview-questions/design-a-real-time-delivery-dashboard",
+        "source": "prachub",
+        "date": "2025-09-06",
         "similar": true
       }
     ]
