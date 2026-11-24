@@ -1,4 +1,4 @@
-import { Activity, CalendarClock, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FingerprintPattern, FileCode2, FileLock, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, RefreshCw, Router, Rows3, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Unplug, Waypoints } from 'lucide-react'
+import { Activity, CalendarClock, Bell, Blocks, BookOpenCheck, Bot, Boxes, Bug, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FingerprintPattern, FileCode2, FileLock, FilePenLine, FolderSync, Gauge, IndianRupee, Inbox, KeyRound, Layers, LifeBuoy, ListOrdered, Link2, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, Network, Orbit, PiggyBank, Puzzle, RefreshCw, Router, Rows3, Scale, ServerCog, Shapes, Share2, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Unplug, Waypoints } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -34,6 +34,7 @@ const ICONS: Record<string, LucideIcon> = {
   'proximity-service': MapPin,
   'video-streaming': Clapperboard,
   'file-sync': FolderSync,
+  'collaborative-editing': FilePenLine,
   'leader-election': Crown,
   locking: LockKeyhole,
   'distributed-cache': MemoryStick,

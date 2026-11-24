@@ -96,6 +96,8 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'social-graph', terms: ['breadth-first search', 'bidirectional search'] },
   { topic: 'sales-rank', terms: ['MapReduce'] },
   { topic: 'video-streaming', terms: ['adaptive bitrate', 'HLS'] },
+  { topic: 'collaborative-editing', terms: ['operational transformation', 'collaborative editing'] },
+  { topic: 'collaborative-editing', terms: ['OT', 'CRDT', 'CRDTs'], exact: true },
   { topic: 'file-sync', terms: ['content-defined chunking', 'delta sync'] },
   { topic: 'chat-system', terms: ['WebSocket', 'WebSockets'] },
   { topic: 'uber-surge', terms: ['surge pricing'] },

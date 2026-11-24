@@ -97,6 +97,7 @@ export const ROADMAP: RoadmapPart[] = [
     steps: [
       { id: 'cl-video', title: 'Video streaming', detail: 'Transcoding, adaptive bitrate and CDNs.', topic: 'video-streaming' },
       { id: 'cl-sync', title: 'File sync', detail: 'Chunking, deduplication and conflict handling.', topic: 'file-sync' },
+      { id: 'cl-collab', title: 'Collaborative editing', detail: 'Operational transformation: many people typing in one document.', topic: 'collaborative-editing' },
     ],
   },
   {

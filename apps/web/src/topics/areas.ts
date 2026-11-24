@@ -47,6 +47,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'proximity-service': 'development',
   'video-streaming': 'development',
   'file-sync': 'development',
+  'collaborative-editing': 'development',
   'social-graph': 'development',
   'sales-rank': 'development',
   mint: 'development',
