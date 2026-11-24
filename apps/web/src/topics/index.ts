@@ -62,6 +62,7 @@ import { vectorDatabase } from './vector-database'
 import { videoStreaming } from './video-streaming'
 import autoVideos from './videos.json'
 import { webCrawler } from './web-crawler'
+import { websocketScaling } from './websocket-scaling'
 
 export type { StaticTopic } from './types'
 
@@ -86,6 +87,7 @@ const BASE_TOPICS: StaticTopic[] = [
   apiGateway,
   consistentHashing,
   chatSystem,
+  websocketScaling,
   cdn,
   notificationSystem,
   uniqueIdGenerator,
