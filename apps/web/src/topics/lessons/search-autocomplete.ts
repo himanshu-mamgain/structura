@@ -14,7 +14,7 @@ const lesson: Lesson = {
     },
     {
       title: 'Wait a moment before asking',
-      text: 'The search box waits about 100 ms after the last key before it asks. This is called debounce. Fast typists send far fewer requests.',
+      text: 'The search box waits about 150 ms after the last key before it asks. This is called debounce. Fast typists send far fewer requests.',
       focus: ['Search box'],
     },
     {
@@ -62,7 +62,7 @@ const lesson: Lesson = {
       question: 'What does debounce do?',
       options: ['Caches results', 'Waits briefly after the last key before sending a request', 'Filters banned words', 'Sorts suggestions'],
       answer: 1,
-      why: 'Waiting about 100 ms means a fast typist sends one request, not one per letter.',
+      why: 'Waiting about 150 ms means a fast typist sends one request, not one per letter.',
     },
   ],
 }
