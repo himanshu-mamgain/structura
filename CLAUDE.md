@@ -347,6 +347,9 @@ Phone notifications use Web Push through Netlify Functions:
 - `push-send.mts` runs every 15 minutes in production, sends what's due, and announces
   topics added since its last run (from `/topics.json`, written by `npm run build`).
 - `public/notify-sw.js` (added to the service worker) shows them and opens the page.
+- **Phone push sends new-topic announcements only** (`PHONE_KINDS` in `src/pwa/push.ts`, the owner's choice):
+  the daily, review and nudge reminders stay in the bell, and the Studia site's daily plan (studia repo,
+  `/today`) sends one set of phone reminders for all three apps at 11:00, 17:00 and 21:30.
 - Logic lives in `netlify/lib/push.ts`; test it with `npm run test:push`.
 - Setup, once: `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`,
   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address) in Netlify's

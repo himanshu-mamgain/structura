@@ -3,6 +3,7 @@ import { Bell, BellOff, BellRing, CalendarClock, Hourglass, RotateCcw, Settings2
 import course from '../learn/course.json'
 import { markRead, type NoticeKind, type NotifySettings, refresh, updateSettings, upcoming, useNotify } from '../learn/notify'
 import { ago, useProgress } from '../learn/progress'
+import { STUDIA_URL } from '../account/config'
 import { disablePush, enablePush, PushError, pushSupport, syncPush, testPush } from '../pwa/push'
 import { TOPICS } from '../topics/catalog'
 
@@ -114,6 +115,13 @@ function PhoneNotifications() {
         </button>
       )}
       {message && <p className="notify-note" role="status">{message}</p>}
+      <p className="notify-note">
+        Your daily plan for Structura, DSA Atlas and Schemata reminds you at 11:00, 17:00 and 21:30 from{' '}
+        <a href={`${STUDIA_URL || 'https://studia-hub.netlify.app'}/today`} target="_blank" rel="noreferrer">
+          Studia's Today page
+        </a>
+        . Here, phone notifications only announce new topics; the rest stay in this bell.
+      </p>
       <p className="notify-fine">
         Reminders are worked out on this device from your progress. Only what each notification says, and when, goes to Structura's push service.
       </p>
