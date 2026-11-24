@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { type TouchEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, BookOpenText, Check, CheckCircle2, Lightbulb, RotateCcw, Shapes, Trophy, X } from 'lucide-react'
 import { Diagram2D } from '../diagram/Diagram2D'
@@ -144,6 +145,7 @@ function Player({
             ))}
           </span>
         </div>
+        <CopyLink className="icon-btn" iconOnly size={18} />
         <span className="lesson-count">{atEnd ? 'Done' : inQuiz ? 'Quiz' : `${step + 1}/${cards.length}`}</span>
       </header>
 

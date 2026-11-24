@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { Braces, Briefcase, CodeXml, ExternalLink, type LucideIcon, Network, Route } from 'lucide-react'
 import { ECOSYSTEM } from '../ecosystem'
 import type { Guide } from '../topics/library'
@@ -33,6 +34,7 @@ export function Prep({ onRoadmap }: { onRoadmap: () => void }) {
       <header className="prep-head">
         <h1>Interview prep</h1>
         <p>The best free repositories for each round of a technical interview. They open on GitHub.</p>
+        <CopyLink className="btn btn-ghost page-copy" />
       </header>
 
       {!lib && <p className="practice-empty">Loading…</p>}

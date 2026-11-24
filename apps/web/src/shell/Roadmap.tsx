@@ -1,3 +1,4 @@
+import { CopyLink } from './Share'
 import { ArrowLeft, ArrowRight, BookOpen, BookOpenText, CheckCircle2, ChevronRight, Circle, Database, ExternalLink, GraduationCap, Hammer, Sparkles } from 'lucide-react'
 import { ECOSYSTEM } from '../ecosystem'
 import { readiness, toggleRoadmapStep, updateTopic, useProgress } from '../learn/progress'
@@ -101,6 +102,7 @@ function Overview({
             ? `${a.tagline}, from Foundations to Expert. Open a card for its steps.`
             : 'Development, Infra, Databases and AI, each from Foundations to Expert. Open a card for its steps; each step is a topic or a reading.'}
         </p>
+        <CopyLink className="btn btn-ghost page-copy" />
       </header>
 
       <AreaChips value={area} onChange={onArea} label="Tracks" />
@@ -274,6 +276,7 @@ function Module({
         </p>
         <h1>{part.title}</h1>
         <p>{part.why}</p>
+        <CopyLink className="btn btn-ghost page-copy" />
         <div className="roadmap-summary">
           <span className="progress-bar" aria-hidden>
             <span style={{ width: `${(d / part.steps.length) * 100}%` }} />

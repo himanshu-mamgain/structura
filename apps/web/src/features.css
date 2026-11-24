@@ -5273,6 +5273,21 @@ button.roadmap-step-title:hover {
   .reader-bar .btn:first-child span {
     display: inline;
   }
+
+  .reader-bar {
+    gap: 6px;
+  }
+
+  .reader-bar .btn {
+    padding: 0 10px;
+  }
+}
+
+/* With Copy link too, the bar only fits a phone when "Interactive" is an arrow alone. */
+@media (max-width: 400px) {
+  .reader-bar .btn:first-child span {
+    display: none;
+  }
 }
 
 /* Long identifiers in inline code (a CodeDeploy config name, an ARN) wrap instead of
@@ -6737,4 +6752,23 @@ a.topic-link:focus-visible {
   line-height: 1.2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+/* Copy link (Share.tsx): beside WhatsApp, and under each page's title. */
+.copy-link.is-copied svg {
+  color: #1c8a49;
+}
+.page-copy {
+  margin-top: 4px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
