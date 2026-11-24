@@ -59,6 +59,7 @@ Everything runs in your browser: no backend of its own and no AI services. A **S
 | Video Streaming (YouTube-style) | Intermediate | | | |
 | Metrics & Monitoring System | Intermediate | | | |
 | Circuit Breaker and Resilience Patterns | Intermediate | | | |
+| Ad Click Aggregator | Advanced | | | |
 | File Sync (Dropbox-style) | Intermediate | | | |
 | Collaborative Editing (Google Docs-style) | Advanced | | | |
 | Leader Election (Raft) | Advanced | | | |
