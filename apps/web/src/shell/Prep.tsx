@@ -1,5 +1,8 @@
 import { CopyLink } from './Share'
-import { Braces, Briefcase, CodeXml, ExternalLink, type LucideIcon, Network, Route } from 'lucide-react'
+import { Bot, Braces, Briefcase, CodeXml, ExternalLink, type LucideIcon, Network, Route } from 'lucide-react'
+import { AGENTIC_QUESTIONS } from '../learn/agenticQuestions'
+import { Body } from '../learn/content'
+import { TOPICS } from '../topics/catalog'
 import { ECOSYSTEM } from '../ecosystem'
 import type { Guide } from '../topics/library'
 import { useLibrary } from '../topics/useLibrary'
@@ -36,6 +39,8 @@ export function Prep({ onRoadmap }: { onRoadmap: () => void }) {
         <p>The best free repositories for each round of a technical interview. They open on GitHub.</p>
         <CopyLink className="btn btn-ghost page-copy" />
       </header>
+
+      <AgenticQuestions />
 
       {!lib && <p className="practice-empty">Loading…</p>}
 
@@ -85,5 +90,61 @@ export function Prep({ onRoadmap }: { onRoadmap: () => void }) {
           </section>
         ))}
     </div>
+  )
+}
+
+const titleOf = (id: string) => TOPICS.find((t) => t.id === id)?.title ?? id
+
+/**
+ * Agentic AI interview questions (?page=prep#agentic): Structura's own answers, each with what
+ * interviewers listen for, the usual mistakes, and the topics that teach it. Tap to open one;
+ * #q-<id> opens that one directly.
+ */
+function AgenticQuestions() {
+  const opened = typeof location !== 'undefined' ? location.hash.replace(/^#q-/, '') : ''
+  return (
+    <section id="agentic" className="prep-group prep-questions" aria-label="Agentic AI interview questions">
+      <h2>
+        <Bot size={19} aria-hidden /> Agentic AI interview questions
+      </h2>
+      <p className="prep-line">{AGENTIC_QUESTIONS.length} questions asked in AI engineering rounds. Think of your answer first, then open one.</p>
+      <div className="prep-qs">
+        {AGENTIC_QUESTIONS.map((q, i) => (
+          <details key={q.id} id={`q-${q.id}`} className="card prep-q" open={opened === q.id}>
+            <summary>
+              <span className="prep-q-n">{i + 1}</span>
+              <span className="prep-q-text">{q.question}</span>
+              <span className={`prep-q-level is-${q.level.toLowerCase()}`}>{q.level}</span>
+            </summary>
+            <div className="prep-q-body">
+              <Body text={q.answer} from="prep" />
+              <h3>What interviewers listen for</h3>
+              <ul>
+                {q.points.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+              <h3>Weak answers</h3>
+              <ul className="prep-q-mistakes">
+                {q.mistakes.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+              <p className="prep-q-learn">
+                Learn it in:{' '}
+                {q.topics.map((id, j) => (
+                  <span key={id}>
+                    {j > 0 && ' · '}
+                    <a href={`/topic/${id}/?read`} className="topic-link" data-topic-link>
+                      {titleOf(id)}
+                    </a>
+                  </span>
+                ))}
+              </p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
   )
 }
