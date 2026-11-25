@@ -85,6 +85,7 @@ export const AREA_OF: Record<string, AreaId> = {
   'database-sharding': 'databases',
   'key-value-store': 'databases',
   'leader-election': 'databases',
+  'object-storage': 'databases',
 
   // AI: systems built around language models
   'rag-pipeline': 'ai',
