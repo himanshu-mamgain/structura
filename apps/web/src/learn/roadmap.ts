@@ -338,6 +338,16 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
+    id: 'ai-tool-calling',
+    area: 'ai',
+    stage: 'Intermediate',
+    title: 'Tool calling',
+    why: 'How a model uses your code: definitions in, a structured request out, your app runs it.',
+    steps: [
+      { id: 'ai-tool-calling', title: 'Tool calling under the hood', detail: 'The five steps, both providers\' formats, validation, permissions and parallel calls.', topic: 'tool-calling', guides: ['what-is-an-ai-agent'] },
+    ],
+  },
+  {
     id: 'ai-guardrails',
     area: 'ai',
     stage: 'Intermediate',
