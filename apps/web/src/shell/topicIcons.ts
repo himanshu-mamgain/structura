@@ -35,6 +35,7 @@ const ICONS: Record<string, LucideIcon> = {
   'proximity-service': MapPin,
   'video-streaming': Clapperboard,
   'file-sync': FolderSync,
+  'object-storage': Warehouse,
   'collaborative-editing': FilePenLine,
   'leader-election': Crown,
   locking: LockKeyhole,

@@ -64,6 +64,7 @@ export const LINK_RULES: LinkRule[] = [
   { topic: 'database-sharding', terms: ['shard key', 'shard keys', 'sharding', 'sharded', 'shards', 'resharding', 'scatter-gather'] },
   { topic: 'distributed-cache', terms: ['cache-aside', 'cache stampede', 'cache stampedes', 'thundering herd', 'distributed cache', 'single-flight'] },
   { topic: 'query-cache', terms: ['LRU', 'least recently used'] },
+  { topic: 'object-storage', terms: ['erasure coding', 'erasure code', 'erasure codes', 'Reed-Solomon', 'object storage', 'object store'] },
   { topic: 'key-value-store', terms: ['read repair', 'hinted handoff', 'sloppy quorum', 'LSM tree', 'LSM-tree', 'LSM trees', 'SSTable', 'SSTables', 'memtable', 'quorum reads', 'quorum writes'] },
   { topic: 'leader-election', terms: ['Raft'], exact: true },
   { topic: 'leader-election', terms: ['leader election', 'election timeout'] },

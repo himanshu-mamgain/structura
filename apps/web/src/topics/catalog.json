@@ -3309,5 +3309,50 @@
    ]
   },
   "simulator": true
+ },
+ {
+  "id": "object-storage",
+  "title": "Object Storage (S3-style)",
+  "blurb": "How S3 stores trillions of files: flat keys, a metadata index, erasure coding and checksums",
+  "difficulty": "Advanced",
+  "area": "databases",
+  "guides": [
+   "scale-object-storage",
+   "erasure-coding",
+   "what-happens-when-you-upload-a-file-to-amazon-s3",
+   "how-to-upload-a-large-file-to-s3",
+   "scale-magic-pocket-in-house-multi-exabyte-storage-system-at-dropbox",
+   "scale-ambry-distributed-immutable-object-store-at-linkedin"
+  ],
+  "explanation": {
+   "summary": "An object store keeps files (objects) under flat keys in buckets. A small metadata index says where each object is, and a huge pool of storage nodes holds the bytes, cut into shards with erasure coding so that several disks can die without losing a file.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
  }
 ]

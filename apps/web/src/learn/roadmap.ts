@@ -312,6 +312,7 @@ export const ROADMAP: RoadmapPart[] = [
     title: 'Replication and consensus',
     why: 'A Dynamo-style store with quorums, and Raft keeping replicas in agreement.',
     steps: [
+      { id: 'sd-object-store', title: 'Object storage (S3-style)', detail: 'Flat keys, a metadata index, erasure coding and checksums.', topic: 'object-storage', guides: ['scale-object-storage'] },
       { id: 'sd-kv', title: 'A key-value store, Dynamo-style', detail: 'Replication, quorums and what CAP means in practice.', topic: 'key-value-store', guides: ['db-replication-consistency'] },
       { id: 'sd-leader', title: 'Leader election', detail: 'How Raft picks one leader and keeps a log in agreement.', topic: 'leader-election', guides: ['db-consensus'] },
     ],
