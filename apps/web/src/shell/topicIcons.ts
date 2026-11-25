@@ -1,4 +1,4 @@
-import { Activity, Bell, Blocks, BookOpenCheck, Bot, Boxes, BrainCircuit, Bug, CalendarClock, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Cpu, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FileCode2, FileLock, FilePenLine, FingerprintPattern, FolderSync, Gauge, Globe, Inbox, IndianRupee, KeyRound, Layers, LifeBuoy, Link2, ListOrdered, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, MousePointerClick, Network, Orbit, PiggyBank, Puzzle, Radio, RefreshCw, Router, Rows3, Scale, ServerCog, Shapes, Share2, ShieldAlert, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Unplug, Warehouse, Waypoints } from 'lucide-react'
+import { Activity, Bell, Blocks, BookOpenCheck, Bot, Boxes, BrainCircuit, Bug, CalendarClock, Car, ChartScatter, Clapperboard, ClipboardPaste, Cloud, Container, Copy, CopyCheck, Cpu, Crown, DatabaseBackup, DatabaseZap, DoorOpen, Earth, FileCode2, FileLock, FilePenLine, FingerprintPattern, FolderSync, Gauge, Globe, Inbox, IndianRupee, KeyRound, Layers, LifeBuoy, Link, Link2, ListOrdered, LockKeyhole, type LucideIcon, MapPin, MemoryStick, MessageSquareText, MessagesSquare, MousePointerClick, Network, Orbit, PiggyBank, Puzzle, Radio, RefreshCw, Router, Rows3, Scale, ServerCog, Shapes, Share2, ShieldAlert, ShieldCheck, Ship, Split, TextSearch, Ticket, Trophy, Unplug, Waypoints, Workflow, Wrench } from 'lucide-react'
 
 const ICONS: Record<string, LucideIcon> = {
   'url-shortener': Link2,
@@ -48,6 +48,9 @@ const ICONS: Record<string, LucideIcon> = {
   'llm-inference': Cpu,
   'llm-guardrails': ShieldAlert,
   'agent-context': BrainCircuit,
+  'tool-calling': Wrench,
+  langchain: Link,
+  langgraph: Workflow,
   'global-load-balancing': Globe,
   'websocket-scaling': Radio,
   'aws-vpc': Network,

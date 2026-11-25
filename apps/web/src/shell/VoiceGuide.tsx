@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CalendarCheck, Download, Headphones, Play, Settings2, Square } from 'lucide-react'
 import { useProgress } from '../learn/progress'
 import { NATURAL_VOICES, prepareNaturalVoice, setSpeechSettings, speak, type SpeechSettings, speechSupported, stopSpeaking, useNaturalVoice, useSpeechSettings, useVoices } from '../learn/speech'
@@ -100,8 +100,23 @@ export function VoiceSettings() {
 /** A button that opens the voice settings in a small popover. */
 export function VoiceSettingsButton() {
   const [open, setOpen] = useState(false)
+  const wrap = useRef<HTMLDivElement>(null)
+  // Close on a tap outside the panel or on Escape, like any menu.
+  useEffect(() => {
+    if (!open) return
+    const outside = (e: PointerEvent) => {
+      if (!wrap.current?.contains(e.target as Node)) setOpen(false)
+    }
+    const escape = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', outside)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [open])
   return (
-    <div className="voice-settings-wrap">
+    <div className="voice-settings-wrap" ref={wrap}>
       <button type="button" className="icon-btn" onClick={() => setOpen(!open)} aria-expanded={open} title="Voice settings">
         <Settings2 size={18} />
       </button>

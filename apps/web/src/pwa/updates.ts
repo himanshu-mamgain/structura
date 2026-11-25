@@ -12,7 +12,34 @@ let lastCheck = 0
 /** True once a newer version has taken over this page and it should load fresh. */
 export const updateReady = () => ready
 
+/**
+ * A page still running an old version asks for that version's files (a lesson, a topic), but
+ * a deploy has replaced them, so the request fails and the page would wait for ever. Load the
+ * new version instead. At most once a minute, so a real network failure can't make the page
+ * reload in a loop. Returns false when it didn't reload (show an error instead).
+ */
+export function reloadForNewVersion(): boolean {
+  let last = 0
+  try {
+    last = Number(sessionStorage.getItem('structura:reloaded-at')) || 0
+  } catch {}
+  if (Date.now() - last < 60_000) return false
+  try {
+    sessionStorage.setItem('structura:reloaded-at', String(Date.now()))
+  } catch {}
+  location.reload()
+  return true
+}
+
+/** Vite reports a file of the page's own version that failed to load as `vite:preloadError`. */
+function reloadOnMissingFiles() {
+  addEventListener('vite:preloadError', (event) => {
+    if (reloadForNewVersion()) event.preventDefault()
+  })
+}
+
 export function watchForUpdates() {
+  reloadOnMissingFiles()
   const sw = navigator.serviceWorker
   // On a first visit nothing old is on screen, so there is nothing to swap.
   if (!sw?.controller) return

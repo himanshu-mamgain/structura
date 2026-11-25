@@ -3,6 +3,9 @@ import { objectStorage } from './object-storage'
 import { apiGateway } from './api-gateway'
 import { agentContext } from './agent-context'
 import { aiAgent } from './ai-agent'
+import { langchain } from './langchain'
+import { langgraph } from './langgraph'
+import { toolCalling } from './tool-calling'
 import { awsAlb } from './aws-alb'
 import { awsEcsFargate } from './aws-ecs-fargate'
 import { awsEcsFullstack } from './aws-ecs-fullstack'
@@ -116,6 +119,9 @@ const BASE_TOPICS: StaticTopic[] = [
   llmInference,
   llmGuardrails,
   agentContext,
+  toolCalling,
+  langchain,
+  langgraph,
   awsVpc,
   awsAlb,
   globalLoadBalancing,

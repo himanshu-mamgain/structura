@@ -339,6 +339,16 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
+    id: 'ai-tool-calling',
+    area: 'ai',
+    stage: 'Intermediate',
+    title: 'Tool calling',
+    why: 'How a model uses your code: definitions in, a structured request out, your app runs it.',
+    steps: [
+      { id: 'ai-tool-calling', title: 'Tool calling under the hood', detail: 'The five steps, both providers\' formats, validation, permissions and parallel calls.', topic: 'tool-calling', guides: ['what-is-an-ai-agent'] },
+    ],
+  },
+  {
     id: 'ai-guardrails',
     area: 'ai',
     stage: 'Intermediate',
@@ -367,6 +377,17 @@ export const ROADMAP: RoadmapPart[] = [
     steps: [
       { id: 'ai-agent', title: 'AI agent with tools', detail: 'The agent loop, tool policy, prompt injection and idempotent actions.', topic: 'ai-agent' },
       { id: 'ai-agent-context', title: 'Context engineering for long-running agents', detail: 'Compaction, notes, clearing tool results and sub-agents.', topic: 'agent-context', guides: ['what-is-an-ai-agent'] },
+    ],
+  },
+  {
+    id: 'ai-frameworks',
+    area: 'ai',
+    stage: 'Advanced',
+    title: 'LangChain and LangGraph',
+    why: 'Build agents with the standard libraries: one model interface, tools, middleware, graphs and checkpoints.',
+    steps: [
+      { id: 'ai-langchain', title: 'LangChain', detail: 'createAgent, tools, any provider, and middleware that asks a person.', topic: 'langchain', guides: ['what-is-an-ai-agent'] },
+      { id: 'ai-langgraph', title: 'LangGraph', detail: 'State, nodes and edges, checkpoints, interrupt and resume, time travel.', topic: 'langgraph' },
     ],
   },
   {
