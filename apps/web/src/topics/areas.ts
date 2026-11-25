@@ -96,6 +96,8 @@ export const AREA_OF: Record<string, AreaId> = {
   'global-load-balancing': 'infra',
   'websocket-scaling': 'development',
   'ai-agent': 'ai',
+  langchain: 'ai',
+  langgraph: 'ai',
 }
 
 /**

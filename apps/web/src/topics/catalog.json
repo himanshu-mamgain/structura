@@ -2375,6 +2375,90 @@
   "simulator": true
  },
  {
+  "id": "langchain",
+  "title": "LangChain: Building LLM Apps",
+  "blurb": "Standard pieces for LLM apps: one interface for every model, tools, retrievers, and an agent loop with middleware",
+  "difficulty": "Intermediate",
+  "area": "ai",
+  "guides": [
+   "what-is-an-ai-agent",
+   "how-does-chatgpt-work",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "LangChain is an open-source library (for JavaScript and Python) of standard pieces for apps built on large language models: one interface for every model provider, messages, tools, retrievers and structured output. Its createAgent function runs the usual agent loop: the model asks for tools, LangChain runs them and feeds back the results, until the model answers. Middleware adds approvals, limits and clean-up around each step, and a checkpointer saves each conversation.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
+  "id": "langgraph",
+  "title": "LangGraph: Stateful Agent Workflows",
+  "blurb": "An LLM workflow as a graph: shared state, nodes, branching edges, checkpoints, pauses for a person and time travel",
+  "difficulty": "Advanced",
+  "area": "ai",
+  "guides": [
+   "what-is-an-ai-agent",
+   "scale-airflow---workflow-orchestration",
+   "the-open-source-ai-stack"
+  ],
+  "explanation": {
+   "summary": "LangGraph is an open-source library (JavaScript and Python) for building LLM workflows and agents as graphs. Nodes are functions, edges choose what runs next, and every node reads and updates one shared state. A checkpointer saves that state after every step under a thread_id, so a run can pause for a person, survive a restart, resume later and be replayed. LangChain's createAgent runs on it.",
+   "sections": [
+    {
+     "heading": "Overview"
+    },
+    {
+     "heading": "Requirements"
+    },
+    {
+     "heading": "Capacity estimates"
+    },
+    {
+     "heading": "Step by step"
+    },
+    {
+     "heading": "Components"
+    },
+    {
+     "heading": "Key decisions"
+    },
+    {
+     "heading": "Scaling and failure"
+    },
+    {
+     "heading": "Interview follow-ups"
+    }
+   ]
+  },
+  "simulator": true
+ },
+ {
   "id": "aws-vpc",
   "title": "AWS VPC Networking",
   "blurb": "Your own network in AWS: address ranges, public and private subnets, route tables, NAT gateways and endpoints",
