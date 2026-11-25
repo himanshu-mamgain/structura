@@ -7,6 +7,7 @@ import { updateTopic, useProgress } from '../learn/progress'
 import { nextTopicAfter } from '../learn/roadmap'
 import { TOPICS, type TopicMeta } from '../topics/catalog'
 import { hasLesson, loadLesson } from '../topics/lessonsIndex'
+import { reloadForNewVersion } from '../pwa/updates'
 import type { Lesson as LessonData } from '../topics/lessonTypes'
 import type { StaticTopic } from '../topics/types'
 
@@ -27,17 +28,37 @@ export function Lesson({
   onLearn: (next: TopicMeta) => void
 }) {
   const [lesson, setLesson] = useState<LessonData | null>(null)
+  const [failed, setFailed] = useState<'missing' | 'error' | null>(null)
   const saved = useProgress().topics[topic.id]
 
   useEffect(() => {
     let live = true
-    loadLesson(topic.id).then((l) => live && setLesson(l), () => undefined)
+    setLesson(null)
+    setFailed(null)
+    loadLesson(topic.id).then(
+      (l) => live && (l ? setLesson(l) : setFailed('missing')),
+      () => live && !reloadForNewVersion() && setFailed('error'),
+    )
     updateTopic(topic.id, { lastOpenedAt: Date.now() })
     return () => {
       live = false
     }
   }, [topic.id])
 
+  if (failed === 'missing')
+    return (
+      <div className="practice-empty">
+        <p>This topic doesn't have a lesson yet.</p>
+        <button type="button" className="btn" onClick={onRead}>Read it instead</button>
+      </div>
+    )
+  if (failed === 'error')
+    return (
+      <div className="practice-empty">
+        <p>Couldn't load the lesson. Check your connection, or reload to get the latest version.</p>
+        <button type="button" className="btn btn-primary" onClick={() => location.reload()}>Reload</button>
+      </div>
+    )
   if (!lesson) return <p className="practice-empty">Loading the lesson…</p>
   return <Player topic={topic} lesson={lesson} start={saved?.lessonDone ? 0 : Math.min(saved?.lessonStep ?? 0, lesson.cards.length - 1)} onExit={onExit} onRead={onRead} onLearn={onLearn} />
 }

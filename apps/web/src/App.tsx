@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { BookA, Boxes, Briefcase, Clapperboard, GraduationCap, Headphones, House, Loader2, Search, type LucideIcon } from 'lucide-react'
 import { InstallButton } from './pwa/InstallButton'
-import { updateReady } from './pwa/updates'
+import { reloadForNewVersion, updateReady } from './pwa/updates'
 import { AppSwitcher } from './shell/AppSwitcher'
 import { AccountButton } from './account/AccountButton'
 import { Home } from './shell/Home'
@@ -158,7 +158,8 @@ export default function App() {
   useEffect(() => {
     if (!meta) return
     let alive = true
-    void loadTopic(meta.id).then((t) => alive && setLoaded(t))
+    // A failed load is almost always an old version asking for files a deploy replaced.
+    void loadTopic(meta.id).then((t) => alive && setLoaded(t), () => alive && reloadForNewVersion())
     return () => {
       alive = false
     }
