@@ -369,6 +369,17 @@ export const ROADMAP: RoadmapPart[] = [
     ],
   },
   {
+    id: 'ai-frameworks',
+    area: 'ai',
+    stage: 'Advanced',
+    title: 'LangChain and LangGraph',
+    why: 'Build agents with the standard libraries: one model interface, tools, middleware, graphs and checkpoints.',
+    steps: [
+      { id: 'ai-langchain', title: 'LangChain', detail: 'createAgent, tools, any provider, and middleware that asks a person.', topic: 'langchain', guides: ['what-is-an-ai-agent'] },
+      { id: 'ai-langgraph', title: 'LangGraph', detail: 'State, nodes and edges, checkpoints, interrupt and resume, time travel.', topic: 'langgraph' },
+    ],
+  },
+  {
     id: 'ai-inference',
     area: 'ai',
     stage: 'Expert',

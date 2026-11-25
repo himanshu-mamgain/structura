@@ -2,6 +2,8 @@ import { adClickAggregator } from './ad-click-aggregator'
 import { apiGateway } from './api-gateway'
 import { agentContext } from './agent-context'
 import { aiAgent } from './ai-agent'
+import { langchain } from './langchain'
+import { langgraph } from './langgraph'
 import { awsAlb } from './aws-alb'
 import { awsEcsFargate } from './aws-ecs-fargate'
 import { awsEcsFullstack } from './aws-ecs-fullstack'
@@ -115,6 +117,8 @@ const BASE_TOPICS: StaticTopic[] = [
   llmInference,
   llmGuardrails,
   agentContext,
+  langchain,
+  langgraph,
   awsVpc,
   awsAlb,
   globalLoadBalancing,
